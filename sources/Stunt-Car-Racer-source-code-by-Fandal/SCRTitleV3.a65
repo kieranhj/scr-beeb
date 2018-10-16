@@ -1,0 +1,772 @@
+/***************************************/
+/*  Use MADS http://mads.atari8.info/  */
+/*  Mode: DLI (char mode)              */
+/***************************************/
+
+	;icl "SCRTitle.h"
+
+	org $00
+
+fcnt	.ds 2
+fadr	.ds 2
+fhlp	.ds 2
+cloc	.ds 1
+regA	.ds 1
+regX	.ds 1
+regY	.ds 1
+
+; ---	BASIC switch OFF
+	;org $2000\ mva #$ff $d301\ rts\ ini $2000
+
+; ---	MAIN PROGRAM
+	org $0400
+ant	dta $70
+	dta $70,$70,$C4,a(scr),$04,$04,$04,$84,$04,$84,$84,$84,$04,$84,$84,$84,$84
+	dta $04,$84,$04,$84,$84,$84,$84,$84,$04,$84,$70,$F0,$70
+	dta $41,a(ant)
+
+scr	ins "SCRTitleV3.scr"
+
+	org $0800
+fnt	ins "SCRTitleV3.fnt"
+
+	ift USESPRITES
+	org $2000
+pmg_title	.ds $0300
+	SPRITES
+	eif
+
+title_main
+; ---	init pmg_title
+
+	ift USESPRITES
+	mva >pmg_title $d407		;missiles and players data address
+	mva #$03 $d01d		;enable players and missiles
+	eif
+
+	;lda:cmp:req $14		;wait 1 frame
+
+	;sei			;stop IRQ interrupts
+	;mva #$00 $d40e		;stop NMI interrupts
+	;sta $d400
+	;mva #$fe $d301		;switch off ROM to get 16k more ram
+
+	;lda #<NMI
+	;sta $fffa		;new NMI handler
+	;lda #>NMI
+	;sta $fffb
+
+	;mva #$c0 $d40e		;switch on NMI+DLI again
+	
+	lda >fnt+$400*$00
+	sta L_756+1
+c0	lda #$00
+	sta L_712+1
+	lda #$04
+	sta L_623+1
+	sta L_711+1
+x0	lda #$B0
+	sta L_HPOSP0+1
+x1	lda #$A0
+	sta L_HPOSP1+1
+x2	lda #$98
+	sta L_HPOSP2+1
+x3	lda #$68
+	sta L_HPOSP3+1
+x4	lda #$A8
+	sta L_HPOSM0+1
+x5	lda #$90
+	sta L_HPOSM1+1
+x6	lda #$88
+	sta L_HPOSM2+1
+	sta L_HPOSM3+1
+	sta L_708+1
+c1	lda #$8E
+	sta L_704+1
+	sta L_705+1
+	sta L_706+1
+	sta L_707+1
+c3	lda #$8A
+	sta L_709+1
+c4	lda #$34
+	sta L_710+1		
+	
+	lda #<dli_start
+	sta dli_vektor+1	;set the first address of DLI interrupt
+	lda #>dli_start
+	sta dli_vektor+2	;set the first address of DLI interrupt
+	
+	;lda #<ant
+	;sta L_560+1
+	;lda #>ant
+	;sta L_561+1
+	
+cekej_na_nahozeni_title
+	lda $d40b
+	bne cekej_na_nahozeni_title
+cekej_na_nahozeni_title2	
+	lda $d40b
+	beq cekej_na_nahozeni_title2
+cekej_na_nahozeni_title3
+	lda $d40b
+	bne cekej_na_nahozeni_title3
+		
+	lda #62
+	sta L_559+1
+	sta $d400
+	
+	lda #$03
+	sta $d008
+	sta $d00b
+	lda #$00
+	sta $d009
+	sta $d00a
+	lda #$3F
+	sta $d00c
+
+	ift CHANGES		;if label CHANGES defined
+
+_lp	lda $d010		; FIRE #0
+	beq stop	
+	
+	lda $d01f		; START
+	and #1
+	beq stop
+
+	lda $d20f
+	and #$04
+	bne _lp			;wait to press any key; here you can put any own routine
+
+	els
+
+null	jmp DLI.dli1		;CPU is busy here, so no more routines allowed
+
+	eif
+
+
+stop	;mva #$00 $d01d		;pmg_title disabled
+	;tax
+	;sta:rne $d000,x+
+
+	;mva #$ff $d301		;ROM switch on
+	;mva #$40 $d40e		;only NMI interrupts, DLI disabled
+	;cli			;IRQ enabled
+
+	rts			;return to ... DOS
+
+; ---	DLI PROGRAM
+
+
+dli_start ; 28aa
+
+dli14
+	sta regA
+
+	sta $d40a		;line=32
+	sta $d40a		;line=33
+c6	lda #$32
+	sta $d40a		;line=34
+	sta $d016
+	sta $d40a		;line=35
+	sta $d40a		;line=36
+	sta $d40a		;line=37
+c7	lda #$26
+	sta $d40a		;line=38
+	sta $d016
+	sta $d40a		;line=39
+	sta $d40a		;line=40
+	sta $d40a		;line=41
+c8	lda #$28
+	sta $d40a		;line=42
+	sta $d018
+	sta $d40a		;line=43
+	sta $d40a		;line=44
+	sta $d40a		;line=45
+c9	lda #$1A
+	sta $d40a		;line=46
+	sta $d016
+	sta $d40a		;line=47
+	sta $d40a		;line=48
+	sta $d40a		;line=49
+c10	lda #$1C
+	sta $d40a		;line=50
+	sta $d018
+	sta $d40a		;line=51
+	sta $d40a		;line=52
+	sta $d40a		;line=53
+c11	lda #$1E
+	sta $d40a		;line=54
+	sta $d016
+	
+	lda #<dli2
+	sta dli_vektor+1	
+	lda #>dli2
+	sta dli_vektor+2
+	
+	lda regA
+	rti
+
+dli2 ; 291c
+	sta regA
+	stx regX
+	lda >fnt+$400*$01
+c12	ldx #$8C
+	sta $d40a		;line=64
+	sta $d409
+	stx $d018
+	
+	lda #<dli15
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	rti
+
+dli15 ; 2937
+	sta regA
+
+c13	lda #$8E
+	sta $d40a		;line=80
+	sta $d016
+	
+	lda #<dli3
+	sta dli_vektor+1
+	
+	lda regA
+	rti
+
+dli3 ; 2949
+	sta regA
+	stx regX
+	sty regY
+	lda >fnt+$400*$00
+	sta $d40a		;line=88
+	sta $d409
+	sta $d40a		;line=89
+	sta $d40a		;line=90
+	sta $d40a		;line=91
+	sta $d40a		;line=92
+	sta $d40a		;line=93
+s4	lda #$33
+x8	ldx #$48
+x9	ldy #$62
+	sta $d40a		;line=94
+	sta $d00c
+	stx $d001
+	sty $d005
+c14	lda #$EC
+	sta $d013
+	
+	lda #<dli4
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+
+dli4 ; 2989
+	sta regA
+	stx regX
+	sty regY
+	lda >fnt+$400*$01
+	sta $d40a		;line=96
+	sta $d409
+	sta $d40a		;line=97
+	sta $d40a		;line=98
+	sta $d40a		;line=99
+x10	lda #$44
+x11	ldx #$54
+c15	ldy #$8C
+	sta $d40a		;line=100
+	sta $d000
+	stx $d004
+	sty $d012
+s5	lda #$01
+	sta $d40a		;line=101
+	sta $d008
+	
+	lda #<dli16
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+
+dli16 ; 29c6
+	sta regA
+	stx regX
+	sty regY
+
+	sta $d40a		;line=112
+	sta $d40a		;line=113
+	sta $d40a		;line=114
+	sta $d40a		;line=115
+c16	lda #$08
+	sta $d40a		;line=116
+	sta $d017
+s6	lda #$00
+x12	ldx #$53
+c17	ldy #$86
+	sta $d40a		;line=117
+	sta $d008
+	stx $d000
+	sty $d012
+	
+	lda #<dli5
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+
+dli5 ; 29fe
+	sta regA
+	stx regX
+	sty regY
+	lda >fnt+$400*$02
+	sta $d40a		;line=120
+	sta $d409
+	sta $d40a		;line=121
+c18	lda #$34
+x13	ldx #$61
+c19	ldy #$38
+	sta $d40a		;line=122
+	sta $d018
+	stx $d006
+	sty $d014
+	sta $d40a		;line=123
+c20	lda #$D6
+	sta $d40a		;line=124
+	sta $d016
+x14	lda #$5C
+c21	ldx #$0A
+	sta $d40a		;line=125
+	sta $d003
+	stx $d015
+	
+	lda #<dli6
+	sta dli_vektor+1
+	lda #>dli6
+	sta dli_vektor+2
+	
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+
+dli6 ; 2a4a
+	sta regA
+	stx regX
+	lda >fnt+$400*$01
+x15	ldx #$64
+	sta $d40a		;line=128
+	sta $d409
+	stx $d005
+	sta $d40a		;line=129
+s7	lda #$01
+x16	ldx #$43
+	sta $d40a		;line=130
+	sta $d00a
+	stx $d002
+x17	lda #$65
+	sta $d40a		;line=131
+	sta $d005
+	sta $d40a		;line=132
+s8	lda #$31
+x18	ldx #$72
+	sta $d40a		;line=133
+	sta $d00c
+	stx $d004
+	
+	lda #<dli7
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	rti
+
+dli7 ; 2a8d
+	sta regA
+	stx regX
+	sty regY
+	lda >fnt+$400*$02
+x19	ldx #$63
+c22	ldy #$8A
+	sta $d40a		;line=136
+	sta $d409
+	stx $d000
+	sty $d012
+c23	lda #$0C
+	sta $d015
+	sta $d40a		;line=137
+x20	lda #$56
+	sta $d40a		;line=138
+	sta $d006
+c24	lda #$8C
+	sta $d40a		;line=139
+	sta $d012
+	sta $d40a		;line=140
+c25	lda #$8E
+	sta $d40a		;line=141
+	sta $d012
+	sta $d40a		;line=142
+x21	lda #$57
+x22	ldx #$5F
+c26	ldy #$0E
+	sta $d40a		;line=143
+	sta $d001
+	stx $d005
+	sty $d013
+c27	lda #$0A
+	sta $d015
+c28	lda #$8C
+	sta $d40a		;line=144
+	sta $d012
+x23	lda #$61
+	sta $d40a		;line=145
+	sta $d006
+x24	lda #$54
+c29	ldx #$8A
+	sta $d40a		;line=146
+	sta $d002
+	stx $d012
+	sta $d40a		;line=147
+	sta $d40a		;line=148
+	sta $d40a		;line=149
+c30	lda #$8C
+	sta $d40a		;line=150
+	sta $d012
+	
+	lda #<dli8
+	sta dli_vektor+1
+	lda #>dli8
+	sta dli_vektor+2
+	
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+
+dli8 ; 2b21
+	sta regA
+	stx regX
+	sty regY
+	lda >fnt+$400*$03
+	sta $d40a		;line=152
+	sta $d409
+	sta $d40a		;line=153
+	sta $d40a		;line=154
+	sta $d40a		;line=155
+	sta $d40a		;line=156
+	sta $d40a		;line=157
+s9	lda #$11
+x25	ldx #$7C
+	sta $d40a		;line=158
+	sta $d00c
+	stx $d006
+x26	lda #$6B
+	sta $d40a		;line=159
+	sta $d002
+	sta $d40a		;line=160
+	sta $d40a		;line=161
+s10	lda #$D1
+x27	ldx #$68
+c31	ldy #$8C
+	sta $d40a		;line=162
+	sta $d00c
+	stx $d003
+	sty $d015
+s11	lda #$D3
+x28	ldx #$8E
+	sta $d40a		;line=163
+	sta $d00c
+	stx $d004
+x29	lda #$75
+x30	ldx #$6E
+c32	ldy #$8E
+	sta $d40a		;line=164
+	sta $d000
+	stx $d003
+	sty $d012
+x31	lda #$55
+	sta $d40a		;line=165
+	sta $d000
+	
+	lda #<dli17
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+
+dli17 ; 2b9e
+	sta regA
+	stx regX
+
+	sta $d40a		;line=168
+	sta $d40a		;line=169
+	sta $d40a		;line=170
+c33	lda #$06
+x32	ldx #$70
+	sta $d40a		;line=171
+	sta $d016
+	stx $d001
+	
+	lda #<dli9
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	rti
+
+dli9 ; 2bc2
+	sta regA
+	stx regX
+	sty regY
+	lda >fnt+$400*$04
+	sta $d40a		;line=176
+	sta $d409
+	sta $d40a		;line=177
+x33	lda #$76
+c34	ldx #$EC
+	sta $d40a		;line=178
+	sta $d005
+	stx $d013
+	sta $d40a		;line=179
+s12	lda #$01
+x34	ldx #$7C
+c35	ldy #$1A
+	sta $d40a		;line=180
+	sta $d008
+	stx $d000
+	sty $d012
+s13	lda #$DF
+x35	ldx #$90
+c36	ldy #$8C
+	sta $d40a		;line=181
+	sta $d00c
+	stx $d005
+	sty $d013
+	
+	lda #<dli18
+	sta dli_vektor+1
+	lda #>dli18
+	sta dli_vektor+2
+	
+	lda regA
+	ldx regX
+	ldy regY
+	rti
+
+dli18 ; 2c18
+	sta regA
+	stx regX
+
+	sta $d40a		;line=184
+	sta $d40a		;line=185
+	sta $d40a		;line=186
+c37	lda #$8E
+	sta $d40a		;line=187
+	sta $d012
+	sta $d013
+c38	lda #$0E
+c39	ldx #$88
+	sta $d40a		;line=188
+	sta $d013
+	stx $d014
+c40	lda #$8A
+	sta $d40a		;line=189
+	sta $d014
+	
+	lda #<dli19
+	sta dli_vektor+1
+	lda #>dli19
+	sta dli_vektor+2
+	
+	lda regA
+	ldx regX
+	rti
+
+dli19
+	sta regA
+	stx regX
+
+	sta $d40a		;line=192
+	sta $d40a		;line=193
+c41	lda #$1A
+	sta $d40a		;line=194
+	sta $d012
+	sta $d40a		;line=195
+	sta $d40a		;line=196
+	sta $d40a		;line=197
+x36	lda #$71
+c42	ldx #$18
+	sta $d40a		;line=198
+	sta $d004
+	stx $d012
+
+	lda #<dli10
+	sta dli_vektor+1
+	
+	lda regA
+	ldx regX
+	rti
+
+dli10
+	sta regA
+	lda >fnt+$400*$05
+	sta $d40a		;line=200
+	sta $d409
+	
+	lda #<dli11
+	sta dli_vektor+1
+	
+	lda regA
+	rti
+
+dli11
+	sta regA
+	lda >fnt+$400*$00
+	sta $d40a		;line=216
+	sta $d409
+	
+	lda #<dli20
+	sta dli_vektor+1
+	
+	lda regA
+	rti
+
+dli20
+	sta regA
+
+	sta $d40a		;line=232
+	sta $d40a		;line=233
+	sta $d40a		;line=234
+	sta $d40a		;line=235
+	sta $d40a		;line=236
+	sta $d40a		;line=237
+c43	lda #$8E
+	sta $d40a		;line=238
+	sta $d013
+
+s0	lda #$03
+	sta $d008
+s1	lda #$00
+	sta $d009
+	sta $d00a
+s2	lda #$03
+	sta $d00b
+s3	lda #$3F
+	sta $d00c
+	
+	lda #<dli_start
+	sta dli_vektor+1	;set the first address of DLI interrupt
+	lda #>dli_start
+	sta dli_vektor+2	;set the first address of DLI interrupt
+
+	lda regA
+	rti
+
+; ---
+
+CHANGES = 1
+
+; ---
+
+	opt l-
+
+.MACRO	SPRITES
+missiles
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 01 01 01 01 01 01 01 03 03 03 03 03 03 03
+	.he 03 03 03 03 01 00 01 05 05 05 05 25 25 25 27 27
+	.he 37 37 37 3F 3F 2F 2F 2F 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 02
+	.he 02 02 02 02 00 28 3C 34 39 39 34 34 10 00 00 00
+	.he 00 00 02 01 01 23 20 00 01 00 00 01 00 00 00 01
+	.he 00 00 00 00 00 00 0C 08 02 02 00 00 00 00 00 00
+	.he 00 20 00 02 10 00 00 00 10 30 20 10 18 08 0C 4C
+	.he 4C 0C 4C 0C 4C 4C 08 48 00 00 00 00 00 00 00 02
+	.he 03 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+player0
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 0C 0C 1C 1C 1C 1E 3E 3E 3E 36 34 34 34
+	.he B4 BC FC FC DC D8 D8 D8 98 90 30 38 3C 3C 3C DE
+	.he FE FE B6 B0 B0 B0 A0 A0 60 60 60 60 40 40 40 C0
+	.he C0 C0 C0 80 80 80 80 80 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 04 63 18 E0 00 00 00 1C 3E
+	.he 62 E3 E0 21 DD 81 81 81 FE 60 21 14 26 0C 0C 00
+	.he 00 00 3E 3C 78 70 78 08 28 70 30 10 00 00 00 60
+	.he 00 40 40 80 00 00 00 00 00 00 00 40 00 00 00 00
+	.he 00 00 01 80 82 42 64 20 30 19 0F 06 00 70 80 80
+	.he 00 00 00 03 1C 72 8E 78 E0 00 00 C0 80 C0 78 60
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+player1
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 02 06 0F 0F 1F 1B 33 33
+	.he 63 63 63 C3 C3 C3 C2 C6 8E 8E 9E 9E 9C 9C 1C 18
+	.he 18 18 10 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 40 20 10 10 08 04 00 00 00 00 00 00 00 00 60 E0
+	.he 70 70 78 30 10 06 07 07 03 00 00 00 00 00 00 00
+	.he 00 00 00 00 80 C0 C0 60 70 10 04 04 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 80 70 70 40 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+player2
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 60 60 60 E0 E0 E0 E0 E1 E1 61 63 63 63 63 63 73
+	.he F3 F3 F7 F7 F7 E7 C7 C7 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 C0
+	.he 50 78 38 3E 1E 1E 0A 01 00 00 00 00 00 60 50 18
+	.he 58 58 40 20 20 30 10 00 08 08 0C 11 14 24 02 22
+	.he 22 42 01 21 70 32 BA 2E 20 10 14 04 06 06 06 00
+	.he 00 00 00 00 02 02 30 3A 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+player3
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 01 01 03 03 03
+	.he 03 07 07 07 06 06 06 06 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 30 14 0C
+	.he 28 30 34 3C 50 30 42 62 60 22 22 00 02 C2 A2 66
+	.he 22 C0 E0 E0 E0 E0 40 00 80 01 08 08 00 00 00 00
+	.he 80 00 01 01 13 36 3C 00 60 60 40 40 40 40 40 40
+	.he 03 06 0F 1F 3C 2B D6 EC DA E6 EA C0 E0 E0 80 80
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	.he 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+.ENDM
+
+USESPRITES = 1
+
+	;run main

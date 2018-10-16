@@ -1,0 +1,233 @@
+Stunt Car Racer
+Atari 130XE Source
+
+Select extended memory bank by writing to PORT B $D301
+Bank $E2 = BANK 0 ($0000 - $3FFF)
+Bank $E6 = BANK 1 ($0000 - $3FFF)
+Bank $EA = BANK 2 ($0000 - $3FFF)
+Bank $EE = BANK 3 ($0000 - $3FFF)
+
+Bank $FE = BANK 3 ($C000 - $FFFF) - CPU MAIN RAM?
+
+Probably better to go back to the C64 source...
+As A8 version has been severely hacked about - not always clear what is original and what is A8
+Use TomS commented source but Fandal disassembly?
+
+Notes from Fandal:
+* C64 screen 1: $4000-$6000,
+* C64 screen 2: $6000-$8000,
+
+* screen memory is erased by columns, from horizon line down to the engine,
+
+* blue color of sky is created by writing to the color ram (in other
+words, only horizon line plus track is drawn),
+
+* HW sprites are used for all messages, flames and tires and they are
+stored in duplicate parts of screen memory.
+
+
+C64 memory map going to be simpler
+
+$0000 = ZP
+$0100 = Stack but also looks like vars are stored low down here?
+$0200 = Vars?
+$0300 = Vars?
+$0400 = Data?
+$0500 = Data?
+$0600 = Data?
+$0700 = Data?
+$0800 = Game code? (inc. game_update)
+...
+$1300 = Some strings.
+$1400 = Rendering code? (inc. font, sprites, lines?)
+...
+$1C00 = Game code? (inc. AI, )
+...
+$2700 = Camera code?
+...
+$2F00 = Rendering code? (track preview)
+$3000 = Front end (game select etc.)
+$3900 = Rendering code? (color map, menus)
+...
+$3D00 = Main loop?
+...
+$3F00 = System code? (page flip, VIC control, misc)
+
+$4000 - $6000 = Screen 1
+$6000 - $8000 = Screen 2
+
+$8000 = Looks like some sort of scratch space (screen gets copied to & from it)
+...
+$8300 = More code VIC, color map
+$8400 = oswrch
+$8500 = read keyboard
+$8600 = SID update
+$8700 = sysctl
+...
+$8A00 = draw horizon
+...
+$8E00 = draw speedo
+$8F00 = clear screen
+$9000 = update color map
+$9100 = PETSCII fns?
+...
+$9500 = Save file strings
+...
+$9800 = Practice menu, Hall of Fame etc.
+...
+$9A00 = More track & camera code
+...
+$A100 = Calculate camera sines
+$A200 = Car model data?
+...
+$B200 = Pointers?
+...
+$BA00 = Track model data?
+...
+
+$C000 = Engine screen data?
+...
+$C300 = Vars inc. matrices
+...
+$C700 = Maths routines
+...
+$CD00 = IRQ handler
+$CE00 = Sprite code
+$CF00 = Raster interrupts
+
+$D000 = VIC registers
+...
+$D400 = SID registers
+...
+$D800 = Color RAM
+...
+$DC00 = CIA 1
+$DD00 = CIA 2
+$DE00 = I/O 1
+$DF00 = I/O 2
+
+$E000 = Menu strings
+$E100 = Additional game code
+$E200 = Draw AI car
+...
+$E800 = More subroutines
+...
+$EE00 = Do menus
+...
+$F000 = Menu data
+...
+$F200 = Draw track preview
+...
+$F600 = Update boosting
+...
+$F800 = Drawing code?
+...
+$FC00 = Line drawing code
+...
+$FF00 = Vectors
+
+
+Total code = $8000 (32K)
+$0800 - $4000 = $3800
+$8300 - $A200 = $1F00
+$C700 - $D000 = $0900
+$E000 - $FFFF = $2000
+
+Screen = $4000 (2x 8K = 16K)
+$4000 - $6000 = $2000
+$6000 - $8000 = $2000
+
+C64 IO RAM = $1000 (4K)
+$D000 - $E000 = $1000
+
+Data = $2900 (~10K)
+$0400 - $0800 = $0400
+$A200 - $C700 = $2500
+
+Vars = $0700 (~2K)
+$0000 - $0400 = $0400
+$8000 - $8300 = $0300
+
+Possible Beeb memory map?
+Screen RAM + SHADOW = $3000 - $8000
+Split code across 2x SWRAM banks?
+Keep Vars + Data in Core RAM?
+
+C64 track data same as Amiga.
+E.g.
+
+O2402					* Little Ramp
+
+ dc.b	44				number.of.road.sections
+ dc.b	15				players.start.section
+ dc.b	15				near.start.line.section
+ dc.b	37				half.a.lap.section
+
+ dc.b	$00,$05
+
+ dc.b	$a0,$cf,$6a,$9f,$6b,$24,$50,$50
+ dc.b	$25,$00,$00,$19,$63,$80,$2f,$04,$64,$86,$1f,$65,$66,$57,$0e,$68
+ dc.b	$67,$c0,$0d,$64,$04,$e0,$0c,$69,$9f,$17,$00,$00,$00,$00,$00,$00
+ dc.b	$00,$00,$cc,$02,$c6,$01,$16,$17,$b7,$10,$00,$01,$20,$19,$18,$94
+ dc.b	$31,$04,$03,$2a,$42,$00,$2a,$53,$00,$2a,$64,$00,$2a,$75,$28,$2a
+ dc.b	$86,$29,$2a,$97,$00,$2a,$a8,$2a,$2a,$b9,$2b,$2a,$ca,$00,$2a,$db
+ dc.b	$00,$04,$ec,$09,$0a,$d3,$fd,$16,$17,$66,$fe,$00,$17,$ef,$1b,$1a
+ dc.b	$8d,$df,$06,$05,$22,$2f,$02,$02,$21,$46,$03,$58,$01,$22
+
+
+tracks_table = road.data.offsets
+b120_table = y.coordinate.offsets (Amiga source)
+off_B100 = piece.data.offsets
+L_B080 = cosine.conversion.table
+L_AEE0 = opponent.attributes
+byte_B240 = sections.car.can.be.put.on
+unk_B250 = O336
+	dc.b	4			offset for number.of.coords
+	dc.b	0			near.section.byte1
+	dc.b	$40,$03
+	dc.b	9*2			number.of.coords
+	dc.b	0			gives curve.to.left
+	dc.b	WIDTH.REDUCTION		road.width.reduction
+	dc.b	128			road.length.reduction
+	dc.b	$80,$01
+	dc.b	$20			section.steering.amount
+* Groups of X and Z co-ordinates follow.  There are two bytes for each
+* co-ordinate - stored in low byte, high byte order.
+*
+* First line is :-	X = $340, Z = $000, X = $4c0, Z = $000
+
+unk_B49E = O926
+
+unk_B50D = B1037
+******** Start of y co-ordinates for near sections ********
+*	B means co-ords are stored as bytes, W means words.
+
+Looks like A8 version uses multiplication tables for mul_8_8_16bit / multiply_A_ZP_15
+
+Looks like Tom's disassembly is from the running application whilst Fandal's is from load
+Game init / boot code is located in screen memory so gets splatted
+
+Entry point looks like $425D
+Copies lots of memory around, initialises lots of RAM locations
+Game start is $3B22
+
+65508 ($FFE4) GETIN  (via 810 ($32A) to 61758, $F13E) get a character
+
+It sets the values for the 16 RAM vectors to the interrupt and
+important Kernal I/O routines in the table that starts at 788 ($314)
+to the standard values held in the ROM table at 64816 ($FD30).
+
+1             $1             R6510
+
+Bit 0: LORAM signal.  Selects ROM or RAM at 40960 ($A000).  1=BASIC, 0=RAM
+Bit 1: HIRAM signal.  Selects ROM or RAM at 57344 ($E000).  1=Kernal, 0=RAM
+Bit 2: CHAREN signal.  Selects character ROM or I/O devices.  1=I/O, 0=ROM
+Bit 3: Cassette Data Output line.
+Bit 4: Cassette Switch Sense.  Reads 0 if a button is pressed, 1 if not.
+Bit 5: Cassette Motor Switch Control.  A 1 turns the motor on, 0 turns it off.
+Bits 6-7: Not connected--no function presently defined.
+
+
+SCREEN MODE
+Looks like 160x200 pixel mode on C64 (although some text is higher res at the bottom?!)
+Drawn area is 128 (wide ~256) x128 pixels = 32x16 characters
