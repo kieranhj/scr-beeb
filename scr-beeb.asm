@@ -111,6 +111,10 @@ CIA1_CIAICR	= $DC0D	; Interrupt Control Register
 CIA1_CIACRA	= $DC0E	; Control Register A
 CIA1_CIACRB	= $DC0F	; Control Register B
 
+CIA2_CI2PRA = $DD00
+CIA2_C2DDRA = $DD02
+CIA2_CIAICR	= $DD0D	; Interrupt Control Register
+
 ; *****************************************************************************
 ; BEEB OS DEFINES
 ; *****************************************************************************
@@ -121,8 +125,8 @@ oswrch = &FFEE
 ; VARIABLES
 ; *****************************************************************************
 
-ZP_00	= $00
-ZP_01	= $01
+DATA_6510	= $00	; 6510 On-Chip I/O DATA Direction Register
+RAM_SELECT	= $01	; 6510 RAM Selection Register
 ZP_02	= $02
 ZP_03	= $03
 ZP_04	= $04
@@ -724,6 +728,8 @@ L_082E	txa				;082E 8A
 		rts				;0836 60
 L_0837	jmp L_0FD5		;0837 4C D5 0F
 ENDIF
+
+ORG &83A
 
 .L_083A	equb $00,$00,$00,$00,$00,$00
 .L_0840	equb $01
@@ -1871,9 +1877,8 @@ ENDIF
 		bne L_114D_with_color_ram		;1149 D0 02
 		ldy #$07		;114B A0 07
 .L_114D_with_color_ram
-\\ _NOT_BEEB
-\\		sty L_DBDA		;114D 8C DA DB		; COLOR RAM
-\\		sty L_DBDB		;1150 8C DB DB		; COLOR RAM
+		sty L_DBDA		;114D 8C DA DB		; COLOR RAM
+		sty L_DBDB		;1150 8C DB DB		; COLOR RAM
 		rts				;1153 60
 
 .L_1154_with_color_ram
@@ -1882,9 +1887,8 @@ ENDIF
 		bpl L_115D_with_color_ram		;1159 10 02
 		ldy #$07		;115B A0 07
 .L_115D_with_color_ram
-\\ _NOT_BEEB
-\\		sty L_DBCC		;115D 8C CC DB		; COLOR RAM
-\\		sty L_DBCD		;1160 8C CD DB		; COLOR RAM
+		sty L_DBCC		;115D 8C CC DB		; COLOR RAM
+		sty L_DBCD		;1160 8C CD DB		; COLOR RAM
 		rts				;1163 60
 
 .update_distance_to_ai_car_readout
@@ -2067,8 +2071,8 @@ ENDIF
 		rts				;12A8 60
 }
 
-.set_up_text_sprite	RTS			; BEEB_STUB
-IF _TODO
+.set_up_text_sprite
+{
 		sty L_1327		;12A9 8C 27 13
 		sta L_1328		;12AC 8D 28 13
 		sta ZP_A0		;12AF 85 A0
@@ -2077,24 +2081,24 @@ IF _TODO
 		ldx #$7F		;12B3 A2 7F
 		lda #$00		;12B5 A9 00
 		sta ZP_18		;12B7 85 18
-L_12B9	sta L_7F80,X	;12B9 9D 80 7F
+.L_12B9	sta L_7F80,X	;12B9 9D 80 7F
 		dex				;12BC CA
 		bpl L_12B9		;12BD 10 FA
-L_12BF	ldx L_1329,Y	;12BF BE 29 13
+.L_12BF	ldx text_sprite_data,Y	;12BF BE 29 13
 		iny				;12C2 C8
 		lda #$03		;12C3 A9 03
 		sta ZP_08		;12C5 85 08
-L_12C7	lda L_1329,Y	;12C7 B9 29 13
+.L_12C7	lda text_sprite_data,Y	;12C7 B9 29 13
 		cmp #$3C		;12CA C9 3C
 		bne L_12D2		;12CC D0 04
 		stx ZP_18		;12CE 86 18
 		lda #$20		;12D0 A9 20
-L_12D2	sec				;12D2 38
+.L_12D2	sec				;12D2 38
 		sbc #$30		;12D3 E9 30
 		sty ZP_C7		;12D5 84 C7
 		stx ZP_C6		;12D7 86 C6
 		jsr L_1469		;12D9 20 69 14
-L_12DC	lda (ZP_1E),Y	;12DC B1 1E
+.L_12DC	lda (ZP_1E),Y	;12DC B1 1E
 		sta L_7F80,X	;12DE 9D 80 7F
 		inx				;12E1 E8
 		inx				;12E2 E8
@@ -2115,8 +2119,8 @@ L_12DC	lda (ZP_1E),Y	;12DC B1 1E
 		lda #$06		;12FB A9 06
 		sta ZP_08		;12FD 85 08
 		ldx ZP_18		;12FF A6 18
-L_1301	ldy #$04		;1301 A0 04
-L_1303	asl L_7FC2,X	;1303 1E C2 7F
+.L_1301	ldy #$04		;1301 A0 04
+.L_1303	asl L_7FC2,X	;1303 1E C2 7F
 		rol L_7FC1,X	;1306 3E C1 7F
 		rol L_7FC0,X	;1309 3E C0 7F
 		rol L_7F82,X	;130C 3E 82 7F
@@ -2129,18 +2133,18 @@ L_1303	asl L_7FC2,X	;1303 1E C2 7F
 		inx				;131A E8
 		dec ZP_08		;131B C6 08
 		bne L_1301		;131D D0 E2
-L_131F	lda #$80		;131F A9 80
+.L_131F	lda #$80		;131F A9 80
 		sta L_C355		;1321 8D 55 C3
 		pla				;1324 68
 		tax				;1325 AA
 		rts				;1326 60
-ENDIF
+}
 
 .L_1327	equb $00
 .L_1328	equb $02
 
-IF _TODO
-L_1329	equb $03,$3C,$57,$52,$43,$45,$43,$4B,$03,$20,$52,$41,$43,$43,$45,$20
+.text_sprite_data
+		equb $03,$3C,$57,$52,$43,$45,$43,$4B,$03,$20,$52,$41,$43,$43,$45,$20
 		equb $21,$3C,$20,$57,$61,$4F,$4E,$20,$61,$54,$20,$20,$03,$20,$52,$41
 		equb $43,$43,$45,$20,$21,$20,$4C,$4F,$61,$53,$54,$20,$03,$20,$44,$52
 		equb $43,$4F,$50,$20,$21,$3C,$53,$54,$61,$41,$52,$54,$03,$3C,$50,$52
@@ -2155,11 +2159,10 @@ L_1329	equb $03,$3C,$57,$52,$43,$45,$43,$4B,$03,$20,$52,$41,$43,$43,$45,$20
 		equb $61,$20,$20,$20,$03,$56,$45,$52,$43,$49,$46,$59,$21,$20,$4B,$45
 		equb $61,$59,$53,$20,$03,$20,$46,$41,$43,$55,$4C,$54,$21,$20,$46,$4F
 		equb $61,$55,$4E,$44
-L_140D	equb $3C
-L_140E	equb $54
-L_140F	equb $06
-L_1410	equb $1A
-ENDIF
+.L_140D	equb $3C
+.L_140E	equb $54
+.L_140F	equb $06
+.L_1410	equb $1A
 
 .L_1411
 {
@@ -2219,7 +2222,11 @@ ENDIF
 		cpy #$07		;1464 C0 07
 		bne L_1435		;1466 D0 CD
 		rts				;1468 60
-.L_1469	ldy #$00		;1469 A0 00
+}
+
+.L_1469
+{
+		ldy #$00		;1469 A0 00
 		sty ZP_14		;146B 84 14
 		clc				;146D 18
 		adc #$30		;146E 69 30
@@ -2238,10 +2245,10 @@ ENDIF
 		rts				;1483 60
 }
 
-.reset_sprites	RTS		; BEEB_STUB
-IF _TODO
+.reset_sprites
+{
 		ldx #$07		;1484 A2 07
-L_1486	txa				;1486 8A
+.L_1486	txa				;1486 8A
 		asl A			;1487 0A
 		tay				;1488 A8
 		lda L_14C2,X	;1489 BD C2 14
@@ -2264,12 +2271,12 @@ L_1486	txa				;1486 8A
 		sta VIC_SPENA		;14B4 8D 15 D0
 		rts				;14B7 60
 		
-L_14B8	equb $64,$63,$69,$67
+.L_14B8	equb $64,$63,$69,$67
 L_14B6 = L_14B8-2
-L_14BC	equb $68,$60,$03,$03,$0C,$0C
-L_14C2	equb $0C,$0C,$38,$20,$38,$38
-L_14C8	equb $20,$20,$BB,$BB,$8C,$77,$8C,$77
-ENDIF
+.L_14BC	equb $68,$60,$03,$03,$0C,$0C
+.L_14C2	equb $0C,$0C,$38,$20,$38,$38
+.L_14C8	equb $20,$20,$BB,$BB,$8C,$77,$8C,$77
+}
 
 ; update scratches	and scrapes?
 .L_14D0
@@ -5188,7 +5195,7 @@ L_27BE	= *-2			;!
 		lda L_A000		;2B2D AD 00 A0
 		pha				;2B30 48
 		lda #$36		;2B31 A9 36
-		sta ZP_01		;2B33 85 01
+		sta RAM_SELECT		;2B33 85 01
 		jsr L_FF84		;2B35 20 84 FF
 		jsr L_FF87		;2B38 20 87 FF
 		ldx #$1F		;2B3B A2 1F
@@ -5204,7 +5211,7 @@ L_27BE	= *-2			;!
 
 		jsr L_0800		;2B51 20 00 08
 		lda #$36		;2B54 A9 36
-		sta ZP_01		;2B56 85 01
+		sta RAM_SELECT		;2B56 85 01
 		cli				;2B58 58
 ;L_2B59
 		lda #$47		;2B59 A9 47
@@ -5275,7 +5282,7 @@ L_27BE	= *-2			;!
 		ldy #$4B		;2BE7 A0 4B
 		jsr delay_approx_Y_25ths_sec		;2BE9 20 EB 3F
 		lda #$35		;2BEC A9 35
-		sta ZP_01		;2BEE 85 01
+		sta RAM_SELECT		;2BEE 85 01
 		bit L_C301		;2BF0 2C 01 C3
 		bpl L_2BFC		;2BF3 10 07
 		lda #$80		;2BF5 A9 80
@@ -6121,15 +6128,15 @@ L_27BE	= *-2			;!
 		rts				;3388 60
 }
 
-.L_3389	RTS			; BEEB_STUB
-IF _TODO
+.L_3389
+{
 		ldx #$06		;3389 A2 06
 		lda L_31A1		;338B AD A1 31
 		beq L_33E8		;338E F0 58
 		jsr disable_ints_and_page_in_RAM		;3390 20 F1 33
 		ldx #$01		;3393 A2 01
 		stx L_31A2		;3395 8E A2 31
-L_3398	stx ZP_15		;3398 86 15
+.L_3398	stx ZP_15		;3398 86 15
 		txa				;339A 8A
 		ldy L_C718		;339B AC 18 C7
 		beq L_33B5		;339E F0 15
@@ -6142,8 +6149,8 @@ L_3398	stx ZP_15		;3398 86 15
 		cmp #$03		;33AC C9 03
 		bcc L_33B2		;33AE 90 02
 		sbc #$03		;33B0 E9 03
-L_33B2	sta L_31A9		;33B2 8D A9 31
-L_33B5	clc				;33B5 18
+.L_33B2	sta L_31A9		;33B2 8D A9 31
+.L_33B5	clc				;33B5 18
 		adc L_E8E1,Y	;33B6 79 E1 E8
 		tay				;33B9 A8
 		lda L_DCE0,Y	;33BA B9 E0 DC			; CIA1
@@ -6162,7 +6169,7 @@ L_33B5	clc				;33B5 18
 		tay				;33CB A8
 		lda #$10		;33CC A9 10
 		sta ZP_14		;33CE 85 14
-L_33D0	lda CIA1_CIAPRA,Y	;33D0 B9 00 DC			; CIA1
+.L_33D0	lda CIA1_CIAPRA,Y	;33D0 B9 00 DC			; CIA1
 		sta L_AE00,X	;33D3 9D 00 AE
 		inx				;33D6 E8
 		iny				;33D7 C8
@@ -6174,31 +6181,31 @@ L_33D0	lda CIA1_CIAPRA,Y	;33D0 B9 00 DC			; CIA1
 		jsr page_in_IO_and_enable_ints		;33E1 20 FC 33
 		ldx L_31A1		;33E4 AE A1 31
 		inx				;33E7 E8
-L_33E8	stx L_31A3		;33E8 8E A3 31
+.L_33E8	stx L_31A3		;33E8 8E A3 31
 		lda #$00		;33EB A9 00
 		sta L_31A6		;33ED 8D A6 31
 		rts				;33F0 60
-ENDIF
+}
 
-.disable_ints_and_page_in_RAM	RTS			; BEEB_STUB
-IF _TODO
+.disable_ints_and_page_in_RAM
+{
 		lda #$00		;33F1 A9 00
 		sta VIC_IRQMASK		;33F3 8D 1A D0
 		sei				;33F6 78
 		lda #$34		;33F7 A9 34
-		sta ZP_01		;33F9 85 01
+		sta RAM_SELECT		;33F9 85 01
 		rts				;33FB 60
-ENDIF
+}
 
-.page_in_IO_and_enable_ints	RTS			; BEEB_STUB
-IF _TODO
+.page_in_IO_and_enable_ints
+{
 		lda #$35		;33FC A9 35
-		sta ZP_01		;33FE 85 01
+		sta RAM_SELECT		;33FE 85 01
 		cli				;3400 58
 		lda #$01		;3401 A9 01
 		sta VIC_IRQMASK		;3403 8D 1A D0
 		rts				;3406 60
-ENDIF
+}
 
 ; FRONTEND STRINGS
 
@@ -6227,14 +6234,14 @@ ENDIF
 		equb $1F,$12,$0E,"NAME?",$FF
 		equb " 2pts",$FF," 1pt",$FF," of ",$FF
 		
-.L_3500	RTS			; BEEB_STUB
-IF _TODO
+.L_3500
+{
 		jsr L_3FBE_with_VIC		;3500 20 BE 3F	; does VIC stuff
 		rts				;3503 60
-ENDIF
+}
 
-.set_up_screen_for_frontend	RTS			; BEEB_STUB
-IF _TODO
+.set_up_screen_for_frontend
+{
 		lda #$00		;3504 A9 00
 		jsr L_3FBB_with_VIC		;3506 20 BB 3F
 		jsr draw_menu_header		;3509 20 49 1C
@@ -6245,10 +6252,10 @@ IF _TODO
 		jsr L_39F1		;3516 20 F1 39
 		jsr set_up_screen_for_menu		;3519 20 1F 35
 		jmp ensure_screen_enabled		;351C 4C 9E 3F
-ENDIF
+}
 
-.set_up_screen_for_menu	RTS			; BEEB_STUB
-IF _TODO
+.set_up_screen_for_menu
+{
 		lda L_C718		;351F AD 18 C7
 		sta L_C360		;3522 8D 60 C3
 		jsr clear_menu_area		;3525 20 23 1C
@@ -6268,7 +6275,7 @@ IF _TODO
 		lda L_31A0		;3547 AD A0 31
 		beq L_354D		;354A F0 01
 		rts				;354C 60
-ENDIF
+}
 
 .L_354D	lda L_31A1		;354D AD A1 31
 		bne L_3575		;3550 D0 23
@@ -6292,7 +6299,7 @@ ENDIF
 		jmp print_msg_3		;3577 4C DC A1
 .L_357A	lda #$80		;357A A9 80
 		bne L_3580		;357C D0 02
-
+\\
 .L_357E
 		lda #$00		;357E A9 00
 .L_3580	sta L_C372		;3580 8D 72 C3
@@ -6598,9 +6605,9 @@ ENDIF
 		sbc #$02		;3817 E9 02
 		sta L_C719		;3819 8D 19 C7
 		rts				;381C 60
-}
 
 .L_381D	equb $03,$03,$03,$02,$02,$02,$01,$01,$01,$00,$00,$00
+}
 
 .L_3829
 {
@@ -6781,11 +6788,12 @@ ENDIF
 .L_397A	equb $04,$AE,$AE,$90,$89,$08,$90,$89,$89,$90,$89,$90,$89,$89,$04,$A5
 		equb $A5,$90,$89		
 
-IF _TODO		
-L_398D	lda #$01		;398D A9 01
+.L_398D
+{
+		lda #$01		;398D A9 01
 		sta ZP_17		;398F 85 17
-L_3991	ldy #$F7		;3991 A0 F7
-L_3993	jsr rndQ		;3993 20 B9 29
+.L_3991	ldy #$F7		;3991 A0 F7
+.L_3993	jsr rndQ		;3993 20 B9 29
 		lsr A			;3996 4A
 		ror ZP_16		;3997 66 16
 		and #$07		;3999 29 07
@@ -6793,30 +6801,30 @@ L_3993	jsr rndQ		;3993 20 B9 29
 		adc #$04		;399C 69 04
 		sta ZP_14		;399E 85 14
 		jmp L_39BE		;39A0 4C BE 39
-L_39A3	bit ZP_16		;39A3 24 16
+.L_39A3	bit ZP_16		;39A3 24 16
 		bpl L_39AE		;39A5 10 07
 		lda (ZP_1E),Y	;39A7 B1 1E
 		ora ZP_18		;39A9 05 18
 		jmp L_39B6		;39AB 4C B6 39
-L_39AE	lda (ZP_1E),Y	;39AE B1 1E
+.L_39AE	lda (ZP_1E),Y	;39AE B1 1E
 		ora ZP_17		;39B0 05 17
 		ora ZP_18		;39B2 05 18
 		and ZP_19		;39B4 25 19
-L_39B6	sta (ZP_1E),Y	;39B6 91 1E
+.L_39B6	sta (ZP_1E),Y	;39B6 91 1E
 		tya				;39B8 98
 		dey				;39B9 88
 		and #$07		;39BA 29 07
 		bne L_39C1		;39BC D0 03
-L_39BE	jsr L_39D1		;39BE 20 D1 39
-L_39C1	cpy #$70		;39C1 C0 70
+.L_39BE	jsr L_39D1		;39BE 20 D1 39
+.L_39C1	cpy #$70		;39C1 C0 70
 		bcc L_39CC		;39C3 90 07
 		dec ZP_14		;39C5 C6 14
 		bpl L_39A3		;39C7 10 DA
 		jmp L_3993		;39C9 4C 93 39
-L_39CC	asl ZP_17		;39CC 06 17
+.L_39CC	asl ZP_17		;39CC 06 17
 		bne L_3991		;39CE D0 C1
 		rts				;39D0 60
-ENDIF
+}
 
 .L_39D1
 {
@@ -6839,13 +6847,14 @@ ENDIF
 .L_39F0	rts				;39F0 60
 }
 
-IF _TODO
-L_39F1	jsr save_rndQ_stateQ		;39F1 20 2C 16
+.L_39F1
+{
+		jsr save_rndQ_stateQ		;39F1 20 2C 16
 		ldy #$04		;39F4 A0 04
 		jsr L_1637		;39F6 20 37 16
 		lda #$09		;39F9 A9 09
 		sta ZP_1A		;39FB 85 1A
-L_39FD	ldy ZP_1A		;39FD A4 1A
+.L_39FD	ldy ZP_1A		;39FD A4 1A
 		ldx L_3A1E,Y	;39FF BE 1E 3A
 		lda L_3A28,Y	;3A02 B9 28 3A
 		sta ZP_19		;3A05 85 19
@@ -6860,10 +6869,10 @@ L_39FD	ldy ZP_1A		;39FD A4 1A
 		jsr L_1637		;3A1A 20 37 16
 		rts				;3A1D 60
 		
-L_3A1E	equb $38,$3C,$B0,$B4,$B8,$BC,$C0,$C4,$C8,$CC
-L_3A28	equb $7F,$FE,$7F,$FF,$80,$DF,$FE,$EF,$F8,$3F
-L_3A32	equb $00,$00,$00,$00,$80,$C0,$02,$E0,$08,$10
-ENDIF
+.L_3A1E	equb $38,$3C,$B0,$B4,$B8,$BC,$C0,$C4,$C8,$CC
+.L_3A28	equb $7F,$FE,$7F,$FF,$80,$DF,$FE,$EF,$F8,$3F
+.L_3A32	equb $00,$00,$00,$00,$80,$C0,$02,$E0,$08,$10
+}
 
 .L_3A3C
 		sta ZP_14		;3A3C 85 14
@@ -6956,7 +6965,6 @@ ENDIF
 .L_3AD4	dec ZP_51		;3AD4 C6 51
 		bne L_3ACD		;3AD6 D0 F5
 		rts				;3AD8 60
-}
 
 .L_3AD9	equb $01,$BB,$26,$CB,$02,$BB,$01,$CB,$24,$1F,$D8,$08,$01,$CB,$02,$BB
 		equb $01,$CB,$01,$1F,$01
@@ -6964,6 +6972,7 @@ ENDIF
 .L_3AF2	equb $05,$01,$1F,$01,$CB,$02,$BB,$01,$CB,$24,$1F,$01,$CB,$02,$BB,$26
 		equb $CB,$0A,$BB,$01,$FB,$14,$1B,$01,$FB,$CA,$04,$12,$BB,$01,$FB,$14
 		equb $10,$01,$FB,$12,$BB,$01,$FB,$14,$CB,$01,$FB,$09,$BB,$28,$BB,$FF
+}
 
 ; *****************************************************************************
 ; GAME START
@@ -7318,7 +7327,7 @@ ENDIF
 		sta L_0100,X	;3E0E 9D 00 01
 .L_3E11	cpx #$02		;3E11 E0 02
 		bcc L_3E17		;3E13 90 02
-		sta ZP_00,X		;3E15 95 00
+		sta DATA_6510,X		;3E15 95 00
 .L_3E17	dex				;3E17 CA
 		bne L_3DFB		;3E18 D0 E1
 		ldx L_C71A		;3E1A AE 1A C7
@@ -7474,8 +7483,8 @@ ENDIF
 		rts				;3F41 60
 }
 
-.toggle_display_pageQ	RTS			; BEEB_STUB
-IF _TODO
+.toggle_display_pageQ
+{
 		sei				;3F42 78
 		lda L_C306		;3F43 AD 06 C3
 		eor #$80		;3F46 49 80
@@ -7486,25 +7495,22 @@ IF _TODO
 		lda #$80		;3F51 A9 80
 		sta L_C370		;3F53 8D 70 C3
 		jmp L_3F64		;3F56 4C 64 3F
-L_3F59	lda #$18		;3F59 A9 18
+.L_3F59	lda #$18		;3F59 A9 18
 		clc				;3F5B 18
 		adc L_A1F2		;3F5C 6D F2 A1
 		sta ZP_12		;3F5F 85 12
 		sta L_C370		;3F61 8D 70 C3
-L_3F64	lda #$80		;3F64 A9 80
+.L_3F64	lda #$80		;3F64 A9 80
 		sta L_C37A		;3F66 8D 7A C3
 		cli				;3F69 58
 		rts				;3F6A 60
-ENDIF
+}
 
-.update_colour_map_if_dirty	RTS	; BEEB_STUB
-IF _TODO
+.update_colour_map_if_dirty
 		lda L_C37B		;3F6B AD 7B C3
 		beq L_3F83		;3F6E F0 13
-ENDIF
-
-.update_colour_map_always	RTS	; BEEB_STUB
-IF _TODO
+\\
+.update_colour_map_always
 		jsr update_colour_map_with_sysctl		;3F70 20 30 2C
 		lda #$0C		;3F73 A9 0C
 		sta L_DAAC		;3F75 8D AC DA
@@ -7512,17 +7518,15 @@ IF _TODO
 		lda #$00		;3F7B A9 00
 		sta L_C37A		;3F7D 8D 7A C3
 		sta L_C37B		;3F80 8D 7B C3
-L_3F83	rts				;3F83 60
-L_3F84	ldy #$78		;3F84 A0 78
+.L_3F83	rts				;3F83 60
+.L_3F84	ldy #$78		;3F84 A0 78
 		ldx #$00		;3F86 A2 00
 		jmp L_3F8F		;3F88 4C 8F 3F
-ENDIF
 
-.set_up_single_page_display	RTS	; BEEB_STUB
-IF _TODO
+.set_up_single_page_display
 		ldy #$70		;3F8B A0 70
 		ldx #$80		;3F8D A2 80
-L_3F8F	sty ZP_14		;3F8F 84 14
+.L_3F8F	sty ZP_14		;3F8F 84 14
 		php				;3F91 08
 		sei				;3F92 78
 		sty VIC_VMCSB		;3F93 8C 18 D0
@@ -7530,55 +7534,54 @@ L_3F8F	sty ZP_14		;3F8F 84 14
 		stx L_C370		;3F99 8E 70 C3
 		plp				;3F9C 28
 		rts				;3F9D 60
-ENDIF
 
-.ensure_screen_enabled	RTS		; BEEB_STUB
-IF _TODO
+.ensure_screen_enabled
+{
 		lda VIC_SCROLY		;3F9E AD 11 D0
 		and #$10		;3FA1 29 10
 		bne L_3FB4		;3FA3 D0 0F
-ENDIF
-.enable_screen_and_set_irq50	RTS		; BEEB_STUB
-IF _TODO
+}
+\\
+.enable_screen_and_set_irq50
 		lda VIC_SCROLY		;3FA5 AD 11 D0
 		ora #$10		;3FA8 09 10
 		and #$7F		;3FAA 29 7F
 		sta VIC_SCROLY		;3FAC 8D 11 D0
 		lda #$32		;3FAF A9 32
 		sta VIC_RASTER		;3FB1 8D 12 D0
-L_3FB4	lda #$01		;3FB4 A9 01
+.L_3FB4	lda #$01		;3FB4 A9 01
 		sta VIC_IRQMASK		;3FB6 8D 1A D0
 		rts				;3FB9 60
 		
-L_3FBA	equb $00
-ENDIF
+.L_3FBA	equb $00
 
-.L_3FBB_with_VIC	RTS			; BEEB_STUB
-IF _TODO
+.L_3FBB_with_VIC
+{
 		sta L_3FBA		;3FBB 8D BA 3F
-ENDIF
-.L_3FBE_with_VIC	RTS			; BEEB_STUB
-IF _TODO
+}
+\\
+.L_3FBE_with_VIC
+{
 		nop				;3FBE EA
 		ldy #$05		;3FBF A0 05
 		sty ZP_14		;3FC1 84 14
-L_3FC3	lda VIC_RASTER		;3FC3 AD 12 D0		; VIC
+.L_3FC3	lda VIC_RASTER		;3FC3 AD 12 D0		; VIC
 		cmp #$0A		;3FC6 C9 0A
 		bcs L_3FCF		;3FC8 B0 05
 		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC
 		bpl L_3FD6		;3FCD 10 07
-L_3FCF	dec ZP_14		;3FCF C6 14
+.L_3FCF	dec ZP_14		;3FCF C6 14
 		bne L_3FC3		;3FD1 D0 F0
 		dey				;3FD3 88
 		bne L_3FC3		;3FD4 D0 ED
-L_3FD6	lda L_3FBA		;3FD6 AD BA 3F
+.L_3FD6	lda L_3FBA		;3FD6 AD BA 3F
 		sta VIC_EXTCOL		;3FD9 8D 20 D0		; VIC
 		lda VIC_SCROLY		;3FDC AD 11 D0		; VIC
 		and #$EF		;3FDF 29 EF
 		sta VIC_SCROLY		;3FE1 8D 11 D0		; VIC
 		ldy #$01		;3FE4 A0 01
 		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
-ENDIF
+}
 
 .delay_approx_4_5ths_sec
 		ldy #$14		;3FE9 A0 14
@@ -7612,6 +7615,8 @@ L_3FF6	= *-1			;!
 screen1_address = $4000
 screen2_address = $6000
 
+		; pointing to screen 1
+
 L_4000	= screen1_address+$0000
 L_4001	= screen1_address+$0001
 L_4008	= screen1_address+$0008
@@ -7631,43 +7636,65 @@ L_4120	= screen1_address+$0120
 L_4130	= screen1_address+$0130
 L_4136	= screen1_address+$0136			
 
-		; pointing to screen 1
 L_4150	= screen1_address+$0150
 L_41E0	= screen1_address+$01e0
 L_4268	= screen1_address+$0268
-IF _TODO
 L_42A0	= screen1_address+$02a0
 L_4300	= screen1_address+$0300
 L_43E0	= screen1_address+$03e0
 L_4520	= screen1_address+$0520
 L_4660	= screen1_address+$0660
 L_47A0	= screen1_address+$07a0
-ENDIF
-
-L_52E0 	= screen1_address+$12E0
+L_48E0	= screen1_address+$08e0
+L_4A20	= screen1_address+$0a20
+L_4B60	= screen1_address+$0b60
+L_4CA0	= screen1_address+$0ca0
+L_4DE0	= screen1_address+$0de0
+L_4F20	= screen1_address+$0f20
+L_5060	= screen1_address+$1060
+L_51A0 	= screen1_address+$11a0
+L_52E0 	= screen1_address+$12e0
 L_5420 	= screen1_address+$1420
 L_5560 	= screen1_address+$1560
+L_5578 	= screen1_address+$1578
+L_55A0 	= screen1_address+$15a0
+L_5608	= screen1_address+$1608
+L_5640	= screen1_address+$1640
+L_5648	= screen1_address+$1648
+L_5658	= screen1_address+$1658
 L_5690	= screen1_address+$1690
+L_56A0	= screen1_address+$16a0
 L_5720	= screen1_address+$1720
-L_57C8	= screen1_address+$17C8
-L_57D0	= screen1_address+$17D0
+
+L_5798	= screen1_address+$1798
+L_57C8	= screen1_address+$17c8
+L_57D0	= screen1_address+$17d0
 L_5860	= screen1_address+$1860
-L_58F0	= screen1_address+$18F0
+L_58F0	= screen1_address+$18f0
+L_5C00	= screen1_address+$1c00
+L_5D00	= screen1_address+$1d00
+L_5E00	= screen1_address+$1e00
+L_5F00	= screen1_address+$1f00
 
 ; sprite pointers?
-L_5FFD	= screen1_address+$1FFD
-L_5FFF	= screen1_address+$1FFF
+L_5FF8	= screen1_address+$1ff8
+L_5FF9	= screen1_address+$1ff9
+L_5FFA	= screen1_address+$1ffa
+L_5FFB	= screen1_address+$1ffb
+L_5FFC	= screen1_address+$1ffc
+L_5FFD	= screen1_address+$1ffd
+L_5FFF	= screen1_address+$1fff
 
 L_6026	= screen2_address+$0026
 L_6027	= screen2_address+$0027
 L_6028	= screen2_address+$0028
 L_6130	= screen2_address+$0130
+
 L_6270	= screen2_address+$0270
 L_62A0	= screen2_address+$02a0
 L_63B0	= screen2_address+$03b0
 L_63E0	= screen2_address+$03e0
 L_64F0	= screen2_address+$04f0
-IF _TODO
 L_6520	= screen2_address+$0520
 L_6660	= screen2_address+$0660
 L_66E0	= screen2_address+$06e0
@@ -7699,23 +7726,22 @@ L_77E0	= screen2_address+$17e0 ; bottom of the left wheel ($77c0 is beginning C6
 L_78D8	= screen2_address+$18d8 ; the bottom of the right wheel
 L_7AA6	= screen2_address+$1aa6 ; left upper corner of the speedometer ($7A40 is beginning C64 row)
 L_7AA7	= screen2_address+$1aa7 ; left upper corner of the speedometer
-ENDIF
 L_7B00	= screen2_address+$1b00
-IF _TODO
 L_7C00	= screen2_address+$1c00
 L_7C53	= screen2_address+$1c53
 L_7C74	= screen2_address+$1c74
 L_7D00	= screen2_address+$1d00
 L_7E00	= screen2_address+$1e00 ; OK
 L_7F00	= screen2_address+$1f00 ; OK
-ENDIF
 
 		; space behind the screen 2 ($7f40-$7fff) - 192 byte
 
-L_7C53	= screen2_address+$1C53
-L_7C74	= screen2_address+$1C74
-
-L_7FC0	= screen2_address+$1FC0
+L_7F80	= screen2_address+$1f80
+L_7F81	= screen2_address+$1f81
+L_7F82	= screen2_address+$1f82
+L_7FC0	= screen2_address+$1fc0
+L_7FC1	= screen2_address+$1fc1
+L_7FC2	= screen2_address+$1fc2
 
 ; *****************************************************************************
 ; CART RAM: $8000 - $A000
@@ -7791,18 +7817,15 @@ L_80A0	= L_8000 + $A0
 ; Lap time fractions of second?
 .L_8298	equb $01,$00,$00,$00,$00,$00,$00,$FF,$80,$00,$00,$00,$00,$00
 
-IF _TODO
 .L_82A6	equb $00
 .L_82A7	equb $FF,$00,$00,$00,$FF,$00,$00,$00,$01
-ENDIF
 
 ; Lap time fractions of second?
 .L_82B0	equb $00,$00,$00,$FF,$00,$00,$00,$80,$01,$00,$00,$00,$00,$00
 
-IF _TODO
 .L_82BE	equb $00
 
-L_82BF	equb $01,$00,$00,$00,$FF,$00,$00,$00,$FF,$00,$00,$3C,$02,$3E,$42,$3E
+.L_82BF	equb $01,$00,$00,$00,$FF,$00,$00,$00,$FF,$00,$00,$3C,$02,$3E,$42,$3E
 		equb $00,$00,$40,$7C,$42,$42,$42,$7C,$00,$00,$00,$3E,$40,$40,$40,$3E
 		equb $00,$00,$02,$3E,$42,$42,$42,$3E,$00,$00,$00,$3C,$42,$7E,$40,$3C
 		equb $00,$00,$1C,$22,$20,$78,$20,$20,$00,$00,$00,$3E,$42,$42,$3E,$02
@@ -7816,67 +7839,84 @@ L_82BF	equb $01,$00,$00,$00,$FF,$00,$00,$00,$FF,$00,$00,$3C,$02,$3E,$42,$3E
 		equb $00,$00,$00,$42,$42,$42,$24,$18,$00,$00,$00,$42,$42,$5A,$5A,$24
 		equb $00,$00,$00,$42,$24,$18,$24,$42,$00,$00,$00,$42,$42,$42,$3E,$02
 		equb $3C,$00,$00,$7E,$04,$18,$20,$7E,$00
-ENDIF
 
 ; Lap time fractions of second?
 .L_8398	equb $00,$00,$00,$FF,$00,$00,$00,$81,$81,$81,$81,$81,$81,$81
 
-IF _TODO
-L_83A6	equb $81
-L_83A7	equb $81,$81,$00,$00,$00,$00,$00,$00,$81
-ENDIF
+.L_83A6	equb $81
+.L_83A7	equb $81,$81,$00,$00,$00,$00,$00,$00,$81
 
 .L_83B0	equb $FF,$00,$00,$00,$00,$00,$00,$FF,$30,$18,$0C,$06,$0C,$18,$30,$00
 
-IF _TODO
-L_83C0	lda VIC_SCROLX		;83C0 AD 16 D0
+.multicolour_mode
+{
+		lda VIC_SCROLX		;83C0 AD 16 D0
 		ora #$10		;83C3 09 10
 		sta VIC_SCROLX		;83C5 8D 16 D0
 		lda #$78		;83C8 A9 78
-		bne L_83D6		;83CA D0 0A
-L_83CC	lda VIC_SCROLX		;83CC AD 16 D0
+		bne vic_memory_setup		;83CA D0 0A
+}
+\\
+.non_multicolour_mode
+{
+		lda VIC_SCROLX		;83CC AD 16 D0
 		and #$EF		;83CF 29 EF
 		sta VIC_SCROLX		;83D1 8D 16 D0
 		lda #$F0		;83D4 A9 F0
-L_83D6	sta ZP_FA		;83D6 85 FA
+}
+\\
+.vic_memory_setup
+{
+		sta ZP_FA		;83D6 85 FA
 		sei				;83D8 78
-		lda L_DD02		;83D9 AD 02 DD
+		lda CIA2_C2DDRA		;83D9 AD 02 DD
 		ora #$03		;83DC 09 03
-		sta L_DD02		;83DE 8D 02 DD
-		lda L_DD00		;83E1 AD 00 DD
+		sta CIA2_C2DDRA		;83DE 8D 02 DD
+		lda CIA2_CI2PRA		;83E1 AD 00 DD
 		and #$FC		;83E4 29 FC
 		ora #$02		;83E6 09 02
-		sta L_DD00		;83E8 8D 00 DD
+		sta CIA2_CI2PRA		;83E8 8D 00 DD
 		lda ZP_FA		;83EB A5 FA
 		sta VIC_VMCSB		;83ED 8D 18 D0
 		cli				;83F0 58
 		lda #$00		;83F1 A9 00
 		sta VIC_BGCOL0		;83F3 8D 21 D0
 		rts				;83F6 60
-L_83F7	stx L_8415		;83F7 8E 15 84
+}
+
+.L_83F7_with_vic
+{
+		stx L_8415		;83F7 8E 15 84
 		lda VIC_SCROLX		;83FA AD 16 D0
 		ora #$10		;83FD 09 10
 		sta VIC_SCROLX		;83FF 8D 16 D0
 		lda #$F0		;8402 A9 F0
-		jsr L_83D6		;8404 20 D6 83
+		jsr vic_memory_setup		;8404 20 D6 83
 		lda L_8415		;8407 AD 15 84
 		ora #$0E		;840A 09 0E
-		jsr L_8416		;840C 20 16 84
+		jsr clear_colour_mapQ		;840C 20 16 84
 		lda #$01		;840F A9 01
 		jsr L_8428		;8411 20 28 84
 		rts				;8414 60
 		
-L_8415	equb $00
+.L_8415	equb $00
+}
 
-L_8416	ldx #$00		;8416 A2 00
-L_8418	sta L_5C00,X	;8418 9D 00 5C
+.clear_colour_mapQ
+{
+		ldx #$00		;8416 A2 00
+.L_8418	sta L_5C00,X	;8418 9D 00 5C
 		sta L_5D00,X	;841B 9D 00 5D
 		sta L_5E00,X	;841E 9D 00 5E
 		sta L_5F00,X	;8421 9D 00 5F
 		dex				;8424 CA
 		bne L_8418		;8425 D0 F1
 		rts				;8427 60
-L_8428	cmp #$02		;8428 C9 02
+}
+
+.L_8428
+{
+		cmp #$02		;8428 C9 02
 		bcc L_8453		;842A 90 27
 		lda #$40		;842C A9 40
 		sta ZP_F4		;842E 85 F4
@@ -7886,7 +7926,7 @@ L_8428	cmp #$02		;8428 C9 02
 		lda #$57		;8436 A9 57
 		sta ZP_F7		;8438 85 F7
 		ldy #$7F		;843A A0 7F
-L_843C	lda (ZP_F4),Y	;843C B1 F4
+.L_843C	lda (ZP_F4),Y	;843C B1 F4
 		sta (ZP_F6),Y	;843E 91 F6
 		dey				;8440 88
 		bne L_843C		;8441 D0 F9
@@ -7899,20 +7939,20 @@ L_843C	lda (ZP_F4),Y	;843C B1 F4
 		cmp #$41		;844E C9 41
 		bcs L_843C		;8450 B0 EA
 		rts				;8452 60
-L_8453	lda #$14		;8453 A9 14
+.L_8453	lda #$14		;8453 A9 14
 		sta ZP_52		;8455 85 52
 		ldx #$00		;8457 A2 00
 		ldy #$40		;8459 A0 40
 		lda #$AA		;845B A9 AA
-		jsr L_8921		;845D 20 21 89
+		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
 		sta ZP_52		;8462 85 52
 		ldx #$00		;8464 A2 00
 		ldy #$59		;8466 A0 59
 		lda #$00		;8468 A9 00
-		jmp L_8921		;846A 4C 21 89
-ENDIF
-		
+		jmp fill_64s		;846A 4C 21 89
+}
+
 .L_846D	equb $00
 .L_846E	equb $00
 
@@ -8119,8 +8159,8 @@ ENDIF
 ; entry: X=key number (column in bits 0-3,	row in bits 3-6).
 ; exit: X=0, Z=1, N=0, if key not pressed;	X=$FF, Z=0, N=1	if key pressed.
 
-.poll_key	RTS		; BEEB_STUB
-IF _TODO
+.poll_key
+{
 		lda #$FF		;85D2 A9 FF
 		sta CIA1_CIDDRA		;85D4 8D 02 DC
 		lda #$00		;85D7 A9 00
@@ -8142,10 +8182,10 @@ IF _TODO
 		and L_85FB,Y	;85F4 39 FB 85
 		beq L_85FA		;85F7 F0 01
 		dex				;85F9 CA
-L_85FA	rts				;85FA 60
+.L_85FA	rts				;85FA 60
 
-L_85FB	equb $01,$02,$04,$08,$10,$20,$40,$80
-ENDIF
+.L_85FB	equb $01,$02,$04,$08,$10,$20,$40,$80
+}
 
 .getch
 {
@@ -8191,8 +8231,8 @@ ENDIF
 ; SID
 ; *****************************************************************************
 
-.L_8655	RTS	; BEEB_STUB
-IF _TODO
+.L_8655
+{
 		stx ZP_F8		;8655 86 F8
 		sty ZP_F9		;8657 84 F9
 		ldy #$00		;8659 A0 00
@@ -8243,20 +8283,20 @@ IF _TODO
 		lda (ZP_F8),Y	;86BF B1 F8
 		sta L_86C8,X	;86C1 9D C8 86
 		rts				;86C4 60
+}
 
-L_86C5	equb $00
-L_86C6	equb $00,$00
-L_86C8	equb $00,$00,$00,$00
-L_86CC	equb $00,$00,$00,$00
-L_86D0	equb $00,$00,$00,$00
-L_86D4	equb $00,$00,$00,$00
-L_86D8	equb $00,$00,$00,$00
-L_86DC	equb $00,$07,$0E
-L_86DF	equb $01,$02,$03,$03,$06,$09,$0B,$0C,$0F,$26,$4B,$78,$96,$FF,$FF,$FF
-ENDIF
+.L_86C5	equb $00
+.L_86C6	equb $00,$00
+.L_86C8	equb $00,$00,$00,$00
+.L_86CC	equb $00,$00,$00,$00
+.L_86D0	equb $00,$00,$00,$00
+.L_86D4	equb $00,$00,$00,$00
+.L_86D8	equb $00,$00,$00,$00
+.L_86DC	equb $00,$07,$0E
+.L_86DF	equb $01,$02,$03,$03,$06,$09,$0B,$0C,$0F,$26,$4B,$78,$96,$FF,$FF,$FF
 
-.sid_update	RTS				; BEEB_STUB
-IF _TODO
+.sid_update
+{
 		ldx #$01		;86EF A2 01
 		lda L_86C8,X	;86F1 BD C8 86
 		beq L_870C		;86F4 F0 16
@@ -8268,21 +8308,22 @@ IF _TODO
 		sta SID_VCREG1,Y	;8703 99 04 D4	; SID
 		lda L_86D0,X	;8706 BD D0 86
 		sta L_86D4,X	;8709 9D D4 86
-L_870C	lda L_86D4,X	;870C BD D4 86
+.L_870C	lda L_86D4,X	;870C BD D4 86
 		beq L_8724		;870F F0 13
 		dec L_86D4,X	;8711 DE D4 86
 		bne L_8724		;8714 D0 0E
-ENDIF
-
-.silence_channel	RTS		; BEEB_STUB
-IF _TODO
+}
+\\
+.silence_channel
+{
 		ldy L_86DC,X	;8716 BC DC 86
 		lda #$00		;8719 A9 00
 		sta L_86C8,X	;871B 9D C8 86
 		sta SID_SUREL1,Y	;871E 99 06 D4	; SID
 		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
-L_8724	rts				;8724 60
-ENDIF
+}
+\\
+.L_8724	rts				;8724 60
 
 ; *****************************************************************************
 ; LIBRARIES ETC.
@@ -8345,7 +8386,7 @@ ENDIF
 		cmp #$15		;876D C9 15
 		beq silence_channel		;876F F0 A5
 		cmp #$32		;8771 C9 32
-		beq L_87C4		;8773 F0 4F
+		beq sysctl_copy_menu_header_graphic		;8773 F0 4F
 		cmp #$55		;8775 C9 55
 		beq L_879A		;8777 F0 21
 		cmp #$34		;8779 C9 34
@@ -8353,63 +8394,63 @@ ENDIF
 		rts				;877D 60
 }
 
-.L_877E	BRK	;jmp poll_key		;877E 4C D2 85
-.L_8781	BRK
-		;sta ZP_FE			;8781 85 FE
-		;jmp L_83CC			;8783 4C CC 83
-.L_8786	BRK
-		;sta ZP_FE			;8786 85 FE
-		;jmp L_83C0			;8788 4C C0 83
-.L_878B	BRK
-		;txa				;878B 8A
-		;jmp L_8428			;878C 4C 28 84
-.L_878F	BRK
-		;stx L_85D0			;878F 8E D0 85
-		;rts				;8792 60
-.L_8793	BRK
-		;lda #$02			;8793 A9 02
-		;sta ZP_FE			;8795 85 FE
-		;jmp L_83F7			;8797 4C F7 83
-.L_879A	BRK	;jmp L_8921		;879A 4C 21 89
-.L_879D	RTS	;jmp L_886A		;879D 4C 6A 88		BEEB TODO copy_stuff
-.L_87A0	BRK	;jmp L_894A		;87A0 4C 4A 89
-.L_87A3	BRK	;jmp L_8A2F		;87A3 4C 2F 8A
-.L_87A6	BRK	;jmp L_8AA5		;87A6 4C A5 8A
-.L_87A9	BRK	;jmp L_8B51		;87A9 4C 51 8B
-.L_87AC	BRK	;jmp L_8C0D		;87AC 4C 0D 8C
-.L_87AF	BRK	;jmp L_8CD0		;87AF 4C D0 8C
-.L_87B2	BRK	;jmp L_8D15		;87B2 4C 15 8D
-.L_87B5	BRK	;jmp L_8E77		;87B5 4C 77 8E
-.L_87B8	BRK	;jmp L_8F11		;87B8 4C 11 8F
-.L_87BB	BRK	;jmp L_8F82		;87BB 4C 82 8F
-.L_87BE	BRK	;jmp L_9057		;87BE 4C 57 90
-.L_87C1	BRK	;jmp L_90BB		;87C1 4C BB 90
+.L_877E	jmp poll_key		;877E 4C D2 85
 
-.L_87C4 BRK ; sysctl_copy_menu_header_graphic
+.L_8781	sta ZP_FE			;8781 85 FE
+		jmp non_multicolour_mode			;8783 4C CC 83
 
-IF 0
-L_87C4	lda #$00		;87C4 A9 00
+.L_8786	sta ZP_FE			;8786 85 FE
+		jmp multicolour_mode			;8788 4C C0 83
+
+.L_878B	txa					;878B 8A
+		jmp L_8428			;878C 4C 28 84
+
+.L_878F	stx L_85D0			;878F 8E D0 85
+		rts				;8792 60
+
+.L_8793	lda #$02			;8793 A9 02
+		sta ZP_FE			;8795 85 FE
+		jmp L_83F7_with_vic			;8797 4C F7 83
+
+.L_879A	jmp fill_64s		;879A 4C 21 89
+.L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
+.L_87A0	jmp move_draw_bridgeQ		;87A0 4C 4A 89
+.L_87A3	jmp draw_horizonQ		;87A3 4C 2F 8A
+.L_87A6	jmp L_8AA5		;87A6 4C A5 8A
+.L_87A9	jmp draw_crane		;87A9 4C 51 8B
+.L_87AC	jmp L_8C0D		;87AC 4C 0D 8C
+.L_87AF	jmp L_8CD0		;87AF 4C D0 8C
+.L_87B2	jmp L_8D15		;87B2 4C 15 8D
+.L_87B5	jmp draw_tachometer		;87B5 4C 77 8E
+.L_87B8	jmp L_8F11		;87B8 4C 11 8F
+.L_87BB	jmp clear_screen		;87BB 4C 82 8F
+.L_87BE	jmp update_colour_map		;87BE 4C 57 90
+.L_87C1	jmp sysctl_47		;87C1 4C BB 90
+
+.sysctl_copy_menu_header_graphic
+{
+		lda #$00		;87C4 A9 00
 		sta VIC_IRQMASK		;87C6 8D 1A D0
 		sei				;87C9 78
 		lda #$34		;87CA A9 34
-		sta ZP_01		;87CC 85 01
+		sta RAM_SELECT		;87CC 85 01
 		lda #$40		;87CE A9 40
 		sta ZP_1E		;87D0 85 1E
 		lda #$D4		;87D2 A9 D4
 		sta ZP_1F		;87D4 85 1F
 		ldx #$00		;87D6 A2 00
-L_87D8	ldy #$00		;87D8 A0 00
+.L_87D8	ldy #$00		;87D8 A0 00
 		lda SID_FRELO1,X	;87DA BD 00 D4	; SID
 		sta ZP_08		;87DD 85 08
 		bne L_87E2		;87DF D0 01
 		iny				;87E1 C8
-L_87E2	sty ZP_16		;87E2 84 16
+.L_87E2	sty ZP_16		;87E2 84 16
 		lda SID_FREHI1,X	;87E4 BD 01 D4	; SID
 		sta ZP_20		;87E7 85 20
 		lda SID_PWLO1,X	;87E9 BD 02 D4	; SID
 		sta ZP_21		;87EC 85 21
 		ldy #$00		;87EE A0 00
-L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
+.L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
 		sta (ZP_20),Y	;87F2 91 20
 		iny				;87F4 C8
 		cpy ZP_08		;87F5 C4 08
@@ -8434,7 +8475,7 @@ L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
 		adc #$01		;8816 69 01
 		sta ZP_21		;8818 85 21
 		ldy #$00		;881A A0 00
-L_881C	lda (ZP_1E),Y	;881C B1 1E
+.L_881C	lda (ZP_1E),Y	;881C B1 1E
 		sta L_7C00,Y	;881E 99 00 7C
 		lda (ZP_20),Y	;8821 B1 20
 		sta L_0400,Y	;8823 99 00 04
@@ -8443,7 +8484,7 @@ L_881C	lda (ZP_1E),Y	;881C B1 1E
 		inc ZP_1F		;8829 E6 1F
 		inc ZP_21		;882B E6 21
 		ldy #$3F		;882D A0 3F
-L_882F	lda (ZP_1E),Y	;882F B1 1E
+.L_882F	lda (ZP_1E),Y	;882F B1 1E
 		sta L_7D00,Y	;8831 99 00 7D
 		lda (ZP_20),Y	;8834 B1 20
 		sta L_0500,Y	;8836 99 00 05
@@ -8454,24 +8495,30 @@ L_882F	lda (ZP_1E),Y	;882F B1 1E
 		ldy #$4A		;8840 A0 4A
 		ldx #$00		;8842 A2 00
 		lda #$00		;8844 A9 00
-		jsr L_8921		;8846 20 21 89
+		jsr fill_64s		;8846 20 21 89
 		lda #$35		;8849 A9 35
-		sta ZP_01		;884B 85 01
+		sta RAM_SELECT		;884B 85 01
 		cli				;884D 58
 		lda #$01		;884E A9 01
 		sta VIC_IRQMASK		;8850 8D 1A D0
 		ldx #$00		;8853 A2 00
-L_8855	lda L_0400,X	;8855 BD 00 04
+.L_8855	lda L_0400,X	;8855 BD 00 04
 		sta L_D800,X	;8858 9D 00 D8
 		dex				;885B CA
 		bne L_8855		;885C D0 F7
 		ldx #$3F		;885E A2 3F
-L_8860	lda L_0500,X	;8860 BD 00 05
+.L_8860	lda L_0500,X	;8860 BD 00 05
 		sta L_D900,X	;8863 9D 00 D9
 		dex				;8866 CA
 		bpl L_8860		;8867 10 F7
 		rts				;8869 60
-L_886A	stx ZP_16		;886A 86 16
+}
+
+; If X bit	7 set, copy $62A0->$57C0, $6DE0->$D800
+; If X bit	7 reset, copy $57C0->$6200, $D800->$6DE0, $D000(RAM)
+.copy_stuff
+{
+		stx ZP_16		;886A 86 16
 		lda #$57		;886C A9 57
 		sta ZP_1F		;886E 85 1F
 		lda #$C0		;8870 A9 C0
@@ -8481,15 +8528,15 @@ L_886A	stx ZP_16		;886A 86 16
 		lda #$A0		;8878 A9 A0
 		sta ZP_20		;887A 85 20
 		ldx #$08		;887C A2 08
-L_887E	ldy #$FF		;887E A0 FF
-L_8880	bit ZP_16		;8880 24 16
+.L_887E	ldy #$FF		;887E A0 FF
+.L_8880	bit ZP_16		;8880 24 16
 		bmi L_888B		;8882 30 07
 		lda (ZP_1E),Y	;8884 B1 1E
 		sta (ZP_20),Y	;8886 91 20
 		jmp L_888F		;8888 4C 8F 88
-L_888B	lda (ZP_20),Y	;888B B1 20
+.L_888B	lda (ZP_20),Y	;888B B1 20
 		sta (ZP_1E),Y	;888D 91 1E
-L_888F	dey				;888F 88
+.L_888F	dey				;888F 88
 		cpy #$FF		;8890 C0 FF
 		bne L_8880		;8892 D0 EC
 		lda ZP_20		;8894 A5 20
@@ -8505,10 +8552,10 @@ L_888F	dey				;888F 88
 		bne L_887E		;88A6 D0 D6
 		ldy #$3F		;88A8 A0 3F
 		bne L_8880		;88AA D0 D4
-L_88AC	ldx #$00		;88AC A2 00
+.L_88AC	ldx #$00		;88AC A2 00
 		bit ZP_16		;88AE 24 16
 		bmi L_88CE		;88B0 30 1C
-L_88B2	lda L_D800,X	;88B2 BD 00 D8
+.L_88B2	lda L_D800,X	;88B2 BD 00 D8
 		sta L_6DE0,X	;88B5 9D E0 6D
 		lda L_D900,X	;88B8 BD 00 D9
 		sta L_6F20,X	;88BB 9D 20 6F
@@ -8519,7 +8566,7 @@ L_88B2	lda L_D800,X	;88B2 BD 00 D8
 		dex				;88CA CA
 		bne L_88B2		;88CB D0 E5
 		rts				;88CD 60
-L_88CE	lda L_6DE0,X	;88CE BD E0 6D
+.L_88CE	lda L_6DE0,X	;88CE BD E0 6D
 		sta L_D800,X	;88D1 9D 00 D8
 		lda L_6F20,X	;88D4 BD 20 6F
 		sta L_D900,X	;88D7 9D 00 D9
@@ -8533,9 +8580,9 @@ L_88CE	lda L_6DE0,X	;88CE BD E0 6D
 		sta VIC_IRQMASK		;88EB 8D 1A D0
 		sei				;88EE 78
 		lda #$34		;88EF A9 34
-		sta ZP_01		;88F1 85 01
+		sta RAM_SELECT		;88F1 85 01
 		ldx #$00		;88F3 A2 00
-L_88F5	lda VIC_SP0X,X	;88F5 BD 00 D0
+.L_88F5	lda VIC_SP0X,X	;88F5 BD 00 D0
 		sta L_7C00,X	;88F8 9D 00 7C
 		lda L_D100,X	;88FB BD 00 D1
 		sta L_7D00,X	;88FE 9D 00 7D
@@ -8543,28 +8590,34 @@ L_88F5	lda VIC_SP0X,X	;88F5 BD 00 D0
 		sta L_7E00,X	;8904 9D 00 7E
 		lda L_D300,X	;8907 BD 00 D3
 		sta L_7F00,X	;890A 9D 00 7F
-		lda L_DD00,X	;890D BD 00 DD
+		lda CIA2_CI2PRA,X	;890D BD 00 DD
 		sta L_7B00,X	;8910 9D 00 7B
 		dex				;8913 CA
 		bne L_88F5		;8914 D0 DF
 		lda #$35		;8916 A9 35
-		sta ZP_01		;8918 85 01
+		sta RAM_SELECT		;8918 85 01
 		cli				;891A 58
 		lda #$01		;891B A9 01
 		sta VIC_IRQMASK		;891D 8D 1A D0
 		rts				;8920 60
-L_8921	stx ZP_1E		;8921 86 1E
+}
+
+; fill scanlines
+; entry: A=byte to	write, X=LSB of	dest, Y=MSB of dest, byte_52=# lines
+.fill_64s
+{
+		stx ZP_1E		;8921 86 1E
 		sty ZP_1F		;8923 84 1F
 		sta ZP_14		;8925 85 14
 		ldx ZP_52		;8927 A6 52
-L_8929	ldy #$00		;8929 A0 00
+.L_8929	ldy #$00		;8929 A0 00
 		lda ZP_14		;892B A5 14
-L_892D	sta (ZP_1E),Y	;892D 91 1E
+.L_892D	sta (ZP_1E),Y	;892D 91 1E
 		dey				;892F 88
 		bne L_892D		;8930 D0 FB
 		inc ZP_1F		;8932 E6 1F
 		ldy #$3F		;8934 A0 3F
-L_8936	sta (ZP_1E),Y	;8936 91 1E
+.L_8936	sta (ZP_1E),Y	;8936 91 1E
 		dey				;8938 88
 		bpl L_8936		;8939 10 FB
 		lda ZP_1E		;893B A5 1E
@@ -8573,15 +8626,19 @@ L_8936	sta (ZP_1E),Y	;8936 91 1E
 		sta ZP_1E		;8940 85 1E
 		bcc L_8946		;8942 90 02
 		inc ZP_1F		;8944 E6 1F
-L_8946	dex				;8946 CA
+.L_8946	dex				;8946 CA
 		bne L_8929		;8947 D0 E0
 		rts				;8949 60
-L_894A	lda L_C374		;894A AD 74 C3
+}
+
+.move_draw_bridgeQ
+{
+		lda L_C374		;894A AD 74 C3
 		cmp #$38		;894D C9 38
 		bcs L_8955		;894F B0 04
 		cmp #$33		;8951 C9 33
 		bcs L_8968		;8953 B0 13
-L_8955	lda L_C375		;8955 AD 75 C3
+.L_8955	lda L_C375		;8955 AD 75 C3
 		cmp #$38		;8958 C9 38
 		bcs L_8973		;895A B0 17
 		cmp #$33		;895C C9 33
@@ -8590,12 +8647,12 @@ L_8955	lda L_C375		;8955 AD 75 C3
 		beq L_8973		;8962 F0 0F
 		cmp #$30		;8964 C9 30
 		bcc L_8973		;8966 90 0B
-L_8968	lda #$0C		;8968 A9 0C
+.L_8968	lda #$0C		;8968 A9 0C
 		sta ZP_E7		;896A 85 E7
 		clc				;896C 18
 		adc L_C300		;896D 6D 00 C3
 		jmp L_89FA		;8970 4C FA 89
-L_8973	inc L_C300		;8973 EE 00 C3
+.L_8973	inc L_C300		;8973 EE 00 C3
 		lda #$00		;8976 A9 00
 		sta ZP_7D		;8978 85 7D
 		sta ZP_7F		;897A 85 7F
@@ -8606,7 +8663,7 @@ L_8973	inc L_C300		;8973 EE 00 C3
 		sbc #$10		;8984 E9 10
 		bpl L_898A		;8986 10 02
 		eor #$FF		;8988 49 FF
-L_898A	tay				;898A A8
+.L_898A	tay				;898A A8
 		clc				;898B 18
 		adc #$04		;898C 69 04
 		sta ZP_14		;898E 85 14
@@ -8615,7 +8672,7 @@ L_898A	tay				;898A A8
 		sta L_0744		;8996 8D 44 07
 		lda #$00		;8999 A9 00
 		ldy #$05		;899B A0 05
-L_899D	asl ZP_14		;899D 06 14
+.L_899D	asl ZP_14		;899D 06 14
 		rol A			;899F 2A
 		dey				;89A0 88
 		bne L_899D		;89A1 D0 FA
@@ -8629,18 +8686,18 @@ L_899D	asl ZP_14		;899D 06 14
 		lda L_B121,X	;89B2 BD 21 B1
 		sta ZP_1F		;89B5 85 1F
 		ldx #$0F		;89B7 A2 0F
-L_89B9	lda ZP_7D		;89B9 A5 7D
+.L_89B9	lda ZP_7D		;89B9 A5 7D
 		clc				;89BB 18
 		adc ZP_51		;89BC 65 51
 		sta ZP_7D		;89BE 85 7D
 		lda ZP_7F		;89C0 A5 7F
 		adc ZP_77		;89C2 65 77
 		sta ZP_7F		;89C4 85 7F
-L_89C6	lda ZP_7F		;89C6 A5 7F
+.L_89C6	lda ZP_7F		;89C6 A5 7F
 		cpy #$20		;89C8 C0 20
 		bne L_89CE		;89CA D0 02
 		ora #$80		;89CC 09 80
-L_89CE	pha				;89CE 48
+.L_89CE	pha				;89CE 48
 		sta (ZP_1E),Y	;89CF 91 1E
 		iny				;89D1 C8
 		lda ZP_7D		;89D2 A5 7D
@@ -8665,23 +8722,26 @@ L_89CE	pha				;89CE 48
 		cmp #$2F		;89F3 C9 2F
 		bne L_8A0E		;89F5 D0 17
 		lda L_C300		;89F7 AD 00 C3
-L_89FA	and #$1F		;89FA 29 1F
+.L_89FA	and #$1F		;89FA 29 1F
 		lsr A			;89FC 4A
 		tay				;89FD A8
 		ldx #$00		;89FE A2 00
 		lda #$C6		;8A00 A9 C6
-L_8A02	clc				;8A02 18
+.L_8A02	clc				;8A02 18
 		adc L_8A0F,Y	;8A03 79 0F 8A
 		sta L_0740,X	;8A06 9D 40 07
 		inx				;8A09 E8
 		cpx #$03		;8A0A E0 03
 		bne L_8A02		;8A0C D0 F4
-L_8A0E	rts				;8A0E 60
+.L_8A0E	rts				;8A0E 60
 
-L_8A0F	equb $F7,$F7,$F6,$F6,$F5,$F5,$F6,$F7,$F8,$F9,$FB,$FD,$FF,$02,$05,$FD
-L_8A1F	equb $D2,$BB,$B7,$B3,$B1,$AD,$AB,$A7,$A6,$A4,$A2,$A1,$9F,$9F,$9F,$9E
+.L_8A0F	equb $F7,$F7,$F6,$F6,$F5,$F5,$F6,$F7,$F8,$F9,$FB,$FD,$FF,$02,$05,$FD
+.L_8A1F	equb $D2,$BB,$B7,$B3,$B1,$AD,$AB,$A7,$A6,$A4,$A2,$A1,$9F,$9F,$9F,$9E
+}
 
-L_8A2F	ldy #$3F		;8A2F A0 3F
+.draw_horizonQ
+{
+		ldy #$3F		;8A2F A0 3F
 		ldx #$01		;8A31 A2 01
 		lda #$00		;8A33 A9 00
 		sec				;8A35 38
@@ -8692,55 +8752,59 @@ L_8A2F	ldy #$3F		;8A2F A0 3F
 		bmi L_8A44		;8A3E 30 04
 		lda #$FF		;8A40 A9 FF
 		bne L_8A4A		;8A42 D0 06
-L_8A44	cmp #$FF		;8A44 C9 FF
+.L_8A44	cmp #$FF		;8A44 C9 FF
 		beq L_8A4C		;8A46 F0 04
 		lda #$00		;8A48 A9 00
-L_8A4A	sta ZP_14		;8A4A 85 14
-L_8A4C	lda ZP_14		;8A4C A5 14
+.L_8A4A	sta ZP_14		;8A4A 85 14
+.L_8A4C	lda ZP_14		;8A4C A5 14
 		bit L_0126		;8A4E 2C 26 01
 		bmi L_8A7C		;8A51 30 29
-L_8A53	lda ZP_14		;8A53 A5 14
+.L_8A53	lda ZP_14		;8A53 A5 14
 		sec				;8A55 38
 		sbc L_0380,Y	;8A56 F9 80 03
 		bcs L_8A5D		;8A59 B0 02
 		lda #$00		;8A5B A9 00
-L_8A5D	cmp L_C680,Y	;8A5D D9 80 C6
+.L_8A5D	cmp L_C680,Y	;8A5D D9 80 C6
 		bcs L_8A65		;8A60 B0 03
 		sta L_C680,Y	;8A62 99 80 C6
-L_8A65	lda ZP_14		;8A65 A5 14
+.L_8A65	lda ZP_14		;8A65 A5 14
 		clc				;8A67 18
 		adc L_0380,X	;8A68 7D 80 03
 		bcc L_8A6F		;8A6B 90 02
 		lda #$FF		;8A6D A9 FF
-L_8A6F	cmp L_C640,Y	;8A6F D9 40 C6
+.L_8A6F	cmp L_C640,Y	;8A6F D9 40 C6
 		bcs L_8A77		;8A72 B0 03
 		sta L_C640,Y	;8A74 99 40 C6
-L_8A77	inx				;8A77 E8
+.L_8A77	inx				;8A77 E8
 		dey				;8A78 88
 		bpl L_8A53		;8A79 10 D8
 		rts				;8A7B 60
-L_8A7C	lda ZP_14		;8A7C A5 14
+.L_8A7C	lda ZP_14		;8A7C A5 14
 		clc				;8A7E 18
 		adc L_0380,Y	;8A7F 79 80 03
 		bcc L_8A86		;8A82 90 02
 		lda #$FF		;8A84 A9 FF
-L_8A86	cmp L_C680,Y	;8A86 D9 80 C6
+.L_8A86	cmp L_C680,Y	;8A86 D9 80 C6
 		bcs L_8A8E		;8A89 B0 03
 		sta L_C680,Y	;8A8B 99 80 C6
-L_8A8E	lda ZP_14		;8A8E A5 14
+.L_8A8E	lda ZP_14		;8A8E A5 14
 		sec				;8A90 38
 		sbc L_0380,X	;8A91 FD 80 03
 		bcs L_8A98		;8A94 B0 02
 		lda #$00		;8A96 A9 00
-L_8A98	cmp L_C640,Y	;8A98 D9 40 C6
+.L_8A98	cmp L_C640,Y	;8A98 D9 40 C6
 		bcs L_8AA0		;8A9B B0 03
 		sta L_C640,Y	;8A9D 99 40 C6
-L_8AA0	inx				;8AA0 E8
+.L_8AA0	inx				;8AA0 E8
 		dey				;8AA1 88
 		bpl L_8A7C		;8AA2 10 D8
 		rts				;8AA4 60
-L_8AA5	ldx #$40		;8AA5 A2 40
-L_8AA7	lda L_C600,X	;8AA7 BD 00 C6
+}
+
+.L_8AA5
+{
+		ldx #$40		;8AA5 A2 40
+.L_8AA7	lda L_C600,X	;8AA7 BD 00 C6
 		sta ZP_13		;8AAA 85 13
 		tay				;8AAC A8
 		lda L_C601,X	;8AAD BD 01 C6
@@ -8748,23 +8812,23 @@ L_8AA7	lda L_C600,X	;8AA7 BD 00 C6
 		cpy ZP_14		;8AB2 C4 14
 		bcs L_8AB7		;8AB4 B0 01
 		tay				;8AB6 A8
-L_8AB7	lda L_C602,X	;8AB7 BD 02 C6
+.L_8AB7	lda L_C602,X	;8AB7 BD 02 C6
 		sta ZP_15		;8ABA 85 15
 		cpy ZP_15		;8ABC C4 15
 		bcs L_8AC1		;8ABE B0 01
 		tay				;8AC0 A8
-L_8AC1	lda L_C603,X	;8AC1 BD 03 C6
+.L_8AC1	lda L_C603,X	;8AC1 BD 03 C6
 		sta ZP_16		;8AC4 85 16
 		cpy ZP_16		;8AC6 C4 16
 		bcs L_8ACB		;8AC8 B0 01
 		tay				;8ACA A8
-L_8ACB	cpy #$40		;8ACB C0 40
+.L_8ACB	cpy #$40		;8ACB C0 40
 		bcc L_8B4A		;8ACD 90 7B
 		cpy #$C0		;8ACF C0 C0
 		bcc L_8AD6		;8AD1 90 03
 		ldy #$C0		;8AD3 A0 C0
 		dey				;8AD5 88
-L_8AD6	txa				;8AD6 8A
+.L_8AD6	txa				;8AD6 8A
 		sec				;8AD7 38
 		sbc #$40		;8AD8 E9 40
 		and #$7C		;8ADA 29 7C
@@ -8774,20 +8838,20 @@ L_8AD6	txa				;8AD6 8A
 		lda Q_pointers_HI,Y	;8AE2 B9 00 A6
 		adc ZP_12		;8AE5 65 12
 		sta ZP_1F		;8AE7 85 1F
-L_8AE9	lda #$FF		;8AE9 A9 FF
+.L_8AE9	lda #$FF		;8AE9 A9 FF
 		cpy ZP_13		;8AEB C4 13
 		bcs L_8AF1		;8AED B0 02
 		and #$BF		;8AEF 29 BF
-L_8AF1	cpy ZP_14		;8AF1 C4 14
+.L_8AF1	cpy ZP_14		;8AF1 C4 14
 		bcs L_8AF7		;8AF3 B0 02
 		and #$EF		;8AF5 29 EF
-L_8AF7	cpy ZP_15		;8AF7 C4 15
+.L_8AF7	cpy ZP_15		;8AF7 C4 15
 		bcs L_8AFD		;8AF9 B0 02
 		and #$FB		;8AFB 29 FB
-L_8AFD	cpy ZP_16		;8AFD C4 16
+.L_8AFD	cpy ZP_16		;8AFD C4 16
 		bcs L_8B03		;8AFF B0 02
 		and #$FE		;8B01 29 FE
-L_8B03	cmp #$AA		;8B03 C9 AA
+.L_8B03	cmp #$AA		;8B03 C9 AA
 		beq L_8B34		;8B05 F0 2D
 		and (ZP_1E),Y	;8B07 31 1E
 		sta (ZP_1E),Y	;8B09 91 1E
@@ -8805,16 +8869,16 @@ L_8B03	cmp #$AA		;8B03 C9 AA
 		sbc #$01		;8B1E E9 01
 		sta ZP_1F		;8B20 85 1F
 		jmp L_8AE9		;8B22 4C E9 8A
-L_8B25	txa				;8B25 8A
+.L_8B25	txa				;8B25 8A
 		clc				;8B26 18
 		adc #$04		;8B27 69 04
 		tax				;8B29 AA
 		cpx #$C0		;8B2A E0 C0
 		bcs L_8B31		;8B2C B0 03
 		jmp L_8AA7		;8B2E 4C A7 8A
-L_8B31	rts				;8B31 60
-L_8B32	lda #$AA		;8B32 A9 AA
-L_8B34	sta (ZP_1E),Y	;8B34 91 1E
+.L_8B31	rts				;8B31 60
+.L_8B32	lda #$AA		;8B32 A9 AA
+.L_8B34	sta (ZP_1E),Y	;8B34 91 1E
 		tya				;8B36 98
 		dey				;8B37 88
 		and #$07		;8B38 29 07
@@ -8827,10 +8891,14 @@ L_8B34	sta (ZP_1E),Y	;8B34 91 1E
 		lsr A			;8B43 4A
 		sta L_01C1,X	;8B44 9D C1 01
 		jmp L_8B25		;8B47 4C 25 8B
-L_8B4A	lda #$07		;8B4A A9 07
+.L_8B4A	lda #$07		;8B4A A9 07
 		sta L_01C1,X	;8B4C 9D C1 01
 		bne L_8B25		;8B4F D0 D4
-L_8B51	lda ZP_2F		;8B51 A5 2F
+}
+\\
+.draw_crane
+{
+		lda ZP_2F		;8B51 A5 2F
 		bne L_8B6C		;8B53 D0 17
 		lda L_C36B		;8B55 AD 6B C3
 		cmp #$5F		;8B58 C9 5F
@@ -8842,16 +8910,16 @@ L_8B51	lda ZP_2F		;8B51 A5 2F
 		clc				;8B66 18
 		adc #$08		;8B67 69 08
 		sta L_C36C		;8B69 8D 6C C3
-L_8B6C	ldx #$54		;8B6C A2 54
+.L_8B6C	ldx #$54		;8B6C A2 54
 		jsr L_8B77		;8B6E 20 77 8B
 		ldx #$A8		;8B71 A2 A8
 		jsr L_8B77		;8B73 20 77 8B
-L_8B76	rts				;8B76 60
-L_8B77	stx ZP_4F		;8B77 86 4F
+.L_8B76	rts				;8B76 60
+.L_8B77	stx ZP_4F		;8B77 86 4F
 		ldy #$0F		;8B79 A0 0F
 		sty ZP_50		;8B7B 84 50
 		ldy L_C36B		;8B7D AC 6B C3
-L_8B80	ldx ZP_4F		;8B80 A6 4F
+.L_8B80	ldx ZP_4F		;8B80 A6 4F
 		txa				;8B82 8A
 		sec				;8B83 38
 		sbc #$40		;8B84 E9 40
@@ -8872,7 +8940,7 @@ L_8B80	ldx ZP_4F		;8B80 A6 4F
 		ldx ZP_50		;8BA2 A6 50
 		lda #$08		;8BA4 A9 08
 		sta ZP_14		;8BA6 85 14
-L_8BA8	lda (ZP_1E),Y	;8BA8 B1 1E
+.L_8BA8	lda (ZP_1E),Y	;8BA8 B1 1E
 		and L_8BCD,X	;8BAA 3D CD 8B
 		ora L_8BED,X	;8BAD 1D ED 8B
 		sta (ZP_1E),Y	;8BB0 91 1E
@@ -8891,24 +8959,27 @@ L_8BA8	lda (ZP_1E),Y	;8BA8 B1 1E
 		bcs L_8B80		;8BCA B0 B4
 		rts				;8BCC 60
 		
-L_8BCD	equb $F3,$F3,$C0,$00,$00,$33,$3F,$3F,$3F,$3F,$33,$00,$00,$C0,$F3,$F3
-L_8BDD	equb $FF,$FF,$FF,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$FF,$FF,$FF
-L_8BED	equb $00,$00,$01,$40,$00,$00,$00,$00,$00,$00,$04,$15,$04,$04,$04,$04
-L_8BFD	equb $00,$00,$00,$40,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+.L_8BCD	equb $F3,$F3,$C0,$00,$00,$33,$3F,$3F,$3F,$3F,$33,$00,$00,$C0,$F3,$F3
+.L_8BDD	equb $FF,$FF,$FF,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$FF,$FF,$FF
+.L_8BED	equb $00,$00,$01,$40,$00,$00,$00,$00,$00,$00,$04,$15,$04,$04,$04,$04
+.L_8BFD	equb $00,$00,$00,$40,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+}
 
-L_8C0D	lda #$D9		;8C0D A9 D9
+.L_8C0D
+{
+		lda #$D9		;8C0D A9 D9
 		sec				;8C0F 38
 		sbc ZP_14		;8C10 E5 14
 		ldy #$07		;8C12 A0 07
 		cpx #$01		;8C14 E0 01
 		beq L_8C44		;8C16 F0 2C
 		tax				;8C18 AA
-L_8C19	cpy #$04		;8C19 C0 04
+.L_8C19	cpy #$04		;8C19 C0 04
 		bcc L_8C26		;8C1B 90 09
 		lda L_8C70,X	;8C1D BD 70 8C
 		sta L_7560,Y	;8C20 99 60 75
 		sta L_5560,Y	;8C23 99 60 55
-L_8C26	lda L_8C78,X	;8C26 BD 78 8C
+.L_8C26	lda L_8C78,X	;8C26 BD 78 8C
 		sta L_76A0,Y	;8C29 99 A0 76
 		sta L_56A0,Y	;8C2C 99 A0 56
 		lda L_8C80,X	;8C2F BD 80 8C
@@ -8916,19 +8987,19 @@ L_8C26	lda L_8C78,X	;8C26 BD 78 8C
 		bcc L_8C3A		;8C34 90 04
 		bne L_8C3D		;8C36 D0 05
 		ora #$01		;8C38 09 01
-L_8C3A	sta L_77E0,Y	;8C3A 99 E0 77
-L_8C3D	dex				;8C3D CA
+.L_8C3A	sta L_77E0,Y	;8C3A 99 E0 77
+.L_8C3D	dex				;8C3D CA
 		dey				;8C3E 88
 		bpl L_8C19		;8C3F 10 D8
 		ldx #$00		;8C41 A2 00
 		rts				;8C43 60
-L_8C44	tax				;8C44 AA
-L_8C45	cpy #$04		;8C45 C0 04
+.L_8C44	tax				;8C44 AA
+.L_8C45	cpy #$04		;8C45 C0 04
 		bcc L_8C52		;8C47 90 09
 		lda L_8C94,X	;8C49 BD 94 8C
 		sta L_7658,Y	;8C4C 99 58 76
 		sta L_5658,Y	;8C4F 99 58 56
-L_8C52	lda L_8C9C,X	;8C52 BD 9C 8C
+.L_8C52	lda L_8C9C,X	;8C52 BD 9C 8C
 		sta L_7798,Y	;8C55 99 98 77
 		sta L_5798,Y	;8C58 99 98 57
 		lda L_8CA4,X	;8C5B BD A4 8C
@@ -8936,37 +9007,40 @@ L_8C52	lda L_8C9C,X	;8C52 BD 9C 8C
 		bcc L_8C66		;8C60 90 04
 		bne L_8C69		;8C62 D0 05
 		ora #$40		;8C64 09 40
-L_8C66	sta L_78D8,Y	;8C66 99 D8 78
-L_8C69	dex				;8C69 CA
+.L_8C66	sta L_78D8,Y	;8C66 99 D8 78
+.L_8C69	dex				;8C69 CA
 		dey				;8C6A 88
 		bpl L_8C45		;8C6B 10 D8
 		ldx #$01		;8C6D A2 01
 		rts				;8C6F 60
 		
-L_8C70	equb $00,$00,$00,$00,$00,$00,$00,$00
-L_8C78	equb $00,$00,$00,$00,$00,$00,$00,$00
-L_8C80	equb $00,$00,$00,$00,$00,$00,$00,$00,$AC,$AC,$B0,$B0,$B0,$B0,$B0,$C0
+.L_8C70	equb $00,$00,$00,$00,$00,$00,$00,$00
+.L_8C78	equb $00,$00,$00,$00,$00,$00,$00,$00
+.L_8C80	equb $00,$00,$00,$00,$00,$00,$00,$00,$AC,$AC,$B0,$B0,$B0,$B0,$B0,$C0
 		equb $C0,$C0,$C0,$00
-L_8C94	equb $00,$00,$00,$00,$00,$00,$00,$00
-L_8C9C	equb $00,$00,$00,$00,$00,$00,$00,$00
-L_8CA4	equb $00,$00,$00,$00,$00,$00,$00,$00,$1A,$1A,$0E,$0E,$0E,$0E,$0E,$03
+.L_8C94	equb $00,$00,$00,$00,$00,$00,$00,$00
+.L_8C9C	equb $00,$00,$00,$00,$00,$00,$00,$00
+.L_8CA4	equb $00,$00,$00,$00,$00,$00,$00,$00,$1A,$1A,$0E,$0E,$0E,$0E,$0E,$03
 		equb $03,$03,$03,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-		
-L_8CD0	lda ZP_61		;8CD0 A5 61
+}
+
+.L_8CD0
+{
+		lda ZP_61		;8CD0 A5 61
 		cmp #$C0		;8CD2 C9 C0
 		bcc L_8CD8		;8CD4 90 02
 		lda #$BF		;8CD6 A9 BF
-L_8CD8	sta ZP_61		;8CD8 85 61
+.L_8CD8	sta ZP_61		;8CD8 85 61
 		lda ZP_60		;8CDA A5 60
 		cmp #$40		;8CDC C9 40
 		bcs L_8CE2		;8CDE B0 02
 		lda #$40		;8CE0 A9 40
-L_8CE2	sta ZP_60		;8CE2 85 60
+.L_8CE2	sta ZP_60		;8CE2 85 60
 		cmp ZP_61		;8CE4 C5 61
 		beq L_8CEA		;8CE6 F0 02
 		bcs L_8D0F		;8CE8 B0 25
-L_8CEA	and #$FC		;8CEA 29 FC
+.L_8CEA	and #$FC		;8CEA 29 FC
 		sta ZP_41		;8CEC 85 41
 		lda ZP_61		;8CEE A5 61
 		clc				;8CF0 18
@@ -8974,38 +9048,42 @@ L_8CEA	and #$FC		;8CEA 29 FC
 		and #$FC		;8CF3 29 FC
 		sta ZP_55		;8CF5 85 55
 		ldx ZP_41		;8CF7 A6 41
-L_8CF9	lda L_0240,X	;8CF9 BD 40 02
+.L_8CF9	lda L_0240,X	;8CF9 BD 40 02
 		bne L_8D03		;8CFC D0 05
 		lda #$C0		;8CFE A9 C0
 		sta L_C500,X	;8D00 9D 00 C5
-L_8D03	clc				;8D03 18
+.L_8D03	clc				;8D03 18
 		adc #$01		;8D04 69 01
 		sta L_0240,X	;8D06 9D 40 02
 		inx				;8D09 E8
 		cpx ZP_55		;8D0A E4 55
 		bcc L_8CF9		;8D0C 90 EB
 		rts				;8D0E 60
-L_8D0F	lsr ZP_6D		;8D0F 46 6D
+.L_8D0F	lsr ZP_6D		;8D0F 46 6D
 		lsr L_C303		;8D11 4E 03 C3
 		rts				;8D14 60
-L_8D15	lsr ZP_6D		;8D15 46 6D
+}
+
+.L_8D15
+{
+		lsr ZP_6D		;8D15 46 6D
 		ldx ZP_41		;8D17 A6 41
-L_8D19	stx ZP_51		;8D19 86 51
+.L_8D19	stx ZP_51		;8D19 86 51
 		lda L_C600,X	;8D1B BD 00 C6
 		cmp L_C601,X	;8D1E DD 01 C6
 		bcs L_8D26		;8D21 B0 03
 		lda L_C601,X	;8D23 BD 01 C6
-L_8D26	cmp L_C602,X	;8D26 DD 02 C6
+.L_8D26	cmp L_C602,X	;8D26 DD 02 C6
 		bcs L_8D2E		;8D29 B0 03
 		lda L_C602,X	;8D2B BD 02 C6
-L_8D2E	cmp L_C603,X	;8D2E DD 03 C6
+.L_8D2E	cmp L_C603,X	;8D2E DD 03 C6
 		bcs L_8D36		;8D31 B0 03
 		lda L_C603,X	;8D33 BD 03 C6
-L_8D36	sta ZP_50		;8D36 85 50
+.L_8D36	sta ZP_50		;8D36 85 50
 		cmp #$41		;8D38 C9 41
 		bcs L_8D3F		;8D3A B0 03
 		jmp L_8DE8		;8D3C 4C E8 8D
-L_8D3F	jsr L_8DF6		;8D3F 20 F6 8D
+.L_8D3F	jsr L_8DF6		;8D3F 20 F6 8D
 		ldy ZP_50		;8D42 A4 50
 		txa				;8D44 8A
 		sec				;8D45 38
@@ -9033,13 +9111,13 @@ L_8D3F	jsr L_8DF6		;8D3F 20 F6 8D
 		lda L_0243,X	;8D78 BD 43 02
 		cmp L_C603,X	;8D7B DD 03 C6
 		bcs L_8DE3		;8D7E B0 63
-L_8D80	lda #$00		;8D80 A9 00
-L_8D82	tax				;8D82 AA
+.L_8D80	lda #$00		;8D80 A9 00
+.L_8D82	tax				;8D82 AA
 		lda L_8E67,X	;8D83 BD 67 8E
 		sta ZP_2A		;8D86 85 2A
 		jmp L_8DC5		;8D88 4C C5 8D
-L_8D8B	lda #$AA		;8D8B A9 AA
-L_8D8D	sta (ZP_1E),Y	;8D8D 91 1E
+.L_8D8B	lda #$AA		;8D8B A9 AA
+.L_8D8D	sta (ZP_1E),Y	;8D8D 91 1E
 		dey				;8D8F 88
 		ldx L_C400,Y	;8D90 BE 00 C4
 		beq L_8D8D		;8D93 F0 F8
@@ -9057,8 +9135,8 @@ L_8D8D	sta (ZP_1E),Y	;8D8D 91 1E
 		cmp #$10		;8DA9 C9 10
 		bcs L_8DE3		;8DAB B0 36
 		tax				;8DAD AA
-L_8DAE	txa				;8DAE 8A
-L_8DAF	eor ZP_29		;8DAF 45 29
+.L_8DAE	txa				;8DAE 8A
+.L_8DAF	eor ZP_29		;8DAF 45 29
 		sta ZP_29		;8DB1 85 29
 		beq L_8DE3		;8DB3 F0 2E
 		cmp #$0F		;8DB5 C9 0F
@@ -9066,10 +9144,10 @@ L_8DAF	eor ZP_29		;8DAF 45 29
 		tax				;8DB9 AA
 		lda L_8E67,X	;8DBA BD 67 8E
 		sta ZP_2A		;8DBD 85 2A
-L_8DBF	lda (ZP_1E),Y	;8DBF B1 1E
+.L_8DBF	lda (ZP_1E),Y	;8DBF B1 1E
 		and ZP_2A		;8DC1 25 2A
 		sta (ZP_1E),Y	;8DC3 91 1E
-L_8DC5	dey				;8DC5 88
+.L_8DC5	dey				;8DC5 88
 		ldx L_C400,Y	;8DC6 BE 00 C4
 		beq L_8DBF		;8DC9 F0 F4
 		bpl L_8DAE		;8DCB 10 E1
@@ -9085,17 +9163,17 @@ L_8DC5	dey				;8DC5 88
 		beq L_8DBF		;8DDD F0 E0
 		cmp #$10		;8DDF C9 10
 		bcc L_8DAF		;8DE1 90 CC
-L_8DE3	ldx ZP_51		;8DE3 A6 51
+.L_8DE3	ldx ZP_51		;8DE3 A6 51
 		jsr L_8DF6		;8DE5 20 F6 8D
-L_8DE8	lda ZP_51		;8DE8 A5 51
+.L_8DE8	lda ZP_51		;8DE8 A5 51
 		clc				;8DEA 18
 		adc #$04		;8DEB 69 04
 		tax				;8DED AA
 		cmp ZP_55		;8DEE C5 55
 		bcs L_8DF5		;8DF0 B0 03
 		jmp L_8D19		;8DF2 4C 19 8D
-L_8DF5	rts				;8DF5 60
-L_8DF6	ldy L_0240,X	;8DF6 BC 40 02
+.L_8DF5	rts				;8DF5 60
+.L_8DF6	ldy L_0240,X	;8DF6 BC 40 02
 		tya				;8DF9 98
 		cmp L_C600,X	;8DFA DD 00 C6
 		bcs L_8E12		;8DFD B0 13
@@ -9106,7 +9184,7 @@ L_8DF6	ldy L_0240,X	;8DF6 BC 40 02
 		lda L_C400,Y	;8E0A B9 00 C4
 		eor #$08		;8E0D 49 08
 		sta L_C400,Y	;8E0F 99 00 C4
-L_8E12	ldy L_0241,X	;8E12 BC 41 02
+.L_8E12	ldy L_0241,X	;8E12 BC 41 02
 		tya				;8E15 98
 		cmp L_C601,X	;8E16 DD 01 C6
 		bcs L_8E2E		;8E19 B0 13
@@ -9117,7 +9195,7 @@ L_8E12	ldy L_0241,X	;8E12 BC 41 02
 		lda L_C400,Y	;8E26 B9 00 C4
 		eor #$04		;8E29 49 04
 		sta L_C400,Y	;8E2B 99 00 C4
-L_8E2E	ldy L_0242,X	;8E2E BC 42 02
+.L_8E2E	ldy L_0242,X	;8E2E BC 42 02
 		tya				;8E31 98
 		cmp L_C602,X	;8E32 DD 02 C6
 		bcs L_8E4A		;8E35 B0 13
@@ -9128,7 +9206,7 @@ L_8E2E	ldy L_0242,X	;8E2E BC 42 02
 		lda L_C400,Y	;8E42 B9 00 C4
 		eor #$02		;8E45 49 02
 		sta L_C400,Y	;8E47 99 00 C4
-L_8E4A	ldy L_0243,X	;8E4A BC 43 02
+.L_8E4A	ldy L_0243,X	;8E4A BC 43 02
 		tya				;8E4D 98
 		cmp L_C603,X	;8E4E DD 03 C6
 		bcs L_8E66		;8E51 B0 13
@@ -9139,21 +9217,24 @@ L_8E4A	ldy L_0243,X	;8E4A BC 43 02
 		lda L_C400,Y	;8E5E B9 00 C4
 		eor #$01		;8E61 49 01
 		sta L_C400,Y	;8E63 99 00 C4
-L_8E66	rts				;8E66 60
+.L_8E66	rts				;8E66 60
 
-L_8E67	equb $FF,$FE,$FB,$FA,$EF,$EE,$EB,$EA,$BF,$BE,$BB,$BA,$AF,$AE,$AB,$AA
+.L_8E67	equb $FF,$FE,$FB,$FA,$EF,$EE,$EB,$EA,$BF,$BE,$BB,$BA,$AF,$AE,$AB,$AA
+}
 
-L_8E77	txa				;8E77 8A
+.draw_tachometer
+{
+		txa				;8E77 8A
 		lsr A			;8E78 4A
 		cmp #$40		;8E79 C9 40
 		bcc L_8E7F		;8E7B 90 02
 		sbc #$40		;8E7D E9 40
-L_8E7F	sta L_C34E		;8E7F 8D 4E C3
+.L_8E7F	sta L_C34E		;8E7F 8D 4E C3
 		sec				;8E82 38
 		sbc L_C34F		;8E83 ED 4F C3
 		bne L_8E8B		;8E86 D0 03
 		jmp L_8F02		;8E88 4C 02 8F
-L_8E8B	bmi L_8EC7		;8E8B 30 3A
+.L_8E8B	bmi L_8EC7		;8E8B 30 3A
 		sta ZP_51		;8E8D 85 51
 		dec ZP_51		;8E8F C6 51
 		ldx L_C34F		;8E91 AE 4F C3
@@ -9166,7 +9247,7 @@ L_8E8B	bmi L_8EC7		;8E8B 30 3A
 		and #$03		;8E9B 29 03
 		clc				;8E9D 18
 		adc ZP_51		;8E9E 65 51
-L_8EA0	cmp #$04		;8EA0 C9 04
+.L_8EA0	cmp #$04		;8EA0 C9 04
 		bcc L_8EBA		;8EA2 90 16
 		tax				;8EA4 AA
 		lda L_8F0C		;8EA5 AD 0C 8F
@@ -9180,12 +9261,12 @@ L_8EA0	cmp #$04		;8EA0 C9 04
 		sec				;8EB4 38
 		sbc #$04		;8EB5 E9 04
 		jmp L_8EA0		;8EB7 4C A0 8E
-L_8EBA	tax				;8EBA AA
+.L_8EBA	tax				;8EBA AA
 		lda L_8F09,X	;8EBB BD 09 8F
 		sta L_7AA6,Y	;8EBE 99 A6 7A
 		sta L_7AA7,Y	;8EC1 99 A7 7A
 		jmp L_8F02		;8EC4 4C 02 8F
-L_8EC7	eor #$FF		;8EC7 49 FF
+.L_8EC7	eor #$FF		;8EC7 49 FF
 		clc				;8EC9 18
 		adc #$01		;8ECA 69 01
 		sta ZP_51		;8ECC 85 51
@@ -9202,7 +9283,7 @@ L_8EC7	eor #$FF		;8EC7 49 FF
 		txa				;8EE4 8A
 		clc				;8EE5 18
 		adc ZP_51		;8EE6 65 51
-L_8EE8	cmp #$04		;8EE8 C9 04
+.L_8EE8	cmp #$04		;8EE8 C9 04
 		bcc L_8F02		;8EEA 90 16
 		tax				;8EEC AA
 		tya				;8EED 98
@@ -9216,15 +9297,18 @@ L_8EE8	cmp #$04		;8EE8 C9 04
 		sec				;8EFC 38
 		sbc #$04		;8EFD E9 04
 		jmp L_8EE8		;8EFF 4C E8 8E
-L_8F02	lda L_C34E		;8F02 AD 4E C3
+.L_8F02	lda L_C34E		;8F02 AD 4E C3
 		sta L_C34F		;8F05 8D 4F C3
 		rts				;8F08 60
 		
-L_8F09	equb $C0,$F0,$FC
-L_8F0C	equb $FF,$00,$00,$00
-L_8F10	equb $00
+.L_8F09	equb $C0,$F0,$FC
+.L_8F0C	equb $FF,$00,$00,$00
+.L_8F10	equb $00
+}
 
-L_8F11	stx L_8F80		;8F11 8E 80 8F
+.L_8F11
+{
+		stx L_8F80		;8F11 8E 80 8F
 		lda #$00		;8F14 A9 00
 		sta ZP_08		;8F16 85 08
 		lda #$7C		;8F18 A9 7C
@@ -9232,23 +9316,23 @@ L_8F11	stx L_8F80		;8F11 8E 80 8F
 		lda #$02		;8F1C A9 02
 		sta ZP_A0		;8F1E 85 A0
 		bne L_8F77		;8F20 D0 55
-L_8F22	ldy L_C778		;8F22 AC 78 C7
+.L_8F22	ldy L_C778		;8F22 AC 78 C7
 		jmp L_8F2E		;8F25 4C 2E 8F
-L_8F28	txa				;8F28 8A
+.L_8F28	txa				;8F28 8A
 		cmp L_075E,Y	;8F29 D9 5E 07
 		beq L_8F33		;8F2C F0 05
-L_8F2E	dey				;8F2E 88
+.L_8F2E	dey				;8F2E 88
 		bpl L_8F28		;8F2F 10 F7
 		bmi L_8F45		;8F31 30 12
-L_8F33	lda L_0769,Y	;8F33 B9 69 07
+.L_8F33	lda L_0769,Y	;8F33 B9 69 07
 		sta L_0710,X	;8F36 9D 10 07
 		bpl L_8F3F		;8F39 10 04
 		ldy #$03		;8F3B A0 03
 		sty ZP_08		;8F3D 84 08
-L_8F3F	and #$7F		;8F3F 29 7F
+.L_8F3F	and #$7F		;8F3F 29 7F
 		sta ZP_14		;8F41 85 14
 		bpl L_8F74		;8F43 10 2F
-L_8F45	lda L_0400,X	;8F45 BD 00 04
+.L_8F45	lda L_0400,X	;8F45 BD 00 04
 		and #$0F		;8F48 29 0F
 		tay				;8F4A A8
 		lda L_B240,Y	;8F4B B9 40 B2
@@ -9259,33 +9343,37 @@ L_8F45	lda L_0400,X	;8F45 BD 00 04
 		sta ZP_14		;8F56 85 14
 		lda L_8F80		;8F58 AD 80 8F
 		jmp L_8F69		;8F5B 4C 69 8F
-L_8F5E	lda ZP_14		;8F5E A5 14
+.L_8F5E	lda ZP_14		;8F5E A5 14
 		clc				;8F60 18
 		adc #$0A		;8F61 69 0A
 		bmi L_8F67		;8F63 30 02
 		sta ZP_14		;8F65 85 14
-L_8F67	lda ZP_14		;8F67 A5 14
-L_8F69	ldy ZP_08		;8F69 A4 08
+.L_8F67	lda ZP_14		;8F67 A5 14
+.L_8F69	ldy ZP_08		;8F69 A4 08
 		beq L_8F71		;8F6B F0 04
 		dec ZP_08		;8F6D C6 08
 		ora #$80		;8F6F 09 80
-L_8F71	sta L_0710,X	;8F71 9D 10 07
-L_8F74	dex				;8F74 CA
+.L_8F71	sta L_0710,X	;8F71 9D 10 07
+.L_8F74	dex				;8F74 CA
 		bpl L_8F22		;8F75 10 AB
-L_8F77	ldx L_C764		;8F77 AE 64 C7
+.L_8F77	ldx L_C764		;8F77 AE 64 C7
 		dex				;8F7A CA
 		dec ZP_A0		;8F7B C6 A0
 		bne L_8F22		;8F7D D0 A3
 		rts				;8F7F 60
 		
-L_8F80	equb $00
-L_8F81	equb $00
+.L_8F80	equb $00
+}
 
-L_8F82	stx L_8F81		;8F82 8E 81 8F
+.L_8F81	equb $00
+
+.clear_screen
+{
+		stx L_8F81		;8F82 8E 81 8F
 		lda ZP_12		;8F85 A5 12
 		beq L_8FEB		;8F87 F0 62
 		ldx #$00		;8F89 A2 00
-L_8F8B	lda #$FF		;8F8B A9 FF
+.L_8F8B	lda #$FF		;8F8B A9 FF
 		sta L_62A0,X	;8F8D 9D A0 62
 		sta L_63E0,X	;8F90 9D E0 63
 		sta L_6520,X	;8F93 9D 20 65
@@ -9306,7 +9394,7 @@ L_8F8B	lda #$FF		;8F8B A9 FF
 		dex				;8FC0 CA
 		bne L_8F8B		;8FC1 D0 C8
 		ldx #$17		;8FC3 A2 17
-L_8FC5	lda L_C200,X	;8FC5 BD 00 C2
+.L_8FC5	lda L_C200,X	;8FC5 BD 00 C2
 		sta L_75A0,X	;8FC8 9D A0 75
 		lda L_C218,X	;8FCB BD 18 C2
 		sta L_7608,X	;8FCE 9D 08 76
@@ -9321,8 +9409,8 @@ L_8FC5	lda L_C200,X	;8FC5 BD 00 C2
 		lda #$0F		;8FE5 A9 0F
 		sta L_7640		;8FE7 8D 40 76
 		rts				;8FEA 60
-L_8FEB	ldx #$00		;8FEB A2 00
-L_8FED	lda #$FF		;8FED A9 FF
+.L_8FEB	ldx #$00		;8FEB A2 00
+.L_8FED	lda #$FF		;8FED A9 FF
 		sta L_42A0,X	;8FEF 9D A0 42
 		sta L_43E0,X	;8FF2 9D E0 43
 		sta L_4520,X	;8FF5 9D 20 45
@@ -9342,12 +9430,12 @@ L_8FED	lda #$FF		;8FED A9 FF
 		sta L_52E0,X	;901E 9D E0 52
 		lda L_C100,X	;9021 BD 00 C1
 		sta L_5420,X	;9024 9D 20 54
-L_9027	dex				;9027 CA
+.L_9027	dex				;9027 CA
 		bne L_8FED		;9028 D0 C3
 		bit L_8F81		;902A 2C 81 8F
 		bpl L_9056		;902D 10 27
 		ldx #$17		;902F A2 17
-L_9031	lda L_C200,X	;9031 BD 00 C2
+.L_9031	lda L_C200,X	;9031 BD 00 C2
 		sta L_55A0,X	;9034 9D A0 55
 		lda L_C218,X	;9037 BD 18 C2
 		sta L_5608,X	;903A 9D 08 56
@@ -9361,12 +9449,16 @@ L_9031	lda L_C200,X	;9031 BD 00 C2
 		sta L_5578		;904E 8D 78 55
 		lda #$0F		;9051 A9 0F
 		sta L_5640		;9053 8D 40 56
-L_9056	rts				;9056 60
-L_9057	lda L_C76B		;9057 AD 6B C7
+.L_9056	rts				;9056 60
+}
+
+.update_colour_map
+{
+		lda L_C76B		;9057 AD 6B C7
 		sta ZP_16		;905A 85 16
 		lda #$00		;905C A9 00
 		sta ZP_14		;905E 85 14
-L_9060	tax				;9060 AA
+.L_9060	tax				;9060 AA
 		lda L_0201,X	;9061 BD 01 02
 		cmp L_0200,X	;9064 DD 00 02
 		beq L_90B1		;9067 F0 48
@@ -9381,7 +9473,7 @@ L_9060	tax				;9060 AA
 		tya				;9078 98
 		tax				;9079 AA
 		lda ZP_16		;907A A5 16
-L_907C	ldy L_A418,X	;907C BC 18 A4
+.L_907C	ldy L_A418,X	;907C BC 18 A4
 		sty ZP_21		;907F 84 21
 		ldy L_A400,X	;9081 BC 00 A4
 		sta (ZP_20),Y	;9084 91 20
@@ -9389,7 +9481,7 @@ L_907C	ldy L_A418,X	;907C BC 18 A4
 		cpx ZP_15		;9087 E4 15
 		bne L_907C		;9089 D0 F1
 		jmp L_90B1		;908B 4C B1 90
-L_908E	sta ZP_15		;908E 85 15
+.L_908E	sta ZP_15		;908E 85 15
 		ldy L_0200,X	;9090 BC 00 02
 		sta L_0200,X	;9093 9D 00 02
 		txa				;9096 8A
@@ -9400,7 +9492,7 @@ L_908E	sta ZP_15		;908E 85 15
 		tax				;909C AA
 		lda #$0E		;909D A9 0E
 		inx				;909F E8
-L_90A0	ldy L_A418,X	;90A0 BC 18 A4
+.L_90A0	ldy L_A418,X	;90A0 BC 18 A4
 		sty ZP_21		;90A3 84 21
 		ldy L_A400,X	;90A5 BC 00 A4
 		sta (ZP_20),Y	;90A8 91 20
@@ -9408,13 +9500,17 @@ L_90A0	ldy L_A418,X	;90A0 BC 18 A4
 		cpx ZP_15		;90AB E4 15
 		bcc L_90A0		;90AD 90 F1
 		beq L_90A0		;90AF F0 EF
-L_90B1	lda ZP_14		;90B1 A5 14
+.L_90B1	lda ZP_14		;90B1 A5 14
 		clc				;90B3 18
 		adc #$04		;90B4 69 04
 		sta ZP_14		;90B6 85 14
 		bpl L_9060		;90B8 10 A6
 		rts				;90BA 60
-L_90BB	lda L_0840		;90BB AD 40 08
+}
+
+.sysctl_47
+{
+		lda L_0840		;90BB AD 40 08
 		beq L_9106		;90BE F0 46
 		txa				;90C0 8A
 		pha				;90C1 48
@@ -9427,14 +9523,14 @@ L_90BB	lda L_0840		;90BB AD 40 08
 		lda L_C77B		;90CD AD 7B C7
 		beq L_9106		;90D0 F0 34
 		ldx #$0B		;90D2 A2 0B
-L_90D4	lda L_AEC1,X	;90D4 BD C1 AE
+.L_90D4	lda L_AEC1,X	;90D4 BD C1 AE
 		sta L_910E,X	;90D7 9D 0E 91
 		dex				;90DA CA
 		bpl L_90D4		;90DB 10 F7
 		lda #$0F		;90DD A9 0F
 		ldy #$91		;90DF A0 91
 		ldx #$0B		;90E1 A2 0B
-L_90E3	jsr KERNEL_SETNAM		;90E3 20 BD FF
+.L_90E3	jsr KERNEL_SETNAM		;90E3 20 BD FF
 		lda #$0F		;90E6 A9 0F
 		ldx #$08		;90E8 A2 08
 		ldy #$0F		;90EA A0 0F
@@ -9445,29 +9541,30 @@ L_90E3	jsr KERNEL_SETNAM		;90E3 20 BD FF
 		beq L_90FB		;90F6 F0 03
 		sec				;90F8 38
 		bcs L_90FC		;90F9 B0 01
-L_90FB	clc				;90FB 18
-L_90FC	php				;90FC 08
+.L_90FB	clc				;90FB 18
+.L_90FC	php				;90FC 08
 		lda #$0F		;90FD A9 0F
 		jsr KERNEL_CLOSE		;90FF 20 C3 FF
 		bcs L_9108		;9102 B0 04
 		plp				;9104 28
 		rts				;9105 60
-L_9106	clc				;9106 18
+.L_9106	clc				;9106 18
 		rts				;9107 60
-L_9108	plp				;9108 28
+.L_9108	plp				;9108 28
 		sec				;9109 38
 		rts				;910A 60
 		
-L_910B	equb $53,$30,$3A
-L_910E	equb $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
+.L_910B	equb $53,$30,$3A
+.L_910E	equb $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
 
-L_911A	lda #$02		;911A A9 02
+.L_911A	lda #$02		;911A A9 02
 		ldy #$91		;911C A0 91
 		ldx #$23		;911E A2 23
 		jmp L_90E3		;9120 4C E3 90
 		
-L_9123	equb $49,$30
-ENDIF
+.L_9123	equb $49,$30
+}
+
 .L_9125	equb $7F,$33,$35,$37,$39,$2B,$5C,$31,$0D,$57,$52,$59,$49,$50,$2A,$00
 		equb $00,$41,$44,$47,$4A,$4C,$3B,$00,$00,$34,$36,$38,$30,$2D,$1E,$32
 		equb $00,$5A,$43,$42,$4D,$2E,$10,$20,$00,$53,$46,$48,$4B,$3A,$3D,$01
@@ -9674,8 +9771,8 @@ ENDIF
 		rts				;9318 60
 }
 
-.L_9319	RTS			; BEEB_STUB
-IF _TODO
+.L_9319
+{
 		sta ZP_14		;9319 85 14
 		jsr disable_ints_and_page_in_RAM		;931B 20 F1 33
 		ldx L_C77D		;931E AE 7D C7
@@ -9684,7 +9781,7 @@ IF _TODO
 		beq L_932C		;9327 F0 03
 		clc				;9329 18
 		adc #$08		;932A 69 08
-L_932C	asl A			;932C 0A
+.L_932C	asl A			;932C 0A
 		asl A			;932D 0A
 		asl A			;932E 0A
 		asl A			;932F 0A
@@ -9692,7 +9789,7 @@ L_932C	asl A			;932C 0A
 		ldy #$00		;9331 A0 00
 		bit ZP_14		;9333 24 14
 		bmi L_936E		;9335 30 37
-L_9337	lda L_3273,Y	;9337 B9 73 32
+.L_9337	lda L_3273,Y	;9337 B9 73 32
 		sta L_DE00,X	;933A 9D 00 DE		; I/O 1
 		lda L_3280,Y	;933D B9 80 32
 		sta L_DF00,X	;9340 9D 00 DF		; I/O 2
@@ -9713,10 +9810,10 @@ L_9337	lda L_3273,Y	;9337 B9 73 32
 		lda L_82A7		;9367 AD A7 82
 		sta L_DF02,X	;936A 9D 02 DF		; I/O 2
 		rts				;936D 60
-ENDIF
+}
 
-.L_936E	RTS			; BEEB_STUB
-IF _TODO
+.L_936E
+{
 		lda L_DE00,X	;936E BD 00 DE		; I/O 1
 		sta L_3273,Y	;9371 99 73 32
 		lda L_DF00,X	;9374 BD 00 DF		; I/O 2
@@ -9739,10 +9836,10 @@ IF _TODO
 		sta L_82A7		;93A1 8D A7 82
 		jsr page_in_IO_and_enable_ints		;93A4 20 FC 33
 		rts				;93A7 60
-ENDIF
+}
 
-.L_93A8	RTS			; BEEB_STUB
-IF _TODO
+.L_93A8
+{
 		eor L_C77B		;93A8 4D 7B C7
 		bne L_93DF		;93AB D0 32
 		lda L_C39A		;93AD AD 9A C3
@@ -9753,26 +9850,29 @@ IF _TODO
 		cmp #$40		;93B9 C9 40
 		beq L_93C0		;93BB F0 03
 		jmp L_9756		;93BD 4C 56 97
-L_93C0	jsr disable_ints_and_page_in_RAM		;93C0 20 F1 33
+.L_93C0	jsr disable_ints_and_page_in_RAM		;93C0 20 F1 33
 		lda L_C77B		;93C3 AD 7B C7
 		beq L_93E0		;93C6 F0 18
 		ldx #$00		;93C8 A2 00
-L_93CA	lda L_DE00,X	;93CA BD 00 DE		; I/O 1
+.L_93CA	lda L_DE00,X	;93CA BD 00 DE		; I/O 1
 		sta L_4000,X	;93CD 9D 00 40
 		lda L_DF00,X	;93D0 BD 00 DF		; I/O 2
 		sta L_4100,X	;93D3 9D 00 41
 		dex				;93D6 CA
 		bne L_93CA		;93D7 D0 F1
 		jsr L_9746		;93D9 20 46 97
-L_93DC	jsr page_in_IO_and_enable_ints		;93DC 20 FC 33
-ENDIF
+}
+\\
+.L_93DC	jsr page_in_IO_and_enable_ints		;93DC 20 FC 33
+\\
 .L_93DF	rts				;93DF 60
 
-IF _TODO
-L_93E0	jsr L_974E		;93E0 20 4E 97
+.L_93E0
+{
+		jsr L_974E		;93E0 20 4E 97
 		bcs L_93DF		;93E3 B0 FA
 		ldx #$00		;93E5 A2 00
-L_93E7	sed				;93E7 F8
+.L_93E7	sed				;93E7 F8
 		sec				;93E8 38
 		lda L_400E,X	;93E9 BD 0E 40
 		sbc L_DE0E,X	;93EC FD 0E DE
@@ -9783,19 +9883,19 @@ L_93E7	sed				;93E7 F8
 		cld				;93FB D8
 		bcs L_940D		;93FC B0 0F
 		ldy #$10		;93FE A0 10
-L_9400	lda L_4000,X	;9400 BD 00 40
+.L_9400	lda L_4000,X	;9400 BD 00 40
 		sta L_DE00,X	;9403 9D 00 DE
 		inx				;9406 E8
 		dey				;9407 88
 		bne L_9400		;9408 D0 F6
 		jmp L_9412		;940A 4C 12 94
-L_940D	txa				;940D 8A
+.L_940D	txa				;940D 8A
 		clc				;940E 18
 		adc #$10		;940F 69 10
 		tax				;9411 AA
-L_9412	cpx #$00		;9412 E0 00
+.L_9412	cpx #$00		;9412 E0 00
 		bne L_93E7		;9414 D0 D1
-L_9416	sed				;9416 F8
+.L_9416	sed				;9416 F8
 		sec				;9417 38
 		lda L_410E,X	;9418 BD 0E 41
 		sbc L_DF0E,X	;941B FD 0E DF
@@ -9806,20 +9906,20 @@ L_9416	sed				;9416 F8
 		cld				;942A D8
 		bcs L_943C		;942B B0 0F
 		ldy #$10		;942D A0 10
-L_942F	lda L_4100,X	;942F BD 00 41
+.L_942F	lda L_4100,X	;942F BD 00 41
 		sta L_DF00,X	;9432 9D 00 DF
 		inx				;9435 E8
 		dey				;9436 88
 		bne L_942F		;9437 D0 F6
 		jmp L_9441		;9439 4C 41 94
-L_943C	txa				;943C 8A
+.L_943C	txa				;943C 8A
 		clc				;943D 18
 		adc #$10		;943E 69 10
 		tax				;9440 AA
-L_9441	cpx #$00		;9441 E0 00
+.L_9441	cpx #$00		;9441 E0 00
 		bne L_9416		;9443 D0 D1
 		jmp L_93DC		;9445 4C DC 93
-ENDIF
+}
 
 .L_9448
 {
@@ -10029,8 +10129,9 @@ ENDIF
 
 .L_9674	equb "DIRECTORY:"
 
-IF _TODO
-L_967E	lda L_96A7		;967E AD A7 96
+.L_967E
+{
+		lda L_96A7		;967E AD A7 96
 		sta ZP_15		;9681 85 15
 		lda L_96A6		;9683 AD A6 96
 		asl A			;9686 0A
@@ -10050,14 +10151,23 @@ L_967E	lda L_96A7		;967E AD A7 96
 		ror ZP_14		;96A1 66 14
 		lda ZP_14		;96A3 A5 14
 		rts				;96A5 60
-		
-L_96A6	equb $3B
-L_96A7	equb $68
+}
 
-L_96A8	lda #$00		;96A8 A9 00
+.L_96A6	equb $3B
+.L_96A7	equb $68
+
+.L_96A8
+{
+		lda #$00		;96A8 A9 00
 		jmp L_96AF		;96AA 4C AF 96
-L_96AD	lda #$80		;96AD A9 80
-L_96AF	sta ZP_19		;96AF 85 19
+}
+
+.L_96AD
+		lda #$80		;96AD A9 80
+\\
+.L_96AF
+{
+		sta ZP_19		;96AF 85 19
 		lda #$00		;96B1 A9 00
 		sta ZP_1E		;96B3 85 1E
 		lda #$40		;96B5 A9 40
@@ -10067,7 +10177,7 @@ L_96AF	sta ZP_19		;96AF 85 19
 		lda #$68		;96BE A9 68
 		sta L_96A7		;96C0 8D A7 96
 		ldx #$00		;96C3 A2 00
-L_96C5	jsr L_967E		;96C5 20 7E 96
+.L_96C5	jsr L_967E		;96C5 20 7E 96
 		sta L_4300,X	;96C8 9D 00 43
 		inx				;96CB E8
 		bne L_96C5		;96CC D0 F7
@@ -10077,9 +10187,13 @@ L_96C5	jsr L_967E		;96C5 20 7E 96
 		lda L_F810		;96D4 AD 10 F8
 		sta (ZP_1E),Y	;96D7 91 1E
 		jmp L_96E1		;96D9 4C E1 96
-L_96DC	lda (ZP_1E),Y	;96DC B1 1E
+.L_96DC	lda (ZP_1E),Y	;96DC B1 1E
 		sta L_F810		;96DE 8D 10 F8
-L_96E1	ldy #$00		;96E1 A0 00
+}
+\\
+.L_96E1	
+{
+		ldy #$00		;96E1 A0 00
 		bit ZP_19		;96E3 24 19
 		bmi L_96F5		;96E5 30 0E
 		tya				;96E7 98
@@ -10090,8 +10204,8 @@ L_96E1	ldy #$00		;96E1 A0 00
 		ldy #$FF		;96F0 A0 FF
 		sta (ZP_1E),Y	;96F2 91 1E
 		tay				;96F4 A8
-L_96F5	ldx #$00		;96F5 A2 00
-L_96F7	lda (ZP_1E),Y	;96F7 B1 1E
+.L_96F5	ldx #$00		;96F5 A2 00
+.L_96F7	lda (ZP_1E),Y	;96F7 B1 1E
 		sta ZP_17		;96F9 85 17
 		stx ZP_18		;96FB 86 18
 		ldx L_F810		;96FD AE 10 F8
@@ -10104,10 +10218,10 @@ L_96F7	lda (ZP_1E),Y	;96F7 B1 1E
 		cpx ZP_17		;970D E4 17
 		beq L_9718		;970F F0 07
 		bne L_96F7		;9711 D0 E4
-L_9713	cmp ZP_17		;9713 C5 17
+.L_9713	cmp ZP_17		;9713 C5 17
 		bne L_96F7		;9715 D0 E0
 		txa				;9717 8A
-L_9718	sta (ZP_1E),Y	;9718 91 1E
+.L_9718	sta (ZP_1E),Y	;9718 91 1E
 		lda L_F810		;971A AD 10 F8
 		clc				;971D 18
 		adc L_4300,X	;971E 7D 00 43
@@ -10115,7 +10229,7 @@ L_9718	sta (ZP_1E),Y	;9718 91 1E
 		cpy #$0E		;9724 C0 0E
 		bne L_9729		;9726 D0 01
 		iny				;9728 C8
-L_9729	iny				;9729 C8
+.L_9729	iny				;9729 C8
 		bne L_96F5		;972A D0 C9
 		bit ZP_19		;972C 24 19
 		bpl L_9745		;972E 10 15
@@ -10130,51 +10244,63 @@ L_9729	iny				;9729 C8
 		lda #$81		;973F A9 81
 		sta L_C39A		;9741 8D 9A C3
 		sec				;9744 38
-L_9745	rts				;9745 60
-L_9746	jsr L_96A8		;9746 20 A8 96
+.L_9745	rts				;9745 60
+}
+
+.L_9746
+{
+		jsr L_96A8		;9746 20 A8 96
 		inc ZP_1F		;9749 E6 1F
 		jmp L_96E1		;974B 4C E1 96
-L_974E	jsr L_96AD		;974E 20 AD 96
+}
+
+.L_974E
+{
+		jsr L_96AD		;974E 20 AD 96
 		inc ZP_1F		;9751 E6 1F
 		jmp L_96E1		;9753 4C E1 96
-L_9756	lda L_C77B		;9756 AD 7B C7
+}
+
+.L_9756
+{
+		lda L_C77B		;9756 AD 7B C7
 		beq L_9784		;9759 F0 29
 		ldx #$7F		;975B A2 7F
-L_975D	lda L_AE40,X	;975D BD 40 AE
+.L_975D	lda L_AE40,X	;975D BD 40 AE
 		sta L_4020,X	;9760 9D 20 40
 		cpx #$3C		;9763 E0 3C
 		bcs L_976D		;9765 B0 06
 		lda L_C728,X	;9767 BD 28 C7
 		sta L_40A0,X	;976A 9D A0 40
-L_976D	cpx #$0C		;976D E0 0C
+.L_976D	cpx #$0C		;976D E0 0C
 		bcs L_9777		;976F B0 06
 		lda L_83B0,X	;9771 BD B0 83
 		sta L_40E0,X	;9774 9D E0 40
-L_9777	dex				;9777 CA
+.L_9777	dex				;9777 CA
 		bpl L_975D		;9778 10 E3
 		lda L_31A1		;977A AD A1 31
 		sta L_40DC		;977D 8D DC 40
 		jsr L_96A8		;9780 20 A8 96
 		rts				;9783 60
-L_9784	jsr L_96AD		;9784 20 AD 96
+.L_9784	jsr L_96AD		;9784 20 AD 96
 		bcs L_97AE		;9787 B0 25
 		ldx #$7F		;9789 A2 7F
-L_978B	lda L_4020,X	;978B BD 20 40
+.L_978B	lda L_4020,X	;978B BD 20 40
 		sta L_AE40,X	;978E 9D 40 AE
 		cpx #$3C		;9791 E0 3C
 		bcs L_979B		;9793 B0 06
 		lda L_40A0,X	;9795 BD A0 40
 		sta L_C728,X	;9798 9D 28 C7
-L_979B	cpx #$0C		;979B E0 0C
+.L_979B	cpx #$0C		;979B E0 0C
 		bcs L_97A5		;979D B0 06
 		lda L_40E0,X	;979F BD E0 40
 		sta L_83B0,X	;97A2 9D B0 83
-L_97A5	dex				;97A5 CA
+.L_97A5	dex				;97A5 CA
 		bpl L_978B		;97A6 10 E3
 		lda L_40DC		;97A8 AD DC 40
 		sta L_31A1		;97AB 8D A1 31
-L_97AE	rts				;97AE 60
-ENDIF
+.L_97AE	rts				;97AE 60
+}
 
 .maybe_define_keys
 {
@@ -10332,7 +10458,7 @@ ENDIF
 		dex				;98F2 CA
 		bpl L_98E5		;98F3 10 F0
 		lda #$35		;98F5 A9 35
-		sta ZP_01		;98F7 85 01
+		sta RAM_SELECT		;98F7 85 01
 		cli				;98F9 58
 		lda #$01		;98FA A9 01
 		jsr sysctl		;98FC 20 25 87
@@ -10475,13 +10601,13 @@ L_99F0	= L_99EF + 1
 		rts				;9A31 60
 }
 
-IF _TODO
-nmi_handler
+.nmi_handler
+{
 		pha				;9A32 48
-		lda L_DD0D		;9A33 AD 0D DD
+		lda CIA2_C2DDRA		;9A33 AD 0D DD
 		pla				;9A36 68
 		rti				;9A37 40
-ENDIF
+}
 
 .L_9A38
 {
@@ -11930,7 +12056,234 @@ ORG &A700
 		equb $E7,$04,$CD,$05,$32,$04,$00,$05,$C8,$05,$40,$06,$F2,$04,$9C,$05
 		equb $9A,$06,$C5,$06,$A6,$05,$4C,$06,$5B,$07,$5B,$07,$4C,$06,$0C,$C0
 
-; <Loads of data missing>
+		equb $57,$FA,$00,$00,$00,$01,$80,$E8,$08,$87,$12,$03,$AB,$87,$80,$01
+		equb $3E,$3F,$03,$00,$00,$BF,$04,$00,$00,$35,$03,$DF,$00,$B3,$04,$05
+		equb $01,$14,$03,$BC,$01,$8C,$04,$07,$02,$DD,$02,$95,$02,$4D,$04,$05
+		equb $03,$92,$02,$68,$03,$F5,$03,$FB,$03,$32,$02,$32,$04,$85,$03,$E7
+		equb $04,$BF,$01,$F2,$04,$FF,$02,$C8,$05,$3A,$01,$A6,$05,$63,$02,$9A
+		equb $06,$A4,$00,$4C,$06,$B3,$01,$5B,$07,$08,$40,$40,$FF,$00,$20,$80
+		equb $B5,$1C,$00,$AB,$80,$80,$01,$20,$78,$FF,$87,$00,$87,$00,$78,$FF
+		equb $2C,$00,$3C,$01,$3C,$01,$2C,$00,$E1,$00,$F0,$01,$F0,$01,$E1,$00
+		equb $96,$01,$A5,$02,$A5,$02,$96,$01,$4A,$02,$5A,$03,$5A,$03,$4A,$02
+		equb $FF,$02,$0E,$04,$0E,$04,$FF,$02,$B3,$03,$C3,$04,$C3,$04,$B3,$03
+		equb $68,$04,$77,$05,$77,$05,$68,$04,$1D,$05,$2C,$06,$2C,$06,$1D,$05
+		equb $D1,$05,$E1,$06,$E1,$06,$D1,$05,$86,$06,$95,$07,$95,$07,$86,$06
+		equb $3A,$07,$4A,$08,$4A,$08,$3A,$07,$EF,$07,$FF,$08,$FF,$08,$EF,$07
+		equb $A4,$08,$B3,$09,$B3,$09,$A4,$08,$0C,$80,$00,$10,$00,$00,$00,$FF
+		equb $90,$C0,$0C,$7A,$14,$00,$AB,$7A,$80,$01,$32,$40,$03,$00,$00,$C0
+		equb $04,$00,$00,$4C,$03,$1C,$01,$CA,$04,$FB,$00,$71,$03,$36,$02,$EB
+		equb $04,$F4,$01,$AF,$03,$4C,$03,$22,$05,$E9,$02,$04,$04,$5C,$04,$6D
+		equb $05,$D9,$03,$71,$04,$63,$05,$CD,$05,$C1,$04,$F5,$04,$60,$06,$41
+		equb $06,$A0,$05,$8E,$05,$50,$07,$C8,$06,$73,$06,$3B,$06,$32,$08,$61
+		equb $07,$3B,$07,$FC,$06,$03,$09,$0B,$08,$F4,$07,$0C,$C0,$00,$F8,$00
+		equb $00,$00,$01,$90,$40,$0B,$7A,$14,$03,$AB,$7A,$80,$01,$32,$40,$03
+		equb $00,$00,$C0,$04,$00,$00,$35,$03,$FB,$00,$B3,$04,$1C,$01,$14,$03
+		equb $F4,$01,$8E,$04,$36,$02,$DD,$02,$E9,$02,$50,$04,$4C,$03,$92,$02
+		equb $D9,$03,$FB,$03,$5C,$04,$32,$02,$C1,$04,$8E,$03,$63,$05,$BE,$01
+		equb $A0,$05,$0A,$03,$60,$06,$37,$01,$73,$06,$71,$02,$50,$07,$9E,$00
+		equb $3B,$07,$C4,$01,$32,$08,$F4,$FF,$F4,$07,$03,$01,$03,$09,$08,$40
+		equb $40,$FF,$00,$20,$7C,$B0,$18,$00,$AB,$7C,$80,$01,$20,$78,$FF,$87
+		equb $00,$87,$00,$78,$FF,$32,$00,$41,$01,$41,$01,$32,$00,$EC,$00,$FC
+		equb $01,$FC,$01,$EC,$00,$A6,$01,$B6,$02,$B6,$02,$A6,$01,$60,$02,$70
+		equb $03,$70,$03,$60,$02,$1B,$03,$2A,$04,$2A,$04,$1B,$03,$D5,$03,$E4
+		equb $04,$E4,$04,$D5,$03,$8F,$04,$9F,$05,$9F,$05,$8F,$04,$49,$05,$59
+		equb $06,$59,$06,$49,$05,$03,$06,$13,$07,$13
+
+.L_B4FA	equb $07,$03,$06,$BE,$06,$CD,$07,$CD,$07,$BE,$06,$78,$07,$87,$08,$87
+		equb $08,$78,$07,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$60,$61,$03,$44,$26,$28,$2A,$2C,$00,$00,$02,$00,$04,$00
+		equb $06,$00,$08,$00,$0A,$00,$0C,$00,$0E,$00,$10,$00,$00,$20,$40,$60
+		equb $01,$21,$41,$61,$02,$02,$02,$02,$02,$02,$02,$61,$41,$21,$01,$60
+		equb $40,$20,$00,$00,$00,$00,$00,$00,$00,$60,$21,$51,$02,$22,$42,$62
+		equb $03,$13,$00,$20,$40,$70,$21,$41,$61,$02,$22,$32,$00,$02,$04,$06
+		equb $E7,$29,$CA,$4B,$2C,$46,$96,$55,$85,$24,$33,$B2,$21,$00,$00,$00
+		equb $00,$00,$00,$10,$20,$40,$60,$01,$21,$41,$61,$02,$02,$02,$02,$02
+		equb $02,$71,$61,$41,$21,$01,$60,$40,$20,$00,$00,$10,$10,$10,$10,$10
+		equb $10,$90,$80,$10,$00,$00,$00,$00,$00,$00,$80,$90,$00,$01,$02,$03
+		equb $04,$05,$06,$07,$08,$09,$0A,$0B,$1B,$80,$1C,$80,$1D,$80,$1E,$80
+		equb $1F,$80,$20,$80,$A1,$80,$80,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $4E,$1D,$DB,$0A,$A8,$36,$34,$22,$00,$00,$00,$9B,$20,$19,$E0,$18
+		equb $A0,$17,$60,$16,$20,$14,$E0,$13,$A0,$12,$60,$11,$20,$0F,$E0,$0E
+		equb $A0,$48,$27,$26,$35,$44,$63,$13,$42,$71,$21,$50,$00,$13,$03,$62
+		equb $42,$22,$02,$51,$21,$E0,$80,$05,$05,$85,$00,$00,$85,$05,$05,$05
+		equb $32,$22,$02,$61,$41,$21,$70,$40,$A0,$80,$00,$40,$01,$41,$02,$42
+		equb $03,$33,$63,$00,$20,$30,$30,$30,$30,$30,$30,$30,$30,$30,$10,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$90,$B0
+		equb $30,$30,$30,$30,$30,$30,$30,$A0,$80,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$90,$B0,$30,$30,$30,$30,$30,$30,$30,$30,$A0,$80,$00,$21,$42
+		equb $53,$E4,$65,$E6,$57,$48,$00,$60,$41,$92,$62,$A3,$63,$14,$44,$00
+		equb $20,$40,$D0,$60,$60,$D0,$40,$20,$04,$63,$B3,$03,$42,$82,$31,$60
+		equb $00,$A6,$80,$00,$00,$00,$00,$00,$80,$35,$47,$87,$46,$75,$25,$44
+		equb $63,$03,$22,$41,$60,$00,$08,$27,$36,$C5,$44,$43,$32,$21,$00,$50
+		equb $50,$50,$50,$C0,$30,$20,$10,$00,$00,$00,$10,$30,$60,$11,$51,$22
+		equb $72,$00,$60,$41,$A2,$D2,$62,$F2,$72,$72,$72,$72,$72,$22,$B2,$32
+		equb $A2,$12,$F1,$31,$60,$00,$0A,$68,$47,$26,$05,$63,$42,$21,$00,$00
+		equb $10,$30,$60,$21,$71,$42,$13,$63,$34,$05,$55,$55,$26,$76,$47,$18
+		equb $68,$39,$8A,$00,$00,$00,$00,$00,$C7,$76,$26,$55,$05,$34,$63,$13
+		equb $42,$71,$21,$21,$60,$30,$10,$00,$00,$00,$00,$00,$00,$00,$00,$8A
+		equb $80,$00,$00,$00,$00,$00,$80,$4C,$00,$41,$03,$44,$06,$47,$09,$4A
+		equb $0C,$70,$50,$30,$10,$00,$10,$30,$50,$70,$AA,$00,$00,$00,$00,$00
+		equb $00,$80,$2A,$59,$49,$39,$A9,$63,$63,$63,$63,$47,$00,$00,$00,$10
+		equb $30,$50,$01,$31,$71,$42,$23,$14,$62,$62,$62,$D2,$42,$A2,$02,$61
+		equb $B1,$01,$40,$00,$00,$40,$01,$41,$02,$42,$03,$43,$04,$64,$45,$26
+		equb $07,$67,$00,$10,$20,$30,$40,$40,$40,$40,$40,$40,$00,$00,$00,$00
+		equb $00,$10,$30,$60,$21,$8D,$80,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$80,$00,$9C,$80,$1C,$80,$9C,$80,$80,$00,$00,$00,$00,$00
+		equb $00,$00,$10,$20,$40,$60,$01,$31,$71,$00,$10,$30,$70,$31,$71,$B2
+		equb $52,$62,$00,$00,$00,$10,$30,$60,$21,$02,$03,$00,$10,$30,$60,$21
+		equb $71,$62,$53,$44,$00,$70,$61,$52,$43,$34,$25,$16,$07,$00,$00,$00
+		equb $00,$00,$00,$00,$80,$2E,$00,$01,$F1,$52,$A3,$63,$94,$34,$54,$00
+		equb $30,$D0,$70,$11,$A1,$31,$41,$41,$41,$40,$10,$00,$00,$00,$10,$40
+		equb $11,$61,$40,$40,$40,$40,$40,$40,$30,$20,$10,$00,$9A,$C0,$80,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$00,$0C,$80,$24,$03
+		equb $02,$21,$60,$30,$10,$00,$00,$47,$46,$65,$25,$05,$05,$15,$35,$75
+		equb $80,$E6,$16,$45,$74,$24,$53,$23,$13,$46,$25,$14,$13,$22,$41,$70
+		equb $30,$00,$00,$01,$12,$33,$54,$75,$17,$38,$59,$7A,$02,$71,$D1,$21
+		equb $60,$30,$10,$00,$00,$00,$00,$10,$30,$60,$21,$D1,$71,$02,$00,$40
+		equb $81,$31,$D1,$61,$F1,$71,$71,$22,$61,$21,$60,$30,$10,$00,$00,$00
+		equb $00,$60,$41,$22,$03,$63,$44,$25,$06,$66,$47,$28,$00,$00,$10,$30
+		equb $60,$21,$71,$52,$43,$24,$45,$E6,$80,$21,$42,$63,$05,$26,$28,$60
+		equb $27,$C0,$27,$40,$26,$E0,$26,$A0,$26,$80,$26,$80,$26,$A0,$26,$E0
+		equb $27,$20,$A7,$60,$00,$00,$00,$01,$02,$03,$04,$05,$06,$07,$08,$68
+		equb $49,$2A,$0B,$6B,$00,$70,$51,$32,$13,$73,$54,$35,$06,$00,$50,$31
+		equb $12,$72,$53,$34,$15,$06,$00,$60,$41,$22,$03,$73,$64,$65,$66,$67
+		equb $68,$69,$6A,$6B,$00,$60,$41,$22,$03,$53,$24,$64,$25,$65,$26,$66
+		equb $27,$67,$00,$81,$61,$A2,$42,$52,$52,$52,$52,$00,$41,$72,$14,$35
+		equb $56,$77,$19,$3A,$5B,$00,$21,$42,$63,$05,$26,$47,$68,$1A,$5B,$64
+		equb $14,$43,$72,$22,$51,$01,$40,$20,$10,$00,$00,$05,$05,$05,$15,$25
+		equb $45,$E5,$00,$00,$22,$12,$F1,$51,$31,$11,$60,$30,$00,$00,$50,$31
+		equb $22,$23,$34,$55,$76,$18,$00,$21,$42,$63,$05,$26,$47,$68,$79,$7A
+		equb $52,$71,$21,$60,$30,$10,$00,$00,$00,$00,$00,$00,$20,$00,$40,$00
+		equb $60,$32,$00,$00,$60,$00,$40,$00,$20,$00,$00,$00,$00,$00,$20,$00
+		equb $40,$00,$60,$32,$00,$00,$60,$00,$40,$00,$20,$00,$00,$00,$00,$00
+		equb $20,$00,$40,$00,$60,$32,$00,$00,$60,$00,$40,$00,$20,$00,$00,$00
+		equb $00,$00,$20,$00,$40,$00,$60,$32,$00,$00,$60,$00,$40,$00,$20,$00
+		equb $00,$63,$43,$A3,$F2,$42,$02,$41,$01,$40,$28,$47,$66,$06,$25,$44
+		equb $63,$03,$22,$41,$60,$00,$14,$73,$43,$03,$42,$02,$41,$01,$40,$00
+		equb $74,$14,$43,$03,$42,$02,$41,$01,$40,$00,$14,$53,$13,$52,$12,$51
+		equb $11,$50,$A0,$80,$74,$34,$73,$33,$72,$32,$71,$31,$E0,$80,$23,$62
+		equb $22,$61,$21,$70,$40,$20,$00,$42,$42,$52,$72,$13,$43,$F3,$00,$00
+		equb $00,$00,$00,$00,$85,$05,$05,$05,$05,$0C,$59,$47,$55,$04,$52,$41
+		equb $50,$00,$00,$10,$30,$50,$E0,$50,$30,$10,$00,$00,$00,$00,$00,$80
+		equb $00,$00,$00,$00,$04,$04,$04,$04,$04,$04,$73,$E3,$33,$52,$41,$00
+		equb $44,$04,$43,$03,$42,$02,$41,$01,$40,$00,$41,$41,$41,$41,$41,$41
+		equb $31,$A1,$01,$E0,$30,$00,$18,$C0,$16,$80,$14,$40,$12,$00,$0F,$C0
+		equb $0D,$80,$0B,$40,$09,$00,$06,$C0,$04,$80,$02,$40,$00,$00,$7E,$4C
+		equb $1A,$08,$16,$44,$13,$02,$11,$40,$10,$00,$60,$30,$10,$00,$00,$10
+		equb $30,$60,$21,$13,$00,$10,$A0,$0E,$40,$0B,$E0,$09,$80,$07,$20,$04
+		equb $C0,$02,$60,$00,$00,$00,$E8,$18,$47,$76,$26,$55,$05,$34,$00,$00
+		equb $00,$10,$30,$60,$21,$71,$42,$00,$21,$42,$63,$05,$26,$47,$68,$0A
+		equb $00,$60,$31,$71,$32,$72,$33,$73,$34,$74,$00,$20,$50,$11,$51,$12
+		equb $52,$13,$53,$14,$00,$40,$01,$41,$02,$42,$03,$43,$94,$F4,$00,$40
+		equb $01,$41,$02,$42,$03,$43,$F3,$94
+
+.little_ramp_data
+		equb $2C,$0F,$0F,$25,$00,$05,$A0,$CF
+		equb $6A,$9F,$6B,$24,$50,$50,$25,$00,$00,$19,$63,$80,$2F,$04,$64,$86
+		equb $1F,$65,$66,$57,$0E,$68,$67,$C0,$0D,$64,$04,$E0,$0C,$69,$9F,$17
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$CC,$02,$C6,$01,$16,$17,$B7,$10
+		equb $00,$01,$20,$19,$18,$94,$31,$04,$03,$2A,$42,$00,$2A,$53,$00,$2A
+		equb $64,$00,$2A,$75,$28,$2A,$86,$29,$2A,$97,$00,$2A,$A8,$2A,$2A,$B9
+		equb $2B,$2A,$CA,$00,$2A,$DB,$00,$04,$EC,$09,$0A,$D3,$FD,$16,$17,$66
+		equb $FE,$00,$17,$EF,$1B,$1A,$8D,$DF,$06,$05,$22,$2F,$02,$02,$21,$46
+		equb $03,$58,$01,$22
+
+.stepping_stones_data
+		equb $38,$2A,$2A,$0E,$00,$0F,$A0,$CF,$00,$9F,$3B,$3C
+		equb $3C,$25,$13,$48,$49,$00,$32,$80,$2F,$04,$64,$86,$1F,$65,$66,$57
+		equb $0E,$68,$67,$C0,$0D,$64,$04,$E0,$0C,$69,$9F,$2E,$2F,$2E,$2F,$2E
+		equb $2F,$2E,$2F,$38,$C0,$02,$4C,$03,$C6,$01,$7C,$7D,$97,$10,$7F,$7E
+		equb $00,$20,$03,$4C,$20,$30,$33,$9F,$33,$15,$1E,$1F,$64,$64,$64,$64
+		equb $5E,$0C,$D0,$06,$E0,$16,$17,$D7,$F1,$1B,$1A,$4D,$F2,$60,$F3,$00
+		equb $9F,$00,$49,$00,$5A,$6B,$00,$00,$48,$00,$4C,$FD,$46,$FE,$16,$17
+		equb $17,$EF,$1B,$1A,$8D,$DF,$07,$09,$30,$34,$08,$09,$03,$D4,$08,$3F
+		equb $0F,$BE,$11,$BD,$13,$BB,$15,$BA,$2C,$F3,$1E,$42,$10,$11,$12,$13
+		equb $14,$15,$16,$2F,$05
+
+.hump_back_data
+		equb $35,$2E,$2E,$13,$40,$05,$60,$04,$3A,$8F,$7A
+		equb $1C,$1D,$1E,$1F,$22,$27,$43,$4D,$0D,$47,$0E,$17,$16,$96,$1F,$1A
+		equb $1B,$0C,$2F,$20,$3F,$00,$9F,$48,$00,$39,$00,$48,$49,$48,$00,$38
+		equb $00,$DF,$03,$4C,$07,$EF,$7D,$7C,$56,$FE,$7E,$7F,$C0,$FD,$4C,$03
+		equb $E0,$FC,$33,$6F,$4A,$71,$1F,$64,$64,$5E,$CD,$F5,$C7,$F4,$17,$16
+		equb $16,$E3,$1A,$1B,$8C,$D3,$A0,$C3,$30,$1F,$4B,$8C,$A3,$81,$93,$0B
+		equb $0C,$14,$82,$04,$03,$84,$71,$0A,$09,$11,$60,$0C,$0B,$8C,$50,$A0
+		equb $40,$00,$1F,$00,$8D,$20,$87,$10,$17,$16,$D6,$01,$1A,$1B,$4C,$02
+		equb $60,$03,$00,$06,$05,$29,$31,$06,$01,$00,$52,$01,$4D,$1B,$4C,$25
+		equb $4F,$28,$4D,$34,$5C,$26
+
+.big_ramp_data
+		equb $2C,$01,$01,$18,$80,$07,$A0,$C0,$00,$3F
+		equb $00,$00,$00,$80,$80,$6D,$6E,$4F,$6E,$6D,$6D,$6E,$6E,$6D,$6D,$6E
+		equb $A0,$30,$00,$8D,$20,$87,$10,$17,$16,$D6,$01,$1A,$1B,$4C,$02,$60
+		equb $03,$77,$9F,$29,$00,$00,$76,$40,$29,$00,$00,$45,$4D,$0D,$47,$0E
+		equb $17,$16,$B6,$1F,$00,$03,$2F,$18,$19,$54,$3E,$03,$04,$EA,$4D,$31
+		equb $EA,$5C,$0D,$EA,$6B,$0D,$EA,$7A,$8E,$EA,$89,$00,$EA,$98,$00,$EA
+		equb $A7,$00,$EA,$B6,$90,$EA,$C5,$11,$EA,$D4,$59,$C4,$E3,$0A,$09,$51
+		equb $F2,$17,$16,$E7,$F1,$00,$16,$E0,$1A,$1B,$8C,$D0,$0A,$09,$2B,$29
+		equb $05,$08,$20,$D6,$0E,$4E,$0F,$4B,$13,$4B,$14,$46,$10,$11,$15,$16
+		equb $20,$21,$22,$23
+
+.ski_jump_data
+		equb $28,$0F,$0F,$23,$40,$6A,$AA,$BD,$71,$AA,$AC,$21
+		equb $AA,$9B,$64,$AA,$8A,$CF,$AA,$79,$00,$AA,$68,$00,$AA,$57,$00,$AA
+		equb $46,$6F,$AA,$35,$F2,$AA,$24,$73,$84,$13,$09,$0A,$53,$02,$16,$17
+		equb $E6,$01,$00,$97,$10,$1B,$1A,$0D,$20,$20,$30,$24,$00,$40,$50,$33
+		equb $01,$50,$52,$53,$94,$61,$33,$50,$2A,$72,$4C,$04,$83,$55,$54,$91
+		equb $94,$53,$52,$00,$A4,$50,$33,$20,$B4,$4C,$1F,$25,$0C,$D4,$06,$E4
+		equb $16,$17,$D7,$F5,$1B,$1A,$4D,$F6,$60,$F7,$4D,$5F,$47,$7A,$4E,$7A
+		equb $56,$4C,$FD,$46,$FE,$16,$17,$37,$EF,$00,$81,$DF,$19,$18,$14,$CE
+		equb $04,$03,$07,$08,$2B,$28,$06,$01,$03,$D8,$15,$54,$18,$36,$20,$C2
+		equb $00,$42,$27,$C9,$20
+
+.draw_bridge_data
+		equb $4E,$2A,$2A,$04,$A0,$11,$A0,$CC,$00,$7F,$38
+		equb $33,$33,$2C,$00,$00,$32,$80,$4C,$04,$64,$86,$3C,$65,$66,$57,$2B
+		equb $68,$67,$C0,$2A,$64,$04,$E0,$29,$2B,$3F,$20,$35,$5C,$C0,$25,$2D
+		equb $0D,$C6,$24,$57,$47,$97,$33,$5D,$58,$00,$43,$0D,$2D,$20,$53,$1C
+		equb $3F,$1D,$3F,$00,$00,$93,$6D,$6E,$2F,$6D,$6E,$6E,$6D,$20,$C3,$32
+		equb $00,$D3,$64,$04,$07,$E3,$66,$65,$76,$F2,$70,$E7,$F1,$70,$16,$E0
+		equb $67,$68,$80,$D0,$04,$64,$A0,$C0,$70,$9F,$70,$70,$70,$C2,$00,$64
+		equb $64,$2B,$00,$8D,$20,$87,$10,$17,$16,$D6,$01,$1A,$1B,$4C,$02,$60
+		equb $03,$00,$9F,$00,$35,$DF,$E0,$00,$E1,$E2,$2B,$38,$40,$0D,$03,$4C
+		equb $47,$0E,$7D,$7C,$96,$1F,$7E,$7F,$00,$2F,$4C,$03,$20,$3F,$33,$9F
+		equb $33,$33,$15,$1E,$1F,$22,$44,$64,$5E,$0D,$DF,$07,$EF,$17,$16,$76
+		equb $FE,$00,$E7,$FD,$00,$16,$EC,$1A,$1B,$8C,$DC,$04,$04,$48,$48,$09
+		equb $07,$03,$62,$06,$55,$07,$50,$14,$43,$3D,$E4,$41,$D8,$2D,$5A,$2E
+		equb $50,$2F,$C6,$04,$0D,$26,$33,$34,$35,$36
+
+.high_jump_data
+		equb $34,$1D,$1D,$04,$40,$06
+		equb $20,$3F,$00,$9F,$00,$3B,$25,$4D,$3E,$26,$64,$64,$2B,$0D,$DF,$07
+		equb $EF,$17,$16,$56,$FE,$1A,$1B,$CC,$FD,$E0,$FC,$00,$5F,$00,$00,$00
+		equb $00,$00,$CD,$F6,$C3,$F5,$17,$16,$34,$E4,$00,$AA,$D3,$00,$AA,$C2
+		equb $00,$A4,$B1,$00,$11,$A0,$18,$19,$8C,$90,$A0,$80,$00,$5F,$00,$00
+		equb $00,$00,$00,$8D,$20,$87,$10,$17,$16,$D6,$01,$1A,$1B,$4C,$02,$60
+		equb $03,$00,$9F,$3A,$7A,$36,$00,$B7,$00,$3D,$27,$43,$4D,$0D,$47,$0E
+		equb $17,$16,$96,$1F,$1A,$1B,$0C,$2F,$06,$06,$2C,$2A,$06,$0E,$27,$D3
+		equb $28,$CE,$02,$D3,$17,$55,$16,$52,$15,$52,$1E,$1F,$20,$21,$22,$25
+		equb $26,$27,$28,$29,$2A,$2B,$2C,$2D
+
+.roller_coaster_data
+		equb $4E,$00,$00,$25,$00,$05,$A0,$CF
+		equb $38,$9F,$01,$82,$82,$82,$82,$82,$07,$4A,$00,$8C,$2F,$86,$1F,$16
+		equb $17,$57,$0E,$1B,$1A,$CD,$0D,$E0,$0C,$19,$9F,$08,$0F,$F5,$F5,$F5
+		equb $F5,$6C,$74,$5C,$C0,$02,$2D,$0D,$C6,$01,$57,$47,$97,$10,$5D,$58
+		equb $00,$20,$0D,$2D,$20,$30,$1C,$9F,$1D,$1E,$1F,$22,$27,$27,$27,$43
+		equb $38,$00,$D0,$4C,$03,$06,$E0,$05,$06,$F7,$F1,$34,$66,$F2,$41,$17
+		equb $E3,$12,$14,$80,$D3,$64,$04,$A0,$C3,$70,$7F,$4B,$35,$33,$33,$33
+		equb $33,$33,$80,$43,$03,$4C,$87,$33,$06,$05,$F6,$24,$34,$67,$25,$00
+		equb $96,$36,$1A,$1B,$0C,$46,$20,$56,$00,$7F,$23,$5B,$70,$70,$70,$70
+		equb $70,$00,$D6,$04,$64,$06,$E6,$65,$66,$D7,$F7,$68,$67,$40,$F8,$64
+		equb $04,$60,$F9,$2B,$3F,$00,$00,$00,$4C,$FD,$46,$FE,$16,$17,$17,$EF
+		equb $1B,$1A,$8D,$DF,$03,$03,$50,$59,$07,$00,$06,$2A,$07,$29,$0E,$36
+		equb $1A,$54,$1B,$4A,$4D,$52,$4C,$5A,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
 .L_BFAA	equb $07,$07,$07,$07,$07,$07,$07,$07
 .L_BFB2	equb $41,$3A,$3E,$41,$48,$51,$48,$4F
@@ -11960,7 +12313,7 @@ ORG &C000
 .L_C218 skip &18
 .L_C230 skip &18
 .L_C248 skip &18
-.L_C260 skip &18
+.L_C260 skip &20
 .L_C280 skip &40
 .L_C2C0 skip &40
 
@@ -12063,7 +12416,7 @@ ORG &C000
 .L_C3A8	skip 1
 .L_C3A9	skip 2
 .L_C3AB	skip 2
-.L_C3AD	skip 8
+.L_C3AD	skip 9
 .L_C3B6	skip 1
 .L_C3B7	skip 5
 .L_C3BC	skip 7
@@ -13034,8 +13387,9 @@ ORG &C000
 		rts				;CD5B 60
 }
 
-IF _TODO
-L_CD5C	lsr A			;CD5C 4A
+.L_CD5C
+{
+		lsr A			;CD5C 4A
 		bcc L_CD72		;CD5D 90 13
 		lda VIC_RASTER		;CD5F AD 12 D0
 		cmp #$72		;CD62 C9 72
@@ -13045,7 +13399,7 @@ L_CD5C	lsr A			;CD5C 4A
 		sta VIC_SCROLX		;CD6B 8D 16 D0
 		lda #$72		;CD6E A9 72
 		bne L_CD9F		;CD70 D0 2D
-L_CD72	lda VIC_RASTER		;CD72 AD 12 D0
+.L_CD72	lda VIC_RASTER		;CD72 AD 12 D0
 		bpl L_CD90		;CD75 10 19
 		cmp #$D5		;CD77 C9 D5
 		bcs L_CD84		;CD79 B0 09
@@ -13053,23 +13407,23 @@ L_CD72	lda VIC_RASTER		;CD72 AD 12 D0
 		sta VIC_BGCOL0		;CD7D 8D 21 D0
 		lda #$D5		;CD80 A9 D5
 		bne L_CD9F		;CD82 D0 1B
-L_CD84	lda VIC_SCROLX		;CD84 AD 16 D0
+.L_CD84	lda VIC_SCROLX		;CD84 AD 16 D0
 		and #$EF		;CD87 29 EF
 		sta VIC_SCROLX		;CD89 8D 16 D0
 		lda #$28		;CD8C A9 28
 		bne L_CD9F		;CD8E D0 0F
-L_CD90	lda VIC_SCROLX		;CD90 AD 16 D0
+.L_CD90	lda VIC_SCROLX		;CD90 AD 16 D0
 		ora #$10		;CD93 09 10
 		sta VIC_SCROLX		;CD95 8D 16 D0
 		lda #$00		;CD98 A9 00
 		sta VIC_BGCOL0		;CD9A 8D 21 D0
 		lda #$CE		;CD9D A9 CE
-L_CD9F	jmp L_CF49		;CD9F 4C 49 CF
-L_CDA2	lda CIA1_CIAICR		;CDA2 AD 0D DC
-		lda L_DD0D		;CDA5 AD 0D DD
-L_CDA8	pla				;CDA8 68
+.L_CD9F	jmp L_CF49		;CD9F 4C 49 CF
+.L_CDA2	lda CIA1_CIAICR		;CDA2 AD 0D DC
+		lda CIA2_C2DDRA		;CDA5 AD 0D DD
+.L_CDA8	pla				;CDA8 68
 		rti				;CDA9 40
-L_CDAA	sei				;CDAA 78
+.L_CDAA	sei				;CDAA 78
 		pha				;CDAB 48
 		lda VIC_VICIRQ		;CDAC AD 19 D0
 		bpl L_CDA2		;CDAF 10 F1
@@ -13081,17 +13435,17 @@ L_CDAA	sei				;CDAA 78
 		lda VIC_RASTER		;CDBD AD 12 D0
 		bpl L_CDC5		;CDC0 10 03
 		jmp L_CEA1		;CDC2 4C A1 CE
-L_CDC5	lda L_C37A		;CDC5 AD 7A C3
+.L_CDC5	lda L_C37A		;CDC5 AD 7A C3
 		beq L_CDD0		;CDC8 F0 06
 		lda L_C35F		;CDCA AD 5F C3
 		jmp L_CDD6		;CDCD 4C D6 CD
-L_CDD0	lda L_C370		;CDD0 AD 70 C3
+.L_CDD0	lda L_C370		;CDD0 AD 70 C3
 		sta L_C35F		;CDD3 8D 5F C3
-L_CDD6	bpl L_CDE0		;CDD6 10 08
+.L_CDD6	bpl L_CDE0		;CDD6 10 08
 		lda #$70		;CDD8 A9 70
 		sta VIC_VMCSB		;CDDA 8D 18 D0
 		jmp L_CE1B		;CDDD 4C 1B CE
-L_CDE0	lda #$78		;CDE0 A9 78
+.L_CDE0	lda #$78		;CDE0 A9 78
 		sta VIC_VMCSB		;CDE2 8D 18 D0
 		lda L_C355		;CDE5 AD 55 C3
 		beq L_CE1B		;CDE8 F0 31
@@ -13114,7 +13468,7 @@ L_CDE0	lda #$78		;CDE0 A9 78
 		sta L_5FF9		;CE13 8D F9 5F
 		lda #$64		;CE16 A9 64
 		jmp L_CF49		;CE18 4C 49 CF
-L_CE1B	lda #$BB		;CE1B A9 BB
+.L_CE1B	lda #$BB		;CE1B A9 BB
 		sta VIC_SP2Y		;CE1D 8D 05 D0
 		sta VIC_SP3Y		;CE20 8D 07 D0
 		lda #$38		;CE23 A9 38
@@ -13140,7 +13494,7 @@ L_CE1B	lda #$BB		;CE1B A9 BB
 		dex				;CE52 CA
 		bpl L_CE57		;CE53 10 02
 		ldx #$01		;CE55 A2 01
-L_CE57	stx L_C36D		;CE57 8E 6D C3
+.L_CE57	stx L_C36D		;CE57 8E 6D C3
 		lda L_CF56,X	;CE5A BD 56 CF
 		sta VIC_SP0X		;CE5D 8D 00 D0
 		lda L_CF58,X	;CE60 BD 58 CF
@@ -13157,7 +13511,7 @@ L_CE57	stx L_C36D		;CE57 8E 6D C3
 		inx				;CE7E E8
 		inx				;CE7F E8
 		inx				;CE80 E8
-L_CE81	lda L_CF5E,X	;CE81 BD 5E CF
+.L_CE81	lda L_CF5E,X	;CE81 BD 5E CF
 		sta L_5FF8		;CE84 8D F8 5F
 		lda L_CF60,X	;CE87 BD 60 CF
 		sta L_5FF9		;CE8A 8D F9 5F
@@ -13166,11 +13520,11 @@ L_CE81	lda L_CF5E,X	;CE81 BD 5E CF
 		sta VIC_SP1COL		;CE92 8D 28 D0
 		pla				;CE95 68
 		tax				;CE96 AA
-L_CE97	lda ZP_6E		;CE97 A5 6E
+.L_CE97	lda ZP_6E		;CE97 A5 6E
 		sta VIC_SPENA		;CE99 8D 15 D0
 		lda #$C5		;CE9C A9 C5
 		jmp L_CF49		;CE9E 4C 49 CF
-L_CEA1	cmp #$D7		;CEA1 C9 D7
+.L_CEA1	cmp #$D7		;CEA1 C9 D7
 		bcs L_CEB5		;CEA3 B0 10
 		lda #$78		;CEA5 A9 78
 		sta VIC_VMCSB		;CEA7 8D 18 D0
@@ -13178,7 +13532,7 @@ L_CEA1	cmp #$D7		;CEA1 C9 D7
 		sta L_C37B		;CEAD 8D 7B C3
 		lda #$D7		;CEB0 A9 D7
 		jmp L_CF49		;CEB2 4C 49 CF
-L_CEB5	lda #$E4		;CEB5 A9 E4
+.L_CEB5	lda #$E4		;CEB5 A9 E4
 		sta VIC_SP2Y		;CEB7 8D 05 D0
 		sta VIC_SP3Y		;CEBA 8D 07 D0
 		sta VIC_SP0Y		;CEBD 8D 01 D0
@@ -13223,7 +13577,7 @@ L_CEB5	lda #$E4		;CEB5 A9 E4
 		bpl L_CF1E		;CF19 10 03
 		lda #$00		;CF1B A9 00
 		tax				;CF1D AA
-L_CF1E	sta ZP_0A		;CF1E 85 0A
+.L_CF1E	sta ZP_0A		;CF1E 85 0A
 		sta SID_FREHI1		;CF20 8D 01 D4	; SID
 		stx ZP_09		;CF23 86 09
 		lsr A			;CF25 4A
@@ -13240,26 +13594,26 @@ L_CF1E	sta ZP_0A		;CF1E 85 0A
 		sta ZP_5F		;CF3C 85 5F
 		bcc L_CF43		;CF3E 90 03
 		jsr update_tyre_spritesQ		;CF40 20 B1 FF
-L_CF43	pla				;CF43 68
+.L_CF43	pla				;CF43 68
 		tay				;CF44 A8
 		pla				;CF45 68
 		tax				;CF46 AA
 		lda #$3D		;CF47 A9 3D
-L_CF49	sta VIC_RASTER		;CF49 8D 12 D0
+.L_CF49	sta VIC_RASTER		;CF49 8D 12 D0
 		lda VIC_SCROLY		;CF4C AD 11 D0
 		and #$7F		;CF4F 29 7F
 		sta VIC_SCROLY		;CF51 8D 11 D0
 		pla				;CF54 68
 		rti				;CF55 40
 		
-L_CF56	equb $46,$12
-L_CF58	equb $5E,$FA
-L_CF5A	equb $B4,$B4		
-L_CF5C	equb $AD,$AD
-L_CF5E	equb $6A,$6D
-L_CF60	equb $6B,$6C,$6E,$5F,$6F,$FD
-L_CF66	equb $C8,$C9
-ENDIF
+.L_CF56	equb $46,$12
+.L_CF58	equb $5E,$FA
+.L_CF5A	equb $B4,$B4		
+.L_CF5C	equb $AD,$AD
+.L_CF5E	equb $6A,$6D
+.L_CF60	equb $6B,$6C,$6E,$5F,$6F,$FD
+.L_CF66	equb $C8,$C9
+}
 
 .L_CF68
 {
@@ -13368,16 +13722,41 @@ ENDIF
 		rts				;CFFD 60
 }
 
+; *****************************************************************************
+; COLOR RAM - TO REMOVE
+; *****************************************************************************
+
 L_CFFF = $CFFF
+L_D100 = $D100		; CHARACTER ROM?
+L_D200 = $D200		; CHARACTER ROM?
+L_D300 = $D300		; CHARACTER ROM?
 L_D800 = $D800		; COLOR RAM
 L_D805 = $D805		; COLOR RAM
 L_D900 = $D900		; COLOR RAM
 L_DA00 = $DA00		; COLOR RAM
 L_DB00 = $DB00		; COLOR RAM
 L_DAB6 = $DAB6		; COLOR RAM
+L_DAAC = $DAAC		; COLOR RAM
+L_DACB = $DACB		; COLOR RAM
+L_DBDA = $DBDA		; COLOR RAM
+L_DBDB = $DBDB		; COLOR RAM
+L_DBCC = $DBCC		; COLOR RAM
+L_DBCD = $DBCD		; COLOR RAM
+
+L_DCE0 = $DCE0		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 
 L_DE00 = $DE00		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DE01 = $DE01		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DE02 = $DE02		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DE0C = $DE0C		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DE0D = $DE0D		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DE0E = $DE0E		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 L_DF00 = $DF00		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DF01 = $DF01		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DF02 = $DF02		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DF0C = $DF0C		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DF0D = $DF0D		; SPARE RAM? CAN'T STAY HERE ON BEEB!
+L_DF0E = $DF0E		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 
 ; *****************************************************************************
 ; KERNEL RAM: $E000 - $FFFF
@@ -15977,8 +16356,9 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_F404	equb $00,$40,$80,$C0
 .L_F408	equb $4C,$0B,$F4,$86,$16,$A5,$77,$18,$10,$01,$38,$6A,$66,$51,$85,$77
 
-IF _TODO
-L_F418	jsr L_F42D		;F418 20 2D F4
+.L_F418
+{
+		jsr L_F42D		;F418 20 2D F4
 		lda ZP_70		;F41B A5 70
 		pha				;F41D 48
 		lda ZP_71		;F41E A5 71
@@ -15990,18 +16370,18 @@ L_F418	jsr L_F42D		;F418 20 2D F4
 		sta ZP_AB		;F428 85 AB
 		ldx ZP_16		;F42A A6 16
 		rts				;F42C 60
-L_F42D	lda ZP_78		;F42D A5 78
+.L_F42D	lda ZP_78		;F42D A5 78
 		clc				;F42F 18
 		bpl L_F433		;F430 10 01
 		sec				;F432 38
-L_F433	ror A			;F433 6A
+.L_F433	ror A			;F433 6A
 		ror ZP_52		;F434 66 52
 		clc				;F436 18
 		adc #$30		;F437 69 30
 		sta ZP_78		;F439 85 78
 		lda ZP_52		;F43B A5 52
 		jmp L_245C		;F43D 4C 5C 24
-ENDIF
+}
 
 .L_F440
 {
