@@ -684,6 +684,9 @@ ORG $4000
 ; *****************************************************************************
 
 ORG &800
+GUARD &4000
+
+.core_start
 
 .L_0800
 {
@@ -7831,6 +7834,23 @@ ORG &72E0
 		EQUB $68,$68,$68,$68,$68,$68,$68,$68,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5
 		EQUB $69,$69,$69,$69,$69,$69,$69,$69
 
+.core_end
+
+; *****************************************************************************
+\\ Core RAM area
+; *****************************************************************************
+
+PRINT "--------"
+PRINT "CORE RAM"
+PRINT "--------"
+PRINT "Start =", ~core_start
+PRINT "End =", ~core_end
+PRINT "Size =", ~(core_end - core_start)
+PRINT "Entry =", ~scr_entry
+
+SAVE "Core", core_start, core_end, scr_entry
+PRINT "--------"
+
 ; *****************************************************************************
 ; CART RAM: $8000 - $A000
 ;
@@ -7856,7 +7876,12 @@ ORG &72E0
 ; $A100 = Calculate camera sines
 ; *****************************************************************************
 
+CLEAR &8000, &C000
 ORG &8000
+GUARD &C000
+
+.cart_start
+
 .L_8000	skip $C8
 L_801B	= L_8000 + $1B
 L_8020	= L_8000 + $20
@@ -11469,6 +11494,7 @@ L_99F0	= L_99EF + 1
 }
 
 .L_9FB8
+{
 		lda ZP_77		;9FB8 A5 77
 		ldy ZP_51		;9FBA A4 51
 		jsr square_ay_32bit		;9FBC 20 76 C9
@@ -11504,7 +11530,6 @@ L_99F0	= L_99EF + 1
 		sbc ZP_17		;9FFB E5 17
 		sta ZP_14		;9FFD 85 14
 		lda ZP_4A		;9FFF A5 4A
-L_A000	= *-1			;!
 		sbc ZP_18		;A001 E5 18
 		jsr mul_8_16_16bit		;A003 20 45 C8
 		ldy #$04		;A006 A0 04
@@ -11520,6 +11545,11 @@ L_A000	= *-1			;!
 		rts				;A01A 60
 
 .L_A01B	equb $00,$D4,$80,$D4,$00,$00,$AB,$AB,$40,$40,$00
+}
+
+; Not sure what this is used for - depends on which C64 bank is paged in?
+
+L_A000 = $A000
 
 ; fetch coordinates (?) from track	data pointed by	(word_9a) with postincrement, munged appropriately for camera
 ; entry: Y	= index	into (word_9A) data
@@ -12383,6 +12413,21 @@ ORG &A700
 .L_BFEA	equb $48,$00,$F0,$00,$EC,$00,$10,$60,$5B,$00,$00,$54,$0C,$40,$01,$3A
 		equb $01,$0C,$6E,$69,$01,$00
 
+.cart_end
+
+; *****************************************************************************
+\\ Cart RAM area
+; *****************************************************************************
+
+PRINT "--------"
+PRINT "CART RAM"
+PRINT "--------"
+PRINT "Start =", ~cart_start
+PRINT "End =", ~cart_end
+PRINT "Size =", ~(cart_end - cart_start)
+SAVE "Cart", cart_start, cart_end, 0
+PRINT "--------"
+
 ; *****************************************************************************
 ; HIGH RAM: $C000 - $D000
 ; $C700 = Maths routines
@@ -12394,7 +12439,11 @@ ORG &A700
 
 ; Engine screen data (copied at boot time from elsewhere)
 
+CLEAR &C000, &E000
 ORG &C000
+GUARD &E000
+
+.hazel_start
 
 .L_C000	skip &100
 .L_C100	skip &100
@@ -13853,6 +13902,22 @@ L_DF0C = $DF0C		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 L_DF0D = $DF0D		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 L_DF0E = $DF0E		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 
+.hazel_end
+
+; *****************************************************************************
+; HAZEL RAM Area
+; *****************************************************************************
+
+PRINT "---------"
+PRINT "HAZEL RAM"
+PRINT "---------"
+PRINT "Start =", ~hazel_start
+PRINT "End =", ~hazel_end
+PRINT "Size =", ~(hazel_end - hazel_start)
+
+SAVE "Hazel", hazel_start, hazel_end, 0
+PRINT "--------"
+
 ; *****************************************************************************
 ; KERNEL RAM: $E000 - $FFFF
 ;
@@ -13877,7 +13942,12 @@ L_DF0E = $DF0E		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 ; $FF00 = Vectors
 ; *****************************************************************************
 
+CLEAR &E000, &FFFF
 ORG &E000
+GUARD &FFFF
+
+.kernel_start
+
 .frontend_strings_2
 		equb $1F,$11,$0B,"SELECT",$FF
 		equb "Practise ",$FF
@@ -14955,9 +15025,9 @@ ORG &E000
 		cmp #$04		;E8B1 C9 04
 		bcc L_E895		;E8B3 90 E0
 		rts				;E8B5 60
-}
 
 .L_E8B6	equb $78,$6E,$64,$5A,$50,$46,$3C,$32,$28,$1E,$14,$0A
+}
 
 .L_E8C2
 {
@@ -15886,7 +15956,12 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
 		jsr L_36AD		;EFFA 20 AD 36
 .L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF
+
+.L_F000	equb $00
 }
+
+.L_F001	equb $EC,$0A,$14,$2C,$44,$49,$4E,$55,$5C,$6B,$55,$00,$7A,$87,$55,$00
+		equb $0A,$1F,$00,$00,$2B,$40,$00,$00,$49,$49,$49,$49,$0A,$0A,$55,$00
 
 ; X=0 (main menu)
 ; X=4 (Load/Save/Replay)
@@ -15896,10 +15971,7 @@ L_EBDD	= L_EBE7 - $A			;!
 ; X=$14 (Multiplayer setup)
 ; X=$18 (Practise)
 ; X=$1C (Practise specific	division)
-.L_F000	equb $00
-.L_F001	equb $EC,$0A,$14,$2C,$44,$49,$4E,$55,$5C,$6B,$55,$00,$7A,$87,$55,$00
-		equb $0A,$1F,$00,$00,$2B,$40,$00,$00,$49,$49,$49,$49,$0A,$0A,$55,$00
-		
+
 .L_F021
 {
 		tya				;F021 98
@@ -16444,12 +16516,12 @@ L_EBDD	= L_EBE7 - $A			;!
 		cpx #$03		;F3F7 E0 03
 		bne L_F3F2		;F3F9 D0 F7
 		rts				;F3FB 60
-}
 
 .L_F3FC	equb $04,$00,$04,$08
 .L_F400	equb $00,$04,$08,$04
 .L_F404	equb $00,$40,$80,$C0
 .L_F408	equb $4C,$0B,$F4,$86,$16,$A5,$77,$18,$10,$01,$38,$6A,$66,$51,$85,$77
+}
 
 .L_F418
 {
@@ -17538,10 +17610,10 @@ L_FBD5	= *-2			;! self-mod!
 		sta L_FAEE		;FC0D 8D EE FA
 		sta L_FBD5		;FC10 8D D5 FB
 		rts				;FC13 60
-}
 
 .L_FC14	equb $00
 		equb $80
+}
 
 .set_linedraw_op
 {
@@ -18091,3 +18163,19 @@ L_FD30	= *-1			;!
 		sty L_0400		;FFF0 8C 00 04
 		rts				;FFF3 60
 }
+
+.kernel_end
+
+; *****************************************************************************
+; HIGH RAM Area
+; *****************************************************************************
+
+PRINT "-----------"
+PRINT "KERNEL RAM"
+PRINT "-----------"
+PRINT "Start =", ~kernel_start
+PRINT "End =", ~kernel_end
+PRINT "Size =", ~(kernel_end - kernel_start)
+
+SAVE "Kernel", kernel_start, kernel_end, 0
+PRINT "-------"

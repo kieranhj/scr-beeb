@@ -231,3 +231,17 @@ Bits 6-7: Not connected--no function presently defined.
 SCREEN MODE
 Looks like 160x200 pixel mode on C64 (although some text is higher res at the bottom?!)
 Drawn area is 128 (wide ~256) x128 pixels = 32x16 characters
+
+
+MASTER Memory Map
+~~~
+$0000 - $0800 = vars
+$0800 - $4000 = Core
+$8000 - $C000 = Cart <- just load into SWRAM bank
+$C000 - $E000 = Hazel <- just load into Hazel for now
+$E000 - $FFFF = Kernel <- need somewhere to stash this
+
+$D000 - $E000 is all VIC registers and COLOR RAM etc.
+Map this to $E000 - $F000 on Master which will just be ignored and not touch memory mapped registers etc.
+Move data from Kernel down into Hazel
+Functions from Kernel need to be moved into another SWRAM bank (or ANDY)
