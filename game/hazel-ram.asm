@@ -7,13 +7,9 @@
 ; $CF00 = Raster interrupts
 ; *****************************************************************************
 
-; Engine screen data (copied at boot time from elsewhere)
-
-CLEAR &C000, &E000
-ORG &C000
-GUARD &E000
-
 .hazel_start
+
+; Engine screen data (copied at boot time from elsewhere)
 
 .L_C000	skip &100
 .L_C100	skip &100
@@ -1746,17 +1742,3 @@ L_A36F	= L_A200 + $16F
 .beeb_dll_end
 
 .hazel_end
-
-; *****************************************************************************
-; HAZEL RAM Area
-; *****************************************************************************
-
-PRINT "---------"
-PRINT "HAZEL RAM"
-PRINT "---------"
-PRINT "Start =", ~hazel_start
-PRINT "End =", ~hazel_end
-PRINT "Size =", ~(hazel_end - hazel_start)
-PRINT "Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
-SAVE "Hazel", hazel_start, hazel_end, 0
-PRINT "--------"

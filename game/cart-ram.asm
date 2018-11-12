@@ -23,10 +23,6 @@
 ; $A100 = Calculate camera sines
 ; *****************************************************************************
 
-CLEAR &8000, &C000
-ORG &8000
-GUARD &C000
-
 .cart_start
 
 .multicolour_mode
@@ -4351,16 +4347,3 @@ ORG $A700
 		equb $01,$0C,$6E,$69,$01,$00
 
 .cart_end
-
-; *****************************************************************************
-\\ Cart RAM area
-; *****************************************************************************
-
-PRINT "--------"
-PRINT "CART RAM"
-PRINT "--------"
-PRINT "Start =", ~cart_start
-PRINT "End =", ~cart_end
-PRINT "Size =", ~(cart_end - cart_start)
-SAVE "Cart", cart_start, cart_end, 0
-PRINT "--------"

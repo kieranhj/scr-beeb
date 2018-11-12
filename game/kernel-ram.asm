@@ -22,10 +22,6 @@
 ; $FF00 = Vectors
 ; *****************************************************************************
 
-CLEAR &8000,&C000
-ORG &8000
-GUARD &C000
-
 .kernel_start
 
 \\ Data removed
@@ -4228,17 +4224,3 @@ L_FBD5	= *-2			;! self-mod!
 }
 
 .kernel_end
-
-; *****************************************************************************
-; KERNEL RAM Area
-; *****************************************************************************
-
-PRINT "-----------"
-PRINT "KERNEL RAM"
-PRINT "-----------"
-PRINT "Start =", ~kernel_start
-PRINT "End =", ~kernel_end
-PRINT "Size =", ~(kernel_end - kernel_start)
-
-SAVE "Kernel", kernel_start, kernel_end, 0
-PRINT "-------"
