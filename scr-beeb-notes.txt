@@ -245,3 +245,9 @@ $D000 - $E000 is all VIC registers and COLOR RAM etc.
 Map this to $E000 - $F000 on Master which will just be ignored and not touch memory mapped registers etc.
 Move data from Kernel down into Hazel
 Functions from Kernel need to be moved into another SWRAM bank (or ANDY)
+
+Just realised this isn't sufficient :(
+Track data resides in Cart RAM and is accessed by Kernel fns
+Need to move all non-local data from Cart RAM to Hazel including track data
+Need to move all fns from Hazel to Cart RAM
+Also need DLL interface for fns in Cart RAM in case they are called from Kernel...
