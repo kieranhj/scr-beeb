@@ -8,6 +8,7 @@
 
 _TODO = FALSE
 _NOT_BEEB = FALSE
+_DEBUG = TRUE
 
 BEEB_KERNEL_SLOT = 4
 
@@ -15,28 +16,9 @@ BEEB_KERNEL_SLOT = 4
 ; MACROS
 ; *****************************************************************************
 
-DLL_REG_A = $FF
-
-MACRO BEEB_DLL_JMP fn
-IF BEEB_KERNEL_SLOT = 0
-{
-	JMP fn
-}
-ELSE
-{
-	STA DLL_REG_A
-    LDA &F4: PHA	; remember current slot
-    LDA #BEEB_KERNEL_SLOT
-    STA &F4: STA &FE30
-	LDA DLL_REG_A
-	JSR fn
-	STA DLL_REG_A
-	PLA
-    STA &F4: STA &FE30
-	LDA DLL_REG_A
-	RTS
-}
-ENDIF
+MACRO PAGE_ALIGN
+    PRINT "ALIGN LOST ", ~LO(((P% AND &FF) EOR &FF)+1), " BYTES"
+    ALIGN &100
 ENDMACRO
 
 ; *****************************************************************************
@@ -774,7 +756,51 @@ L_07F0	= $07F0
 L_07F1	= $07F1
 L_07F2	= $07F2
 
+; *****************************************************************************
+; CORE RAM: $0800 - $4000
+;
+; $0800 = Game code? (inc. game_update)
+; $1400 = Rendering code? (inc. font, sprites, lines?)
+; $1C00 = Game code? (inc. AI, )
+; $2700 = Camera code?
+; $2F00 = Rendering code? (track preview)
+; $3000 = Front end (game select etc.)
+; $3900 = Rendering code? (color map, menus)
+; $3D00 = Main loop?
+; $3F00 = System code? (page flip, VIC control, misc)
+; *****************************************************************************
+
+ORG &E00
+GUARD &4000
+
+INCLUDE "game/core-ram.asm"
+INCLUDE "game/beeb-dll.asm"
+.core_data_start
+INCLUDE "game/core-data.asm"
+.core_data_end
+
+; *****************************************************************************
+\\ Core RAM area
+; *****************************************************************************
+
+PRINT "--------"
+PRINT "CORE RAM"
+PRINT "--------"
+PRINT "Start =", ~core_start
+PRINT "End =", ~P%
+PRINT "Size =", ~(P% - core_start)
+PRINT "Free =", ~(&4000 - P%)
+PRINT "DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
+PRINT "Core Data Size =", ~(core_data_end - core_data_start)
+PRINT "--------"
+SAVE "Core", core_start, P%, scr_entry
+PRINT "--------"
+
+CLEAR &4000, &8000
 ORG $4000
+GUARD &8000
+
+.boot_start
 
 ; *****************************************************************************
 ; BEEB APP ENTRY
@@ -782,16 +808,11 @@ ORG $4000
 
 .scr_entry
 {
-	; BEEB TODO set VECTORS
+	; BEEB TODO LOAD ALL MODULES!
 
-	; BEEB TODO set INTERRUPTS
+	; BEEB TODO SET VECTORS
 
-	; BEEB SET SCREEN MODE 5
-
-	LDA #22
-	JSR oswrch
-	LDA #5
-	JSR oswrch
+	; BEEB TODO SET INTERRUPTS
 
 	; BEEB TODO SET UP SCREEN RAM?
 
@@ -833,29 +854,17 @@ ORG $4000
 		lda #$34		;4255 A9 34
 		jsr sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
+	; BEEB SET SCREEN MODE 5
+
+	LDA #22
+	JSR oswrch
+	LDA #5
+	JSR oswrch
+
 		jmp game_start		;425A 4C 22 3B
 
         ; ^^^ JUMP TO GAME START
 }
-
-; *****************************************************************************
-; CORE RAM: $0800 - $4000
-;
-; $0800 = Game code? (inc. game_update)
-; $1400 = Rendering code? (inc. font, sprites, lines?)
-; $1C00 = Game code? (inc. AI, )
-; $2700 = Camera code?
-; $2F00 = Rendering code? (track preview)
-; $3000 = Front end (game select etc.)
-; $3900 = Rendering code? (color map, menus)
-; $3D00 = Main loop?
-; $3F00 = System code? (page flip, VIC control, misc)
-; *****************************************************************************
-
-ORG &800
-GUARD &4000
-
-INCLUDE "game/core-ram.asm"
 
 ; *****************************************************************************
 ; SCREEN BUFFERS: $4000 - $8000
@@ -1077,20 +1086,21 @@ ORG &72E0
 		EQUB $68,$68,$68,$68,$68,$68,$68,$68,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5
 		EQUB $69,$69,$69,$69,$69,$69,$69,$69
 
+.boot_end
+
 ; *****************************************************************************
-\\ Core RAM area
+\\ Boot RAM area
 ; *****************************************************************************
 
 PRINT "--------"
-PRINT "CORE RAM"
+PRINT "BOOT RAM"
 PRINT "--------"
-PRINT "Start =", ~core_start
-PRINT "End =", ~core_end
-PRINT "Top =", ~P%
-PRINT "Size =", ~(core_end - core_start)
+PRINT "Start =", ~boot_start
+PRINT "End =", ~boot_end
+PRINT "Size =", ~(boot_end - boot_start)
 PRINT "Entry =", ~scr_entry
 PRINT "--------"
-SAVE "Core", core_start, P%, scr_entry
+SAVE "Boot", boot_start, boot_end, scr_entry
 PRINT "--------"
 
 ; *****************************************************************************
@@ -1127,6 +1137,7 @@ PRINT "--------"
 PRINT "Start =", ~cart_start
 PRINT "End =", ~cart_end
 PRINT "Size =", ~(cart_end - cart_start)
+PRINT "Free =", ~(&C000 - cart_end)
 PRINT "--------"
 SAVE "Cart", cart_start, cart_end, 0
 PRINT "--------"
@@ -1144,7 +1155,7 @@ PRINT "--------"
 
 CLEAR &C000, &E000
 ORG &C000
-GUARD &E000
+;GUARD &E000
 
 INCLUDE "game/hazel-ram.asm"
 
@@ -1158,7 +1169,7 @@ PRINT "---------"
 PRINT "Start =", ~hazel_start
 PRINT "End =", ~hazel_end
 PRINT "Size =", ~(hazel_end - hazel_start)
-PRINT "Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
+PRINT "Free =", ~(&E000 - hazel_end)
 PRINT "--------"
 SAVE "Hazel", hazel_start, hazel_end, 0
 PRINT "--------"
@@ -1194,6 +1205,7 @@ PRINT "-----------"
 PRINT "Start =", ~kernel_start
 PRINT "End =", ~kernel_end
 PRINT "Size =", ~(kernel_end - kernel_start)
+PRINT "Free =", ~(&C000 - kernel_end)
 PRINT "-------"
 SAVE "Kernel", kernel_start, kernel_end, 0
 PRINT "-------"
