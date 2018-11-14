@@ -56,7 +56,7 @@
 
 .L_0885	jsr L_0A59_from_game_update		;0885 20 59 0A
 		jsr integrate_plcar		;0888 20 57 09
-		jsr update_camera_roll_tables		;088B 20 26 27
+		jsr cart_update_camera_roll_tables		;088B 20 26 27
 		lda L_C37A		;088E AD 7A C3
 		beq L_0896		;0891 F0 03
 
@@ -1138,7 +1138,7 @@
 		ror A			;10EA 6A
 		lsr A			;10EB 4A
 		sta L_C3CB		;10EC 8D CB C3
-		jsr update_damage_display		;10EF 20 88 1B
+		jsr cart_update_damage_display		;10EF 20 88 1B
 .L_10F2	lda L_C302		;10F2 AD 02 C3
 		beq L_1110		;10F5 F0 19
 		dec L_C302		;10F7 CE 02 C3
@@ -1444,6 +1444,191 @@
 		rts				;1326 60
 }
 
+.L_1411				; only called from Kernel?
+{
+		lda L_3FFA,X	;1411 BD FA 3F
+		ora #$80		;1414 09 80
+		sta L_3FFA,X	;1416 9D FA 3F
+		lda L_3FF1,X	;1419 BD F1 3F
+		ora #$80		;141C 09 80
+		sta L_3FF1,X	;141E 9D F1 3F
+		rts				;1421 60
+}
+
+.L_1422				; only called from Kernel?
+		ldy #$00		;1422 A0 00
+		beq L_1430		;1424 F0 0A
+
+.L_1426				; only called from Kernel?
+		ldy #$80		;1426 A0 80
+		bne L_1430		;1428 D0 06
+
+.L_142A				; only called from Kernel?
+		ldy #$C0		;142A A0 C0
+		bne L_1430		;142C D0 02
+
+.L_142E				; only called from Kernel?
+		ldy #$40		;142E A0 40
+
+.L_1430				; not an entry point
+{
+		sty ZP_DB		;1430 84 DB
+		jsr L_1469		;1432 20 69 14
+.L_1435	lda (ZP_1E),Y	;1435 B1 1E
+		bit ZP_DB		;1437 24 DB
+		bpl L_145A		;1439 10 1F
+		lsr A			;143B 4A
+		bit ZP_DB		;143C 24 DB
+		bvs L_1441		;143E 70 01
+		lsr A			;1440 4A
+.L_1441	sta ZP_14		;1441 85 14
+		lda L_4000,X	;1443 BD 00 40
+		and #$80		;1446 29 80
+		ora ZP_14		;1448 05 14
+		sta L_4000,X	;144A 9D 00 40
+		bit ZP_DB		;144D 24 DB
+		bvs L_1460		;144F 70 0F
+		lda #$00		;1451 A9 00
+		ror A			;1453 6A
+		sta L_4001,X	;1454 9D 01 40
+		jmp L_1460		;1457 4C 60 14
+.L_145A	bvs L_145D		;145A 70 01
+		asl A			;145C 0A
+.L_145D	sta L_4000,X	;145D 9D 00 40
+.L_1460	inx				;1460 E8
+		inx				;1461 E8
+		inx				;1462 E8
+		iny				;1463 C8
+		cpy #$07		;1464 C0 07
+		bne L_1435		;1466 D0 CD
+		rts				;1468 60
+}
+
+.L_1469				; only called from Kernel?
+{
+		ldy #$00		;1469 A0 00
+		sty ZP_14		;146B 84 14
+		clc				;146D 18
+		adc #$30		;146E 69 30
+		asl A			;1470 0A
+		asl A			;1471 0A
+		rol ZP_14		;1472 26 14
+		asl A			;1474 0A
+		rol ZP_14		;1475 26 14
+		clc				;1477 18
+		adc #$C0		;1478 69 C0
+		sta ZP_1E		;147A 85 1E
+		lda ZP_14		;147C A5 14
+		adc #$7F		;147E 69 7F
+		sta ZP_1F		;1480 85 1F
+		iny				;1482 C8
+		rts				;1483 60
+}
+
+.find_track_segment_index		; only called from Kernel?
+{
+		stx L_1E84		;1E5F 8E 84 1E
+		txa				;1E62 8A
+		ldx L_C374		;1E63 AE 74 C3
+		cpx L_C764		;1E66 EC 64 C7
+		bcs L_1E7D		;1E69 B0 12
+.L_1E6B	cmp L_044E,X	;1E6B DD 4E 04
+		beq L_1E7F		;1E6E F0 0F
+		inx				;1E70 E8
+		cpx L_C764		;1E71 EC 64 C7
+		bcc L_1E78		;1E74 90 02
+		ldx #$00		;1E76 A2 00
+.L_1E78	cpx L_C374		;1E78 EC 74 C3
+		bne L_1E6B		;1E7B D0 EE
+.L_1E7D	ldx #$FF		;1E7D A2 FF
+.L_1E7F	txa				;1E7F 8A
+		ldx L_1E84		;1E80 AE 84 1E
+		rts				;1E83 60
+
+.L_1E84	equb $00
+}
+
+.L_1F06				; only called from Kernel?
+{
+		lda L_31A1		;1F06 AD A1 31
+		beq L_1F10		;1F09 F0 05
+		lda L_C77F		;1F0B AD 7F C7
+		bne L_1F47		;1F0E D0 37
+.L_1F10	ldx #$00		;1F10 A2 00
+.L_1F12	jsr rndQ		;1F12 20 B9 29
+		dex				;1F15 CA
+		bne L_1F12		;1F16 D0 FA
+		lda L_C77D		;1F18 AD 7D C7
+		ldy L_C774		;1F1B AC 74 C7
+		ldx L_C71A		;1F1E AE 1A C7
+		beq L_1F29		;1F21 F0 06
+		clc				;1F23 18
+		adc #$20		;1F24 69 20
+		ldy L_C775		;1F26 AC 75 C7
+.L_1F29	tax				;1F29 AA
+		sty L_209B		;1F2A 8C 9B 20
+		jsr rndQ		;1F2D 20 B9 29
+		and L_BFAA,X	;1F30 3D AA BF
+		clc				;1F33 18
+		adc L_BFB2,X	;1F34 7D B2 BF
+		sta L_2099		;1F37 8D 99 20
+		jsr rndQ		;1F3A 20 B9 29
+		and L_BFBA,X	;1F3D 3D BA BF
+		clc				;1F40 18
+		adc L_BFC2,X	;1F41 7D C2 BF
+		sta L_209A		;1F44 8D 9A 20
+.L_1F47	rts				;1F47 60
+}
+
+.L_2176				; only called from Kernel?
+{
+		lda L_C371		;2176 AD 71 C3
+		beq L_21DD		;2179 F0 62
+		lda #$00		;217B A9 00
+		sta L_C371		;217D 8D 71 C3
+		lda ZP_D6		;2180 A5 D6
+		sec				;2182 38
+		sbc L_0181		;2183 ED 81 01
+		sta ZP_D6		;2186 85 D6
+		lda ZP_D7		;2188 A5 D7
+		sbc L_0184		;218A ED 84 01
+		bpl L_2191		;218D 10 02
+		lda #$00		;218F A9 00
+.L_2191	sta ZP_D7		;2191 85 D7
+		lda L_0180		;2193 AD 80 01
+		sta ZP_14		;2196 85 14
+		lda L_0183		;2198 AD 83 01
+		ldy #$04		;219B A0 04
+		jsr shift_16bit		;219D 20 BF C9
+		sta ZP_15		;21A0 85 15
+		ldx #$02		;21A2 A2 02
+.L_21A4	lda L_07DC,X	;21A4 BD DC 07
+		sec				;21A7 38
+		sbc ZP_14		;21A8 E5 14
+		sta L_07DC,X	;21AA 9D DC 07
+		lda L_07E0,X	;21AD BD E0 07
+		sbc ZP_15		;21B0 E5 15
+		sta L_07E0,X	;21B2 9D E0 07
+		dex				;21B5 CA
+		bpl L_21A4		;21B6 10 EC
+		ldx #$02		;21B8 A2 02
+.L_21BA	lda L_0170,X	;21BA BD 70 01
+		clc				;21BD 18
+		adc L_017F,X	;21BE 7D 7F 01
+		sta L_0170,X	;21C1 9D 70 01
+		lda L_0173,X	;21C4 BD 73 01
+		adc L_0182,X	;21C7 7D 82 01
+		sta L_0173,X	;21CA 9D 73 01
+		lda #$00		;21CD A9 00
+		sta L_017F,X	;21CF 9D 7F 01
+		sta L_0182,X	;21D2 9D 82 01
+		dex				;21D5 CA
+		bpl L_21BA		;21D6 10 E2
+		lda #$02		;21D8 A9 02
+		jsr L_CF68		;21DA 20 68 CF
+.L_21DD	rts				;21DD 60
+}
+
 ; *****************************************************************************
 \\ Code moved from Cart RAM because it is only used by Kernel fns
 ; *****************************************************************************
@@ -1684,7 +1869,7 @@
 		lda L_0402,X	;99B7 BD 02 04
 		sta L_8298		;99BA 8D 98 82
 		ldx #$00		;99BD A2 00
-		jsr L_99FF		;99BF 20 FF 99
+		jsr cart_L_99FF		;99BF 20 FF 99
 		lda ZP_08		;99C2 A5 08
 		eor #$80		;99C4 49 80
 		sta ZP_08		;99C6 85 08
@@ -1707,6 +1892,77 @@
 .L_99EF	equb $4C,$52,$48
 		equb $42,$53,$53,$42,$52,$48,$4A,$52,$43,$53,$4A,$44,$42
 L_99F0	= L_99EF + 1
+}
+
+.calculate_camera_sines		; only called from Kernel?
+{
+		lda #$00		;A132 A9 00
+		sta ZP_79		;A134 85 79
+		sta ZP_7A		;A136 85 7A
+		lda L_0121		;A138 AD 21 01
+		sta ZP_14		;A13B 85 14
+		lda L_0124		;A13D AD 24 01
+		jsr accurate_sin		;A140 20 CD C8
+		sta ZP_77		;A143 85 77
+		and #$FF		;A145 29 FF
+		bpl L_A14B		;A147 10 02
+		dec ZP_79		;A149 C6 79
+.L_A14B	lda ZP_14		;A14B A5 14
+		sta ZP_51		;A14D 85 51
+		lda L_0123		;A14F AD 23 01
+		sta ZP_14		;A152 85 14
+		lda L_0126		;A154 AD 26 01
+		jsr accurate_sin		;A157 20 CD C8
+		sta ZP_43		;A15A 85 43
+		and #$FF		;A15C 29 FF
+		bpl L_A162		;A15E 10 02
+		dec ZP_7A		;A160 C6 7A
+.L_A162	asl A			;A162 0A
+		ror ZP_43		;A163 66 43
+		ror ZP_14		;A165 66 14
+		lda ZP_14		;A167 A5 14
+		sta ZP_56		;A169 85 56
+		lda L_0101		;A16B AD 01 01
+		sec				;A16E 38
+		sbc ZP_51		;A16F E5 51
+		sta L_C348		;A171 8D 48 C3
+		lda L_0104		;A174 AD 04 01
+		sbc ZP_77		;A177 E5 77
+		sta L_C34B		;A179 8D 4B C3
+		lda L_0107		;A17C AD 07 01
+		sbc ZP_79		;A17F E5 79
+		sta L_C3D3		;A181 8D D3 C3
+		lda L_0101		;A184 AD 01 01
+		clc				;A187 18
+		adc ZP_51		;A188 65 51
+		sta ZP_14		;A18A 85 14
+		lda L_0104		;A18C AD 04 01
+		adc ZP_77		;A18F 65 77
+		sta ZP_15		;A191 85 15
+		lda L_0107		;A193 AD 07 01
+		adc ZP_79		;A196 65 79
+		sta ZP_16		;A198 85 16
+		lda ZP_14		;A19A A5 14
+		sec				;A19C 38
+		sbc ZP_56		;A19D E5 56
+		sta L_C347		;A19F 8D 47 C3
+		lda ZP_15		;A1A2 A5 15
+		sbc ZP_43		;A1A4 E5 43
+		sta L_C34A		;A1A6 8D 4A C3
+		lda ZP_16		;A1A9 A5 16
+		sbc ZP_7A		;A1AB E5 7A
+		sta L_C3D2		;A1AD 8D D2 C3
+		lda ZP_14		;A1B0 A5 14
+		clc				;A1B2 18
+		adc ZP_56		;A1B3 65 56
+		sta L_C346		;A1B5 8D 46 C3
+		lda ZP_15		;A1B8 A5 15
+		adc ZP_43		;A1BA 65 43
+		sta L_C349		;A1BC 8D 49 C3
+		lda ZP_16		;A1BF A5 16
+		adc ZP_7A		;A1C1 65 7A
+		sta L_C3D1		;A1C3 8D D1 C3
+		rts				;A1C6 60
 }
 
 ; *****************************************************************************
@@ -3529,7 +3785,7 @@ L_99F0	= L_99EF + 1
 		lsr L_C30B		;E54E 4E 0B C3
 		ldx #$00		;E551 A2 00
 		ldy #$01		;E553 A0 01
-		jsr L_238E		;E555 20 8E 23
+		jsr cart_L_238E		;E555 20 8E 23
 		lsr A			;E558 4A
 		lda ZP_14		;E559 A5 14
 		ror A			;E55B 6A
@@ -3680,8 +3936,8 @@ L_99F0	= L_99EF + 1
 		lda L_C530,Y	;E650 B9 30 C5
 		sta ZP_78		;E653 85 78
 		jsr L_2458		;E655 20 58 24
-		jsr L_25EA		;E658 20 EA 25
-		jmp L_2809		;E65B 4C 09 28
+		jsr cart_L_25EA		;E658 20 EA 25
+		jmp cart_L_2809		;E65B 4C 09 28
 }
 
 .L_E65E_in_kernel		\\ only called from Kernel fns
@@ -3922,7 +4178,7 @@ L_99F0	= L_99EF + 1
 		dex				;E83F CA
 		bpl L_E83C		;E840 10 FA
 		rts				;E842 60
-.L_E843	jsr L_A026		;E843 20 26 A0
+.L_E843	jsr cart_L_A026		;E843 20 26 A0
 		lda ZP_51		;E846 A5 51
 		sta L_C500,X	;E848 9D 00 C5
 		lda ZP_77		;E84B A5 77
@@ -3948,7 +4204,7 @@ L_99F0	= L_99EF + 1
 		sta L_C70C,X	;E870 9D 0C C7
 .L_E873	dex				;E873 CA
 		bpl L_E860		;E874 10 EA
-		jsr L_1611		;E876 20 11 16
+		jsr cart_L_1611		;E876 20 11 16
 		lda #$0A		;E879 A9 0A
 		sta L_C719		;E87B 8D 19 C7
 		rts				;E87E 60
@@ -4607,7 +4863,7 @@ L_EBDD	= L_EBE7 - $A			;!
 
 .get_entered_name
 {
-		jsr clear_menu_area		;ED7F 20 23 1C
+		jsr cart_clear_menu_area		;ED7F 20 23 1C
 		jsr menu_colour_map_stuff		;ED82 20 C4 38
 		ldx #$E0		;ED85 A2 E0
 		jsr print_msg_4		;ED87 20 27 30
@@ -4713,7 +4969,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr set_up_screen_for_menu		;EE3D 20 1F 35
 		ldx #$00		;EE40 A2 00
 		stx ZP_0F		;EE42 86 0F
-		jsr print_msg_2		;EE44 20 CB A1
+		jsr cart_print_msg_2		;EE44 20 CB A1
 .L_EE47	lda #$00		;EE47 A9 00
 		sta ZP_19		;EE49 85 19
 .L_EE4B	ldy ZP_19		;EE4B A4 19
@@ -4740,7 +4996,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		adc ZP_30		;EE79 65 30
 		tay				;EE7B A8
 		ldx L_F001,Y	;EE7C BE 01 F0
-		jsr print_msg_2		;EE7F 20 CB A1
+		jsr cart_print_msg_2		;EE7F 20 CB A1
 		lda ZP_30		;EE82 A5 30
 		cmp #$18		;EE84 C9 18
 		bne L_EE90		;EE86 D0 08
@@ -4856,7 +5112,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		cmp #$02		;EF61 C9 02
 		bcc L_EF8C		;EF63 90 27
 		bne L_EF37		;EF65 D0 D0
-		jsr L_1611		;EF67 20 11 16
+		jsr cart_L_1611		;EF67 20 11 16
 		ldx #$20		;EF6A A2 20
 		jsr poll_key_with_sysctl		;EF6C 20 C9 C7
 		bne L_EF77		;EF6F D0 06
@@ -5414,8 +5670,8 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda #$80		;F375 A9 80
 		sta ZP_CC		;F377 85 CC
 		sta ZP_CD		;F379 85 CD
-		jsr L_177D		;F37B 20 7D 17
-		jsr L_1A3B		;F37E 20 3B 1A
+		jsr cart_L_177D		;F37B 20 7D 17
+		jsr cart_L_1A3B		;F37E 20 3B 1A
 .L_F381	ldx ZP_30		;F381 A6 30
 		ldy ZP_31		;F383 A4 31
 		rts				;F385 60
@@ -7058,7 +7314,7 @@ L_FBD5	= *-2			;! self-mod!
 
 .L_FF94_in_kernel
 {
-		jsr L_9EBC		;FF94 20 BC 9E
+		jsr cart_L_9EBC		;FF94 20 BC 9E
 		lda ZP_15		;FF97 A5 15
 		lsr ZP_16		;FF99 46 16
 		ror A			;FF9B 6A

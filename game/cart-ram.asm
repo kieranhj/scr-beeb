@@ -2480,7 +2480,7 @@
 		equb $2E,$27,$29,$12,$08
 }
 
-.L_99FF				; NEEDS DLL
+.L_99FF				; HAS DLL
 {
 		lda L_8398,X	;99FF BD 98 83
 		cmp #$09		;9A02 C9 09
@@ -3146,7 +3146,7 @@
 .L_9EBB	rts				;9EBB 60
 }
 
-.L_9EBC				; NEEDS DLL
+.L_9EBC				; HAS DLL
 {
 		lda #$00		;9EBC A9 00
 		sta ZP_5A		;9EBE 85 5A
@@ -3334,7 +3334,7 @@
 ; entry: Y	= index	into (word_9A) data
 ; exit: Y points after data read
 
-.L_A026				; NEEDS DLL
+.L_A026				; HAS DLL
 {
 		bit ZP_3D		;A026 24 3D
 		bmi L_A06D		;A028 30 43
@@ -3490,80 +3490,9 @@
 		rts				;A131 60
 }
 
-.calculate_camera_sines		; only called from Kernel?
-{
-		lda #$00		;A132 A9 00
-		sta ZP_79		;A134 85 79
-		sta ZP_7A		;A136 85 7A
-		lda L_0121		;A138 AD 21 01
-		sta ZP_14		;A13B 85 14
-		lda L_0124		;A13D AD 24 01
-		jsr kernel_accurate_sin		;A140 20 CD C8
-		sta ZP_77		;A143 85 77
-		and #$FF		;A145 29 FF
-		bpl L_A14B		;A147 10 02
-		dec ZP_79		;A149 C6 79
-.L_A14B	lda ZP_14		;A14B A5 14
-		sta ZP_51		;A14D 85 51
-		lda L_0123		;A14F AD 23 01
-		sta ZP_14		;A152 85 14
-		lda L_0126		;A154 AD 26 01
-		jsr kernel_accurate_sin		;A157 20 CD C8
-		sta ZP_43		;A15A 85 43
-		and #$FF		;A15C 29 FF
-		bpl L_A162		;A15E 10 02
-		dec ZP_7A		;A160 C6 7A
-.L_A162	asl A			;A162 0A
-		ror ZP_43		;A163 66 43
-		ror ZP_14		;A165 66 14
-		lda ZP_14		;A167 A5 14
-		sta ZP_56		;A169 85 56
-		lda L_0101		;A16B AD 01 01
-		sec				;A16E 38
-		sbc ZP_51		;A16F E5 51
-		sta L_C348		;A171 8D 48 C3
-		lda L_0104		;A174 AD 04 01
-		sbc ZP_77		;A177 E5 77
-		sta L_C34B		;A179 8D 4B C3
-		lda L_0107		;A17C AD 07 01
-		sbc ZP_79		;A17F E5 79
-		sta L_C3D3		;A181 8D D3 C3
-		lda L_0101		;A184 AD 01 01
-		clc				;A187 18
-		adc ZP_51		;A188 65 51
-		sta ZP_14		;A18A 85 14
-		lda L_0104		;A18C AD 04 01
-		adc ZP_77		;A18F 65 77
-		sta ZP_15		;A191 85 15
-		lda L_0107		;A193 AD 07 01
-		adc ZP_79		;A196 65 79
-		sta ZP_16		;A198 85 16
-		lda ZP_14		;A19A A5 14
-		sec				;A19C 38
-		sbc ZP_56		;A19D E5 56
-		sta L_C347		;A19F 8D 47 C3
-		lda ZP_15		;A1A2 A5 15
-		sbc ZP_43		;A1A4 E5 43
-		sta L_C34A		;A1A6 8D 4A C3
-		lda ZP_16		;A1A9 A5 16
-		sbc ZP_7A		;A1AB E5 7A
-		sta L_C3D2		;A1AD 8D D2 C3
-		lda ZP_14		;A1B0 A5 14
-		clc				;A1B2 18
-		adc ZP_56		;A1B3 65 56
-		sta L_C346		;A1B5 8D 46 C3
-		lda ZP_15		;A1B8 A5 15
-		adc ZP_43		;A1BA 65 43
-		sta L_C349		;A1BC 8D 49 C3
-		lda ZP_16		;A1BF A5 16
-		adc ZP_7A		;A1C1 65 7A
-		sta L_C3D1		;A1C3 8D D1 C3
-		rts				;A1C6 60
-}
-
 .L_A1C7	jsr write_char		;A1C7 20 6F 84
 		inx				;A1CA E8
-.print_msg_2		; NEEDS DLL
+.print_msg_2		; HAS DLL
 {
 		bit L_31A0		;A1CB 2C A0 31
 		bmi print_msg_3		;A1CE 30 0C
@@ -3575,7 +3504,7 @@
 
 .L_A1D8	jsr write_char		;A1D8 20 6F 84
 		inx				;A1DB E8
-.print_msg_3		; NEEDS DLL
+.print_msg_3		; HAS DLL
 {
 		lda frontend_strings_3,X	;A1DC BD AA 31
 		cmp #$FF		;A1DF C9 FF
@@ -3598,88 +3527,7 @@
 ; Fns moved from Core RAM so data can reside there
 ; *****************************************************************************
 
-.L_1411				; only called from Kernel?
-{
-		lda L_3FFA,X	;1411 BD FA 3F
-		ora #$80		;1414 09 80
-		sta L_3FFA,X	;1416 9D FA 3F
-		lda L_3FF1,X	;1419 BD F1 3F
-		ora #$80		;141C 09 80
-		sta L_3FF1,X	;141E 9D F1 3F
-		rts				;1421 60
-}
-
-.L_1422				; only called from Kernel?
-		ldy #$00		;1422 A0 00
-		beq L_1430		;1424 F0 0A
-
-.L_1426				; only called from Kernel?
-		ldy #$80		;1426 A0 80
-		bne L_1430		;1428 D0 06
-
-.L_142A				; only called from Kernel?
-		ldy #$C0		;142A A0 C0
-		bne L_1430		;142C D0 02
-
-.L_142E				; only called from Kernel?
-		ldy #$40		;142E A0 40
-
-.L_1430				; not an entry point
-{
-		sty ZP_DB		;1430 84 DB
-		jsr L_1469		;1432 20 69 14
-.L_1435	lda (ZP_1E),Y	;1435 B1 1E
-		bit ZP_DB		;1437 24 DB
-		bpl L_145A		;1439 10 1F
-		lsr A			;143B 4A
-		bit ZP_DB		;143C 24 DB
-		bvs L_1441		;143E 70 01
-		lsr A			;1440 4A
-.L_1441	sta ZP_14		;1441 85 14
-		lda L_4000,X	;1443 BD 00 40
-		and #$80		;1446 29 80
-		ora ZP_14		;1448 05 14
-		sta L_4000,X	;144A 9D 00 40
-		bit ZP_DB		;144D 24 DB
-		bvs L_1460		;144F 70 0F
-		lda #$00		;1451 A9 00
-		ror A			;1453 6A
-		sta L_4001,X	;1454 9D 01 40
-		jmp L_1460		;1457 4C 60 14
-.L_145A	bvs L_145D		;145A 70 01
-		asl A			;145C 0A
-.L_145D	sta L_4000,X	;145D 9D 00 40
-.L_1460	inx				;1460 E8
-		inx				;1461 E8
-		inx				;1462 E8
-		iny				;1463 C8
-		cpy #$07		;1464 C0 07
-		bne L_1435		;1466 D0 CD
-		rts				;1468 60
-}
-
-.L_1469				; NEEDS DLL
-{
-		ldy #$00		;1469 A0 00
-		sty ZP_14		;146B 84 14
-		clc				;146D 18
-		adc #$30		;146E 69 30
-		asl A			;1470 0A
-		asl A			;1471 0A
-		rol ZP_14		;1472 26 14
-		asl A			;1474 0A
-		rol ZP_14		;1475 26 14
-		clc				;1477 18
-		adc #$C0		;1478 69 C0
-		sta ZP_1E		;147A 85 1E
-		lda ZP_14		;147C A5 14
-		adc #$7F		;147E 69 7F
-		sta ZP_1F		;1480 85 1F
-		iny				;1482 C8
-		rts				;1483 60
-}
-
-.reset_sprites		; NEEDS DLL
+.reset_sprites		; HAS DLL
 {
 		ldx #$07		;1484 A2 07
 .L_1486	txa				;1486 8A
@@ -3714,7 +3562,7 @@ L_14B6 = L_14B8-2
 
 ; update scratches and scrapes?
 ; only called from main loop
-.L_14D0_from_main_loop		; NEEDS DLL
+.L_14D0_from_main_loop		; HAS DLL
 {
 		ldx #$00		;14D0 A2 00
 		ldy #$0A		;14D2 A0 0A
@@ -3876,7 +3724,7 @@ L_14B6 = L_14B8-2
 .L_1601	equb $20,$50,$60,$70,$70,$60,$50,$20,$E0,$B0,$A0,$90,$90,$A0,$B0,$E0
 }
 
-.L_1611				; NEEDS DLL
+.L_1611				; HAS DLL
 {
 		ldx #$3B		;1611 A2 3B
 .L_1613	lda #$00		;1613 A9 00
@@ -3893,7 +3741,7 @@ L_14B6 = L_14B8-2
 		rts				;162B 60
 }
 
-.save_rndQ_stateQ	; NEEDS DLL
+.save_rndQ_stateQ	; HAS DLL
 {
 		ldx #$04		;162C A2 04
 .L_162E	lda ZP_02,X		;162E B5 02
@@ -3905,7 +3753,7 @@ L_14B6 = L_14B8-2
 .L_1648	equb $B1,$65,$3B,$17,$3B
 }
 
-.L_1637				; NEEDS DLL
+.L_1637				; HAS DLL
 {
 		ldx #$04		;1637 A2 04
 .L_1639	lda L_1643,Y	;1639 B9 43 16
@@ -3918,7 +3766,7 @@ L_14B6 = L_14B8-2
 .L_1643	equb $B1,$86,$77,$8F,$8D
 }
 
-.start_of_frame		; NEEDS DLL
+.start_of_frame		; in Cart
 {
 		ldx #$3F		;164D A2 3F
 .L_164F	lda L_C280,X	;164F BD 80 C2
@@ -3943,7 +3791,7 @@ L_14B6 = L_14B8-2
 
 ; only called from main loop - pretty sure this is main draw function for track etc.
 
-.L_167A_from_main_loop		; NEEDS DLL
+.draw_trackQ		; HAS DLL
 {
 		jsr start_of_frame		;167A 20 4D 16
 		lda ZP_2F		;167D A5 2F
@@ -4059,7 +3907,7 @@ L_14B6 = L_14B8-2
 		rts				;177C 60
 }
 
-.L_177D				; NEEDS DLL
+.L_177D				; HAS DLL
 {
 		ldx ZP_2E		;177D A6 2E
 		jsr kernel_get_track_segment_detailsQ		;177F 20 2F F0
@@ -4409,7 +4257,7 @@ L_14B6 = L_14B8-2
 .L_1A3A	rts				;1A3A 60
 }
 
-.L_1A3B				; NEEDS DLL
+.L_1A3B				; HAS DLL
 {
 		lda #$01		;1A3B A9 01
 		bit L_C3A8		;1A3D 2C A8 C3
@@ -4582,7 +4430,7 @@ L_14B6 = L_14B8-2
 		jmp L_1B2F		;1B85 4C 2F 1B
 }
 
-.update_damage_display		; NEEDS DLL
+.update_damage_display		; HAS DLL
 {
 		lda L_C3CB		;1B88 AD CB C3
 		cmp ZP_25		;1B8B C5 25
@@ -4657,13 +4505,13 @@ L_14B6 = L_14B8-2
 .L_1C1A	equb $C0,$30,$0C,$03
 }
 
-.draw_crane_with_sysctl		; NEEDS DLL
+.draw_crane_with_sysctl		; HAS DLL
 {
 		lda #$3F		;1C1E A9 3F
 		jmp sysctl		;1C20 4C 25 87
 }
 
-.clear_menu_area			; NEEDS DLL
+.clear_menu_area			; HAS DLL
 {
 		ldx #$10		;1C23 A2 10
 		lda #$4B		;1C25 A9 4B
@@ -4688,7 +4536,7 @@ L_14B6 = L_14B8-2
 		rts				;1C48 60
 }
 
-.draw_menu_header			; NEEDS DLL
+.draw_menu_header			; HAS DLL
 {
 		lda #$08		;1C49 A9 08
 		sta ZP_52		;1C4B 85 52
@@ -4704,7 +4552,7 @@ L_14B6 = L_14B8-2
 		jmp sysctl		;1C61 4C 25 87
 }
 
-.L_1C64_with_keys			; NEEDS DLL
+.L_1C64_with_keys			; HAS DLL
 {
 		jsr kernel_check_game_keys		;1C64 20 9E F7
 		lda ZP_6A		;1C67 A5 6A
@@ -4755,7 +4603,7 @@ L_14B6 = L_14B8-2
 		rts				;1CCA 60
 }
 
-.L_1CCB				; NEEDS DLL
+.L_1CCB				; HAS DLL
 {
 		lda L_0124		;1CCB AD 24 01
 		and #$80		;1CCE 29 80
@@ -4792,7 +4640,7 @@ L_14B6 = L_14B8-2
 		rts				;1D17 60
 }
 
-.update_per_track_stuff		; NEEDS DLL
+.update_per_track_stuff		; HAS DLL
 {
 		lda L_C77D		;1D18 AD 7D C7
 		cmp #$05		;1D1B C9 05
@@ -4956,29 +4804,6 @@ L_14B6 = L_14B8-2
 		rts				;1E5E 60
 }
 
-.find_track_segment_index		; only called from Kernel?
-{
-		stx L_1E84		;1E5F 8E 84 1E
-		txa				;1E62 8A
-		ldx L_C374		;1E63 AE 74 C3
-		cpx L_C764		;1E66 EC 64 C7
-		bcs L_1E7D		;1E69 B0 12
-.L_1E6B	cmp L_044E,X	;1E6B DD 4E 04
-		beq L_1E7F		;1E6E F0 0F
-		inx				;1E70 E8
-		cpx L_C764		;1E71 EC 64 C7
-		bcc L_1E78		;1E74 90 02
-		ldx #$00		;1E76 A2 00
-.L_1E78	cpx L_C374		;1E78 EC 74 C3
-		bne L_1E6B		;1E7B D0 EE
-.L_1E7D	ldx #$FF		;1E7D A2 FF
-.L_1E7F	txa				;1E7F 8A
-		ldx L_1E84		;1E80 AE 84 1E
-		rts				;1E83 60
-
-.L_1E84	equb $00
-}
-
 .update_aicar		; in Cart
 {
 		lda L_C37C		;1E85 AD 7C C3
@@ -5025,7 +4850,7 @@ L_14B6 = L_14B8-2
 }
 
 ; only called from main loop
-.L_1EE2_from_main_loop		; NEEDS DLL
+.L_1EE2_from_main_loop		; HAS DLL
 {
 		jsr kernel_L_E4DA		;1EE2 20 DA E4
 		jsr rndQ		;1EE5 20 B9 29
@@ -5044,38 +4869,6 @@ L_14B6 = L_14B8-2
 		dex				;1F02 CA
 		bpl L_1EF1		;1F03 10 EC
 		rts				;1F05 60
-}
-
-.L_1F06				; only called from Kernel?
-{
-		lda L_31A1		;1F06 AD A1 31
-		beq L_1F10		;1F09 F0 05
-		lda L_C77F		;1F0B AD 7F C7
-		bne L_1F47		;1F0E D0 37
-.L_1F10	ldx #$00		;1F10 A2 00
-.L_1F12	jsr rndQ		;1F12 20 B9 29
-		dex				;1F15 CA
-		bne L_1F12		;1F16 D0 FA
-		lda L_C77D		;1F18 AD 7D C7
-		ldy L_C774		;1F1B AC 74 C7
-		ldx L_C71A		;1F1E AE 1A C7
-		beq L_1F29		;1F21 F0 06
-		clc				;1F23 18
-		adc #$20		;1F24 69 20
-		ldy L_C775		;1F26 AC 75 C7
-.L_1F29	tax				;1F29 AA
-		sty L_209B		;1F2A 8C 9B 20
-		jsr rndQ		;1F2D 20 B9 29
-		and L_BFAA,X	;1F30 3D AA BF
-		clc				;1F33 18
-		adc L_BFB2,X	;1F34 7D B2 BF
-		sta L_2099		;1F37 8D 99 20
-		jsr rndQ		;1F3A 20 B9 29
-		and L_BFBA,X	;1F3D 3D BA BF
-		clc				;1F40 18
-		adc L_BFC2,X	;1F41 7D C2 BF
-		sta L_209A		;1F44 8D 9A 20
-.L_1F47	rts				;1F47 60
 }
 
 .L_1F48			; in Cart - only called from update_aicar
@@ -5368,55 +5161,6 @@ L_14B6 = L_14B8-2
 		rts				;2175 60
 }
 
-.L_2176				; only called from Kernel?
-{
-		lda L_C371		;2176 AD 71 C3
-		beq L_21DD		;2179 F0 62
-		lda #$00		;217B A9 00
-		sta L_C371		;217D 8D 71 C3
-		lda ZP_D6		;2180 A5 D6
-		sec				;2182 38
-		sbc L_0181		;2183 ED 81 01
-		sta ZP_D6		;2186 85 D6
-		lda ZP_D7		;2188 A5 D7
-		sbc L_0184		;218A ED 84 01
-		bpl L_2191		;218D 10 02
-		lda #$00		;218F A9 00
-.L_2191	sta ZP_D7		;2191 85 D7
-		lda L_0180		;2193 AD 80 01
-		sta ZP_14		;2196 85 14
-		lda L_0183		;2198 AD 83 01
-		ldy #$04		;219B A0 04
-		jsr kernel_shift_16bit		;219D 20 BF C9
-		sta ZP_15		;21A0 85 15
-		ldx #$02		;21A2 A2 02
-.L_21A4	lda L_07DC,X	;21A4 BD DC 07
-		sec				;21A7 38
-		sbc ZP_14		;21A8 E5 14
-		sta L_07DC,X	;21AA 9D DC 07
-		lda L_07E0,X	;21AD BD E0 07
-		sbc ZP_15		;21B0 E5 15
-		sta L_07E0,X	;21B2 9D E0 07
-		dex				;21B5 CA
-		bpl L_21A4		;21B6 10 EC
-		ldx #$02		;21B8 A2 02
-.L_21BA	lda L_0170,X	;21BA BD 70 01
-		clc				;21BD 18
-		adc L_017F,X	;21BE 7D 7F 01
-		sta L_0170,X	;21C1 9D 70 01
-		lda L_0173,X	;21C4 BD 73 01
-		adc L_0182,X	;21C7 7D 82 01
-		sta L_0173,X	;21CA 9D 73 01
-		lda #$00		;21CD A9 00
-		sta L_017F,X	;21CF 9D 7F 01
-		sta L_0182,X	;21D2 9D 82 01
-		dex				;21D5 CA
-		bpl L_21BA		;21D6 10 E2
-		lda #$02		;21D8 A9 02
-		jsr kernel_L_CF68		;21DA 20 68 CF
-.L_21DD	rts				;21DD 60
-}
-
 .L_21DE			; in Cart - only called from update_aicar
 {
 		lda #$00		;21DE A9 00
@@ -5623,7 +5367,7 @@ L_14B6 = L_14B8-2
 .L_238A	equb $3C,$3E,$3D,$3F
 }
 
-.L_238E			; NEEDS DLL
+.L_238E			; HAS DLL
 {
 		lda L_07CC,X	;238E BD CC 07
 		sec				;2391 38
@@ -5727,7 +5471,7 @@ L_14B6 = L_14B8-2
 		rts				;2457 60
 }
 
-.L_25EA				; NEEDS DLL
+.L_25EA				; HAS DLL
 		stx ZP_16		;25EA 86 16
 		ldy #$00		;25EC A0 00
 		lda L_8040,X	;25EE BD 40 80
@@ -5850,7 +5594,7 @@ L_262B	= *-1			;! self-mod!
 ; raises number to	the power of 36	(? - experimentally determined)
 ; entry: A	= MSB; byte_14 = LSB
 
-.pow36Q				; NEEDS DLL
+.pow36Q				; HAS DLL
 {
 		cmp #$E0		;26D2 C9 E0
 		bcc L_271B		;26D4 90 45
@@ -5901,7 +5645,7 @@ L_262B	= *-1			;! self-mod!
 
 .L_2725	rts				;2725 60
 
-.update_camera_roll_tables		; NEEDS DLL
+.update_camera_roll_tables		; HAS DLL
 {
 		lda L_0126		;2726 AD 26 01
 		cmp L_2806		;2729 CD 06 28
@@ -6020,7 +5764,7 @@ L_27BE	= *-2			;!
 
 .L_2808	rts				;2808 60
 
-.L_2809				; NEEDS DLL
+.L_2809				; HAS DLL
 		lda L_A330,X	;2809 BD 30 A3
 		bmi L_2808		;280C 30 FA
 .L_280E				; in Cart
@@ -6241,7 +5985,7 @@ L_27BE	= *-2			;!
 		rts				;29B8 60
 }
 
-.draw_crash_smokeQ		; NEEDS DLL
+.draw_crash_smokeQ		; HAS DLL
 {
 		ldy #$00		;29E3 A0 00
 		txa				;29E5 8A
@@ -6289,7 +6033,7 @@ L_27BE	= *-2			;!
 .L_2A4D	equb $03,$02,$FE,$07,$03,$FC,$F9,$01,$FF,$FD,$06,$05,$FF,$FC,$FB
 }
 
-.L_2A5C				; NEEDS DLL
+.L_2A5C				; HAS DLL
 {
 		ldy #$40		;2A5C A0 40
 		sty ZP_08		;2A5E 84 08

@@ -181,7 +181,7 @@ ENDIF
 		lda ZP_AA		;2501 A5 AA
 		sbc ZP_71		;2503 E5 71
 		bpl L_2537		;2505 10 30
-		jsr pow36Q		;2507 20 D2 26
+		jsr cart_pow36Q		;2507 20 D2 26
 		lsr A			;250A 4A
 		adc #$00		;250B 69 00
 		sta ZP_14		;250D 85 14
@@ -212,7 +212,7 @@ ENDIF
 		sta ZP_14		;253E 85 14
 		lda #$00		;2540 A9 00
 		sbc ZP_15		;2542 E5 15
-		jsr pow36Q		;2544 20 D2 26
+		jsr cart_pow36Q		;2544 20 D2 26
 		lsr A			;2547 4A
 		sta ZP_14		;2548 85 14
 		tay				;254A A8
@@ -242,7 +242,7 @@ ENDIF
 		lda ZP_AA		;2579 A5 AA
 		sbc ZP_71		;257B E5 71
 		bpl L_25AD		;257D 10 2E
-		jsr pow36Q		;257F 20 D2 26
+		jsr cart_pow36Q		;257F 20 D2 26
 		lsr A			;2582 4A
 		sta ZP_14		;2583 85 14
 		tay				;2585 A8
@@ -272,7 +272,7 @@ ENDIF
 		sta ZP_14		;25B4 85 14
 		lda #$00		;25B6 A9 00
 		sbc ZP_15		;25B8 E5 15
-		jsr pow36Q		;25BA 20 D2 26
+		jsr cart_pow36Q		;25BA 20 D2 26
 		lsr A			;25BD 4A
 		adc #$00		;25BE 69 00
 		sta ZP_14		;25C0 85 14
@@ -357,7 +357,7 @@ ENDIF
 		ldx #$99		;2AE4 A2 99
 		jsr cart_write_file_string		;2AE6 20 E2 95
 .L_2AE9	ldx #$94		;2AE9 A2 94
-		jsr print_msg_2		;2AEB 20 CB A1
+		jsr cart_print_msg_2		;2AEB 20 CB A1
 		ldx #$78		;2AEE A2 78
 		ldy #$D5		;2AF0 A0 D5
 		lda #$C0		;2AF2 A9 C0
@@ -368,7 +368,7 @@ ENDIF
 .L_2AFD	jsr cart_L_9448		;2AFD 20 48 94
 		bcs L_2AE9		;2B00 B0 E7
 		jsr L_361F		;2B02 20 1F 36
-		jsr save_rndQ_stateQ		;2B05 20 2C 16
+		jsr cart_save_rndQ_stateQ		;2B05 20 2C 16
 		lda #$00		;2B08 A9 00
 		jsr L_3FBB_with_VIC		;2B0A 20 BB 3F
 		lda #$01		;2B0D A9 01
@@ -497,7 +497,7 @@ ENDIF
 		lda #$00		;2C16 A9 00
 		jsr cart_L_93A8		;2C18 20 A8 93
 		ldy #$09		;2C1B A0 09
-		jsr L_1637		;2C1D 20 37 16
+		jsr cart_L_1637		;2C1D 20 37 16
 		rts				;2C20 60
 }
 
@@ -542,7 +542,7 @@ ENDIF
 {
 		lda L_C359		;2C44 AD 59 C3
 		beq L_2C4C		;2C47 F0 03
-		jmp L_1CCB		;2C49 4C CB 1C
+		jmp cart_L_1CCB		;2C49 4C CB 1C
 
 .L_2C4C
 		lda #$3D		;2C4C A9 3D
@@ -637,7 +637,7 @@ ENDIF
 		sta L_4120,X	;2CFA 9D 20 41
 		bit ZP_6B		;2CFD 24 6B
 		bpl L_2D07		;2CFF 10 06
-		jsr L_2A5C		;2D01 20 5C 2A
+		jsr cart_L_2A5C		;2D01 20 5C 2A
 		jmp L_2D1F		;2D04 4C 1F 2D
 .L_2D07	jsr rndQ		;2D07 20 B9 29
 		and #$3F		;2D0A 29 3F
@@ -680,7 +680,7 @@ ENDIF
 		rts				;2D54 60
 .L_2D55	bit ZP_6B		;2D55 24 6B
 		bpl L_2D5F		;2D57 10 06
-		jsr draw_crash_smokeQ		;2D59 20 E3 29
+		jsr cart_draw_crash_smokeQ		;2D59 20 E3 29
 		jmp L_2D71		;2D5C 4C 71 2D
 .L_2D5F	tax				;2D5F AA
 		jsr L_2D76		;2D60 20 76 2D
@@ -1106,7 +1106,7 @@ ENDIF
 		lda L_C39C		;309F AD 9C C3
 		and L_31A5		;30A2 2D A5 31
 		bpl L_3110		;30A5 10 69
-		jsr clear_menu_area		;30A7 20 23 1C
+		jsr cart_clear_menu_area		;30A7 20 23 1C
 		jsr menu_colour_map_stuff		;30AA 20 C4 38
 		ldx #$04		;30AD A2 04
 		ldy #$09		;30AF A0 09
@@ -1180,7 +1180,7 @@ ENDIF
 .L_314E	ldy #$0B		;314E A0 0B
 		jsr L_3170		;3150 20 70 31
 .L_3153	ldx #$71		;3153 A2 71
-		jsr print_msg_3		;3155 20 DC A1
+		jsr cart_print_msg_3		;3155 20 DC A1
 .L_3158	lda #$0E		;3158 A9 0E
 		sta ZP_19		;315A 85 19
 		lda L_31A1		;315C AD A1 31
@@ -1199,7 +1199,7 @@ ENDIF
 		ldx #$06		;3170 A2 06
 		jsr kernel_set_text_cursor		;3172 20 6B 10
 		ldx #$93		;3175 A2 93
-		jsr print_msg_3		;3177 20 DC A1
+		jsr cart_print_msg_3		;3177 20 DC A1
 		ldx L_C77D		;317A AE 7D C7
 		jsr print_track_name		;317D 20 92 38
 		lda L_31A1		;3180 AD A1 31
@@ -1207,7 +1207,7 @@ ENDIF
 		lda L_C71A		;3185 AD 1A C7
 		beq L_318F		;3188 F0 05
 		ldx #$63		;318A A2 63
-		jsr print_msg_3		;318C 20 DC A1
+		jsr cart_print_msg_3		;318C 20 DC A1
 .L_318F	rts				;318F 60
 }
 
@@ -1441,7 +1441,7 @@ ENDIF
 {
 		lda #$00		;3504 A9 00
 		jsr L_3FBB_with_VIC		;3506 20 BB 3F
-		jsr draw_menu_header		;3509 20 49 1C
+		jsr cart_draw_menu_header		;3509 20 49 1C
 		lda #$01		;350C A9 01
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
@@ -1455,7 +1455,7 @@ ENDIF
 {
 		lda L_C718		;351F AD 18 C7
 		sta L_C360		;3522 8D 60 C3
-		jsr clear_menu_area		;3525 20 23 1C
+		jsr cart_clear_menu_area		;3525 20 23 1C
 		jsr menu_colour_map_stuff		;3528 20 C4 38
 		ldx #$0C		;352B A2 0C
 		ldy #$0B		;352D A0 0B
@@ -1483,7 +1483,7 @@ ENDIF
 		beq L_3564		;3557 F0 0B
 		sty L_E0BD		;3559 8C BD E0
 		ldx #$BB		;355C A2 BB
-		jsr print_msg_2		;355E 20 CB A1
+		jsr cart_print_msg_2		;355E 20 CB A1
 		jmp L_356C		;3561 4C 6C 35
 .L_3564	sty L_3409		;3564 8C 09 34
 		ldx #$00		;3567 A2 00
@@ -1493,7 +1493,7 @@ ENDIF
 		sbc L_C360		;356F ED 60 C3
 		jmp kernel_print_single_digit		;3572 4C 8A 10
 .L_3575	ldx #$A0		;3575 A2 A0
-		jmp print_msg_3		;3577 4C DC A1
+		jmp cart_print_msg_3		;3577 4C DC A1
 .L_357A	lda #$80		;357A A9 80
 		bne L_3580		;357C D0 02
 \\
@@ -1601,13 +1601,13 @@ ENDIF
 		ldx ZP_C6		;365C A6 C6
 		lda L_C39C		;365E AD 9C C3
 		bpl L_3674		;3661 10 11
-		jsr L_99FF		;3663 20 FF 99
+		jsr cart_L_99FF		;3663 20 FF 99
 		jsr cart_print_2space		;3666 20 AA 91
 		txa				;3669 8A
 		clc				;366A 18
 		adc #$0C		;366B 69 0C
 		tax				;366D AA
-		jsr L_99FF		;366E 20 FF 99
+		jsr cart_L_99FF		;366E 20 FF 99
 		jmp L_368F		;3671 4C 8F 36
 .L_3674	lda L_C740,X	;3674 BD 40 C7
 		jsr print_number_pad2		;3677 20 45 33
@@ -1645,7 +1645,7 @@ ENDIF
 		bne L_36AA		;36B0 D0 F8
 		lda #$80		;36B2 A9 80
 		sta L_C356		;36B4 8D 56 C3
-		jsr clear_menu_area		;36B7 20 23 1C
+		jsr cart_clear_menu_area		;36B7 20 23 1C
 		jsr menu_colour_map_stuff		;36BA 20 C4 38
 		lda #$03		;36BD A9 03
 		sta L_C360		;36BF 8D 60 C3
@@ -1742,7 +1742,7 @@ ENDIF
 		beq L_3797		;378A F0 0B
 		jsr L_3858		;378C 20 58 38
 		ldx #$CE		;378F A2 CE
-		jsr print_msg_2		;3791 20 CB A1
+		jsr cart_print_msg_2		;3791 20 CB A1
 		jmp L_37CE		;3794 4C CE 37
 .L_3797	jsr L_3858		;3797 20 58 38
 		ldx #$B7		;379A A2 B7
@@ -1754,7 +1754,7 @@ ENDIF
 		bne L_37B6		;37A9 D0 0B
 		jsr L_3858		;37AB 20 58 38
 		ldx #$A7		;37AE A2 A7
-		jsr print_msg_2		;37B0 20 CB A1
+		jsr cart_print_msg_2		;37B0 20 CB A1
 		jmp L_37CE		;37B3 4C CE 37
 .L_37B6	ldy ZP_8A		;37B6 A4 8A
 		dey				;37B8 88
@@ -2046,9 +2046,9 @@ ENDIF
 
 .L_39F1
 {
-		jsr save_rndQ_stateQ		;39F1 20 2C 16
+		jsr cart_save_rndQ_stateQ		;39F1 20 2C 16
 		ldy #$04		;39F4 A0 04
-		jsr L_1637		;39F6 20 37 16
+		jsr cart_L_1637		;39F6 20 37 16
 		lda #$09		;39F9 A9 09
 		sta ZP_1A		;39FB 85 1A
 .L_39FD	ldy ZP_1A		;39FD A4 1A
@@ -2063,7 +2063,7 @@ ENDIF
 		ldy #$70		;3A13 A0 70
 		jsr L_3A4B		;3A15 20 4B 3A
 		ldy #$09		;3A18 A0 09
-		jsr L_1637		;3A1A 20 37 16
+		jsr cart_L_1637		;3A1A 20 37 16
 		rts				;3A1D 60
 		
 .L_3A1E	equb $38,$3C,$B0,$B4,$B8,$BC,$C0,$C4,$C8,$CC
@@ -2192,7 +2192,7 @@ ENDIF
 		jsr set_up_screen_for_frontend		;3B39 20 04 35
 		jsr do_initial_screen		;3B3C 20 52 30
 		jsr L_36AD		;3B3F 20 AD 36
-		jsr save_rndQ_stateQ		;3B42 20 2C 16
+		jsr cart_save_rndQ_stateQ		;3B42 20 2C 16
 
 .L_3B45	lsr L_C304		;3B45 4E 04 C3
 		jsr kernel_do_main_menu_dwim		;3B48 20 3A EF
@@ -2287,7 +2287,7 @@ ENDIF
 		jsr L_3754		;3C13 20 54 37
 		jsr L_36AD		;3C16 20 AD 36
 
-.L_3C19	jsr L_1611		;3C19 20 11 16
+.L_3C19	jsr cart_L_1611		;3C19 20 11 16
 .L_3C1C	jmp L_3B45		;3C1C 4C 45 3B
 
 .L_3C1F	jsr cart_L_91B4		;3C1F 20 B4 91
@@ -2326,7 +2326,7 @@ ENDIF
 		jsr L_3EA8		;3C65 20 A8 3E
 		ldx L_C77D		;3C68 AE 7D C7
 		jsr kernel_prepare_trackQ		;3C6B 20 34 EA
-		jsr update_per_track_stuff		;3C6E 20 18 1D
+		jsr cart_update_per_track_stuff		;3C6E 20 18 1D
 		jsr kernel_L_F386		;3C71 20 86 F3
 
 .L_3C74	ldx #$27		;3C74 A2 27
@@ -2371,22 +2371,22 @@ ENDIF
 		sta ZP_C4		;3CBA 85 C4
 		lda #$4C		;3CBC A9 4C
 		sta ZP_B0		;3CBE 85 B0
-		jsr L_1EE2_from_main_loop		;3CC0 20 E2 1E
+		jsr cart_L_1EE2_from_main_loop		;3CC0 20 E2 1E
 		ldx L_C765		;3CC3 AE 65 C7
 .L_3CC6
 		jsr kernel_L_F488		;3CC6 20 88 F4
 		jsr L_2C64		;3CC9 20 64 2C
 		bit L_3DF8		;3CCC 2C F8 3D
 		bmi L_3CDD		;3CCF 30 0C
-		jsr reset_sprites		;3CD1 20 84 14
-		jsr L_167A_from_main_loop		;3CD4 20 7A 16
+		jsr cart_reset_sprites		;3CD1 20 84 14
+		jsr cart_draw_trackQ		;3CD4 20 7A 16
 		jsr toggle_display_pageQ		;3CD7 20 42 3F
 		jsr kernel_game_update		;3CDA 20 41 08
 
-.L_3CDD	jsr L_167A_from_main_loop		;3CDD 20 7A 16
+.L_3CDD	jsr cart_draw_trackQ		;3CDD 20 7A 16
 		jsr kernel_draw_tachometer_in_game		;3CE0 20 06 12
-		jsr draw_crane_with_sysctl		;3CE3 20 1E 1C
-		jsr L_14D0_from_main_loop		;3CE6 20 D0 14	; update scratches and scrapes?
+		jsr cart_draw_crane_with_sysctl		;3CE3 20 1E 1C
+		jsr cart_L_14D0_from_main_loop		;3CE6 20 D0 14	; update scratches and scrapes?
 		jsr toggle_display_pageQ		;3CE9 20 42 3F
 		jsr kernel_game_update		;3CEC 20 41 08
 		lda #$80		;3CEF A9 80
@@ -2400,14 +2400,14 @@ ENDIF
 
 .L_3D05
 		dec L_C30C		;3D05 CE 0C C3
-		jsr L_1C64_with_keys		;3D08 20 64 1C
+		jsr cart_L_1C64_with_keys		;3D08 20 64 1C
 		jsr kernel_game_update		;3D0B 20 41 08
 		jsr kernel_L_E104		;3D0E 20 04 E1
-		jsr L_167A_from_main_loop		;3D11 20 7A 16
+		jsr cart_draw_trackQ		;3D11 20 7A 16
 		jsr L_2C6F		;3D14 20 6F 2C
-		jsr L_14D0_from_main_loop		;3D17 20 D0 14
-		jsr draw_crane_with_sysctl		;3D1A 20 1E 1C
-		jsr update_per_track_stuff		;3D1D 20 18 1D
+		jsr cart_L_14D0_from_main_loop		;3D17 20 D0 14
+		jsr cart_draw_crane_with_sysctl		;3D1A 20 1E 1C
+		jsr cart_update_per_track_stuff		;3D1D 20 18 1D
 		jsr kernel_draw_tachometer_in_game		;3D20 20 06 12
 		jsr L_10D9		;3D23 20 D9 10
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
@@ -2499,7 +2499,7 @@ ENDIF
 		jsr kernel_L_1090		;3DE4 20 90 10
 .L_3DE7	lda L_C37E		;3DE7 AD 7E C3
 		sta L_C719		;3DEA 8D 19 C7
-.L_3DED	jsr save_rndQ_stateQ		;3DED 20 2C 16
+.L_3DED	jsr cart_save_rndQ_stateQ		;3DED 20 2C 16
 		ldx #$00		;3DF0 A2 00
 		lda #$34		;3DF2 A9 34
 		jsr cart_sysctl		;3DF4 20 25 87
@@ -2565,7 +2565,7 @@ ENDIF
 		adc #$0C		;3E63 69 0C
 		tax				;3E65 AA
 		jsr kernel_L_1090		;3E66 20 90 10
-		jsr update_camera_roll_tables		;3E69 20 26 27
+		jsr cart_update_camera_roll_tables		;3E69 20 26 27
 		lda #$A0		;3E6C A9 A0
 		sta ZP_33		;3E6E 85 33
 		lda #$78		;3E70 A9 78
@@ -2574,7 +2574,7 @@ ENDIF
 		lda #$04		;3E77 A9 04
 		sta L_C354		;3E79 8D 54 C3
 		ldy #$09		;3E7C A0 09
-		jsr L_1637		;3E7E 20 37 16
+		jsr cart_L_1637		;3E7E 20 37 16
 		lda #$3B		;3E81 A9 3B
 		sta ZP_03		;3E83 85 03
 		jsr kernel_initialise_hud_sprites		;3E85 20 9A 12

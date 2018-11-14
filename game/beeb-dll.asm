@@ -153,7 +153,7 @@ ENDIF
 .kernel_mul_8_16_16bit_2 DLL_CALL_KERNEL mul_8_16_16bit_2, 64
 .kernel_negate_if_N_set DLL_CALL_KERNEL negate_if_N_set, 65
 .kernel_negate_16bit DLL_CALL_KERNEL negate_16bit, 66
-.kernel_accurate_sin DLL_CALL_KERNEL accurate_sin, 67      ; only called from Cart?
+.kernel_accurate_sin BRK      ; only called from Kernel?
 .kernel_square_ay_32bit DLL_CALL_KERNEL square_ay_32bit, 68    ; only called from Cart?
 .kernel_shift_16bit DLL_CALL_KERNEL shift_16bit, 69
 .kernel_L_CF68 DLL_CALL_KERNEL L_CF68, 70
@@ -238,7 +238,7 @@ ENDIF
 	EQUB LO(mul_8_16_16bit_2)
 	EQUB LO(negate_if_N_set)
 	EQUB LO(negate_16bit)
-	EQUB LO(accurate_sin)       ; only called from Cart?
+	EQUB 0       ; only called from Cart?
 	EQUB LO(square_ay_32bit)    ; only called from Cart?
 	EQUB LO(shift_16bit)
 	EQUB LO(L_CF68)
@@ -320,7 +320,7 @@ ENDIF
 	EQUB HI(mul_8_16_16bit_2)
 	EQUB HI(negate_if_N_set)
 	EQUB HI(negate_16bit)
-	EQUB HI(accurate_sin)       ; only called from Cart?
+	EQUB 0       ; only called from Cart?
 	EQUB HI(square_ay_32bit)    ; only called from Cart?
 	EQUB HI(shift_16bit)
 	EQUB HI(L_CF68)
@@ -424,8 +424,37 @@ ENDIF
 .cart_L_95EA DLL_CALL_CART L_95EA, 17
 .cart_maybe_define_keys DLL_CALL_CART maybe_define_keys, 18
 .cart_store_restore_control_keys DLL_CALL_CART store_restore_control_keys, 19
-.cart_L_9A38 DLL_CALL_CART L_9A38, 20
-.cart_L_9C14 DLL_CALL_CART L_9C14, 21
+.cart_L_99FF DLL_CALL_CART L_99FF, 20
+.cart_L_9A38 DLL_CALL_CART L_9A38, 21
+.cart_L_9C14 DLL_CALL_CART L_9C14, 22
+.cart_L_9EBC DLL_CALL_CART L_9EBC, 23
+.cart_L_A026 DLL_CALL_CART L_A026, 24
+.cart_print_msg_2 DLL_CALL_CART print_msg_2, 25
+.cart_print_msg_3 DLL_CALL_CART print_msg_3, 26
+
+.cart_reset_sprites DLL_CALL_CART reset_sprites, 27
+.cart_L_14D0_from_main_loop DLL_CALL_CART L_14D0_from_main_loop, 28
+.cart_L_1611 DLL_CALL_CART L_1611, 29
+.cart_save_rndQ_stateQ DLL_CALL_CART save_rndQ_stateQ, 30
+.cart_L_1637 DLL_CALL_CART L_1637, 31
+.cart_draw_trackQ DLL_CALL_CART draw_trackQ, 32
+.cart_L_177D DLL_CALL_CART L_177D, 33
+.cart_L_1A3B DLL_CALL_CART L_1A3B, 34
+.cart_update_damage_display DLL_CALL_CART update_damage_display, 35
+.cart_draw_crane_with_sysctl DLL_CALL_CART draw_crane_with_sysctl, 36
+.cart_clear_menu_area DLL_CALL_CART clear_menu_area, 37
+.cart_draw_menu_header DLL_CALL_CART draw_menu_header, 38
+.cart_L_1C64_with_keys DLL_CALL_CART L_1C64_with_keys, 39
+.cart_L_1CCB DLL_CALL_CART L_1CCB, 40
+.cart_update_per_track_stuff DLL_CALL_CART update_per_track_stuff, 41
+.cart_L_1EE2_from_main_loop DLL_CALL_CART L_1EE2_from_main_loop, 42
+.cart_L_238E DLL_CALL_CART L_238E, 43
+.cart_L_25EA DLL_CALL_CART L_25EA, 44
+.cart_pow36Q DLL_CALL_CART pow36Q, 45
+.cart_update_camera_roll_tables DLL_CALL_CART update_camera_roll_tables, 46
+.cart_L_2809 DLL_CALL_CART L_2809, 47
+.cart_draw_crash_smokeQ DLL_CALL_CART draw_crash_smokeQ, 48
+.cart_L_2A5C DLL_CALL_CART L_2A5C, 49
 
 ; *****************************************************************************
 \\ Function addresses
@@ -434,11 +463,111 @@ ENDIF
 .cart_table_LO
 {
 	EQUB LO(write_char)
+	EQUB LO(getch)
+	EQUB LO(sid_process)
+	EQUB LO(sid_update)
+	EQUB LO(sysctl)
+	EQUB LO(print_3space)
+	EQUB LO(print_2space)
+	EQUB LO(print_space)
+	EQUB LO(L_91B4)
+	EQUB LO(L_91C3)
+	EQUB LO(L_91CF)
+	EQUB LO(convert_X_to_BCD)
+	EQUB LO(L_9225)
+	EQUB LO(L_9319)
+	EQUB LO(L_93A8)
+	EQUB LO(L_9448)
+	EQUB LO(write_file_string)
+	EQUB LO(L_95EA)
+	EQUB LO(maybe_define_keys)
+	EQUB LO(store_restore_control_keys)
+	EQUB LO(L_99FF)
+	EQUB LO(L_9A38)
+	EQUB LO(L_9C14)
+	EQUB LO(L_9EBC)
+	EQUB LO(L_A026)
+	EQUB LO(print_msg_2)
+	EQUB LO(print_msg_3)
+
+	EQUB LO(reset_sprites)
+	EQUB LO(L_14D0_from_main_loop)
+	EQUB LO(L_1611)
+	EQUB LO(save_rndQ_stateQ)
+	EQUB LO(L_1637)
+	EQUB LO(draw_trackQ)
+	EQUB LO(L_177D)
+	EQUB LO(L_1A3B)
+	EQUB LO(update_damage_display)
+	EQUB LO(draw_crane_with_sysctl)
+	EQUB LO(clear_menu_area)
+	EQUB LO(draw_menu_header)
+	EQUB LO(L_1C64_with_keys)
+	EQUB LO(L_1CCB)
+	EQUB LO(update_per_track_stuff)
+	EQUB LO(L_1EE2_from_main_loop)
+	EQUB LO(L_238E)
+	EQUB LO(L_25EA)
+	EQUB LO(pow36Q)
+	EQUB LO(update_camera_roll_tables)
+	EQUB LO(L_2809)
+	EQUB LO(draw_crash_smokeQ)
+	EQUB LO(L_2A5C)
 }
 
 .cart_table_HI
 {
 	EQUB HI(write_char)
+	EQUB HI(getch)
+	EQUB HI(sid_process)
+	EQUB HI(sid_update)
+	EQUB HI(sysctl)
+	EQUB HI(print_3space)
+	EQUB HI(print_2space)
+	EQUB HI(print_space)
+	EQUB HI(L_91B4)
+	EQUB HI(L_91C3)
+	EQUB HI(L_91CF)
+	EQUB HI(convert_X_to_BCD)
+	EQUB HI(L_9225)
+	EQUB HI(L_9319)
+	EQUB HI(L_93A8)
+	EQUB HI(L_9448)
+	EQUB HI(write_file_string)
+	EQUB HI(L_95EA)
+	EQUB HI(maybe_define_keys)
+	EQUB HI(store_restore_control_keys)
+	EQUB HI(L_99FF)
+	EQUB HI(L_9A38)
+	EQUB HI(L_9C14)
+	EQUB HI(L_9EBC)
+	EQUB HI(L_A026)
+	EQUB HI(print_msg_2)
+	EQUB HI(print_msg_3)
+
+	EQUB HI(reset_sprites)
+	EQUB HI(L_14D0_from_main_loop)
+	EQUB HI(L_1611)
+	EQUB HI(save_rndQ_stateQ)
+	EQUB HI(L_1637)
+	EQUB HI(draw_trackQ)
+	EQUB HI(L_177D)
+	EQUB HI(L_1A3B)
+	EQUB HI(update_damage_display)
+	EQUB HI(draw_crane_with_sysctl)
+	EQUB HI(clear_menu_area)
+	EQUB HI(draw_menu_header)
+	EQUB HI(L_1C64_with_keys)
+	EQUB HI(L_1CCB)
+	EQUB HI(update_per_track_stuff)
+	EQUB HI(L_1EE2_from_main_loop)
+	EQUB HI(L_238E)
+	EQUB HI(L_25EA)
+	EQUB HI(pow36Q)
+	EQUB HI(update_camera_roll_tables)
+	EQUB HI(L_2809)
+	EQUB HI(draw_crash_smokeQ)
+	EQUB HI(L_2A5C)
 }
 
 .beeb_dll_end
