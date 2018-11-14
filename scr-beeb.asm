@@ -11,6 +11,7 @@ _NOT_BEEB = FALSE
 _DEBUG = TRUE
 
 BEEB_KERNEL_SLOT = 4
+BEEB_CART_SLOT = 5
 
 ; *****************************************************************************
 ; MACROS
@@ -168,6 +169,9 @@ L_DF0E = $DF0E + BEEB_RAM_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
 ; *****************************************************************************
 ; C64 KERNEL DEFINES
 ; *****************************************************************************
+
+; Not sure what this is used for - depends on which C64 bank is paged in?
+L_A000 = $A000		; Cold Start Vector?
 
 KERNEL_RAM_VECTORS = $FD30
 
@@ -852,7 +856,7 @@ GUARD &8000
 
 		ldx #$00		;4253 A2 00
 		lda #$34		;4255 A9 34
-		jsr sysctl		;4257 20 25 87  ; copy stuff using sysctl
+		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
 	; BEEB SET SCREEN MODE 5
 

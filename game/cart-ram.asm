@@ -132,7 +132,7 @@
 
 ; Print char.
 ; entry: A	= char to print	(also 127=del, 9=space,	VDU31 a	la OSWRCH)
-.write_char			; NEEDS DLL
+.write_char			; HAS DLL
 {
 		sta L_85C7		;846F 8D C7 85
 		stx L_85C8		;8472 8E C8 85
@@ -338,7 +338,7 @@
 ; entry: X=key number (column in bits 0-3,	row in bits 3-6).
 ; exit: X=0, Z=1, N=0, if key not pressed;	X=$FF, Z=0, N=1	if key pressed.
 
-.poll_key			; NEEDS DLL
+.poll_key			; in Cart
 {
 		lda #$FF		;85D2 A9 FF
 		sta CIA1_CIDDRA		;85D4 8D 02 DC
@@ -366,7 +366,7 @@
 .L_85FB	equb $01,$02,$04,$08,$10,$20,$40,$80
 }
 
-.getch				; NEEDS DLL
+.getch				; HAS DLL
 {
 		stx L_85C8		;8603 8E C8 85
 		sty L_85C9		;8606 8C C9 85
@@ -407,13 +407,22 @@
 
 .L_85CE	equb $00
 .L_85CF	equb $00
+
+.L_9125	equb $7F,$33,$35,$37,$39,$2B,$5C,$31,$0D,$57,$52,$59,$49,$50,$2A,$00
+		equb $00,$41,$44,$47,$4A,$4C,$3B,$00,$00,$34,$36,$38,$30,$2D,$1E,$32
+		equb $00,$5A,$43,$42,$4D,$2E,$10,$20,$00,$53,$46,$48,$4B,$3A,$3D,$01
+		equb $00,$45,$54,$55,$4F,$40,$5E,$51,$00,$10,$58,$56,$4E,$2C,$2F,$00
+		equb $7F,$33,$35,$37,$39,$2B,$5C,$31,$0D,$77,$72,$79,$69,$70,$2A,$00
+		equb $00,$61,$64,$67,$6A,$6C,$3B,$00,$00,$34,$36,$38,$30,$2D,$1E,$32
+		equb $00,$7A,$63,$62,$6D,$2E,$00,$20,$00,$73,$66,$68,$6B,$3A,$3D,$01
+		equb $00,$65,$74,$75,$6F,$40,$5E,$71,$00,$00,$78,$76,$6E,$2C,$3F,$00
 }
 
 ; *****************************************************************************
 ; SID
 ; *****************************************************************************
 
-.L_8655				; only called from Kernel?
+.sid_process				; only called from Kernel?
 {
 		stx ZP_F8		;8655 86 F8
 		sty ZP_F9		;8657 84 F9
@@ -498,7 +507,7 @@
 		bne L_8724		;8714 D0 0E
 }
 \\
-.silence_channel		; in Cart
+.silence_channel		; in Cart - only called from sysctl
 {
 		ldy L_86DC_sid,X	;8716 BC DC 86
 		lda #$00		;8719 A9 00
@@ -529,7 +538,7 @@
 ; A=$55 ->	fill scanlines (A=value, YX=ptr, byte_52=count)
 ; A=$81 ->	poll for key X (like OSBYTE $81)
 
-.sysctl		; NEEDS DLL
+.sysctl		; HAS DLL
 {
 		cmp #$3C		;8725 C9 3C
 		beq L_87A0		;8727 F0 77
@@ -599,13 +608,13 @@
 .L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
 .L_87A0	jmp move_draw_bridgeQ		;87A0 4C 4A 89
 .L_87A3	jmp draw_horizonQ		;87A3 4C 2F 8A
-.L_87A6	jmp L_8AA5		;87A6 4C A5 8A
+.L_87A6	jmp L_8AA5_from_sysctl		;87A6 4C A5 8A
 .L_87A9	jmp draw_crane		;87A9 4C 51 8B
-.L_87AC	jmp L_8C0D		;87AC 4C 0D 8C
-.L_87AF	jmp L_8CD0		;87AF 4C D0 8C
-.L_87B2	jmp L_8D15		;87B2 4C 15 8D
+.L_87AC	jmp L_8C0D_from_sysctl		;87AC 4C 0D 8C
+.L_87AF	jmp L_8CD0_from_sysctl		;87AF 4C D0 8C
+.L_87B2	jmp L_8D15_from_sysctl		;87B2 4C 15 8D
 .L_87B5	jmp draw_tachometer		;87B5 4C 77 8E
-.L_87B8	jmp L_8F11		;87B8 4C 11 8F
+.L_87B8	jmp L_8F11_from_sysctl		;87B8 4C 11 8F
 .L_87BB	jmp clear_screen		;87BB 4C 82 8F
 .L_87BE	jmp update_colour_map		;87BE 4C 57 90
 .L_87C1	jmp sysctl_47		;87C1 4C BB 90
@@ -985,7 +994,7 @@
 		rts				;8AA4 60
 }
 
-.L_8AA5			; in Cart
+.L_8AA5_from_sysctl			; in Cart
 {
 		ldx #$40		;8AA5 A2 40
 .L_8AA7	lda L_C600,X	;8AA7 BD 00 C6
@@ -1149,7 +1158,7 @@
 .L_8BFD	equb $00,$00,$00,$40,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 }
 
-.L_8C0D
+.L_8C0D_from_sysctl			; in Cart
 {
 		lda #$D9		;8C0D A9 D9
 		sec				;8C0F 38
@@ -1209,7 +1218,7 @@
 		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 }
 
-.L_8CD0
+.L_8CD0_from_sysctl			; in Cart
 {
 		lda ZP_61		;8CD0 A5 61
 		cmp #$C0		;8CD2 C9 C0
@@ -1248,7 +1257,7 @@
 		rts				;8D14 60
 }
 
-.L_8D15
+.L_8D15_from_sysctl			; in Cart
 {
 		lsr ZP_6D		;8D15 46 6D
 		ldx ZP_41		;8D17 A6 41
@@ -1406,7 +1415,7 @@
 .L_8E67	equb $FF,$FE,$FB,$FA,$EF,$EE,$EB,$EA,$BF,$BE,$BB,$BA,$AF,$AE,$AB,$AA
 }
 
-.draw_tachometer
+.draw_tachometer			; in Cart
 {
 		txa				;8E77 8A
 		lsr A			;8E78 4A
@@ -1490,7 +1499,7 @@
 .L_8F10	equb $00
 }
 
-.L_8F11
+.L_8F11_from_sysctl			; in Cart
 {
 		stx L_8F80		;8F11 8E 80 8F
 		lda #$00		;8F14 A9 00
@@ -1549,9 +1558,7 @@
 .L_8F80	equb $00
 }
 
-.L_8F81	equb $00
-
-.clear_screen
+.clear_screen				; in Cart
 {
 		stx L_8F81		;8F82 8E 81 8F
 		lda ZP_12		;8F85 A5 12
@@ -1634,9 +1641,11 @@
 		lda #$0F		;9051 A9 0F
 		sta L_5640		;9053 8D 40 56
 .L_9056	rts				;9056 60
+
+.L_8F81	equb $00
 }
 
-.update_colour_map
+.update_colour_map			; in Cart
 {
 		lda L_C76B		;9057 AD 6B C7
 		sta ZP_16		;905A 85 16
@@ -1692,7 +1701,7 @@
 		rts				;90BA 60
 }
 
-.sysctl_47
+.sysctl_47			; in Cart
 {
 		lda L_0840		;90BB AD 40 08
 		beq L_9106		;90BE F0 46
@@ -1749,26 +1758,17 @@
 .L_9123	equb $49,$30
 }
 
-.L_9125	equb $7F,$33,$35,$37,$39,$2B,$5C,$31,$0D,$57,$52,$59,$49,$50,$2A,$00
-		equb $00,$41,$44,$47,$4A,$4C,$3B,$00,$00,$34,$36,$38,$30,$2D,$1E,$32
-		equb $00,$5A,$43,$42,$4D,$2E,$10,$20,$00,$53,$46,$48,$4B,$3A,$3D,$01
-		equb $00,$45,$54,$55,$4F,$40,$5E,$51,$00,$10,$58,$56,$4E,$2C,$2F,$00
-		equb $7F,$33,$35,$37,$39,$2B,$5C,$31,$0D,$77,$72,$79,$69,$70,$2A,$00
-		equb $00,$61,$64,$67,$6A,$6C,$3B,$00,$00,$34,$36,$38,$30,$2D,$1E,$32
-		equb $00,$7A,$63,$62,$6D,$2E,$00,$20,$00,$73,$66,$68,$6B,$3A,$3D,$01
-		equb $00,$65,$74,$75,$6F,$40,$5E,$71,$00,$00,$78,$76,$6E,$2C,$3F,$00
-
-.print_3space
+.print_3space		; HAS DLL
 		lda #$20		;91A5 A9 20
 		jsr write_char		;91A7 20 6F 84
-.print_2space
+.print_2space		; HAS DLL
 		lda #$20		;91AA A9 20
 		jsr write_char		;91AC 20 6F 84
-.print_space
+.print_space		; HAS DLL
 		lda #$20		;91AF A9 20
 		jmp write_char		;91B1 4C 6F 84
 
-.L_91B4
+.L_91B4				; HAS DLL
 {
 		lda #$80		;91B4 A9 80
 		sta L_31A5		;91B6 8D A5 31
@@ -1778,7 +1778,7 @@
 		rts				;91C2 60
 }
 
-.L_91C3
+.L_91C3				; HAS DLL
 {
 		lda #$80		;91C3 A9 80
 		sta L_C39C		;91C5 8D 9C C3
@@ -1787,7 +1787,7 @@
 		rts				;91CE 60
 }
 
-.L_91CF
+.L_91CF				; HAS DLL
 {
 		lda #$0E		;91CF A9 0E
 		sta ZP_19		;91D1 85 19
@@ -1807,7 +1807,7 @@
 .L_91F5	ldx #$05		;91F5 A2 05
 		ldy ZP_7A		;91F7 A4 7A
 		iny				;91F9 C8
-		jsr jmp_set_text_cursor		;91FA 20 6B 10
+		jsr kernel_set_text_cursor		;91FA 20 6B 10
 		ldx #$2F		;91FD A2 2F
 		jsr print_msg_1		;91FF 20 A5 32
 		ldx L_C76D		;9202 AE 6D C7
@@ -1816,10 +1816,10 @@
 		jsr print_driver_name		;920A 20 8B 38
 		ldx #$EF		;920D A2 EF
 		jsr print_msg_4		;920F 20 27 30
-.L_9212	jmp jmp_L_E9A3		;9212 4C A3 E9
+.L_9212	jmp kernel_L_E9A3		;9212 4C A3 E9
 }
 
-.convert_X_to_BCD
+.convert_X_to_BCD		; HAS DLL
 {
 		stx ZP_CE		;9215 86 CE
 		tax				;9217 AA
@@ -1834,7 +1834,7 @@
 		rts				;9224 60
 }
 
-.L_9225
+.L_9225				; HAS DLL
 {
 		lda L_C305		;9225 AD 05 C3
 		beq L_92A1		;9228 F0 77
@@ -1880,7 +1880,7 @@
 		ldx #$05		;9287 A2 05
 		ldy ZP_7A		;9289 A4 7A
 		iny				;928B C8
-		jsr jmp_set_text_cursor		;928C 20 6B 10
+		jsr kernel_set_text_cursor		;928C 20 6B 10
 		ldx #$2F		;928F A2 2F
 		jsr print_msg_1		;9291 20 A5 32
 		ldx #$C9		;9294 A2 C9
@@ -1891,71 +1891,7 @@
 .L_92A1	rts				;92A1 60
 }
 
-.L_92A2
-{
-		ldy #$0C		;92A2 A0 0C
-		jsr jmp_L_0F72		;92A4 20 72 0F
-		bcs L_92AF		;92A7 B0 06
-		lda L_31A4		;92A9 AD A4 31
-		sta L_C76D		;92AC 8D 6D C7
-.L_92AF	ldy #$0E		;92AF A0 0E
-		jsr jmp_L_0F72		;92B1 20 72 0F
-		bcs L_92C5		;92B4 B0 0F
-		ldy #$C9		;92B6 A0 C9
-		jsr L_9300		;92B8 20 00 93
-		lda L_C305		;92BB AD 05 C3
-		ora #$41		;92BE 09 41
-		sta L_C305		;92C0 8D 05 C3
-		ldx #$00		;92C3 A2 00
-.L_92C5	ldy L_31A4		;92C5 AC A4 31
-		jsr jmp_L_0F72		;92C8 20 72 0F
-		tya				;92CB 98
-		clc				;92CC 18
-		adc #$0C		;92CD 69 0C
-		tay				;92CF A8
-		jsr L_3361_with_decimal		;92D0 20 61 33
-		lda L_C378		;92D3 AD 78 C3
-		cmp #$04		;92D6 C9 04
-		bne L_92FD		;92D8 D0 23
-		tya				;92DA 98
-		tax				;92DB AA
-		ldy #$0D		;92DC A0 0D
-		jsr jmp_L_0F72		;92DE 20 72 0F
-		bcs L_92E9		;92E1 B0 06
-		lda L_31A4		;92E3 AD A4 31
-		sta L_C76E		;92E6 8D 6E C7
-.L_92E9	ldy #$0F		;92E9 A0 0F
-		jsr jmp_L_0F72		;92EB 20 72 0F
-		bcs L_92FD		;92EE B0 0D
-		ldy #$D6		;92F0 A0 D6
-		jsr L_9300		;92F2 20 00 93
-		lda L_C305		;92F5 AD 05 C3
-		ora #$81		;92F8 09 81
-		sta L_C305		;92FA 8D 05 C3
-.L_92FD	ldx #$00		;92FD A2 00
-		rts				;92FF 60
-}
-
-.L_9300
-{
-		lda L_31A4		;9300 AD A4 31
-		asl A			;9303 0A
-		asl A			;9304 0A
-		asl A			;9305 0A
-		asl A			;9306 0A
-		tax				;9307 AA
-		lda #$0C		;9308 A9 0C
-		sta ZP_14		;930A 85 14
-.L_930C	lda L_AE01,X	;930C BD 01 AE
-		sta frontend_strings_3,Y	;930F 99 AA 31
-		inx				;9312 E8
-		iny				;9313 C8
-		dec ZP_14		;9314 C6 14
-		bne L_930C		;9316 D0 F4
-		rts				;9318 60
-}
-
-.L_9319
+.L_9319				; HAS DLL
 {
 		sta ZP_14		;9319 85 14
 		jsr disable_ints_and_page_in_RAM		;931B 20 F1 33
@@ -1994,10 +1930,8 @@
 		lda L_82A7		;9367 AD A7 82
 		sta L_DF02,X	;936A 9D 02 DF		; I/O 2
 		rts				;936D 60
-}
 
 .L_936E
-{
 		lda L_DE00,X	;936E BD 00 DE		; I/O 1
 		sta L_3273,Y	;9371 99 73 32
 		lda L_DF00,X	;9374 BD 00 DF		; I/O 2
@@ -2022,7 +1956,7 @@
 		rts				;93A7 60
 }
 
-.L_93A8
+.L_93A8				; HAS DLL
 {
 		eor L_C77B		;93A8 4D 7B C7
 		bne L_93DF		;93AB D0 32
@@ -2051,7 +1985,7 @@
 \\
 .L_93DF	rts				;93DF 60
 
-.L_93E0
+.L_93E0			; continuation of fn L_93A8
 {
 		jsr L_974E		;93E0 20 4E 97
 		bcs L_93DF		;93E3 B0 FA
@@ -2105,7 +2039,7 @@
 		jmp L_93DC		;9445 4C DC 93
 }
 
-.L_9448
+.L_9448				; HAS DLL
 {
 		ldy #$00		;9448 A0 00
 		ldx #$03		;944A A2 03
@@ -2152,9 +2086,9 @@
 .L_949F	jsr L_3884		;949F 20 84 38
 		ldx #$06		;94A2 A2 06
 		ldy #$16		;94A4 A0 16
-		jsr jmp_set_text_cursor		;94A6 20 6B 10
+		jsr kernel_set_text_cursor		;94A6 20 6B 10
 		ldx #$57		;94A9 A2 57
-		jsr L_95E2		;94AB 20 E2 95
+		jsr write_file_string		;94AB 20 E2 95
 		jsr getch		;94AE 20 03 86
 		ldx #$19		;94B1 A2 19
 .L_94B3	lda #$7F		;94B3 A9 7F
@@ -2163,7 +2097,7 @@
 		bne L_94B3		;94B9 D0 F8
 		ldx #$14		;94BB A2 14
 		ldy #$13		;94BD A0 13
-		jsr jmp_set_text_cursor		;94BF 20 6B 10
+		jsr kernel_set_text_cursor		;94BF 20 6B 10
 		ldx #$0C		;94C2 A2 0C
 .L_94C4	jsr print_space		;94C4 20 AF 91
 		dex				;94C7 CA
@@ -2176,72 +2110,22 @@
 .L_94D4	equb "MP$"
 }
 
-.L_94D7
-{
-		lda L_C39A		;94D7 AD 9A C3
-		bmi L_94E1		;94DA 30 05
-		lda L_C367		;94DC AD 67 C3
-		bmi L_9526		;94DF 30 45
-.L_94E1	jsr L_3500		;94E1 20 00 35
-		jsr set_up_screen_for_frontend		;94E4 20 04 35
-		lda #$01		;94E7 A9 01
-		sta ZP_19		;94E9 85 19
-		jsr L_3858		;94EB 20 58 38
-		ldx #$0C		;94EE A2 0C
-		jsr print_driver_name		;94F0 20 8B 38
-		lda L_C39A		;94F3 AD 9A C3
-		bpl L_94FD		;94F6 10 05
-		ldx #$00		;94F8 A2 00
-		jsr L_95E2		;94FA 20 E2 95
-.L_94FD	ldy L_C77B		;94FD AC 7B C7
-		ldx L_952A,Y	;9500 BE 2A 95
-		jsr L_95E2		;9503 20 E2 95
-		lda L_C39A		;9506 AD 9A C3
-		bpl L_951D		;9509 10 12
-		jsr L_3858		;950B 20 58 38
-		lda L_C39A		;950E AD 9A C3
-		clc				;9511 18
-		adc #$02		;9512 69 02
-		and #$07		;9514 29 07
-		tay				;9516 A8
-		ldx L_952A,Y	;9517 BE 2A 95
-		jsr L_95E2		;951A 20 E2 95
-.L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
-		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
-		jsr L_361F		;9523 20 1F 36
-.L_9526	lda L_C39A		;9526 AD 9A C3
-		rts				;9529 60
-}
+\\ Data moved from file_strings_offset to Hazel RAM
 
-.L_952A	equb $05,$0D,$43,$14,$2A,$43,$43,$43,$71,$8F,$94
-
-.file_strings
-		equb " NOT",$FF
-		equb " loaded",$FF
-		equb " saved",$FF
-		equb "Incorrect data found ",$FF
-		equb "File name already exists",$FF
-		equb "Problem encountered",$FF
-		equb "File name is not suitable",$FF
-		equb $1F,$05,$13,"Insert game position save ",$FF
-		equb "tape",$FF
-		equb "disc",$FF
-		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
-
-.L_95DE
+.L_95DE			; not an entry point
 		jsr write_char		;95DE 20 6F 84
 		inx				;95E1 E8
-.L_95E2
+.write_file_string			; HAS DLL
 		lda file_strings,X	;95E2 BD 35 95
 		cmp #$FF		;95E5 C9 FF
 		bne L_95DE		;95E7 D0 F5
 		rts				;95E9 60
 
-.L_95EA
+.L_95EA			; HAS DLL
 {
 		ldx #$00		;95EA A2 00
 		lda #$01		;95EC A9 01
-.L_95EE	jsr jmp_L_FFE2		;95EE 20 E2 FF
+.L_95EE	jsr kernel_L_FFE2		;95EE 20 E2 FF
 		inx				;95F1 E8
 		bne L_95EE		;95F2 D0 FA
 		ldx #$09		;95F4 A2 09
@@ -2311,9 +2195,7 @@
 		jmp debounce_fire_and_wait_for_fire		;9671 4C 96 36
 }
 
-.L_9674	equb "DIRECTORY:"
-
-.L_967E
+.L_967E				; in Cart
 {
 		lda L_96A7		;967E AD A7 96
 		sta ZP_15		;9681 85 15
@@ -2340,16 +2222,16 @@
 .L_96A6	equb $3B
 .L_96A7	equb $68
 
-.L_96A8
+.L_96A8				; in Cart
 {
 		lda #$00		;96A8 A9 00
 		jmp L_96AF		;96AA 4C AF 96
 }
 
-.L_96AD
+.L_96AD				; in Cart
 		lda #$80		;96AD A9 80
 \\
-.L_96AF
+.L_96AF				; in Cart
 {
 		sta ZP_19		;96AF 85 19
 		lda #$00		;96B1 A9 00
@@ -2375,7 +2257,7 @@
 		sta L_F810		;96DE 8D 10 F8
 }
 \\
-.L_96E1	
+.L_96E1				; in Cart
 {
 		ldy #$00		;96E1 A0 00
 		bit ZP_19		;96E3 24 19
@@ -2431,21 +2313,21 @@
 .L_9745	rts				;9745 60
 }
 
-.L_9746
+.L_9746				; in Cart
 {
 		jsr L_96A8		;9746 20 A8 96
 		inc ZP_1F		;9749 E6 1F
 		jmp L_96E1		;974B 4C E1 96
 }
 
-.L_974E
+.L_974E				; in Cart
 {
 		jsr L_96AD		;974E 20 AD 96
 		inc ZP_1F		;9751 E6 1F
 		jmp L_96E1		;9753 4C E1 96
 }
 
-.L_9756
+.L_9756				; in Cart
 {
 		lda L_C77B		;9756 AD 7B C7
 		beq L_9784		;9759 F0 29
@@ -2486,15 +2368,15 @@
 .L_97AE	rts				;97AE 60
 }
 
-.maybe_define_keys
+.maybe_define_keys			; HAS DLL
 {
 		ldx #$20		;97AF A2 20
-		jsr jmp_poll_key_with_sysctl		;97B1 20 C9 C7
+		jsr kernel_poll_key_with_sysctl		;97B1 20 C9 C7
 		beq L_97B7		;97B4 F0 01
 		rts				;97B6 60
 .L_97B7	ldy #$64		;97B7 A0 64
 		lda #$04		;97B9 A9 04
-		jsr jmp_set_up_text_sprite		;97BB 20 A9 12
+		jsr kernel_set_up_text_sprite		;97BB 20 A9 12
 		lda #$01		;97BE A9 01
 		sta L_983B		;97C0 8D 3B 98
 .L_97C3	ldy #$28		;97C3 A0 28
@@ -2503,10 +2385,10 @@
 .L_97CA	stx L_983A		;97CA 8E 3A 98
 		ldy L_9841,X	;97CD BC 41 98
 		lda #$04		;97D0 A9 04
-		jsr jmp_set_up_text_sprite		;97D2 20 A9 12
+		jsr kernel_set_up_text_sprite		;97D2 20 A9 12
 .L_97D5	ldx #$3F		;97D5 A2 3F
 .L_97D7	stx ZP_17		;97D7 86 17
-		jsr jmp_poll_key_with_sysctl		;97D9 20 C9 C7
+		jsr kernel_poll_key_with_sysctl		;97D9 20 C9 C7
 		bne L_9816		;97DC D0 38
 		lda ZP_17		;97DE A5 17
 		ldx L_983A		;97E0 AE 3A 98
@@ -2517,15 +2399,15 @@
 		beq L_9802		;97EE F0 12
 		ldy #$D4		;97F0 A0 D4
 		lda #$04		;97F2 A9 04
-		jsr jmp_set_up_text_sprite		;97F4 20 A9 12
+		jsr kernel_set_up_text_sprite		;97F4 20 A9 12
 		ldy #$28		;97F7 A0 28
 		jsr delay_approx_Y_25ths_sec		;97F9 20 EB 3F
 		jmp L_97B7		;97FC 4C B7 97
 .L_97FF	sta control_keys,Y	;97FF 99 07 F8
 .L_9802	lda #$00		;9802 A9 00
-		jsr jmp_L_CF68		;9804 20 68 CF
+		jsr kernel_L_CF68		;9804 20 68 CF
 .L_9807	ldx ZP_17		;9807 A6 17
-		jsr jmp_poll_key_with_sysctl		;9809 20 C9 C7
+		jsr kernel_poll_key_with_sysctl		;9809 20 C9 C7
 		beq L_9807		;980C F0 F9
 		ldy #$03		;980E A0 03
 		jsr delay_approx_Y_25ths_sec		;9810 20 EB 3F
@@ -2541,11 +2423,11 @@
 		bmi L_9832		;9826 30 0A
 		ldy #$C4		;9828 A0 C4
 		lda #$04		;982A A9 04
-		jsr jmp_set_up_text_sprite		;982C 20 A9 12
+		jsr kernel_set_up_text_sprite		;982C 20 A9 12
 		jmp L_97C3		;982F 4C C3 97
 .L_9832	ldy #$4C		;9832 A0 4C
 		lda #$02		;9834 A9 02
-		jsr jmp_set_up_text_sprite		;9836 20 A9 12
+		jsr kernel_set_up_text_sprite		;9836 20 A9 12
 		rts				;9839 60
 
 .L_983A	equb $00
@@ -2554,7 +2436,7 @@
 .L_9841	equb $B4,$A4,$94,$84,$74
 }
 
-.store_restore_control_keys
+.store_restore_control_keys			; HAS DLL
 {
 		sta ZP_14		;9846 85 14
 		lda L_31A1		;9848 AD A1 31
@@ -2579,17 +2461,14 @@
 		dex				;986B CA
 		bpl L_9864		;986C 10 F6
 .L_986E	rts				;986E 60
-}
 
 .L_986F
-{
 		lda control_keys,X	;986F BD 07 F8
 		sta L_987A,Y	;9872 99 7A 98
 		dey				;9875 88
 		dex				;9876 CA
 		bpl L_986F		;9877 10 F6
 		rts				;9879 60
-}
 
 .L_987A	equb $2E,$27,$29,$12,$08
 		equb $2E,$27,$29,$12,$08
@@ -2599,168 +2478,9 @@
 		equb $2E,$27,$29,$12,$08
 		equb $2E,$27,$29,$12,$08
 		equb $2E,$27,$29,$12,$08
-
-.do_practice_menu
-{
-		lda #$80		;98A2 A9 80
-		sta L_31A0		;98A4 8D A0 31
-		lsr L_31A8		;98A7 4E A8 31
-		bcs L_98BD		;98AA B0 11
-		ldy #$03		;98AC A0 03
-		lda L_C718		;98AE AD 18 C7
-		eor #$03		;98B1 49 03
-		ldx #$18		;98B3 A2 18
-		jsr jmp_do_menu_screen		;98B5 20 36 EE
-		eor #$03		;98B8 49 03
-		sta L_31A7		;98BA 8D A7 31
-.L_98BD	lsr L_31A0		;98BD 4E A0 31
-		ldy #$02		;98C0 A0 02
-		lda L_C76C		;98C2 AD 6C C7
-		and #$01		;98C5 29 01
-		ldx #$1C		;98C7 A2 1C
-		jsr jmp_do_menu_screen		;98C9 20 36 EE
-		ldy #$00		;98CC A0 00
-		sty L_31A0		;98CE 8C A0 31
-		rts				;98D1 60
 }
 
-.do_hall_of_fame_screen
-{
-		lda #$06		;98D2 A9 06
-		jsr L_3FBB_with_VIC		;98D4 20 BB 3F
-		jsr disable_ints_and_page_in_RAM		;98D7 20 F1 33
-		ldx #$7F		;98DA A2 7F
-		ldy #$7F		;98DC A0 7F
-		lda L_C71A		;98DE AD 1A C7
-		beq L_98E5		;98E1 F0 02
-		ldy #$FF		;98E3 A0 FF
-.L_98E5	lda L_DE00,Y	;98E5 B9 00 DE
-		sta L_0400,X	;98E8 9D 00 04
-		lda L_DF00,Y	;98EB B9 00 DF
-		sta L_0480,X	;98EE 9D 80 04
-		dey				;98F1 88
-		dex				;98F2 CA
-		bpl L_98E5		;98F3 10 F0
-		lda #$35		;98F5 A9 35
-		sta RAM_SELECT		;98F7 85 01
-		cli				;98F9 58
-		lda #$01		;98FA A9 01
-		jsr sysctl		;98FC 20 25 87
-		lda #$06		;98FF A9 06
-		sta VIC_EXTCOL		;9901 8D 20 D0
-		lda #$5F		;9904 A9 5F
-		sta ZP_1F		;9906 85 1F
-		ldy #$00		;9908 A0 00
-		sty ZP_1E		;990A 84 1E
-		tya				;990C 98
-.L_990D	sta (ZP_1E),Y	;990D 91 1E
-		dey				;990F 88
-		bne L_990D		;9910 D0 FB
-		dec ZP_1F		;9912 C6 1F
-		ldx ZP_1F		;9914 A6 1F
-		cpx #$40		;9916 E0 40
-		bcs L_990D		;9918 B0 F3
-		ldx #$00		;991A A2 00
-		ldy #$00		;991C A0 00
-		jsr get_colour_map_ptr		;991E 20 FA 38
-		ldx #$18		;9921 A2 18
-		lda #$06		;9923 A9 06
-		jsr fill_colourmap_solid		;9925 20 16 39
-		lda #$08		;9928 A9 08
-		sta ZP_19		;992A 85 19
-.L_992C	ldx #$24		;992C A2 24
-		lda #$08		;992E A9 08
-		jsr fill_colourmap_solid		;9930 20 16 39
-		dec ZP_19		;9933 C6 19
-		bne L_992C		;9935 D0 F5
-		ldx #$34		;9937 A2 34
-		lda #$01		;9939 A9 01
-		jsr fill_colourmap_solid		;993B 20 16 39
-		lda #$01		;993E A9 01
-		sta L_C3D9		;9940 8D D9 C3
-		lda #$02		;9943 A9 02
-		sta L_C3D9		;9945 8D D9 C3
-		ldx #$3B		;9948 A2 3B
-		jsr print_msg_1		;994A 20 A5 32
-		lda L_C71A		;994D AD 1A C7
-		beq L_9957		;9950 F0 05
-		ldx #$4B		;9952 A2 4B
-		jsr print_msg_1		;9954 20 A5 32
-.L_9957	ldx #$5B		;9957 A2 5B
-		jsr print_msg_1		;9959 20 A5 32
-		lda #$07		;995C A9 07
-		sta ZP_19		;995E 85 19
-.L_9960	lda #$07		;9960 A9 07
-		sec				;9962 38
-		sbc ZP_19		;9963 E5 19
-		asl A			;9965 0A
-		clc				;9966 18
-		adc #$08		;9967 69 08
-		tay				;9969 A8
-		ldx #$00		;996A A2 00
-		jsr jmp_set_text_cursor		;996C 20 6B 10
-		lda ZP_19		;996F A5 19
-		asl A			;9971 0A
-		tax				;9972 AA
-		lda #$01		;9973 A9 01
-		sta L_C3D9		;9975 8D D9 C3
-		lda L_99EF,X	;9978 BD EF 99
-		jsr write_char		;997B 20 6F 84
-		lda L_99F0,X	;997E BD F0 99
-		jsr write_char		;9981 20 6F 84
-		jsr print_space		;9984 20 AF 91
-		lda #$04		;9987 A9 04
-		sta L_C3D9		;9989 8D D9 C3
-		lda #$00		;998C A9 00
-		sta ZP_08		;998E 85 08
-.L_9990	lda ZP_19		;9990 A5 19
-		asl A			;9992 0A
-		asl A			;9993 0A
-		asl A			;9994 0A
-		asl A			;9995 0A
-		ora ZP_08		;9996 05 08
-		tax				;9998 AA
-		ldy #$0C		;9999 A0 0C
-.L_999B	lda L_0400,X	;999B BD 00 04
-		jsr write_char		;999E 20 6F 84
-		inx				;99A1 E8
-		dey				;99A2 88
-		bne L_999B		;99A3 D0 F6
-		jsr print_space		;99A5 20 AF 91
-		dec L_C3D9		;99A8 CE D9 C3
-		lda L_0400,X	;99AB BD 00 04
-		sta L_8398		;99AE 8D 98 83
-		lda L_0401,X	;99B1 BD 01 04
-		sta L_82B0		;99B4 8D B0 82
-		lda L_0402,X	;99B7 BD 02 04
-		sta L_8298		;99BA 8D 98 82
-		ldx #$00		;99BD A2 00
-		jsr L_99FF		;99BF 20 FF 99
-		lda ZP_08		;99C2 A5 08
-		eor #$80		;99C4 49 80
-		sta ZP_08		;99C6 85 08
-		bpl L_99D5		;99C8 10 0B
-		jsr print_2space		;99CA 20 AA 91
-		lda #$02		;99CD A9 02
-		sta L_C3D9		;99CF 8D D9 C3
-		jmp L_9990		;99D2 4C 90 99
-.L_99D5	dec ZP_19		;99D5 C6 19
-		bpl L_9960		;99D7 10 87
-		lda #$00		;99D9 A9 00
-		sta L_C3D9		;99DB 8D D9 C3
-		lda VIC_SCROLY		;99DE AD 11 D0
-		ora #$10		;99E1 09 10
-		sta VIC_SCROLY		;99E3 8D 11 D0
-		jsr debounce_fire_and_wait_for_fire		;99E6 20 96 36
-		jsr enable_screen_and_set_irq50		;99E9 20 A5 3F
-		jmp set_up_screen_for_frontend		;99EC 4C 04 35
-
-.L_99EF	equb $4C,$52,$48
-		equb $42,$53,$53,$42,$52,$48,$4A,$52,$43,$53,$4A,$44,$42
-L_99F0	= L_99EF + 1
-}
-
-.L_99FF
+.L_99FF				; NEEDS DLL
 {
 		lda L_8398,X	;99FF BD 98 83
 		cmp #$09		;9A02 C9 09
@@ -2768,7 +2488,7 @@ L_99F0	= L_99EF + 1
 		ora L_82B0,X	;9A06 1D B0 82
 		beq L_9A27		;9A09 F0 1C
 		lda L_8398,X	;9A0B BD 98 83
-		jsr jmp_print_single_digit		;9A0E 20 8A 10
+		jsr kernel_print_single_digit		;9A0E 20 8A 10
 		lda #$3A		;9A11 A9 3A
 		jsr write_char		;9A13 20 6F 84
 		lda L_82B0,X	;9A16 BD B0 82
@@ -2785,19 +2505,11 @@ L_99F0	= L_99EF + 1
 		rts				;9A31 60
 }
 
-.nmi_handler
-{
-		pha				;9A32 48
-		lda CIA2_C2DDRA		;9A33 AD 0D DD
-		pla				;9A36 68
-		rti				;9A37 40
-}
-
-.L_9A38
+.L_9A38				; HAS DLL
 {
 		ldx ZP_2E		;9A38 A6 2E
-		jsr jmp_get_track_segment_detailsQ		;9A3A 20 2F F0
-		jsr jmp_L_F0C5		;9A3D 20 C5 F0
+		jsr kernel_get_track_segment_detailsQ		;9A3A 20 2F F0
+		jsr kernel_L_F0C5		;9A3D 20 C5 F0
 		lda ZP_68		;9A40 A5 68
 		sec				;9A42 38
 		sbc ZP_1D		;9A43 E5 1D
@@ -2835,7 +2547,7 @@ L_99F0	= L_99EF + 1
 		sta ZP_14		;9A83 85 14
 		lda ZP_77		;9A85 A5 77
 		sbc ZP_78		;9A87 E5 78
-		jsr jmp_mul_8_16_16bit		;9A89 20 45 C8
+		jsr kernel_mul_8_16_16bit		;9A89 20 45 C8
 		sta ZP_15		;9A8C 85 15
 		ldy #$02		;9A8E A0 02
 		lda ZP_14		;9A90 A5 14
@@ -2855,7 +2567,7 @@ L_99F0	= L_99EF + 1
 		sta ZP_14		;9AA9 85 14
 		lda ZP_77		;9AAB A5 77
 		adc ZP_78		;9AAD 65 78
-		jsr jmp_mul_8_16_16bit		;9AAF 20 45 C8
+		jsr kernel_mul_8_16_16bit		;9AAF 20 45 C8
 		sta ZP_B4		;9AB2 85 B4
 		lda ZP_14		;9AB4 A5 14
 		sta ZP_B3		;9AB6 85 B3
@@ -2899,7 +2611,7 @@ L_99F0	= L_99EF + 1
 		sta ZP_14		;9AFC 85 14
 		lda ZP_BA		;9AFE A5 BA
 		ldy #$FA		;9B00 A0 FA
-		jsr jmp_shift_16bit		;9B02 20 BF C9
+		jsr kernel_shift_16bit		;9B02 20 BF C9
 		clc				;9B05 18
 		adc #$40		;9B06 69 40
 		sec				;9B08 38
@@ -2931,7 +2643,7 @@ L_99F0	= L_99EF + 1
 		sbc (ZP_9A),Y	;9B37 F1 9A
 		sec				;9B39 38
 		sbc ZP_15		;9B3A E5 15
-		jsr jmp_negate_if_N_set		;9B3C 20 BD C8
+		jsr kernel_negate_if_N_set		;9B3C 20 BD C8
 		cmp #$04		;9B3F C9 04
 		bcc L_9B4D		;9B41 90 0A
 		sbc #$04		;9B43 E9 04
@@ -2945,11 +2657,11 @@ L_99F0	= L_99EF + 1
 		lda (ZP_9A),Y	;9B53 B1 9A
 		sta ZP_15		;9B55 85 15
 		lda ZP_14		;9B57 A5 14
-		jsr jmp_mul_8_8_16bit		;9B59 20 82 C7
+		jsr kernel_mul_8_8_16bit		;9B59 20 82 C7
 		lsr A			;9B5C 4A
 		ror ZP_14		;9B5D 66 14
 		ldy ZP_16		;9B5F A4 16
-		jsr jmp_shift_16bit		;9B61 20 BF C9
+		jsr kernel_shift_16bit		;9B61 20 BF C9
 		sta ZP_B4		;9B64 85 B4
 		asl A			;9B66 0A
 		clc				;9B67 18
@@ -2965,9 +2677,9 @@ L_99F0	= L_99EF + 1
 		sta ZP_16		;9B7B 85 16
 		lda ZP_A4		;9B7D A5 A4
 		beq L_9B87		;9B7F F0 06
-		jsr jmp_L_CFD2		;9B81 20 D2 CF
+		jsr kernel_L_CFD2		;9B81 20 D2 CF
 		jmp L_9B8A		;9B84 4C 8A 9B
-.L_9B87	jsr jmp_L_CFC5		;9B87 20 C5 CF
+.L_9B87	jsr kernel_L_CFC5		;9B87 20 C5 CF
 .L_9B8A	lda L_0400,X	;9B8A BD 00 04
 		and #$0F		;9B8D 29 0F
 		cmp #$04		;9B8F C9 04
@@ -2988,7 +2700,7 @@ L_99F0	= L_99EF + 1
 		lda (ZP_9A),Y	;9BAE B1 9A
 		sbc ZP_C2		;9BB0 E5 C2
 		bit ZP_9D		;9BB2 24 9D
-		jsr jmp_negate_if_N_set		;9BB4 20 BD C8
+		jsr kernel_negate_if_N_set		;9BB4 20 BD C8
 		sta ZP_B8		;9BB7 85 B8
 		lda ZP_14		;9BB9 A5 14
 		sta ZP_B7		;9BBB 85 B7
@@ -3023,7 +2735,7 @@ L_99F0	= L_99EF + 1
 		lda #$00		;9BEF A9 00
 .L_9BF1	sec				;9BF1 38
 		sbc L_B000,X	;9BF2 FD 00 B0
-		jsr jmp_mul_8_8_16bit		;9BF5 20 82 C7
+		jsr kernel_mul_8_8_16bit		;9BF5 20 82 C7
 		lda ZP_14		;9BF8 A5 14
 		lsr A			;9BFA 4A
 		lsr A			;9BFB 4A
@@ -3034,14 +2746,14 @@ L_99F0	= L_99EF + 1
 		sta ZP_14		;9C03 85 14
 		lda #$00		;9C05 A9 00
 		adc L_A380,X	;9C07 7D 80 A3
-		jsr jmp_shift_16bit		;9C0A 20 BF C9
+		jsr kernel_shift_16bit		;9C0A 20 BF C9
 		sta ZP_C2		;9C0D 85 C2
 		lda ZP_14		;9C0F A5 14
 		sta ZP_C1		;9C11 85 C1
 		rts				;9C13 60
 }
 
-.L_9C14
+.L_9C14				; HAS DLL
 {
 		bit ZP_A2		;9C14 24 A2
 		bpl L_9C44		;9C16 10 2C
@@ -3106,7 +2818,7 @@ L_99F0	= L_99EF + 1
 		rts				;9C78 60
 }
 
-.L_9C79
+.L_9C79				; in Cart
 {
 		ldx ZP_B3		;9C79 A6 B3
 		lda ZP_B4		;9C7B A5 B4
@@ -3149,11 +2861,11 @@ L_99F0	= L_99EF + 1
 }
 
 ; only called from game update
-.L_9CBA_from_game_update
+.L_9CBA_from_game_update		; in Cart
 {
 		ldx L_C374		;9CBA AE 74 C3
 		stx ZP_2E		;9CBD 86 2E
-		jsr jmp_get_track_segment_detailsQ		;9CBF 20 2F F0
+		jsr kernel_get_track_segment_detailsQ		;9CBF 20 2F F0
 		lda #$00		;9CC2 A9 00
 		sta L_C359		;9CC4 8D 59 C3
 		ldx #$02		;9CC7 A2 02
@@ -3163,7 +2875,7 @@ L_99F0	= L_99EF + 1
 		beq L_9CDA		;9CD0 F0 08
 		tax				;9CD2 AA
 		stx ZP_2E		;9CD3 86 2E
-		jsr jmp_get_track_segment_detailsQ		;9CD5 20 2F F0
+		jsr kernel_get_track_segment_detailsQ		;9CD5 20 2F F0
 		ldx ZP_52		;9CD8 A6 52
 .L_9CDA	lda ZP_BC		;9CDA A5 BC
 		sta ZP_15		;9CDC 85 15
@@ -3212,10 +2924,10 @@ L_99F0	= L_99EF + 1
 		sbc ZP_14		;9D30 E5 14
 		sta ZP_14		;9D32 85 14
 .L_9D34	lda ZP_14		;9D34 A5 14
-		jsr jmp_mul_8_8_16bit		;9D36 20 82 C7
+		jsr kernel_mul_8_8_16bit		;9D36 20 82 C7
 		ldy ZP_16		;9D39 A4 16
 		beq L_9D40		;9D3B F0 03
-		jsr jmp_negate_16bit		;9D3D 20 BF C8
+		jsr kernel_negate_16bit		;9D3D 20 BF C8
 .L_9D40	bit ZP_14		;9D40 24 14
 		bpl L_9D4B		;9D42 10 07
 		clc				;9D44 18
@@ -3247,7 +2959,7 @@ L_99F0	= L_99EF + 1
 		ror A			;9D77 6A
 		lsr ZP_14		;9D78 46 14
 		ror A			;9D7A 6A
-		jsr jmp_L_C81E		;9D7B 20 1E C8
+		jsr kernel_L_C81E		;9D7B 20 1E C8
 		asl ZP_14		;9D7E 06 14
 		rol A			;9D80 2A
 		clc				;9D81 18
@@ -3330,7 +3042,7 @@ L_99F0	= L_99EF + 1
 .L_9E07	rts				;9E07 60
 }
 
-.L_9E08
+.L_9E08				; in Cart
 {
 		bit ZP_3D		;9E08 24 3D
 		bmi L_9E42		;9E0A 30 36
@@ -3394,18 +3106,18 @@ L_99F0	= L_99EF + 1
 		rts				;9E73 60
 }
 
-.L_9E74
+.L_9E74				; in Cart
 {
 		lda ZP_BF		;9E74 A5 BF
 		eor ZP_A4		;9E76 45 A4
 		bpl L_9E86		;9E78 10 0C
-		jsr jmp_L_CFD2		;9E7A 20 D2 CF
-		jsr jmp_get_track_segment_detailsQ		;9E7D 20 2F F0
+		jsr kernel_L_CFD2		;9E7A 20 D2 CF
+		jsr kernel_get_track_segment_detailsQ		;9E7D 20 2F F0
 		lda ZP_A4		;9E80 A5 A4
 		bpl L_9E9A		;9E82 10 16
 		bmi L_9E90		;9E84 30 0A
-.L_9E86	jsr jmp_L_CFC5		;9E86 20 C5 CF
-		jsr jmp_get_track_segment_detailsQ		;9E89 20 2F F0
+.L_9E86	jsr kernel_L_CFC5		;9E86 20 C5 CF
+		jsr kernel_get_track_segment_detailsQ		;9E89 20 2F F0
 		lda ZP_A4		;9E8C A5 A4
 		bmi L_9E9A		;9E8E 30 0A
 .L_9E90	lda #$00		;9E90 A9 00
@@ -3434,7 +3146,7 @@ L_99F0	= L_99EF + 1
 .L_9EBB	rts				;9EBB 60
 }
 
-.L_9EBC
+.L_9EBC				; NEEDS DLL
 {
 		lda #$00		;9EBC A9 00
 		sta ZP_5A		;9EBE 85 5A
@@ -3443,7 +3155,7 @@ L_99F0	= L_99EF + 1
 		lda ZP_49		;9EC4 A5 49
 		sec				;9EC6 38
 		sbc ZP_48		;9EC7 E5 48
-		jsr jmp_L_C81E		;9EC9 20 1E C8
+		jsr kernel_L_C81E		;9EC9 20 1E C8
 		sta ZP_44		;9ECC 85 44
 		clc				;9ECE 18
 		adc ZP_48		;9ECF 65 48
@@ -3459,7 +3171,7 @@ L_99F0	= L_99EF + 1
 		lda ZP_4B		;9EE3 A5 4B
 		sec				;9EE5 38
 		sbc ZP_4A		;9EE6 E5 4A
-		jsr jmp_L_C81E		;9EE8 20 1E C8
+		jsr kernel_L_C81E		;9EE8 20 1E C8
 		sta ZP_44		;9EEB 85 44
 		clc				;9EED 18
 		adc ZP_4A		;9EEE 65 4A
@@ -3496,9 +3208,9 @@ L_99F0	= L_99EF + 1
 		ror ZP_16		;9F28 66 16
 		ror ZP_14		;9F2A 66 14
 		lda ZP_16		;9F2C A5 16
-		jsr jmp_mul_8_16_16bit_2		;9F2E 20 47 C8
+		jsr kernel_mul_8_16_16bit_2		;9F2E 20 47 C8
 		ldy #$FD		;9F31 A0 FD
-		jsr jmp_shift_16bit		;9F33 20 BF C9
+		jsr kernel_shift_16bit		;9F33 20 BF C9
 		sta ZP_15		;9F36 85 15
 		lda ZP_2D		;9F38 A5 2D
 		sta ZP_16		;9F3A 85 16
@@ -3507,7 +3219,7 @@ L_99F0	= L_99EF + 1
 		bit ZP_16		;9F41 24 16
 		bmi L_9F1D		;9F43 30 D8
 .L_9F45	lda ZP_16		;9F45 A5 16
-		jsr jmp_mul_8_16_16bit_2		;9F47 20 47 C8
+		jsr kernel_mul_8_16_16bit_2		;9F47 20 47 C8
 		sta ZP_15		;9F4A 85 15
 		lda #$00		;9F4C A9 00
 		bit ZP_15		;9F4E 24 15
@@ -3527,7 +3239,7 @@ L_99F0	= L_99EF + 1
 		rts				;9F69 60
 }
 
-.L_9F6A
+.L_9F6A				; in Cart
 {
 		jsr L_9EBC		;9F6A 20 BC 9E
 		asl L_C3A6		;9F6D 0E A6 C3
@@ -3564,11 +3276,11 @@ L_99F0	= L_99EF + 1
 		rts				;9FB7 60
 }
 
-.L_9FB8
+.L_9FB8				; in Cart
 {
 		lda ZP_77		;9FB8 A5 77
 		ldy ZP_51		;9FBA A4 51
-		jsr jmp_square_ay_32bit		;9FBC 20 76 C9
+		jsr kernel_square_ay_32bit		;9FBC 20 76 C9
 		lda ZP_16		;9FBF A5 16
 		sta ZP_48		;9FC1 85 48
 		lda ZP_17		;9FC3 A5 17
@@ -3577,7 +3289,7 @@ L_99F0	= L_99EF + 1
 		sta ZP_4A		;9FC9 85 4A
 		lda ZP_78		;9FCB A5 78
 		ldy ZP_52		;9FCD A4 52
-		jsr jmp_square_ay_32bit		;9FCF 20 76 C9
+		jsr kernel_square_ay_32bit		;9FCF 20 76 C9
 		lda ZP_16		;9FD2 A5 16
 		clc				;9FD4 18
 		adc ZP_48		;9FD5 65 48
@@ -3590,7 +3302,7 @@ L_99F0	= L_99EF + 1
 		sta ZP_4A		;9FE3 85 4A
 		lda ZP_C2		;9FE5 A5 C2
 		ldy ZP_C1		;9FE7 A4 C1
-		jsr jmp_square_ay_32bit		;9FE9 20 76 C9
+		jsr kernel_square_ay_32bit		;9FE9 20 76 C9
 		ldy L_C3CD		;9FEC AC CD C3
 		lda L_A01B,Y	;9FEF B9 1B A0
 		sta ZP_15		;9FF2 85 15
@@ -3602,9 +3314,9 @@ L_99F0	= L_99EF + 1
 		sta ZP_14		;9FFD 85 14
 		lda ZP_4A		;9FFF A5 4A
 		sbc ZP_18		;A001 E5 18
-		jsr jmp_mul_8_16_16bit		;A003 20 45 C8
+		jsr kernel_mul_8_16_16bit		;A003 20 45 C8
 		ldy #$04		;A006 A0 04
-		jsr jmp_shift_16bit		;A008 20 BF C9
+		jsr kernel_shift_16bit		;A008 20 BF C9
 		sta ZP_15		;A00B 85 15
 		lda ZP_C1		;A00D A5 C1
 		clc				;A00F 18
@@ -3618,15 +3330,11 @@ L_99F0	= L_99EF + 1
 .L_A01B	equb $00,$D4,$80,$D4,$00,$00,$AB,$AB,$40,$40,$00
 }
 
-; Not sure what this is used for - depends on which C64 bank is paged in?
-
-L_A000 = $A000		; Cold Start Vector?
-
 ; fetch coordinates (?) from track	data pointed by	(word_9a) with postincrement, munged appropriately for camera
 ; entry: Y	= index	into (word_9A) data
 ; exit: Y points after data read
 
-.L_A026
+.L_A026				; NEEDS DLL
 {
 		bit ZP_3D		;A026 24 3D
 		bmi L_A06D		;A028 30 43
@@ -3718,7 +3426,7 @@ L_A000 = $A000		; Cold Start Vector?
 		rts				;A0B5 60
 }
 
-.L_A0B6
+.L_A0B6				; in Cart
 {
 		lda ZP_16		;A0B6 A5 16
 		sta ZP_1A		;A0B8 85 1A
@@ -3737,11 +3445,11 @@ L_A000 = $A000		; Cold Start Vector?
 		sta ZP_14		;A0D5 85 14
 		lda #$01		;A0D7 A9 01
 		sbc L_C3A5		;A0D9 ED A5 C3
-.L_A0DC	jsr jmp_negate_if_N_set		;A0DC 20 BD C8
+.L_A0DC	jsr kernel_negate_if_N_set		;A0DC 20 BD C8
 		cmp #$00		;A0DF C9 00
 		bne L_A123		;A0E1 D0 40
 		ldy #$FC		;A0E3 A0 FC
-		jsr jmp_shift_16bit		;A0E5 20 BF C9
+		jsr kernel_shift_16bit		;A0E5 20 BF C9
 		sta ZP_15		;A0E8 85 15
 		lda #$00		;A0EA A9 00
 		sta ZP_16		;A0EC 85 16
@@ -3782,7 +3490,7 @@ L_A000 = $A000		; Cold Start Vector?
 		rts				;A131 60
 }
 
-.calculate_camera_sines
+.calculate_camera_sines		; only called from Kernel?
 {
 		lda #$00		;A132 A9 00
 		sta ZP_79		;A134 85 79
@@ -3790,7 +3498,7 @@ L_A000 = $A000		; Cold Start Vector?
 		lda L_0121		;A138 AD 21 01
 		sta ZP_14		;A13B 85 14
 		lda L_0124		;A13D AD 24 01
-		jsr jmp_accurate_sin		;A140 20 CD C8
+		jsr kernel_accurate_sin		;A140 20 CD C8
 		sta ZP_77		;A143 85 77
 		and #$FF		;A145 29 FF
 		bpl L_A14B		;A147 10 02
@@ -3800,7 +3508,7 @@ L_A000 = $A000		; Cold Start Vector?
 		lda L_0123		;A14F AD 23 01
 		sta ZP_14		;A152 85 14
 		lda L_0126		;A154 AD 26 01
-		jsr jmp_accurate_sin		;A157 20 CD C8
+		jsr kernel_accurate_sin		;A157 20 CD C8
 		sta ZP_43		;A15A 85 43
 		and #$FF		;A15C 29 FF
 		bpl L_A162		;A15E 10 02
@@ -3855,7 +3563,7 @@ L_A000 = $A000		; Cold Start Vector?
 
 .L_A1C7	jsr write_char		;A1C7 20 6F 84
 		inx				;A1CA E8
-.print_msg_2
+.print_msg_2		; NEEDS DLL
 {
 		bit L_31A0		;A1CB 2C A0 31
 		bmi print_msg_3		;A1CE 30 0C
@@ -3867,7 +3575,7 @@ L_A000 = $A000		; Cold Start Vector?
 
 .L_A1D8	jsr write_char		;A1D8 20 6F 84
 		inx				;A1DB E8
-.print_msg_3
+.print_msg_3		; NEEDS DLL
 {
 		lda frontend_strings_3,X	;A1DC BD AA 31
 		cmp #$FF		;A1DF C9 FF
@@ -3890,7 +3598,7 @@ L_A000 = $A000		; Cold Start Vector?
 ; Fns moved from Core RAM so data can reside there
 ; *****************************************************************************
 
-.L_1411
+.L_1411				; only called from Kernel?
 {
 		lda L_3FFA,X	;1411 BD FA 3F
 		ora #$80		;1414 09 80
@@ -3901,22 +3609,22 @@ L_A000 = $A000		; Cold Start Vector?
 		rts				;1421 60
 }
 
-.L_1422
+.L_1422				; only called from Kernel?
 		ldy #$00		;1422 A0 00
 		beq L_1430		;1424 F0 0A
 
-.L_1426
+.L_1426				; only called from Kernel?
 		ldy #$80		;1426 A0 80
 		bne L_1430		;1428 D0 06
 
-.L_142A
+.L_142A				; only called from Kernel?
 		ldy #$C0		;142A A0 C0
 		bne L_1430		;142C D0 02
 
-.L_142E
+.L_142E				; only called from Kernel?
 		ldy #$40		;142E A0 40
 
-.L_1430
+.L_1430				; not an entry point
 {
 		sty ZP_DB		;1430 84 DB
 		jsr L_1469		;1432 20 69 14
@@ -3950,7 +3658,7 @@ L_A000 = $A000		; Cold Start Vector?
 		rts				;1468 60
 }
 
-.L_1469
+.L_1469				; NEEDS DLL
 {
 		ldy #$00		;1469 A0 00
 		sty ZP_14		;146B 84 14
@@ -3971,7 +3679,7 @@ L_A000 = $A000		; Cold Start Vector?
 		rts				;1483 60
 }
 
-.reset_sprites
+.reset_sprites		; NEEDS DLL
 {
 		ldx #$07		;1484 A2 07
 .L_1486	txa				;1486 8A
@@ -4006,7 +3714,7 @@ L_14B6 = L_14B8-2
 
 ; update scratches and scrapes?
 ; only called from main loop
-.L_14D0_from_main_loop
+.L_14D0_from_main_loop		; NEEDS DLL
 {
 		ldx #$00		;14D0 A2 00
 		ldy #$0A		;14D2 A0 0A
@@ -4091,7 +3799,7 @@ L_14B6 = L_14B8-2
 		jmp sysctl		;156F 4C 25 87
 }
 
-.L_1572
+.L_1572			; in Cart - only called from update_damage_display
 {
 		lda ZP_6C		;1572 A5 6C
 		bne L_158D		;1574 D0 17
@@ -4105,11 +3813,11 @@ L_14B6 = L_14B8-2
 		sta ZP_6C		;1584 85 6C
 		lda #$02		;1586 A9 02
 		ldy #$00		;1588 A0 00
-		jsr jmp_set_up_text_sprite		;158A 20 A9 12
+		jsr kernel_set_up_text_sprite		;158A 20 A9 12
 .L_158D	rts				;158D 60
 }
 
-.L_158E
+.L_158E			; in Cart - only called from update_aicar
 {
 		lda ZP_C9		;158E A5 C9
 		beq L_1600		;1590 F0 6E
@@ -4168,7 +3876,7 @@ L_14B6 = L_14B8-2
 .L_1601	equb $20,$50,$60,$70,$70,$60,$50,$20,$E0,$B0,$A0,$90,$90,$A0,$B0,$E0
 }
 
-.L_1611
+.L_1611				; NEEDS DLL
 {
 		ldx #$3B		;1611 A2 3B
 .L_1613	lda #$00		;1613 A9 00
@@ -4185,7 +3893,7 @@ L_14B6 = L_14B8-2
 		rts				;162B 60
 }
 
-.save_rndQ_stateQ
+.save_rndQ_stateQ	; NEEDS DLL
 {
 		ldx #$04		;162C A2 04
 .L_162E	lda ZP_02,X		;162E B5 02
@@ -4193,9 +3901,11 @@ L_14B6 = L_14B8-2
 		dex				;1633 CA
 		bpl L_162E		;1634 10 F8
 		rts				;1636 60
+
+.L_1648	equb $B1,$65,$3B,$17,$3B
 }
 
-.L_1637
+.L_1637				; NEEDS DLL
 {
 		ldx #$04		;1637 A2 04
 .L_1639	lda L_1643,Y	;1639 B9 43 16
@@ -4208,9 +3918,7 @@ L_14B6 = L_14B8-2
 .L_1643	equb $B1,$86,$77,$8F,$8D
 }
 
-.L_1648	equb $B1,$65,$3B,$17,$3B
-
-.start_of_frame
+.start_of_frame		; NEEDS DLL
 {
 		ldx #$3F		;164D A2 3F
 .L_164F	lda L_C280,X	;164F BD 80 C2
@@ -4223,7 +3931,7 @@ L_14B6 = L_14B8-2
 		dex				;1663 CA
 		bpl L_164F		;1664 10 E9
 		jsr clear_screen_with_sysctl		;1666 20 23 2C
-		jsr jmp_L_F1DC		;1669 20 DC F1
+		jsr kernel_L_F1DC		;1669 20 DC F1
 		lda #$00		;166C A9 00
 		sta L_C3A9		;166E 8D A9 C3
 		sta L_C3DA		;1671 8D DA C3
@@ -4233,8 +3941,9 @@ L_14B6 = L_14B8-2
 		rts				;1679 60
 }
 
-; only called from main loop
-.L_167A_from_main_loop
+; only called from main loop - pretty sure this is main draw function for track etc.
+
+.L_167A_from_main_loop		; NEEDS DLL
 {
 		jsr start_of_frame		;167A 20 4D 16
 		lda ZP_2F		;167D A5 2F
@@ -4245,13 +3954,13 @@ L_14B6 = L_14B8-2
 .L_1688	lda #$00		;1688 A9 00
 		sta ZP_0B		;168A 85 0B
 		sta ZP_0C		;168C 85 0C
-		jsr jmp_L_FF6A		;168E 20 6A FF
+		jsr kernel_L_FF6A		;168E 20 6A FF
 		bcs L_16A2		;1691 B0 0F
 		cmp #$FF		;1693 C9 FF
 		bne L_16B4		;1695 D0 1D
 		lda ZP_AF		;1697 A5 AF
 		ldy ZP_B1		;1699 A4 B1
-		jsr jmp_L_F117		;169B 20 17 F1
+		jsr kernel_L_F117		;169B 20 17 F1
 		cmp #$FF		;169E C9 FF
 		bne L_16B4		;16A0 D0 12
 .L_16A2	lda #$C0		;16A2 A9 C0
@@ -4259,11 +3968,11 @@ L_14B6 = L_14B8-2
 		lda L_C76C		;16A6 AD 6C C7
 		bpl L_16B1		;16A9 10 06
 		jsr update_aicar		;16AB 20 85 1E
-		jsr jmp_L_E4DA		;16AE 20 DA E4
+		jsr kernel_L_E4DA		;16AE 20 DA E4
 .L_16B1	jmp L_1757		;16B1 4C 57 17
 .L_16B4	sta ZP_2E		;16B4 85 2E
 		jsr L_9A38		;16B6 20 38 9A
-		jsr jmp_L_F2B7		;16B9 20 B7 F2
+		jsr kernel_L_F2B7		;16B9 20 B7 F2
 		lda ZP_2E		;16BC A5 2E
 		sta L_C374		;16BE 8D 74 C3
 		bit ZP_6B		;16C1 24 6B
@@ -4276,25 +3985,25 @@ L_14B6 = L_14B8-2
 		lda L_C76C		;16D1 AD 6C C7
 		bpl L_16E2		;16D4 10 0C
 		jsr update_aicar		;16D6 20 85 1E
-		jsr jmp_L_F585		;16D9 20 85 F5
+		jsr kernel_L_F585		;16D9 20 85 F5
 		jsr L_1D25		;16DC 20 25 1D
-		jsr jmp_L_E4DA		;16DF 20 DA E4
+		jsr kernel_L_E4DA		;16DF 20 DA E4
 .L_16E2	lda L_C374		;16E2 AD 74 C3
 		sta ZP_2E		;16E5 85 2E
 		lda #$00		;16E7 A9 00
 		sta ZP_D0		;16E9 85 D0
 		lda ZP_8E		;16EB A5 8E
 		bpl L_16F6		;16ED 10 07
-		jsr jmp_L_CFC5		;16EF 20 C5 CF
+		jsr kernel_L_CFC5		;16EF 20 C5 CF
 		lda #$00		;16F2 A9 00
 		sta ZP_8E		;16F4 85 8E
 .L_16F6	lda ZP_8E		;16F6 A5 8E
 		bne L_1707		;16F8 D0 0D
-		jsr jmp_L_CFD2		;16FA 20 D2 CF
+		jsr kernel_L_CFD2		;16FA 20 D2 CF
 		cpx ZP_A6		;16FD E4 A6
 		bne L_1704		;16FF D0 03
-		jsr jmp_L_E195		;1701 20 95 E1
-.L_1704	jsr jmp_L_CFC5		;1704 20 C5 CF
+		jsr kernel_L_E195		;1701 20 95 E1
+.L_1704	jsr kernel_L_CFC5		;1704 20 C5 CF
 .L_1707	jsr L_177D		;1707 20 7D 17
 		jsr L_1B0B		;170A 20 0B 1B
 		jsr L_1A3B		;170D 20 3B 1A
@@ -4303,7 +4012,7 @@ L_14B6 = L_14B8-2
 		lda #$02		;1714 A9 02
 		sta ZP_D0		;1716 85 D0
 		jsr L_1909		;1718 20 09 19
-		jsr jmp_L_CFC5		;171B 20 C5 CF
+		jsr kernel_L_CFC5		;171B 20 C5 CF
 		jsr L_177D		;171E 20 7D 17
 		jsr L_1A3B		;1721 20 3B 1A
 		jsr L_1909		;1724 20 09 19
@@ -4326,7 +4035,7 @@ L_14B6 = L_14B8-2
 		beq L_1745		;1741 F0 02
 		lda #$05		;1743 A9 05
 .L_1745	sta ZP_28		;1745 85 28
-.L_1747	jsr jmp_L_CFC5		;1747 20 C5 CF
+.L_1747	jsr kernel_L_CFC5		;1747 20 C5 CF
 		jsr L_177D		;174A 20 7D 17
 		jsr L_1A3B		;174D 20 3B 1A
 		jsr L_1909		;1750 20 09 19
@@ -4350,12 +4059,12 @@ L_14B6 = L_14B8-2
 		rts				;177C 60
 }
 
-.L_177D
+.L_177D				; NEEDS DLL
 {
 		ldx ZP_2E		;177D A6 2E
-		jsr jmp_get_track_segment_detailsQ		;177F 20 2F F0
+		jsr kernel_get_track_segment_detailsQ		;177F 20 2F F0
 		ldx ZP_2E		;1782 A6 2E
-		jsr jmp_L_F0C5		;1784 20 C5 F0
+		jsr kernel_L_F0C5		;1784 20 C5 F0
 		lda ZP_68		;1787 A5 68
 		sec				;1789 38
 		sbc ZP_1D		;178A E5 1D
@@ -4384,7 +4093,7 @@ L_14B6 = L_14B8-2
 		sta L_C3A9		;17BE 8D A9 C3
 		lda #$00		;17C1 A9 00
 		sta ZP_D0		;17C3 85 D0
-		jsr jmp_L_F440		;17C5 20 40 F4
+		jsr kernel_L_F440		;17C5 20 40 F4
 		lda ZP_D8		;17C8 A5 D8
 		clc				;17CA 18
 		adc ZP_62		;17CB 65 62
@@ -4544,7 +4253,7 @@ L_14B6 = L_14B8-2
 .L_1908	rts				;1908 60
 }
 
-.L_1909
+.L_1909				; in Cart
 {
 		bit L_C3A9		;1909 2C A9 C3
 		bmi L_1943		;190C 30 35
@@ -4575,7 +4284,7 @@ L_14B6 = L_14B8-2
 		rts				;1947 60
 }
 
-.L_1948
+.L_1948			; in Cart
 {
 		lda #$2A		;1948 A9 2A
 		sec				;194A 38
@@ -4700,7 +4409,7 @@ L_14B6 = L_14B8-2
 .L_1A3A	rts				;1A3A 60
 }
 
-.L_1A3B
+.L_1A3B				; NEEDS DLL
 {
 		lda #$01		;1A3B A9 01
 		bit L_C3A8		;1A3D 2C A8 C3
@@ -4725,7 +4434,7 @@ L_14B6 = L_14B8-2
 		lsr A			;1A61 4A
 		and #$01		;1A62 29 01
 		tax				;1A64 AA
-.L_1A65	jsr jmp_set_linedraw_colour		;1A65 20 01 FC
+.L_1A65	jsr kernel_set_linedraw_colour		;1A65 20 01 FC
 		lda ZP_C6		;1A68 A5 C6
 		lsr A			;1A6A 4A
 		sec				;1A6B 38
@@ -4735,7 +4444,7 @@ L_14B6 = L_14B8-2
 		lda ZP_A6		;1A72 A5 A6
 		cmp ZP_2E		;1A74 C5 2E
 		bne L_1A7B		;1A76 D0 03
-		jsr jmp_L_E195		;1A78 20 95 E1
+		jsr kernel_L_E195		;1A78 20 95 E1
 .L_1A7B	ldx ZP_C6		;1A7B A6 C6
 		lda L_A330,X	;1A7D BD 30 A3
 		bmi L_1ABA		;1A80 30 38
@@ -4760,7 +4469,7 @@ L_14B6 = L_14B8-2
 		sta ZP_CC,Y		;1AAF 99 CC 00
 		bit L_C366		;1AB2 2C 66 C3
 		bpl L_1ABA		;1AB5 10 03
-		jsr jmp_L_E1B1		;1AB7 20 B1 E1
+		jsr kernel_L_E1B1		;1AB7 20 B1 E1
 .L_1ABA	lda ZP_C6		;1ABA A5 C6
 		eor #$01		;1ABC 49 01
 		sta ZP_C6		;1ABE 85 C6
@@ -4776,13 +4485,13 @@ L_14B6 = L_14B8-2
 		tax				;1AD1 AA
 		lda #$80		;1AD2 A9 80
 		sta L_8080,Y	;1AD4 99 80 80
-		jsr jmp_set_linedraw_colour		;1AD7 20 01 FC
-		jsr jmp_L_CF73		;1ADA 20 73 CF
+		jsr kernel_set_linedraw_colour		;1AD7 20 01 FC
+		jsr kernel_L_CF73		;1ADA 20 73 CF
 		ldx ZP_C6		;1ADD A6 C6
 		txa				;1ADF 8A
 		eor #$01		;1AE0 49 01
 		tay				;1AE2 A8
-		jsr jmp_L_FE91_with_draw_line		;1AE3 20 91 FE
+		jsr kernel_L_FE91_with_draw_line		;1AE3 20 91 FE
 .L_1AE6	inc ZP_D2		;1AE6 E6 D2
 		lda ZP_C6		;1AE8 A5 C6
 		clc				;1AEA 18
@@ -4794,25 +4503,25 @@ L_14B6 = L_14B8-2
 .L_1AF6	rts				;1AF6 60
 }
 
-.L_1AF7
+.L_1AF7				; in Cart
 {
 		ldx ZP_C6		;1AF7 A6 C6
 		ldy ZP_A0		;1AF9 A4 A0
 		lda ZP_CC,Y		;1AFB B9 CC 00
 		tay				;1AFE A8
-		jmp jmp_L_FE91_with_draw_line		;1AFF 4C 91 FE
+		jmp kernel_L_FE91_with_draw_line		;1AFF 4C 91 FE
 }
 
-.L_1B02
+.L_1B02				; in Cart
 {
 		ldx ZP_C6		;1B02 A6 C6
 		txa				;1B04 8A
 		ora #$20		;1B05 09 20
 		tay				;1B07 A8
-		jmp jmp_L_FE91_with_draw_line		;1B08 4C 91 FE
+		jmp kernel_L_FE91_with_draw_line		;1B08 4C 91 FE
 }
 
-.L_1B0B
+.L_1B0B				; in Cart
 {
 		ldx ZP_27		;1B0B A6 27
 		lda #$02		;1B0D A9 02
@@ -4842,11 +4551,11 @@ L_14B6 = L_14B8-2
 		lda L_C396,Y	;1B3D B9 96 C3
 		sta L_A32E,X	;1B40 9D 2E A3
 		lda ZP_8E		;1B43 A5 8E
-		jsr jmp_L_E808		;1B45 20 08 E8
+		jsr kernel_L_E808		;1B45 20 08 E8
 		ldx ZP_C7		;1B48 A6 C7
 		ldy #$04		;1B4A A0 04
 		lda ZP_8D		;1B4C A5 8D
-		jsr jmp_L_E631		;1B4E 20 31 E6
+		jsr kernel_L_E631		;1B4E 20 31 E6
 		ldx ZP_C6		;1B51 A6 C6
 		lda ZP_8D		;1B53 A5 8D
 		sta ZP_15		;1B55 85 15
@@ -4856,7 +4565,7 @@ L_14B6 = L_14B8-2
 		sta ZP_14		;1B5E 85 14
 		lda L_A330,X	;1B60 BD 30 A3
 		sbc L_A32E,X	;1B63 FD 2E A3
-		jsr jmp_mul_8_16_16bit		;1B66 20 45 C8
+		jsr kernel_mul_8_16_16bit		;1B66 20 45 C8
 		sta ZP_15		;1B69 85 15
 		lda L_803E,X	;1B6B BD 3E 80
 		clc				;1B6E 18
@@ -4868,12 +4577,12 @@ L_14B6 = L_14B8-2
 		dex				;1B7C CA
 		dex				;1B7D CA
 		ldy #$04		;1B7E A0 04
-		jsr jmp_L_E641		;1B80 20 41 E6
+		jsr kernel_L_E641		;1B80 20 41 E6
 		ldx ZP_C6		;1B83 A6 C6
 		jmp L_1B2F		;1B85 4C 2F 1B
 }
 
-.update_damage_display
+.update_damage_display		; NEEDS DLL
 {
 		lda L_C3CB		;1B88 AD CB C3
 		cmp ZP_25		;1B8B C5 25
@@ -4948,13 +4657,13 @@ L_14B6 = L_14B8-2
 .L_1C1A	equb $C0,$30,$0C,$03
 }
 
-.draw_crane_with_sysctl
+.draw_crane_with_sysctl		; NEEDS DLL
 {
 		lda #$3F		;1C1E A9 3F
 		jmp sysctl		;1C20 4C 25 87
 }
 
-.clear_menu_area
+.clear_menu_area			; NEEDS DLL
 {
 		ldx #$10		;1C23 A2 10
 		lda #$4B		;1C25 A9 4B
@@ -4979,7 +4688,7 @@ L_14B6 = L_14B8-2
 		rts				;1C48 60
 }
 
-.draw_menu_header
+.draw_menu_header			; NEEDS DLL
 {
 		lda #$08		;1C49 A9 08
 		sta ZP_52		;1C4B 85 52
@@ -4995,9 +4704,9 @@ L_14B6 = L_14B8-2
 		jmp sysctl		;1C61 4C 25 87
 }
 
-.L_1C64_with_keys
+.L_1C64_with_keys			; NEEDS DLL
 {
-		jsr jmp_check_game_keys		;1C64 20 9E F7
+		jsr kernel_check_game_keys		;1C64 20 9E F7
 		lda ZP_6A		;1C67 A5 6A
 		beq L_1C7F		;1C69 F0 14
 		lda ZP_2F		;1C6B A5 2F
@@ -5042,11 +4751,11 @@ L_14B6 = L_14B8-2
 .L_1CBE	sta L_C39B		;1CBE 8D 9B C3
 .L_1CC1	stx L_0150		;1CC1 8E 50 01
 		sty L_0151		;1CC4 8C 51 01
-		jsr jmp_update_boosting		;1CC7 20 0F F6
+		jsr kernel_update_boosting		;1CC7 20 0F F6
 		rts				;1CCA 60
 }
 
-.L_1CCB
+.L_1CCB				; NEEDS DLL
 {
 		lda L_0124		;1CCB AD 24 01
 		and #$80		;1CCE 29 80
@@ -5073,17 +4782,17 @@ L_14B6 = L_14B8-2
 		cpx #$02		;1CFF E0 02
 		bcs L_1CE9		;1D01 B0 E6
 		lda #$2C		;1D03 A9 2C
-		jsr jmp_set_linedraw_op		;1D05 20 16 FC
+		jsr kernel_set_linedraw_op		;1D05 20 16 FC
 		ldx #$02		;1D08 A2 02
 		ldy #$03		;1D0A A0 03
-		jsr jmp_L_FE91_with_draw_line		;1D0C 20 91 FE
+		jsr kernel_L_FE91_with_draw_line		;1D0C 20 91 FE
 		lda #$3D		;1D0F A9 3D
-		jsr jmp_set_linedraw_op		;1D11 20 16 FC
+		jsr kernel_set_linedraw_op		;1D11 20 16 FC
 		asl L_C365		;1D14 0E 65 C3
 		rts				;1D17 60
 }
 
-.update_per_track_stuff
+.update_per_track_stuff		; NEEDS DLL
 {
 		lda L_C77D		;1D18 AD 7D C7
 		cmp #$05		;1D1B C9 05
@@ -5093,7 +4802,7 @@ L_14B6 = L_14B8-2
 		jmp sysctl		;1D22 4C 25 87
 }
 
-.L_1D25
+.L_1D25				; in Cart
 {
 		ldx L_C773		;1D25 AE 73 C7
 		ldy #$00		;1D28 A0 00
@@ -5192,7 +4901,7 @@ L_14B6 = L_14B8-2
 		bpl L_1DF9		;1DF3 10 04
 		lda #$80		;1DF5 A9 80
 		sta ZP_2C		;1DF7 85 2C
-.L_1DF9	jsr jmp_L_CFC5		;1DF9 20 C5 CF
+.L_1DF9	jsr kernel_L_CFC5		;1DF9 20 C5 CF
 		dec ZP_16		;1DFC C6 16
 		bne L_1DEA		;1DFE D0 EA
 .L_1E00	lda L_C357		;1E00 AD 57 C3
@@ -5247,7 +4956,7 @@ L_14B6 = L_14B8-2
 		rts				;1E5E 60
 }
 
-.find_track_segment_index
+.find_track_segment_index		; only called from Kernel?
 {
 		stx L_1E84		;1E5F 8E 84 1E
 		txa				;1E62 8A
@@ -5270,12 +4979,12 @@ L_14B6 = L_14B8-2
 .L_1E84	equb $00
 }
 
-.update_aicar
+.update_aicar		; in Cart
 {
 		lda L_C37C		;1E85 AD 7C C3
 		beq L_1EE1		;1E88 F0 57
 		ldx L_C375		;1E8A AE 75 C3
-		jsr jmp_get_track_segment_detailsQ		;1E8D 20 2F F0
+		jsr kernel_get_track_segment_detailsQ		;1E8D 20 2F F0
 		jsr L_21DE		;1E90 20 DE 21
 		jsr L_158E		;1E93 20 8E 15
 		jsr L_201B		;1E96 20 1B 20
@@ -5286,11 +4995,11 @@ L_14B6 = L_14B8-2
 		lda ZP_D6		;1EA3 A5 D6
 		sta ZP_14		;1EA5 85 14
 		lda ZP_D7		;1EA7 A5 D7
-		jsr jmp_mul_8_16_16bit		;1EA9 20 45 C8
-		jsr jmp_L_FF8E		;1EAC 20 8E FF
+		jsr kernel_mul_8_16_16bit		;1EA9 20 45 C8
+		jsr kernel_L_FF8E		;1EAC 20 8E FF
 		lda ZP_15		;1EAF A5 15
 		ldy #$FD		;1EB1 A0 FD
-		jsr jmp_shift_16bit		;1EB3 20 BF C9
+		jsr kernel_shift_16bit		;1EB3 20 BF C9
 		sta ZP_15		;1EB6 85 15
 		lda ZP_A1		;1EB8 A5 A1
 		clc				;1EBA 18
@@ -5316,9 +5025,9 @@ L_14B6 = L_14B8-2
 }
 
 ; only called from main loop
-.L_1EE2_from_main_loop
+.L_1EE2_from_main_loop		; NEEDS DLL
 {
-		jsr jmp_L_E4DA		;1EE2 20 DA E4
+		jsr kernel_L_E4DA		;1EE2 20 DA E4
 		jsr rndQ		;1EE5 20 B9 29
 		and #$7F		;1EE8 29 7F
 		clc				;1EEA 18
@@ -5337,7 +5046,7 @@ L_14B6 = L_14B8-2
 		rts				;1F05 60
 }
 
-.L_1F06
+.L_1F06				; only called from Kernel?
 {
 		lda L_31A1		;1F06 AD A1 31
 		beq L_1F10		;1F09 F0 05
@@ -5369,7 +5078,7 @@ L_14B6 = L_14B8-2
 .L_1F47	rts				;1F47 60
 }
 
-.L_1F48
+.L_1F48			; in Cart - only called from update_aicar
 {
 		lda #$00		;1F48 A9 00
 		sta ZP_17		;1F4A 85 17
@@ -5389,7 +5098,7 @@ L_14B6 = L_14B8-2
 		lda #$00		;1F65 A9 00
 .L_1F67	sta ZP_15		;1F67 85 15
 		lda ZP_D7		;1F69 A5 D7
-		jsr jmp_mul_8_8_16bit		;1F6B 20 82 C7
+		jsr kernel_mul_8_8_16bit		;1F6B 20 82 C7
 		asl ZP_14		;1F6E 06 14
 		rol A			;1F70 2A
 		rol ZP_17		;1F71 26 17
@@ -5445,7 +5154,7 @@ L_14B6 = L_14B8-2
 		lda ZP_15		;1FD4 A5 15
 		sbc L_07F2		;1FD6 ED F2 07
 		sta ZP_18		;1FD9 85 18
-		jsr jmp_negate_if_N_set		;1FDB 20 BD C8
+		jsr kernel_negate_if_N_set		;1FDB 20 BD C8
 		cmp #$02		;1FDE C9 02
 		bcc L_1FE6		;1FE0 90 04
 		lda #$FF		;1FE2 A9 FF
@@ -5462,7 +5171,7 @@ L_14B6 = L_14B8-2
 		lda #$00		;1FF4 A9 00
 		rol A			;1FF6 2A
 		bit ZP_18		;1FF7 24 18
-		jsr jmp_negate_if_N_set		;1FF9 20 BD C8
+		jsr kernel_negate_if_N_set		;1FF9 20 BD C8
 		sta ZP_15		;1FFC 85 15
 		lda ZP_16		;1FFE A5 16
 		clc				;2000 18
@@ -5470,7 +5179,7 @@ L_14B6 = L_14B8-2
 		sta ZP_14		;2003 85 14
 		lda ZP_17		;2005 A5 17
 		adc ZP_15		;2007 65 15
-.L_2009	jsr jmp_L_FF8E		;2009 20 8E FF
+.L_2009	jsr kernel_L_FF8E		;2009 20 8E FF
 		adc ZP_D6		;200C 65 D6
 		sta ZP_D6		;200E 85 D6
 		lda ZP_D7		;2010 A5 D7
@@ -5481,7 +5190,7 @@ L_14B6 = L_14B8-2
 		rts				;201A 60
 }
 
-.L_201B
+.L_201B		; in Cart - only called from update_aicar
 {
 		lda L_C386		;201B AD 86 C3
 		ldy L_C387		;201E AC 87 C3
@@ -5498,7 +5207,7 @@ L_14B6 = L_14B8-2
 		rts				;2036 60
 }
 
-.L_2037
+.L_2037		; in Cart - only called from update_aicar
 {
 		lda ZP_C9		;2037 A5 C9
 		bne L_203C		;2039 D0 01
@@ -5550,7 +5259,7 @@ L_14B6 = L_14B8-2
 .L_209A	equb $6E
 .L_209B	equb $05
 
-.L_209C
+.L_209C				; in Cart
 {
 		lda L_C37C		;209C AD 7C C3
 		bne L_20A8		;209F D0 07
@@ -5576,7 +5285,7 @@ L_14B6 = L_14B8-2
 		lda ZP_17		;20C6 A5 17
 		adc #$00		;20C8 69 00
 		sta ZP_17		;20CA 85 17
-		jsr jmp_negate_if_N_set		;20CC 20 BD C8
+		jsr kernel_negate_if_N_set		;20CC 20 BD C8
 		cmp #$00		;20CF C9 00
 		bne L_20A2		;20D1 D0 CF
 		lda ZP_14		;20D3 A5 14
@@ -5592,9 +5301,9 @@ L_14B6 = L_14B8-2
 		lda #$01		;20E8 A9 01
 		sbc #$00		;20EA E9 00
 		bit ZP_17		;20EC 24 17
-		jsr jmp_negate_if_N_set		;20EE 20 BD C8
+		jsr kernel_negate_if_N_set		;20EE 20 BD C8
 		ldy #$FC		;20F1 A0 FC
-		jsr jmp_shift_16bit		;20F3 20 BF C9
+		jsr kernel_shift_16bit		;20F3 20 BF C9
 		sta L_0183		;20F6 8D 83 01
 		lda ZP_14		;20F9 A5 14
 		sta L_0180		;20FB 8D 80 01
@@ -5639,7 +5348,7 @@ L_14B6 = L_14B8-2
 .L_214B	lda L_017F,Y	;214B B9 7F 01
 		sta ZP_14		;214E 85 14
 		lda L_0182,Y	;2150 B9 82 01
-		jsr jmp_negate_if_N_set		;2153 20 BD C8
+		jsr kernel_negate_if_N_set		;2153 20 BD C8
 		clc				;2156 18
 		adc ZP_16		;2157 65 16
 		sta ZP_16		;2159 85 16
@@ -5659,7 +5368,7 @@ L_14B6 = L_14B8-2
 		rts				;2175 60
 }
 
-.L_2176
+.L_2176				; only called from Kernel?
 {
 		lda L_C371		;2176 AD 71 C3
 		beq L_21DD		;2179 F0 62
@@ -5678,7 +5387,7 @@ L_14B6 = L_14B8-2
 		sta ZP_14		;2196 85 14
 		lda L_0183		;2198 AD 83 01
 		ldy #$04		;219B A0 04
-		jsr jmp_shift_16bit		;219D 20 BF C9
+		jsr kernel_shift_16bit		;219D 20 BF C9
 		sta ZP_15		;21A0 85 15
 		ldx #$02		;21A2 A2 02
 .L_21A4	lda L_07DC,X	;21A4 BD DC 07
@@ -5704,11 +5413,11 @@ L_14B6 = L_14B8-2
 		dex				;21D5 CA
 		bpl L_21BA		;21D6 10 E2
 		lda #$02		;21D8 A9 02
-		jsr jmp_L_CF68		;21DA 20 68 CF
+		jsr kernel_L_CF68		;21DA 20 68 CF
 .L_21DD	rts				;21DD 60
 }
 
-.L_21DE
+.L_21DE			; in Cart - only called from update_aicar
 {
 		lda #$00		;21DE A9 00
 		sta ZP_C9		;21E0 85 C9
@@ -5747,7 +5456,7 @@ L_14B6 = L_14B8-2
 		sta ZP_14		;2222 85 14
 		lda ZP_19		;2224 A5 19
 		sbc L_07D8,X	;2226 FD D8 07
-		jsr jmp_L_CFB7		;2229 20 B7 CF
+		jsr kernel_L_CFB7		;2229 20 B7 CF
 		bpl L_2232		;222C 10 04
 		lda #$00		;222E A9 00
 		sta ZP_14		;2230 85 14
@@ -5809,7 +5518,7 @@ L_14B6 = L_14B8-2
 		lda ZP_15		;22A0 A5 15
 		adc ZP_1B		;22A2 65 1B
 		ldy #$03		;22A4 A0 03
-		jsr jmp_shift_16bit		;22A6 20 BF C9
+		jsr kernel_shift_16bit		;22A6 20 BF C9
 		sta L_07E8,X	;22A9 9D E8 07
 		lda ZP_14		;22AC A5 14
 		sta L_07E4,X	;22AE 9D E4 07
@@ -5834,14 +5543,14 @@ L_14B6 = L_14B8-2
 .L_22DC	lda L_07E4,X	;22DC BD E4 07
 		sta ZP_14		;22DF 85 14
 		lda L_07E8,X	;22E1 BD E8 07
-		jsr jmp_L_FF8E		;22E4 20 8E FF
+		jsr kernel_L_FF8E		;22E4 20 8E FF
 		adc L_07DC,X	;22E7 7D DC 07
 		sta L_07DC,X	;22EA 9D DC 07
 		sta ZP_14		;22ED 85 14
 		lda L_07E0,X	;22EF BD E0 07
 		adc ZP_15		;22F2 65 15
 		sta L_07E0,X	;22F4 9D E0 07
-		jsr jmp_L_FF8E		;22F7 20 8E FF
+		jsr kernel_L_FF8E		;22F7 20 8E FF
 		lda ZP_15		;22FA A5 15
 		clc				;22FC 18
 		bpl L_2300		;22FD 10 01
@@ -5914,7 +5623,7 @@ L_14B6 = L_14B8-2
 .L_238A	equb $3C,$3E,$3D,$3F
 }
 
-.L_238E
+.L_238E			; NEEDS DLL
 {
 		lda L_07CC,X	;238E BD CC 07
 		sec				;2391 38
@@ -5923,10 +5632,10 @@ L_14B6 = L_14B8-2
 		lda L_07D0,X	;2397 BD D0 07
 		sbc L_07D0,Y	;239A F9 D0 07
 		sta ZP_17		;239D 85 17
-		jmp jmp_negate_if_N_set		;239F 4C BD C8
+		jmp kernel_negate_if_N_set		;239F 4C BD C8
 }
 
-.L_23A2
+.L_23A2			; in Cart
 {
 		sta ZP_77		;23A2 85 77
 		stx ZP_52		;23A4 86 52
@@ -5997,7 +5706,7 @@ L_14B6 = L_14B8-2
 .L_2430	equb $00,$00,$FF
 }
 
-.L_2433
+.L_2433				; in Cart
 {
 		lda L_07DC,X	;2433 BD DC 07
 		clc				;2436 18
@@ -6018,215 +5727,7 @@ L_14B6 = L_14B8-2
 		rts				;2457 60
 }
 
-.L_2458
-		stx ZP_16		;2458 86 16
-		lda ZP_52		;245A A5 52
-.L_245C
-{
-		sta ZP_14		;245C 85 14
-		ldy #$00		;245E A0 00
-		lda ZP_78		;2460 A5 78
-		bpl L_247B		;2462 10 17
-		ldy #$08		;2464 A0 08
-		lda #$00		;2466 A9 00
-		sec				;2468 38
-		sbc ZP_52		;2469 E5 52
-		sta ZP_14		;246B 85 14
-		lda #$00		;246D A9 00
-		sbc ZP_78		;246F E5 78
-		bpl L_247B		;2471 10 08
-		ldy #$0F		;2473 A0 0F
-		lda #$FF		;2475 A9 FF
-		sta ZP_14		;2477 85 14
-		bne L_2487		;2479 D0 0C
-.L_247B	bne L_2481		;247B D0 04
-		beq L_2487		;247D F0 08
-.L_247F	ror ZP_14		;247F 66 14
-.L_2481	iny				;2481 C8
-		lsr A			;2482 4A
-		bne L_247F		;2483 D0 FA
-		ror ZP_14		;2485 66 14
-.L_2487	ldx ZP_14		;2487 A6 14
-		cpy #$08		;2489 C0 08
-		bcc L_24AD		;248B 90 20
-		lda #$B0		;248D A9 B0			; opcode BCS
-		sta L_24F8		;248F 8D F8 24
-		jsr L_24AD		;2492 20 AD 24
-		lda #$90		;2495 A9 90			; opcode BCC
-		sta L_24F8		;2497 8D F8 24
-		lda L_A298,X	;249A BD 98 A2
-		bpl L_24A6		;249D 10 07
-		clc				;249F 18
-		adc #$02		;24A0 69 02
-		sta L_A298,X	;24A2 9D 98 A2
-		rts				;24A5 60
-.L_24A6	sec				;24A6 38
-		sbc #$02		;24A7 E9 02
-		sta L_A298,X	;24A9 9D 98 A2
-		rts				;24AC 60
-.L_24AD	lda log_msb,X	;24AD BD 00 AB
-		clc				;24B0 18
-		adc L_A610,Y	;24B1 79 10 A6
-		sta ZP_71		;24B4 85 71
-		lda log_lsb,X	;24B6 BD 00 AA
-		sta ZP_70		;24B9 85 70
-		lda ZP_51		;24BB A5 51
-		sta ZP_14		;24BD 85 14
-		ldy #$00		;24BF A0 00
-		lda ZP_77		;24C1 A5 77
-		bpl L_24DA		;24C3 10 15
-		ldy #$08		;24C5 A0 08
-		lda #$00		;24C7 A9 00
-		sec				;24C9 38
-		sbc ZP_51		;24CA E5 51
-		sta ZP_14		;24CC 85 14
-		lda #$00		;24CE A9 00
-		sbc ZP_77		;24D0 E5 77
-		bpl L_24DA		;24D2 10 06
-		ldy #$0F		;24D4 A0 0F
-		lda #$FF		;24D6 A9 FF
-		bne L_24E6		;24D8 D0 0C
-.L_24DA	bne L_24E0		;24DA D0 04
-		beq L_24E6		;24DC F0 08
-.L_24DE	ror ZP_14		;24DE 66 14
-.L_24E0	iny				;24E0 C8
-		lsr A			;24E1 4A
-		bne L_24DE		;24E2 D0 FA
-		ror ZP_14		;24E4 66 14
-.L_24E6	ldx ZP_14		;24E6 A6 14
-		lda log_msb,X	;24E8 BD 00 AB
-		clc				;24EB 18
-		adc L_A610,Y	;24EC 79 10 A6
-		sta ZP_AA		;24EF 85 AA
-		lda log_lsb,X	;24F1 BD 00 AA
-		sta ZP_A9		;24F4 85 A9
-		cpy #$08		;24F6 C0 08
-.L_24F8	bcc L_2572		;24F8 90 78		;! self-mod
-		lda ZP_A9		;24FA A5 A9
-		sec				;24FC 38
-		sbc ZP_70		;24FD E5 70
-		sta ZP_14		;24FF 85 14
-		lda ZP_AA		;2501 A5 AA
-		sbc ZP_71		;2503 E5 71
-		bpl L_2537		;2505 10 30
-		jsr pow36Q		;2507 20 D2 26
-		lsr A			;250A 4A
-		adc #$00		;250B 69 00
-		sta ZP_14		;250D 85 14
-		tay				;250F A8
-		ldx cosine_table,Y	;2510 BE 00 A7
-		lda ZP_70		;2513 A5 70
-		sec				;2515 38
-		sbc log_lsb,X	;2516 FD 00 AA
-		sta ZP_AB		;2519 85 AB
-		lda ZP_71		;251B A5 71
-		sbc log_msb,X	;251D FD 00 AB
-		clc				;2520 18
-		adc #$20		;2521 69 20
-		sta ZP_AC		;2523 85 AC
-		ldx ZP_16		;2525 A6 16
-		lda ZP_A7		;2527 A5 A7
-		sec				;2529 38
-		sbc ZP_14		;252A E5 14
-		sta L_A200,X	;252C 9D 00 A2
-		lda ZP_A8		;252F A5 A8
-		sbc #$00		;2531 E9 00
-		sta L_A298,X	;2533 9D 98 A2
-		rts				;2536 60
-.L_2537	sta ZP_15		;2537 85 15
-		lda #$00		;2539 A9 00
-		sec				;253B 38
-		sbc ZP_14		;253C E5 14
-		sta ZP_14		;253E 85 14
-		lda #$00		;2540 A9 00
-		sbc ZP_15		;2542 E5 15
-		jsr pow36Q		;2544 20 D2 26
-		lsr A			;2547 4A
-		sta ZP_14		;2548 85 14
-		tay				;254A A8
-		ldx cosine_table,Y	;254B BE 00 A7
-		lda ZP_A9		;254E A5 A9
-		sec				;2550 38
-		sbc log_lsb,X	;2551 FD 00 AA
-		sta ZP_AB		;2554 85 AB
-		lda ZP_AA		;2556 A5 AA
-		sbc log_msb,X	;2558 FD 00 AB
-		clc				;255B 18
-		adc #$20		;255C 69 20
-		sta ZP_AC		;255E 85 AC
-		ldx ZP_16		;2560 A6 16
-		lda ZP_14		;2562 A5 14
-		sec				;2564 38
-		sbc ZP_32		;2565 E5 32
-		sta L_A200,X	;2567 9D 00 A2
-		lda #$FF		;256A A9 FF
-		sbc ZP_3E		;256C E5 3E
-		sta L_A298,X	;256E 9D 98 A2
-		rts				;2571 60
-.L_2572	lda ZP_A9		;2572 A5 A9
-		sec				;2574 38
-		sbc ZP_70		;2575 E5 70
-		sta ZP_14		;2577 85 14
-		lda ZP_AA		;2579 A5 AA
-		sbc ZP_71		;257B E5 71
-		bpl L_25AD		;257D 10 2E
-		jsr pow36Q		;257F 20 D2 26
-		lsr A			;2582 4A
-		sta ZP_14		;2583 85 14
-		tay				;2585 A8
-		ldx cosine_table,Y	;2586 BE 00 A7
-		lda ZP_70		;2589 A5 70
-		sec				;258B 38
-		sbc log_lsb,X	;258C FD 00 AA
-		sta ZP_AB		;258F 85 AB
-		lda ZP_71		;2591 A5 71
-		sbc log_msb,X	;2593 FD 00 AB
-		clc				;2596 18
-		adc #$20		;2597 69 20
-		sta ZP_AC		;2599 85 AC
-		ldx ZP_16		;259B A6 16
-		lda ZP_14		;259D A5 14
-		sec				;259F 38
-		sbc ZP_32		;25A0 E5 32
-		sta L_A200,X	;25A2 9D 00 A2
-		lda #$00		;25A5 A9 00
-		sbc ZP_3E		;25A7 E5 3E
-		sta L_A298,X	;25A9 9D 98 A2
-		rts				;25AC 60
-.L_25AD	sta ZP_15		;25AD 85 15
-		lda #$00		;25AF A9 00
-		sec				;25B1 38
-		sbc ZP_14		;25B2 E5 14
-		sta ZP_14		;25B4 85 14
-		lda #$00		;25B6 A9 00
-		sbc ZP_15		;25B8 E5 15
-		jsr pow36Q		;25BA 20 D2 26
-		lsr A			;25BD 4A
-		adc #$00		;25BE 69 00
-		sta ZP_14		;25C0 85 14
-		tay				;25C2 A8
-		ldx cosine_table,Y	;25C3 BE 00 A7
-		lda ZP_A9		;25C6 A5 A9
-		sec				;25C8 38
-		sbc log_lsb,X	;25C9 FD 00 AA
-		sta ZP_AB		;25CC 85 AB
-		lda ZP_AA		;25CE A5 AA
-		sbc log_msb,X	;25D0 FD 00 AB
-		clc				;25D3 18
-		adc #$20		;25D4 69 20
-		sta ZP_AC		;25D6 85 AC
-		ldx ZP_16		;25D8 A6 16
-		lda ZP_A7		;25DA A5 A7
-		sec				;25DC 38
-		sbc ZP_14		;25DD E5 14
-		sta L_A200,X	;25DF 9D 00 A2
-		lda ZP_A8		;25E2 A5 A8
-		sbc #$FF		;25E4 E9 FF
-		sta L_A298,X	;25E6 9D 98 A2
-		rts				;25E9 60
-}
-
-.L_25EA
+.L_25EA				; NEEDS DLL
 		stx ZP_16		;25EA 86 16
 		ldy #$00		;25EC A0 00
 		lda L_8040,X	;25EE BD 40 80
@@ -6349,7 +5850,7 @@ L_262B	= *-1			;! self-mod!
 ; raises number to	the power of 36	(? - experimentally determined)
 ; entry: A	= MSB; byte_14 = LSB
 
-.pow36Q
+.pow36Q				; NEEDS DLL
 {
 		cmp #$E0		;26D2 C9 E0
 		bcc L_271B		;26D4 90 45
@@ -6400,7 +5901,7 @@ L_262B	= *-1			;! self-mod!
 
 .L_2725	rts				;2725 60
 
-.update_camera_roll_tables
+.update_camera_roll_tables		; NEEDS DLL
 {
 		lda L_0126		;2726 AD 26 01
 		cmp L_2806		;2729 CD 06 28
@@ -6517,15 +6018,12 @@ L_27BE	= *-2			;!
 		rts				;2805 60
 }
 
-.L_2806	equb $FF
-.L_2807	equb $00
-
 .L_2808	rts				;2808 60
 
-.L_2809
+.L_2809				; NEEDS DLL
 		lda L_A330,X	;2809 BD 30 A3
 		bmi L_2808		;280C 30 FA
-.L_280E
+.L_280E				; in Cart
 {
 		lda L_A298,X	;280E BD 98 A2
 		ora L_A2E4,X	;2811 1D E4 A2
@@ -6743,36 +6241,7 @@ L_27BE	= *-2			;!
 		rts				;29B8 60
 }
 
-.rndQ
-{
-		lda ZP_06		;29B9 A5 06
-		lsr A			;29BB 4A
-		lda ZP_05		;29BC A5 05
-		sta ZP_06		;29BE 85 06
-		ror A			;29C0 6A
-		sta ZP_54		;29C1 85 54
-		lda ZP_04		;29C3 A5 04
-		sta ZP_05		;29C5 85 05
-		and #$0F		;29C7 29 0F
-		lsr A			;29C9 4A
-		sta ZP_53		;29CA 85 53
-		lda ZP_03		;29CC A5 03
-		sta ZP_04		;29CE 85 04
-		lda ZP_02		;29D0 A5 02
-		sta ZP_03		;29D2 85 03
-		lda ZP_04		;29D4 A5 04
-		and #$F0		;29D6 29 F0
-		ora ZP_53		;29D8 05 53
-		ror A			;29DA 6A
-		ror A			;29DB 6A
-		ror A			;29DC 6A
-		ror A			;29DD 6A
-		eor ZP_54		;29DE 45 54
-		sta ZP_02		;29E0 85 02
-		rts				;29E2 60
-}
-
-.draw_crash_smokeQ
+.draw_crash_smokeQ		; NEEDS DLL
 {
 		ldy #$00		;29E3 A0 00
 		txa				;29E5 8A
@@ -6787,7 +6256,7 @@ L_27BE	= *-2			;!
 		lsr A			;29F6 4A
 		and #$01		;29F7 29 01
 		tax				;29F9 AA
-		jsr jmp_set_linedraw_colour		;29FA 20 01 FC
+		jsr kernel_set_linedraw_colour		;29FA 20 01 FC
 		ldx ZP_C6		;29FD A6 C6
 		lda L_80A0,X	;29FF BD A0 80
 		clc				;2A02 18
@@ -6805,7 +6274,7 @@ L_27BE	= *-2			;!
 		sta L_A26D		;2A1F 8D 6D A2
 		ldx #$20		;2A22 A2 20
 		ldy #$21		;2A24 A0 21
-		jsr jmp_draw_line		;2A26 20 C9 FE
+		jsr kernel_draw_line		;2A26 20 C9 FE
 		lda L_A221		;2A29 AD 21 A2
 		ldy L_A26D		;2A2C AC 6D A2
 		dec ZP_A0		;2A2F C6 A0
@@ -6820,7 +6289,7 @@ L_27BE	= *-2			;!
 .L_2A4D	equb $03,$02,$FE,$07,$03,$FC,$F9,$01,$FF,$FD,$06,$05,$FF,$FC,$FB
 }
 
-.L_2A5C
+.L_2A5C				; NEEDS DLL
 {
 		ldy #$40		;2A5C A0 40
 		sty ZP_08		;2A5E 84 08

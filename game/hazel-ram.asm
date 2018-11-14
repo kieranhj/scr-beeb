@@ -309,6 +309,25 @@ L_80A0	= L_8000 + $A0
 
 .L_83B0	equb $FF,$00,$00,$00,$00,$00,$00,$FF,$30,$18,$0C,$06,$0C,$18,$30,$00
 
+\\
+.file_strings_offset	equb $05,$0D,$43,$14,$2A,$43,$43,$43,$71,$8F,$94
+
+.file_strings
+		equb " NOT",$FF
+		equb " loaded",$FF
+		equb " saved",$FF
+		equb "Incorrect data found ",$FF
+		equb "File name already exists",$FF
+		equb "Problem encountered",$FF
+		equb "File name is not suitable",$FF
+		equb $1F,$05,$13,"Insert game position save ",$FF
+		equb "tape",$FF
+		equb "disc",$FF
+		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
+
+.L_9674	equb "DIRECTORY:"
+
+\\
 .L_A1F2	equb $E8,$46,$4B,$53,$52,$46,$55,$48,$42,$45,$52,$44
 .L_A1FE	equb $42
 .L_A1FF	equb $49
