@@ -154,10 +154,10 @@ ENDIF
 .kernel_negate_if_N_set DLL_CALL_KERNEL negate_if_N_set, 65
 .kernel_negate_16bit DLL_CALL_KERNEL negate_16bit, 66
 .kernel_accurate_sin BRK      ; only called from Kernel?
-.kernel_square_ay_32bit DLL_CALL_KERNEL square_ay_32bit, 68    ; only called from Cart?
+.kernel_square_ay_32bit BRK    ; only called from Cart?
 .kernel_shift_16bit DLL_CALL_KERNEL shift_16bit, 69
 .kernel_L_CF68 DLL_CALL_KERNEL L_CF68, 70
-.kernel_L_CF73 DLL_CALL_KERNEL L_CF73, 71      ; only called from Cart?
+.kernel_L_CF73 BRK      ; only called from Cart?
 .kernel_L_CFB7 DLL_CALL_KERNEL L_CFB7, 72
 .kernel_L_CFC5 DLL_CALL_KERNEL L_CFC5, 73
 .kernel_L_CFD2 DLL_CALL_KERNEL L_CFD2, 74
@@ -239,10 +239,10 @@ ENDIF
 	EQUB LO(negate_if_N_set)
 	EQUB LO(negate_16bit)
 	EQUB 0       ; only called from Cart?
-	EQUB LO(square_ay_32bit)    ; only called from Cart?
+	EQUB 0    	 ; only called from Cart?
 	EQUB LO(shift_16bit)
 	EQUB LO(L_CF68)
-	EQUB LO(L_CF73)             ; only called from Cart?
+	EQUB 0             ; only called from Cart?
 	EQUB LO(L_CFB7)
 	EQUB LO(L_CFC5)
 	EQUB LO(L_CFD2)
@@ -321,10 +321,10 @@ ENDIF
 	EQUB HI(negate_if_N_set)
 	EQUB HI(negate_16bit)
 	EQUB 0       ; only called from Cart?
-	EQUB HI(square_ay_32bit)    ; only called from Cart?
+	EQUB 0	     ; only called from Cart?
 	EQUB HI(shift_16bit)
 	EQUB HI(L_CF68)
-	EQUB HI(L_CF73)             ; only called from Cart?
+	EQUB 0             ; only called from Cart?
 	EQUB HI(L_CFB7)
 	EQUB HI(L_CFC5)
 	EQUB HI(L_CFD2)

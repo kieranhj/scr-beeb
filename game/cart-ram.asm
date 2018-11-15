@@ -712,13 +712,13 @@
 .copy_stuff			; in Cart
 {
 		stx ZP_16		;886A 86 16
-		lda #$57		;886C A9 57
+		lda #HI(L_57C0)		;886C A9 57
 		sta ZP_1F		;886E 85 1F
-		lda #$C0		;8870 A9 C0
+		lda #LO(L_57C0)		;8870 A9 C0
 		sta ZP_1E		;8872 85 1E
-		lda #$62		;8874 A9 62
+		lda #HI(L_62A0)		;8874 A9 62
 		sta ZP_21		;8876 85 21
-		lda #$A0		;8878 A9 A0
+		lda #LO(L_62A0)		;8878 A9 A0
 		sta ZP_20		;887A 85 20
 		ldx #$08		;887C A2 08
 .L_887E	ldy #$FF		;887E A0 FF
@@ -3280,7 +3280,7 @@
 {
 		lda ZP_77		;9FB8 A5 77
 		ldy ZP_51		;9FBA A4 51
-		jsr kernel_square_ay_32bit		;9FBC 20 76 C9
+		jsr square_ay_32bit		;9FBC 20 76 C9
 		lda ZP_16		;9FBF A5 16
 		sta ZP_48		;9FC1 85 48
 		lda ZP_17		;9FC3 A5 17
@@ -3289,7 +3289,7 @@
 		sta ZP_4A		;9FC9 85 4A
 		lda ZP_78		;9FCB A5 78
 		ldy ZP_52		;9FCD A4 52
-		jsr kernel_square_ay_32bit		;9FCF 20 76 C9
+		jsr square_ay_32bit		;9FCF 20 76 C9
 		lda ZP_16		;9FD2 A5 16
 		clc				;9FD4 18
 		adc ZP_48		;9FD5 65 48
@@ -3302,7 +3302,7 @@
 		sta ZP_4A		;9FE3 85 4A
 		lda ZP_C2		;9FE5 A5 C2
 		ldy ZP_C1		;9FE7 A4 C1
-		jsr kernel_square_ay_32bit		;9FE9 20 76 C9
+		jsr square_ay_32bit		;9FE9 20 76 C9
 		ldy L_C3CD		;9FEC AC CD C3
 		lda L_A01B,Y	;9FEF B9 1B A0
 		sta ZP_15		;9FF2 85 15
@@ -4334,7 +4334,7 @@ L_14B6 = L_14B8-2
 		lda #$80		;1AD2 A9 80
 		sta L_8080,Y	;1AD4 99 80 80
 		jsr kernel_set_linedraw_colour		;1AD7 20 01 FC
-		jsr kernel_L_CF73		;1ADA 20 73 CF
+		jsr L_CF73		;1ADA 20 73 CF
 		ldx ZP_C6		;1ADD A6 C6
 		txa				;1ADF 8A
 		eor #$01		;1AE0 49 01
@@ -6078,6 +6078,97 @@ L_27BE	= *-2			;!
 		sta L_80A0,X	;2AA9 9D A0 80
 		tay				;2AAC A8
 		rts				;2AAD 60
+}
+
+; *****************************************************************************
+; Fns moved from Kernel RAM as only called from Cart fns
+; *****************************************************************************
+
+; Squares 16-bit value.
+; 
+; entry: A	= MSB, Y = LSB
+; exit: byte_16,byte_17,byte_18,byte_19 = 32-bit result
+
+.square_ay_32bit			; only called from Cart?
+{
+		and #$FF		;C976 29 FF
+		bpl L_C988		;C978 10 0E
+		sta ZP_15		;C97A 85 15
+		sty ZP_14		;C97C 84 14
+		lda #$00		;C97E A9 00
+		sec				;C980 38
+		sbc ZP_14		;C981 E5 14
+		tay				;C983 A8
+		lda #$00		;C984 A9 00
+		sbc ZP_15		;C986 E5 15
+.L_C988	sta ZP_15		;C988 85 15
+		pha				;C98A 48
+		jsr mul_8_8_16bit		;C98B 20 82 C7
+		sta ZP_19		;C98E 85 19
+		lda ZP_14		;C990 A5 14
+		sta ZP_18		;C992 85 18
+		tya				;C994 98
+		sta ZP_15		;C995 85 15
+		jsr mul_8_8_16bit		;C997 20 82 C7
+		sta ZP_17		;C99A 85 17
+		lda ZP_14		;C99C A5 14
+		sta ZP_16		;C99E 85 16
+		pla				;C9A0 68
+		jsr mul_8_8_16bit		;C9A1 20 82 C7
+		asl ZP_14		;C9A4 06 14
+		rol A			;C9A6 2A
+		bcc L_C9AB		;C9A7 90 02
+		inc ZP_19		;C9A9 E6 19
+.L_C9AB	sta ZP_15		;C9AB 85 15
+		lda ZP_17		;C9AD A5 17
+		clc				;C9AF 18
+		adc ZP_14		;C9B0 65 14
+		sta ZP_17		;C9B2 85 17
+		lda ZP_18		;C9B4 A5 18
+		adc ZP_15		;C9B6 65 15
+		sta ZP_18		;C9B8 85 18
+		bcc L_C9BE		;C9BA 90 02
+		inc ZP_19		;C9BC E6 19
+.L_C9BE	rts				;C9BE 60
+}
+
+.L_CF73				; only called from Cart?
+{
+		ldx ZP_C6		;CF73 A6 C6
+		ldy #$02		;CF75 A0 02
+.L_CF77	txa				;CF77 8A
+		eor #$01		;CF78 49 01
+		tax				;CF7A AA
+		lda L_A200,X	;CF7B BD 00 A2
+		sec				;CF7E 38
+		sbc #$80		;CF7F E9 80
+		sta ZP_14		;CF81 85 14
+		lda L_A298,X	;CF83 BD 98 A2
+		sbc #$00		;CF86 E9 00
+		jsr negate_if_N_set		;CF88 20 BD C8
+		sta ZP_15		;CF8B 85 15
+		lda ZP_14		;CF8D A5 14
+		sec				;CF8F 38
+		sbc #$50		;CF90 E9 50
+		sta ZP_14		;CF92 85 14
+		lda ZP_15		;CF94 A5 15
+		sbc #$00		;CF96 E9 00
+		bcc L_CFB3		;CF98 90 19
+		lsr A			;CF9A 4A
+		ror ZP_14		;CF9B 66 14
+		lsr A			;CF9D 4A
+		ror ZP_14		;CF9E 66 14
+		sta ZP_15		;CFA0 85 15
+		lda L_A24C,X	;CFA2 BD 4C A2
+		clc				;CFA5 18
+		adc ZP_14		;CFA6 65 14
+		sta L_A24C,X	;CFA8 9D 4C A2
+		lda L_A2E4,X	;CFAB BD E4 A2
+		adc ZP_15		;CFAE 65 15
+		sta L_A2E4,X	;CFB0 9D E4 A2
+.L_CFB3	dey				;CFB3 88
+		bne L_CF77		;CFB4 D0 C1
+		rts				;CFB6 60
 }
 
 .cart_end

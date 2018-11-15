@@ -2310,54 +2310,6 @@ L_99F0	= L_99EF + 1
 		jmp negate_if_N_set		;C973 4C BD C8
 }
 
-; Squares 16-bit value.
-; 
-; entry: A	= MSB, Y = LSB
-; exit: byte_16,byte_17,byte_18,byte_19 = 32-bit result
-
-.square_ay_32bit			; only called from Cart?
-{
-		and #$FF		;C976 29 FF
-		bpl L_C988		;C978 10 0E
-		sta ZP_15		;C97A 85 15
-		sty ZP_14		;C97C 84 14
-		lda #$00		;C97E A9 00
-		sec				;C980 38
-		sbc ZP_14		;C981 E5 14
-		tay				;C983 A8
-		lda #$00		;C984 A9 00
-		sbc ZP_15		;C986 E5 15
-.L_C988	sta ZP_15		;C988 85 15
-		pha				;C98A 48
-		jsr mul_8_8_16bit		;C98B 20 82 C7
-		sta ZP_19		;C98E 85 19
-		lda ZP_14		;C990 A5 14
-		sta ZP_18		;C992 85 18
-		tya				;C994 98
-		sta ZP_15		;C995 85 15
-		jsr mul_8_8_16bit		;C997 20 82 C7
-		sta ZP_17		;C99A 85 17
-		lda ZP_14		;C99C A5 14
-		sta ZP_16		;C99E 85 16
-		pla				;C9A0 68
-		jsr mul_8_8_16bit		;C9A1 20 82 C7
-		asl ZP_14		;C9A4 06 14
-		rol A			;C9A6 2A
-		bcc L_C9AB		;C9A7 90 02
-		inc ZP_19		;C9A9 E6 19
-.L_C9AB	sta ZP_15		;C9AB 85 15
-		lda ZP_17		;C9AD A5 17
-		clc				;C9AF 18
-		adc ZP_14		;C9B0 65 14
-		sta ZP_17		;C9B2 85 17
-		lda ZP_18		;C9B4 A5 18
-		adc ZP_15		;C9B6 65 15
-		sta ZP_18		;C9B8 85 18
-		bcc L_C9BE		;C9BA 90 02
-		inc ZP_19		;C9BC E6 19
-.L_C9BE	rts				;C9BE 60
-}
-
 ; 16-bit arithmetic shift of A (MSB) and byte_14 (LSB).
 ; 
 ; If Y is +ve, shift Y places right.
@@ -3076,45 +3028,6 @@ L_99F0	= L_99EF + 1
 		tax				;CF6D AA
 		ldy #$AF		;CF6E A0 AF
 		jmp cart_sid_process		;CF70 4C 55 86
-}
-
-.L_CF73				; only called from Cart?
-{
-		ldx ZP_C6		;CF73 A6 C6
-		ldy #$02		;CF75 A0 02
-.L_CF77	txa				;CF77 8A
-		eor #$01		;CF78 49 01
-		tax				;CF7A AA
-		lda L_A200,X	;CF7B BD 00 A2
-		sec				;CF7E 38
-		sbc #$80		;CF7F E9 80
-		sta ZP_14		;CF81 85 14
-		lda L_A298,X	;CF83 BD 98 A2
-		sbc #$00		;CF86 E9 00
-		jsr negate_if_N_set		;CF88 20 BD C8
-		sta ZP_15		;CF8B 85 15
-		lda ZP_14		;CF8D A5 14
-		sec				;CF8F 38
-		sbc #$50		;CF90 E9 50
-		sta ZP_14		;CF92 85 14
-		lda ZP_15		;CF94 A5 15
-		sbc #$00		;CF96 E9 00
-		bcc L_CFB3		;CF98 90 19
-		lsr A			;CF9A 4A
-		ror ZP_14		;CF9B 66 14
-		lsr A			;CF9D 4A
-		ror ZP_14		;CF9E 66 14
-		sta ZP_15		;CFA0 85 15
-		lda L_A24C,X	;CFA2 BD 4C A2
-		clc				;CFA5 18
-		adc ZP_14		;CFA6 65 14
-		sta L_A24C,X	;CFA8 9D 4C A2
-		lda L_A2E4,X	;CFAB BD E4 A2
-		adc ZP_15		;CFAE 65 15
-		sta L_A2E4,X	;CFB0 9D E4 A2
-.L_CFB3	dey				;CFB3 88
-		bne L_CF77		;CFB4 D0 C1
-		rts				;CFB6 60
 }
 
 .L_CFB7

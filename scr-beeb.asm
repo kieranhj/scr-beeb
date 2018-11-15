@@ -22,6 +22,12 @@ MACRO PAGE_ALIGN
     ALIGN &100
 ENDMACRO
 
+MACRO SWR_SELECT_SLOT bank
+{
+	LDA #bank:STA &F4:STA &FE30
+}
+ENDMACRO
+
 ; *****************************************************************************
 ; C64 MEMORY DEFINES
 ; *****************************************************************************
@@ -281,7 +287,7 @@ CIA2_CIAICR	= L_DD0D	; Interrupt Control Register
 ; BEEB OS DEFINES
 ; *****************************************************************************
 
-oswrch = &FFEE
+INCLUDE "lib/bbc.h.asm"
 
 ; *****************************************************************************
 ; VARIABLES
@@ -797,7 +803,7 @@ PRINT "Free =", ~(&4000 - P%)
 PRINT "DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
 PRINT "Core Data Size =", ~(core_data_end - core_data_start)
 PRINT "--------"
-SAVE "Core", core_start, P%, scr_entry
+SAVE "Core", core_start, P%, 0
 PRINT "--------"
 
 CLEAR &4000, &8000
@@ -812,51 +818,8 @@ GUARD &8000
 
 .scr_entry
 {
-	; BEEB TODO LOAD ALL MODULES!
-
 	; BEEB TODO SET VECTORS
-
-	; BEEB TODO SET INTERRUPTS
-
-	; BEEB TODO SET UP SCREEN RAM?
-
-	; BEEB TODO COPY SCREEN DATA?
-
-		ldx #$7F		;40A5 A2 7F
-.L_40A7	lda L_5780,X	;40A7 BD 80 57
-		sta L_C280,X	;40AA 9D 80 C2
-		dex				;40AD CA
-		bpl L_40A7		;40AE 10 F7         ; copy $80 bytes from $5780 to $C280
-
-		ldx #$0B		;40B0 A2 0B
-.L_40B2	lda L_DAB6,X	;40B2 BD B6 DA		; 
-		sta L_C6C0,X	;40B5 9D C0 C6
-		dex				;40B8 CA
-		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
-
-		ldx #$00		;414B A2 00
-.L_414D	lda L_72E0,X	;414D BD E0 72
-.L_4150	sta L_C000,X	;4150 9D 00 C0
-		lda L_7420,X	;4153 BD 20 74
-		sta L_C100,X	;4156 9D 00 C1
-		dex				;4159 CA
-		bne L_414D		;415A D0 F1     ; copy 2x pages from $72E0 to $C000
-
-		ldx #$17		;415C A2 17
-.L_415E	lda L_75A0,X	;415E BD A0 75
-		sta L_C200,X	;4161 9D 00 C2
-		lda L_7608,X	;4164 BD 08 76
-		sta L_C218,X	;4167 9D 18 C2
-		lda L_7560,X	;416A BD 60 75
-		sta L_C230,X	;416D 9D 30 C2
-		lda L_7648,X	;4170 BD 48 76
-		sta L_C248,X	;4173 9D 48 C2
-		dex				;4176 CA
-		bpl L_415E		;4177 10 E5     ; copy $18*4 = 96 bytes from $75XX to C2XX
-
-		ldx #$00		;4253 A2 00
-		lda #$34		;4255 A9 34
-		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
+	; BEEB TODO SET INTERRUPTS etc.
 
 	; BEEB SET SCREEN MODE 5
 
@@ -865,14 +828,135 @@ GUARD &8000
 	LDA #5
 	JSR oswrch
 
+\ Ensure HAZEL RAM is writeable - assume this says writable throughout?
+
+    LDA &FE34:ORA #&8:STA &FE34
+
+	; BEEB LOAD MODULES
+
+	LDX #LO(core_filename)
+	LDY #HI(core_filename)
+	LDA #HI(core_start)
+	JSR disksys_load_file
+
+	SWR_SELECT_SLOT BEEB_CART_SLOT
+
+	LDX #LO(cart_filename)
+	LDY #HI(cart_filename)
+	LDA #HI(cart_start)
+	JSR disksys_load_file
+
+	SWR_SELECT_SLOT BEEB_KERNEL_SLOT
+
+	LDX #LO(kernel_filename)
+	LDY #HI(kernel_filename)
+	LDA #HI(kernel_start)
+	JSR disksys_load_file
+
+	; MISCELLANEOUS DATA
+
+	LDX #LO(data_filename)
+	LDY #HI(data_filename)
+	LDA #HI(boot_data_start)
+	JSR disksys_load_file
+
+	\\ SCR loader copies data from screen RAM to Hazel
+	\\ Manually moved much of this data to Hazel Module
+
+\		ldx #$7F		;40A5 A2 7F
+\.L_40A7	lda L_5780,X	;40A7 BD 80 57
+\		sta L_C280,X	;40AA 9D 80 C2
+\		dex				;40AD CA
+\		bpl L_40A7		;40AE 10 F7         ; copy $80 bytes from $5780 to $C280
+
+\		ldx #$00		;414B A2 00
+\.L_414D	lda L_72E0,X	;414D BD E0 72
+\.L_4150	sta L_C000,X	;4150 9D 00 C0
+\		lda L_7420,X	;4153 BD 20 74
+\		sta L_C100,X	;4156 9D 00 C1
+\		dex				;4159 CA
+\		bne L_414D		;415A D0 F1     ; copy 2x pages from $72E0 to $C000
+
+\		ldx #$17		;415C A2 17
+\.L_415E	lda L_75A0,X	;415E BD A0 75
+\		sta L_C200,X	;4161 9D 00 C2
+\		lda L_7608,X	;4164 BD 08 76
+\		sta L_C218,X	;4167 9D 18 C2
+\		lda L_7560,X	;416A BD 60 75
+\		sta L_C230,X	;416D 9D 30 C2
+\		lda L_7648,X	;4170 BD 48 76
+\		sta L_C248,X	;4173 9D 48 C2
+\		dex				;4176 CA
+\		bpl L_415E		;4177 10 E5     ; copy $18*4 = 96 bytes from $75XX to C2XX
+
+	\\ Final copy stage uses fn in SWRAM so has to be after module load
+
+		ldx #$00		;4253 A2 00
+		lda #$34		;4255 A9 34
+		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
+
+	\\ HAZEL must be last as stomping on FS workspace
+
+	LDX #LO(hazel_filename)
+	LDY #HI(hazel_filename)
+	LDA #HI(hazel_start)
+	JSR disksys_load_file
+
+	\\ Not sure what this is doing! Copying from C64 Memory Mapped area
+
+		ldx #$0B		;40B0 A2 0B
+.L_40B2	lda L_DAB6,X	;40B2 BD B6 DA		; 
+		sta L_C6C0,X	;40B5 9D C0 C6
+		dex				;40B8 CA
+		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
+
+	; BEEB SET SCREEN TO 8K
+
+	LDA #6:STA &FE00		; R6 = vertical displayed
+	LDA #25:STA &FE01		; 25 rows = 200 scanlines
+
+	LDA #12:STA &FE00
+	LDA #HI($6000/8):STA &FE01
+
+	LDA #13:STA &FE00
+	LDA #HI($6000/8):STA &FE01
+
 		jmp game_start		;425A 4C 22 3B
 
         ; ^^^ JUMP TO GAME START
 }
 
+.core_filename EQUS "Core", 13
+.kernel_filename EQUS "Kernel", 13
+.cart_filename EQUS "Cart", 13
+.hazel_filename EQUS "Hazel", 13
+.data_filename EQUS "Data", 13
+
+INCLUDE "lib/disksys.asm"
+
+.boot_end
+
+; *****************************************************************************
+\\ Boot RAM area
+; *****************************************************************************
+
+PRINT "---------"
+PRINT "BOOT CODE"
+PRINT "---------"
+PRINT "Start =", ~boot_start
+PRINT "End =", ~boot_end
+PRINT "Size =", ~(boot_end - boot_start)
+PRINT "Entry =", ~scr_entry
+PRINT "--------"
+SAVE "Loader", boot_start, boot_end, scr_entry
+PRINT "--------"
+
 ; *****************************************************************************
 ; SCREEN BUFFERS: $4000 - $8000
 ; *****************************************************************************
+
+PAGE_ALIGN
+PRINT "SAFE TO LOAD TO =", ~P%
 
 	; Comments from Fandal:
 
@@ -938,17 +1022,10 @@ L_5690	= screen1_address+$1690
 L_56A0	= screen1_address+$16a0
 L_5720	= screen1_address+$1720
 
-ORG &5780
-.L_5780	EQUB $BC,$BC,$BC,$BC,$BC,$BC,$BC,$BA,$B9,$B9,$B9,$B9,$B9,$B9,$B7,$B5
-		EQUB $B4,$B4,$B4,$B4,$B4,$B2,$B1,$B0,$B0,$B0,$B0,$AE,$AD,$AD,$AD,$AD
-		EQUB $AF,$BD,$BF,$C0,$C0,$BF,$BE,$BC,$B8,$B8,$B8,$B7,$B6,$B6,$B5,$B5
-		EQUB $B2,$B1,$AF,$AC,$AB,$AB,$AB,$AB,$AB,$AB,$AB,$AC,$B4,$B4,$B4,$B1
-		EQUB $B1,$B4,$B4,$B4,$AC,$AB,$AB,$AB,$AB,$AB,$AB,$AB,$AC,$AD,$AF,$B1
-		EQUB $B5,$B5,$B5,$B6,$B7,$B8,$B8,$B8,$BC,$BD,$BE,$BF,$C0,$BF,$BD,$AF
-		EQUB $AD,$AD,$AD,$AD,$AE,$B0,$B0,$B0,$B0,$B1,$B2,$B4,$B4,$B4,$B4,$B4
-		EQUB $B5,$B7,$B9,$B9,$B9,$B9,$B9,$B9,$BA,$BC,$BC,$BC,$BC,$BC,$BC,$BC
+\\ Data at L_5780 manually moved to destination at L_C280
 
 L_5798	= screen1_address+$1798
+L_57C0	= screen1_address+$17c0
 L_57C8	= screen1_address+$17c8
 L_57D0	= screen1_address+$17d0
 L_5860	= screen1_address+$1860
@@ -993,15 +1070,7 @@ L_6DE0	= screen2_address+$0de0
 L_6F20	= screen2_address+$0f20
 L_7060	= screen2_address+$1060
 L_71A0	= screen2_address+$11a0
-;L_72E0	= screen2_address+$12e0 ; OK - originally used for copying the picture engine
-;L_7420	= screen2_address+$1420 ; OK - originally used for copying the picture engine
-;L_7560	= screen2_address+$1560 ; OK - originally used for copying the picture engine between the blocks
-;L_7578	= screen2_address+$1578 ; OK - originally used to copy the image engine between the blocks
-;L_75A0	= screen2_address+$15a0 ; OK - originally used to copy the image engine between the blocks
-;L_7608	= screen2_address+$1608 ; OK - originally used to copy the image engine between the blocks
-;L_7640	= screen2_address+$1640 ; OK - originally used to copy the image engine between the blocks
-;L_7648	= screen2_address+$1648 ; OK - originally used to copy the image engine between the blocks
-;L_7658	= screen2_address+$1658
+L_7658  = screen2_address+$1658
 L_76A0	= screen2_address+$16a0 ; the bottom of the left wheel ($7680 is beginning C64 row)
 L_7798	= screen2_address+$1798 ; the bottom of the right wheel
 L_77E0	= screen2_address+$17e0 ; bottom of the left wheel ($77c0 is beginning C64 row)
@@ -1025,86 +1094,67 @@ L_7FC0	= screen2_address+$1fc0
 L_7FC1	= screen2_address+$1fc1
 L_7FC2	= screen2_address+$1fc2
 
-ORG &72E0
-.L_72E0	EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FD,$FD,$FF,$FF,$FF,$FF,$FF,$55,$02,$00
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FD,$FD,$FD,$F4,$FF,$FF,$FF,$55,$00,$55,$00,$00
-		EQUB $FF,$FF,$FF,$57,$01,$55,$05,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$D5,$40,$55,$50,$80
-		EQUB $FF,$FF,$FF,$55,$00,$55,$00,$00,$FF,$FF,$FF,$FF,$7F,$5F,$5F,$07
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD
-		EQUB $FF,$FF,$FF,$FF,$FF,$55,$80,$00,$FF,$FF,$FF,$FF,$FF,$FF,$7F,$7F
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+ORG &7200
+.boot_data_start
+		skip &E0
+
+.L_72E0	skip &100
+\ Data moved to Cart RAM manually
 		EQUB $69,$69,$69,$69,$69,$69,$69,$69,$58,$58,$58,$58,$58,$58,$58,$58
 		EQUB $1B,$1B,$1B,$16,$16,$16,$16,$16,$6A,$6A,$5A,$5A,$5A,$56,$D6,$D6
 		EQUB $AB,$AF,$AD,$AD,$BD,$BD,$B5,$F5,$68,$68,$68,$68,$68,$68,$68,$68
 		EQUB $25,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$69,$69,$69,$69,$69,$69,$69,$69
-.L_7420	EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD,$FC,$F4
-		EQUB $FF,$FF,$FF,$FF,$69,$00,$00,$00,$FD,$F4,$D0,$C0,$50,$18,$08,$02
-		EQUB $54,$06,$02,$00,$00,$00,$00,$00,$00,$00,$00,$80,$82,$99,$85,$85
-		EQUB $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD,$FF,$FF,$FF,$FF,$FF,$F9,$A5,$94
-		EQUB $F5,$D4,$40,$50,$55,$55,$40,$00,$AA,$00,$00,$00,$AA,$55,$00,$00
-		EQUB $AA,$29,$02,$0A,$A9,$63,$28,$0B,$FF,$FC,$FC,$FC,$54,$A8,$00,$54
-		EQUB $FF,$7F,$7F,$7F,$55,$40,$40,$55,$AA,$68,$40,$60,$EA,$C2,$28,$E0
-		EQUB $AA,$00,$00,$00,$AA,$55,$00,$00,$57,$15,$01,$05,$55,$56,$00,$00
-		EQUB $FF,$FF,$FF,$FF,$FF,$67,$59,$16,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$7F
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD,$FD,$FD,$FD,$FD,$FD,$FD,$FD
-		EQUB $00,$00,$00,$82,$82,$66,$52,$92,$15,$90,$80,$00,$00,$00,$00,$80
-		EQUB $7F,$1F,$07,$03,$05,$24,$20,$80,$FF,$FF,$FF,$FF,$55,$00,$00,$00
-		EQUB $FF,$FF,$FF,$FF,$FF,$7F,$3F,$1F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+
+.L_7420 skip &100
+\ Data moved to Cart RAM manually
 		EQUB $69,$69,$69,$69,$69,$69,$69,$69,$58,$5A,$5A,$5A,$5A,$5A,$5A,$5A
 		EQUB $29,$29,$29,$29,$29,$29,$29,$29,$EA,$FA,$7A,$7A,$7E,$7E,$5E,$5F
 		EQUB $A5,$95,$95,$95,$95,$55,$55,$55,$68,$68,$68,$68,$68,$68,$68,$68
 		EQUB $A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$69,$69,$69,$69,$69,$69,$69,$69
-.L_7560	EQUB $FF,$FF,$FF,$FF,$00,$00,$00,$00,$FF,$FF,$FE,$FC,$08,$00,$10,$10
-		EQUB $FF,$59,$00,$00,$00,$00,$00,$00
+
+.L_7560 skip $18
+\ Data moved to Cart RAM manually
 .L_7578	EQUB $F0,$50,$08,$02,$02,$00,$00,$00,$00,$00,$00,$00,$00,$40,$80,$80
 		EQUB $02,$02,$02,$02,$02,$09,$09,$15,$02,$06,$62,$11,$11,$11,$11,$05
 		EQUB $45,$45,$44,$40,$50,$90,$90,$90
-.L_75A0	EQUB $7F,$7F,$7F,$7F,$BF,$AF,$2F,$5B,$FF,$FF,$FF,$FF,$FE,$FD,$F5,$E5
-		EQUB $F9,$E9,$25,$AA,$92,$99,$59,$A9,$EA,$9A,$98,$50,$58,$6C,$7F,$7F
+
+.L_75A0	skip $18
+\ Data moved to Cart RAM manually
+		EQUB $EA,$9A,$98,$50,$58,$6C,$7F,$7F
 		EQUB $00,$AA,$5A,$15,$00,$00,$04,$19,$00,$AA,$A5,$54,$00,$00,$01,$40
 		EQUB $28,$A4,$07,$0F,$10,$5F,$40,$80,$00,$00,$F1,$A1,$01,$F1,$01,$01
 		EQUB $C0,$C0,$C5,$8A,$80,$85,$80,$80,$28,$3A,$5C,$50,$00,$57,$03,$03
 		EQUB $00,$AA,$5A,$05,$00,$00,$40,$40,$00,$AA,$A5,$54,$00,$00,$41,$55
 		EQUB $AA,$A6,$85,$35,$19,$39,$36,$F8
-.L_7608	EQUB $65,$79,$98,$96,$E2,$E7,$E9,$F9,$FF,$FF,$FF,$FF,$7F,$5F,$5B,$12
-		EQUB $FD,$FD,$FD,$FD,$FD,$F5,$FA,$EA,$81,$81,$91,$51,$51,$11,$11,$41
+
+.L_7608	skip $18
+\ Data moved to Cart RAM manually
+		EQUB $81,$81,$91,$51,$51,$11,$11,$41
 		EQUB $80,$90,$99,$94,$94,$94,$84,$44,$80,$80,$80,$80,$A0,$60,$68,$55
 		EQUB $00,$00,$00,$00,$00,$01,$02,$02
 .L_7640	EQUB $0F,$05,$20,$80,$80,$00,$00,$00
-.L_7648	EQUB $FF,$65,$00,$00,$00,$00,$00,$00,$FF,$FF,$BF,$3F,$20,$04,$04,$04
-.L_7658	EQUB $FF,$FF,$FF,$FF,$00,$00,$00,$00,$69,$69,$69,$69,$69,$69,$69,$69
+
+.L_7648 skip $18
+\ Data moved to Cart RAM manually
+		EQUB $69,$69,$69,$69,$69,$69,$69,$69
 		EQUB $5A,$5A,$5A,$5A,$5A,$5A,$5A,$5A,$29,$29,$29,$29,$29,$29,$29,$29
 		EQUB $5A,$56,$56,$56,$56,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55
 		EQUB $68,$68,$68,$68,$68,$68,$68,$68,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5
 		EQUB $69,$69,$69,$69,$69,$69,$69,$69
-
-.boot_end
+.boot_data_end
 
 ; *****************************************************************************
-\\ Boot RAM area
+\\ Boot DATA area
 ; *****************************************************************************
 
+PRINT "---------"
+PRINT "BOOT DATA"
+PRINT "---------"
+PRINT "Start =", ~boot_data_start
+PRINT "End =", ~boot_data_end
+PRINT "Size =", ~(boot_data_end - boot_data_start)
 PRINT "--------"
-PRINT "BOOT RAM"
-PRINT "--------"
-PRINT "Start =", ~boot_start
-PRINT "End =", ~boot_end
-PRINT "Size =", ~(boot_end - boot_start)
-PRINT "Entry =", ~scr_entry
-PRINT "--------"
-SAVE "Boot", boot_start, boot_end, scr_entry
+SAVE "Data", boot_data_start, boot_data_end, 0
 PRINT "--------"
 
 ; *****************************************************************************
