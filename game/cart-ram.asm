@@ -627,20 +627,20 @@
 		sei				;87C9 78
 		lda #$34		;87CA A9 34
 		sta RAM_SELECT		;87CC 85 01
-		lda #$40		;87CE A9 40
+		lda #LO(L_D440)		;87CE A9 40
 		sta ZP_1E		;87D0 85 1E
-		lda #$D4		;87D2 A9 D4
+		lda #HI(L_D440)		;87D2 A9 D4
 		sta ZP_1F		;87D4 85 1F
 		ldx #$00		;87D6 A2 00
 .L_87D8	ldy #$00		;87D8 A0 00
-		lda SID_FRELO1,X	;87DA BD 00 D4	; SID
+		lda L_D400,X	;87DA BD 00 D4	; SID
 		sta ZP_08		;87DD 85 08
 		bne L_87E2		;87DF D0 01
 		iny				;87E1 C8
 .L_87E2	sty ZP_16		;87E2 84 16
-		lda SID_FREHI1,X	;87E4 BD 01 D4	; SID
+		lda L_D401,X	;87E4 BD 01 D4	; SID
 		sta ZP_20		;87E7 85 20
-		lda SID_PWLO1,X	;87E9 BD 02 D4	; SID
+		lda L_D402,X	;87E9 BD 02 D4	; SID
 		sta ZP_21		;87EC 85 21
 		ldy #$00		;87EE A0 00
 .L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
@@ -708,7 +708,7 @@
 }
 
 ; If X bit	7 set, copy $62A0->$57C0, $6DE0->$D800
-; If X bit	7 reset, copy $57C0->$6200, $D800->$6DE0, $D000(RAM)
+; If X bit	7 reset, copy $57C0->$62A0, $D800->$6DE0, $D000(RAM)
 .copy_stuff			; in Cart
 {
 		stx ZP_16		;886A 86 16
@@ -748,11 +748,11 @@
 .L_88AC	ldx #$00		;88AC A2 00
 		bit ZP_16		;88AE 24 16
 		bmi L_88CE		;88B0 30 1C
-.L_88B2	lda L_D800,X	;88B2 BD 00 D8
+.L_88B2	lda L_D800,X	;88B2 BD 00 D8		; COLOR RAM
 		sta L_6DE0,X	;88B5 9D E0 6D
-		lda L_D900,X	;88B8 BD 00 D9
+		lda L_D900,X	;88B8 BD 00 D9		; COLOR RAM
 		sta L_6F20,X	;88BB 9D 20 6F
-		lda L_DA00,X	;88BE BD 00 DA
+		lda L_DA00,X	;88BE BD 00 DA		; COLOR RAM
 		sta L_7060,X	;88C1 9D 60 70
 		lda L_DB00,X	;88C4 BD 00 DB		; COLOR RAM
 		sta L_71A0,X	;88C7 9D A0 71
@@ -760,11 +760,11 @@
 		bne L_88B2		;88CB D0 E5
 		rts				;88CD 60
 .L_88CE	lda L_6DE0,X	;88CE BD E0 6D
-		sta L_D800,X	;88D1 9D 00 D8
+		sta L_D800,X	;88D1 9D 00 D8		; COLOR RAM
 		lda L_6F20,X	;88D4 BD 20 6F
-		sta L_D900,X	;88D7 9D 00 D9
+		sta L_D900,X	;88D7 9D 00 D9		; COLOR RAM
 		lda L_7060,X	;88DA BD 60 70
-		sta L_DA00,X	;88DD 9D 00 DA
+		sta L_DA00,X	;88DD 9D 00 DA		; COLOR RAM
 		lda L_71A0,X	;88E0 BD A0 71
 		sta L_DB00,X	;88E3 9D 00 DB		; COLOR RAM
 		dex				;88E6 CA
@@ -1773,7 +1773,7 @@
 		lda #$80		;91B4 A9 80
 		sta L_31A5		;91B6 8D A5 31
 		jsr L_91C3		;91B9 20 C3 91
-		jsr L_3626		;91BC 20 26 36
+		jsr L_3626_from_game_start		;91BC 20 26 36
 		asl L_31A5		;91BF 0E A5 31
 		rts				;91C2 60
 }
@@ -1782,7 +1782,7 @@
 {
 		lda #$80		;91C3 A9 80
 		sta L_C39C		;91C5 8D 9C C3
-		jsr L_3626		;91C8 20 26 36
+		jsr L_3626_from_game_start		;91C8 20 26 36
 		asl L_C39C		;91CB 0E 9C C3
 		rts				;91CE 60
 }
@@ -3526,6 +3526,33 @@
 ; *****************************************************************************
 ; Fns moved from Core RAM so data can reside there
 ; *****************************************************************************
+
+.check_debug_keys
+{
+		sta CIA1_CIDDRB		;0817 8D 03 DC			; CIA1
+		lda #$7F		;081A A9 7F
+		sta CIA1_CIAPRA		;081C 8D 00 DC			; CIA1
+		lda CIA1_CIAPRB		;081F AD 01 DC			; CIA1
+		cmp #$BF		;0822 C9 BF
+		beq L_0826		;0824 F0 00
+;L_0825	= *-1			;!
+.L_0826	rts				;0826 60
+}
+
+\\ Presumably these are debug fns previously called from above?
+IF _TODO
+L_0827	lda L_C354		;0827 AD 54 C3
+		sta L_C378		;082A 8D 78 C3
+		rts				;082D 60
+L_082E	txa				;082E 8A
+		cmp #$01		;082F C9 01
+		beq L_0837		;0831 F0 04
+		inc L_C378,X	;0833 FE 78 C3
+		rts				;0836 60
+L_0837	jmp L_0FD5		;0837 4C D5 0F
+ELSE
+skip 19
+ENDIF
 
 .reset_sprites		; HAS DLL
 {
@@ -6078,6 +6105,886 @@ L_27BE	= *-2			;!
 		sta L_80A0,X	;2AA9 9D A0 80
 		tay				;2AAC A8
 		rts				;2AAD 60
+}
+
+.clear_screen_with_sysctl	;'F'
+{
+		ldx L_3DF8		;2C23 AE F8 3D
+		lda #$45		;2C26 A9 45
+		jmp sysctl		;2C28 4C 25 87
+}
+
+.L_2C2B_with_sysctl		;'>'
+{
+		lda #$3E		;2C2B A9 3E
+		jmp sysctl		;2C2D 4C 25 87
+}
+
+.do_ai_depth_stuff		;'A'
+{
+		lda #$41		;2C35 A9 41
+		jmp sysctl		;2C37 4C 25 87
+}
+
+.L_2C3A_with_sysctl		; 'B'
+{
+		bit ZP_6D		;2C3A 24 6D
+		bmi L_2C3F		;2C3C 30 01
+		rts				;2C3E 60
+.L_2C3F
+		lda #$42		;2C3F A9 42
+		jmp sysctl		;2C41 4C 25 87
+}
+
+.L_2C44_with_sysctl
+{
+		lda L_C359		;2C44 AD 59 C3
+		beq L_2C4C		;2C47 F0 03
+		jmp L_1CCB		;2C49 4C CB 1C
+
+.L_2C4C
+		lda #$3D		;2C4C A9 3D
+		jmp sysctl		;2C4E 4C 25 87
+}
+
+.L_2C51				; Cart only?
+{
+		lda L_0188		;2C51 AD 88 01
+		cmp #$10		;2C54 C9 10
+		bcc L_2C5A		;2C56 90 02
+		lda #$10		;2C58 A9 10
+.L_2C5A	sta L_C350		;2C5A 8D 50 C3
+		ldx #$0F		;2C5D A2 0F
+		lda #$08		;2C5F A9 08
+		bne L_2CAB		;2C61 D0 48
+}
+.L_2C63	rts				;2C63 60
+
+.L_2C64				; HAS DLL called from main_loop
+{
+		ldx #$1F		;2C64 A2 1F
+		lda #$D4		;2C66 A9 D4
+.L_2C68	sta L_C260,X	;2C68 9D 60 C2
+		dex				;2C6B CA
+		bpl L_2C68		;2C6C 10 FA
+		rts				;2C6E 60
+}
+
+.L_2C6F				; HAS DLL called from main_loop
+{
+		lda L_C30A		;2C6F AD 0A C3
+		bne L_2C78		;2C72 D0 04
+		lda ZP_0E		;2C74 A5 0E
+		beq L_2C63		;2C76 F0 EB
+.L_2C78	bit ZP_6B		;2C78 24 6B
+		bmi L_2C63		;2C7A 30 E7
+		lda L_0188		;2C7C AD 88 01
+		cmp #$01		;2C7F C9 01
+		bcc L_2C63		;2C81 90 E0
+		cmp #$32		;2C83 C9 32
+		bcc L_2C89		;2C85 90 02
+		lda #$32		;2C87 A9 32
+.L_2C89	sta L_C350		;2C89 8D 50 C3
+		ldx #$1F		;2C8C A2 1F
+		jsr rndQ		;2C8E 20 B9 29
+		and #$07		;2C91 29 07
+		tay				;2C93 A8
+		lda L_C350		;2C94 AD 50 C3
+		cmp #$08		;2C97 C9 08
+		bcs L_2C9F		;2C99 B0 04
+		lda #$08		;2C9B A9 08
+		bne L_2CAB		;2C9D D0 0C
+.L_2C9F	cpy #$06		;2C9F C0 06
+		bcc L_2CAB		;2CA1 90 08
+		lda #$0D		;2CA3 A9 0D
+		cpy #$07		;2CA5 C0 07
+		bne L_2CAB		;2CA7 D0 02
+		lda #$03		;2CA9 A9 03
+}
+
+.L_2CAB
+{
+		clc				;2CAB 18
+		adc #$02		;2CAC 69 02
+		sta L_AF8C		;2CAE 8D 8C AF
+		stx ZP_2C		;2CB1 86 2C
+		lda ZP_6A		;2CB3 A5 6A
+		beq L_2C64		;2CB5 F0 AD
+		lda #$01		;2CB7 A9 01
+		jsr kernel_L_CF68		;2CB9 20 68 CF
+		ldx ZP_2C		;2CBC A6 2C
+.L_2CBE	jsr L_2D3D		;2CBE 20 3D 2D
+		bne L_2CDD		;2CC1 D0 1A
+		lda L_4120,X	;2CC3 BD 20 41
+		clc				;2CC6 18
+		adc #$02		;2CC7 69 02
+		sta L_4120,X	;2CC9 9D 20 41
+		clc				;2CCC 18
+		adc L_C260,X	;2CCD 7D 60 C2
+		sta L_C260,X	;2CD0 9D 60 C2
+		lda L_80A0,X	;2CD3 BD A0 80
+		clc				;2CD6 18
+		adc L_4100,X	;2CD7 7D 00 41
+		sta L_80A0,X	;2CDA 9D A0 80
+.L_2CDD	dex				;2CDD CA
+		bpl L_2CBE		;2CDE 10 DE
+		ldx ZP_2C		;2CE0 A6 2C
+.L_2CE2	lda L_C260,X	;2CE2 BD 60 C2
+		cmp #$B8		;2CE5 C9 B8
+		bcc L_2D39		;2CE7 90 50
+		jsr rndQ		;2CE9 20 B9 29
+		and #$07		;2CEC 29 07
+		sta ZP_14		;2CEE 85 14
+		lda L_C350		;2CF0 AD 50 C3
+		lsr A			;2CF3 4A
+		lsr A			;2CF4 4A
+		clc				;2CF5 18
+		adc ZP_14		;2CF6 65 14
+		eor #$FF		;2CF8 49 FF
+		sta L_4120,X	;2CFA 9D 20 41
+		bit ZP_6B		;2CFD 24 6B
+		bpl L_2D07		;2CFF 10 06
+		jsr L_2A5C		;2D01 20 5C 2A
+		jmp L_2D1F		;2D04 4C 1F 2D
+.L_2D07	jsr rndQ		;2D07 20 B9 29
+		and #$3F		;2D0A 29 3F
+		clc				;2D0C 18
+		adc #$20		;2D0D 69 20
+		sta L_80A0,X	;2D0F 9D A0 80
+		tay				;2D12 A8
+		jsr rndQ		;2D13 20 B9 29
+		ora #$F8		;2D16 09 F8
+		clc				;2D18 18
+		adc L_C280,Y	;2D19 79 80 C2
+		sta L_C260,X	;2D1C 9D 60 C2
+.L_2D1F	lda #$00		;2D1F A9 00
+		sta ZP_14		;2D21 85 14
+		tya				;2D23 98
+		ldy #$03		;2D24 A0 03
+		sec				;2D26 38
+		sbc #$40		;2D27 E9 40
+		bpl L_2D2D		;2D29 10 02
+		dec ZP_14		;2D2B C6 14
+.L_2D2D	lsr ZP_14		;2D2D 46 14
+		ror A			;2D2F 6A
+		dey				;2D30 88
+		bne L_2D2D		;2D31 D0 FA
+		sta L_4100,X	;2D33 9D 00 41
+		jsr L_2D3D		;2D36 20 3D 2D
+.L_2D39	dex				;2D39 CA
+		bpl L_2CE2		;2D3A 10 A6
+		rts				;2D3C 60
+.L_2D3D	stx ZP_C6		;2D3D 86 C6
+		ldy L_C260,X	;2D3F BC 60 C2
+		cpy #$B8		;2D42 C0 B8
+		bcs L_2D4F		;2D44 B0 09
+		lda L_80A0,X	;2D46 BD A0 80
+		bmi L_2D4F		;2D49 30 04
+		cpy #$41		;2D4B C0 41
+		bcs L_2D55		;2D4D B0 06
+.L_2D4F	lda #$D2		;2D4F A9 D2
+		sta L_C260,X	;2D51 9D 60 C2
+		rts				;2D54 60
+.L_2D55	bit ZP_6B		;2D55 24 6B
+		bpl L_2D5F		;2D57 10 06
+		jsr draw_crash_smokeQ		;2D59 20 E3 29
+		jmp L_2D71		;2D5C 4C 71 2D
+.L_2D5F	tax				;2D5F AA
+		jsr L_2D76		;2D60 20 76 2D
+		and L_A4C0,X	;2D63 3D C0 A4
+		sta (ZP_1E),Y	;2D66 91 1E
+		dey				;2D68 88
+		jsr L_2D76		;2D69 20 76 2D
+		and L_A4C0,X	;2D6C 3D C0 A4
+		sta (ZP_1E),Y	;2D6F 91 1E
+.L_2D71	ldx ZP_C6		;2D71 A6 C6
+		lda #$00		;2D73 A9 00
+		rts				;2D75 60
+.L_2D76	txa				;2D76 8A
+		and #$7C		;2D77 29 7C
+		asl A			;2D79 0A
+		adc Q_pointers_LO,Y	;2D7A 79 00 A5
+		sta ZP_1E		;2D7D 85 1E
+		lda Q_pointers_HI,Y	;2D7F B9 00 A6
+		adc ZP_12		;2D82 65 12
+		sta ZP_1F		;2D84 85 1F
+		lda (ZP_1E),Y	;2D86 B1 1E
+		rts				;2D88 60
+}
+
+.draw_track_preview_border			; called from game_start
+{
+		ldy #$00		;2F03 A0 00
+		ldx #$00		;2F05 A2 00
+.L_2F07	lda L_6130,X	;2F07 BD 30 61
+		sta L_4010,Y	;2F0A 99 10 40
+		sta L_40A0,Y	;2F0D 99 A0 40
+		lda L_6270,X	;2F10 BD 70 62
+		sta L_4150,Y	;2F13 99 50 41
+		sta L_41E0,Y	;2F16 99 E0 41
+		lda L_63B0,X	;2F19 BD B0 63
+		sta L_5690,Y	;2F1C 99 90 56
+		sta L_5720,Y	;2F1F 99 20 57
+		lda L_64F0,X	;2F22 BD F0 64
+		sta L_57D0,Y	;2F25 99 D0 57
+		sta L_5860,Y	;2F28 99 60 58
+		inx				;2F2B E8
+		iny				;2F2C C8
+		cpx #$18		;2F2D E0 18
+		bne L_2F33		;2F2F D0 02
+		ldx #$00		;2F31 A2 00
+.L_2F33	cpy #$90		;2F33 C0 90
+		bne L_2F07		;2F35 D0 D0
+		ldx #$30		;2F37 A2 30
+		ldy #$66		;2F39 A0 66
+		lda #$48		;2F3B A9 48
+		sta ZP_1E		;2F3D 85 1E
+		lda #$41		;2F3F A9 41
+		jsr L_2F4E		;2F41 20 4E 2F
+		ldx #$40		;2F44 A2 40
+		ldy #$66		;2F46 A0 66
+		lda #$68		;2F48 A9 68
+		sta ZP_1E		;2F4A 85 1E
+		lda #$42		;2F4C A9 42
+.L_2F4E	sta ZP_1F		;2F4E 85 1F
+		stx ZP_16		;2F50 86 16
+		sty ZP_17		;2F52 84 17
+		lda #$12		;2F54 A9 12
+		sta ZP_14		;2F56 85 14
+.L_2F58	lda ZP_17		;2F58 A5 17
+		sta ZP_99		;2F5A 85 99
+		lda ZP_16		;2F5C A5 16
+		sta ZP_98		;2F5E 85 98
+		lda #$03		;2F60 A9 03
+		sta ZP_15		;2F62 85 15
+.L_2F64	ldy #$00		;2F64 A0 00
+.L_2F66	lda (ZP_98),Y	;2F66 B1 98
+		sta (ZP_1E),Y	;2F68 91 1E
+		iny				;2F6A C8
+		cpy #$10		;2F6B C0 10
+		bne L_2F66		;2F6D D0 F7
+		dec ZP_14		;2F6F C6 14
+		beq L_2F94		;2F71 F0 21
+		lda ZP_1E		;2F73 A5 1E
+		clc				;2F75 18
+		adc #$40		;2F76 69 40
+		sta ZP_1E		;2F78 85 1E
+		lda ZP_1F		;2F7A A5 1F
+		adc #$01		;2F7C 69 01
+		sta ZP_1F		;2F7E 85 1F
+		dec ZP_15		;2F80 C6 15
+		beq L_2F58		;2F82 F0 D4
+		lda ZP_98		;2F84 A5 98
+		clc				;2F86 18
+		adc #$40		;2F87 69 40
+		sta ZP_98		;2F89 85 98
+		lda ZP_99		;2F8B A5 99
+		adc #$01		;2F8D 69 01
+		sta ZP_99		;2F8F 85 99
+		jmp L_2F64		;2F91 4C 64 2F
+.L_2F94	ldx #$05		;2F94 A2 05
+		ldy #$02		;2F96 A0 02
+.L_2F98	lda #$AA		;2F98 A9 AA
+		sta L_4008,X	;2F9A 9D 08 40
+		sta L_4130,X	;2F9D 9D 30 41
+		sta L_57C8,Y	;2FA0 99 C8 57
+		sta L_58F0,Y	;2FA3 99 F0 58
+		lda #$80		;2FA6 A9 80
+		sta L_4268,X	;2FA8 9D 68 42
+		lda #$02		;2FAB A9 02
+		sta L_5690,Y	;2FAD 99 90 56
+		iny				;2FB0 C8
+		dex				;2FB1 CA
+		bpl L_2F98		;2FB2 10 E4
+		ldx #$01		;2FB4 A2 01
+.L_2FB6	lda #$A9		;2FB6 A9 A9
+		sta L_400E,X	;2FB8 9D 0E 40
+		lda #$2A		;2FBB A9 2A
+		sta L_4136,X	;2FBD 9D 36 41
+		lda #$A8		;2FC0 A9 A8
+		sta L_57C8,X	;2FC2 9D C8 57
+		lda #$6A		;2FC5 A9 6A
+		sta L_58F0,X	;2FC7 9D F0 58
+		dex				;2FCA CA
+		bpl L_2FB6		;2FCB 10 E9
+		rts				;2FCD 60
+}
+
+.draw_track_preview_track_name			; called from game_start
+{
+		jsr L_3884		;2FCE 20 84 38
+		ldx L_C77D		;2FD1 AE 7D C7
+		lda L_301B,X	;2FD4 BD 1B 30
+		sta L_3460		;2FD7 8D 60 34
+		ldx #$58		;2FDA A2 58
+		jsr print_msg_4		;2FDC 20 27 30
+		ldx L_C77D		;2FDF AE 7D C7
+		jsr print_track_name		;2FE2 20 92 38
+		jsr L_361F		;2FE5 20 1F 36
+		lda #$03		;2FE8 A9 03
+		sta ZP_17		;2FEA 85 17
+.L_2FEC	ldx ZP_17		;2FEC A6 17
+		ldy L_3017,X	;2FEE BC 17 30
+		ldx #$58		;2FF1 A2 58
+		lda #$14		;2FF3 A9 14
+		jsr L_3A4F		;2FF5 20 4F 3A
+		dec ZP_17		;2FF8 C6 17
+		bpl L_2FEC		;2FFA 10 F0
+		lda #$03		;2FFC A9 03
+		sta ZP_15		;2FFE 85 15
+		ldx #$54		;3000 A2 54
+		ldy #$E9		;3002 A0 E9
+		lda #$14		;3004 A9 14
+		jsr L_3A66		;3006 20 66 3A
+		lda #$C0		;3009 A9 C0
+		sta ZP_15		;300B 85 15
+		ldx #$A8		;300D A2 A8
+		ldy #$E9		;300F A0 E9
+		lda #$14		;3011 A9 14
+		jsr L_3A66		;3013 20 66 3A
+		rts				;3016 60
+}
+
+.do_initial_screen			; called from game_start
+{
+		lda #$80		;3052 A9 80
+		sta L_31A0		;3054 8D A0 31
+		lda #$00		;3057 A9 00
+		sta L_31A1		;3059 8D A1 31
+		ldy #$01		;305C A0 01
+		ldx #$10		;305E A2 10
+		jsr kernel_do_menu_screen		;3060 20 36 EE
+		cmp #$00		;3063 C9 00
+		bne L_307D		;3065 D0 16
+		jsr kernel_get_entered_name		;3067 20 7F ED
+		jmp L_308C		;306A 4C 8C 30
+.L_306D	lda #$00		;306D A9 00
+		ldy #$01		;306F A0 01
+		ldx #$14		;3071 A2 14
+		jsr kernel_do_menu_screen		;3073 20 36 EE
+		cmp #$00		;3076 C9 00
+		bne L_3087		;3078 D0 0D
+		inc L_31A1		;307A EE A1 31
+.L_307D	jsr kernel_get_entered_name		;307D 20 7F ED
+		lda L_31A1		;3080 AD A1 31
+		cmp #$07		;3083 C9 07
+		bcc L_306D		;3085 90 E6
+.L_3087	lda L_31A1		;3087 AD A1 31
+		beq L_306D		;308A F0 E1
+.L_308C	lda #$00		;308C A9 00
+		sta L_31A0		;308E 8D A0 31
+		rts				;3091 60
+}
+
+.L_3092_from_game_start
+{
+		jsr kernel_L_E9A3		;3092 20 A3 E9
+		lda #$10		;3095 A9 10
+		sta L_3845		;3097 8D 45 38
+		lda #$0E		;309A A9 0E
+		sta L_321D		;309C 8D 1D 32
+		lda L_C39C		;309F AD 9C C3
+		and L_31A5		;30A2 2D A5 31
+		bpl L_3110		;30A5 10 69
+		jsr clear_menu_area		;30A7 20 23 1C
+		jsr menu_colour_map_stuff		;30AA 20 C4 38
+		ldx #$04		;30AD A2 04
+		ldy #$09		;30AF A0 09
+		jsr get_colour_map_ptr		;30B1 20 FA 38
+		ldx #$10		;30B4 A2 10
+		lda #$01		;30B6 A9 01
+		jsr fill_colourmap_solid		;30B8 20 16 39
+		ldy #$09		;30BB A0 09
+		ldx #$0B		;30BD A2 0B
+		ldy #$09		;30BF A0 09
+		jsr kernel_set_text_cursor		;30C1 20 6B 10
+		ldx #$00		;30C4 A2 00
+		jsr print_msg_1		;30C6 20 A5 32
+		lda L_31A1		;30C9 AD A1 31
+		cmp #$05		;30CC C9 05
+		bcc L_30D3		;30CE 90 03
+		jsr L_3884		;30D0 20 84 38
+.L_30D3	ldx L_31A1		;30D3 AE A1 31
+		lda L_3190,X	;30D6 BD 90 31
+		tay				;30D9 A8
+		clc				;30DA 18
+		adc #$02		;30DB 69 02
+		sta L_3845		;30DD 8D 45 38
+		jsr L_3170		;30E0 20 70 31
+		jsr L_91CF		;30E3 20 CF 91
+		lda L_31A1		;30E6 AD A1 31
+		cmp #$06		;30E9 C9 06
+		beq L_30F4		;30EB F0 07
+		cmp #$05		;30ED C9 05
+		beq L_30F4		;30EF F0 03
+		jsr L_361F		;30F1 20 1F 36
+.L_30F4	ldx L_31A1		;30F4 AE A1 31
+		lda L_3198,X	;30F7 BD 98 31
+		sta L_321D		;30FA 8D 1D 32
+		clc				;30FD 18
+		adc #$02		;30FE 69 02
+		ldy L_31A1		;3100 AC A1 31
+		cpy #$07		;3103 C0 07
+		bne L_310A		;3105 D0 03
+		sec				;3107 38
+		sbc #$01		;3108 E9 01
+.L_310A	sta L_3845		;310A 8D 45 38
+		jmp L_3153		;310D 4C 53 31
+
+.L_3110
+		jsr set_up_screen_for_menu		;3110 20 1F 35
+		bit L_C39C		;3113 2C 9C C3
+		bmi L_314E		;3116 30 36
+		ldx #$86		;3118 A2 86
+		jsr print_msg_4		;311A 20 27 30
+		lda L_C74B		;311D AD 4B C7
+		cmp #$07		;3120 C9 07
+		bcc L_3158		;3122 90 34
+		ldx #$04		;3124 A2 04
+		ldy #$0C		;3126 A0 0C
+		jsr get_colour_map_ptr		;3128 20 FA 38
+		ldx #$10		;312B A2 10
+		lda #$01		;312D A9 01
+		jsr fill_colourmap_solid		;312F 20 16 39
+		ldx #$04		;3132 A2 04
+		ldy #$0D		;3134 A0 0D
+		jsr get_colour_map_ptr		;3136 20 FA 38
+		ldx #$10		;3139 A2 10
+		lda #$01		;313B A9 01
+		jsr fill_colourmap_solid		;313D 20 16 39
+		jsr L_3884		;3140 20 84 38
+		ldx #$13		;3143 A2 13
+		jsr print_msg_1		;3145 20 A5 32
+		jsr L_361F		;3148 20 1F 36
+		jmp L_3158		;314B 4C 58 31
+.L_314E	ldy #$0B		;314E A0 0B
+		jsr L_3170		;3150 20 70 31
+.L_3153	ldx #$71		;3153 A2 71
+		jsr print_msg_3		;3155 20 DC A1
+.L_3158	lda #$0E		;3158 A9 0E
+		sta ZP_19		;315A 85 19
+		lda L_31A1		;315C AD A1 31
+		clc				;315F 18
+		adc #$02		;3160 69 02
+		jsr highlight_current_menu_item		;3162 20 5A 38
+.L_3165	jsr L_387B		;3165 20 7B 38
+		inc ZP_7A		;3168 E6 7A
+		jsr L_364F		;316A 20 4F 36
+		bne L_3165		;316D D0 F6
+		rts				;316F 60
+}
+
+.L_3389_from_game_start			; called from game_start
+{
+		ldx #$06		;3389 A2 06
+		lda L_31A1		;338B AD A1 31
+		beq L_33E8		;338E F0 58
+		jsr disable_ints_and_page_in_RAM		;3390 20 F1 33
+		ldx #$01		;3393 A2 01
+		stx L_31A2		;3395 8E A2 31
+.L_3398	stx ZP_15		;3398 86 15
+		txa				;339A 8A
+		ldy L_C718		;339B AC 18 C7
+		beq L_33B5		;339E F0 15
+		jsr rndQ		;33A0 20 B9 29
+		and #$01		;33A3 29 01
+		clc				;33A5 18
+		adc #$01		;33A6 69 01
+		clc				;33A8 18
+		adc L_31A9		;33A9 6D A9 31
+		cmp #$03		;33AC C9 03
+		bcc L_33B2		;33AE 90 02
+		sbc #$03		;33B0 E9 03
+.L_33B2	sta L_31A9		;33B2 8D A9 31
+.L_33B5	clc				;33B5 18
+		adc L_E8E1,Y	;33B6 79 E1 E8
+		tay				;33B9 A8
+		lda L_DCE0,Y	;33BA B9 E0 DC			; CIA1
+		sta L_AEE0,X	;33BD 9D E0 AE
+		txa				;33C0 8A
+		asl A			;33C1 0A
+		asl A			;33C2 0A
+		asl A			;33C3 0A
+		asl A			;33C4 0A
+		tax				;33C5 AA
+		tya				;33C6 98
+		asl A			;33C7 0A
+		asl A			;33C8 0A
+		asl A			;33C9 0A
+		asl A			;33CA 0A
+		tay				;33CB A8
+		lda #$10		;33CC A9 10
+		sta ZP_14		;33CE 85 14
+.L_33D0	lda CIA1_CIAPRA,Y	;33D0 B9 00 DC			; CIA1
+		sta L_AE00,X	;33D3 9D 00 AE
+		inx				;33D6 E8
+		iny				;33D7 C8
+		dec ZP_14		;33D8 C6 14
+		bne L_33D0		;33DA D0 F4
+		ldx ZP_15		;33DC A6 15
+		dex				;33DE CA
+		bpl L_3398		;33DF 10 B7
+		jsr page_in_IO_and_enable_ints		;33E1 20 FC 33
+		ldx L_31A1		;33E4 AE A1 31
+		inx				;33E7 E8
+.L_33E8	stx L_31A3		;33E8 8E A3 31
+		lda #$00		;33EB A9 00
+		sta L_31A6		;33ED 8D A6 31
+		rts				;33F0 60
+}
+
+.L_3626_from_game_start
+{
+		jsr kernel_L_E8C2		;3626 20 C2 E8
+		lda ZP_50		;3629 A5 50
+		sta ZP_C7		;362B 85 C7
+		lda L_31A1		;362D AD A1 31
+		beq L_3638		;3630 F0 06
+		jsr L_3092_from_game_start		;3632 20 92 30
+		jmp L_361C		;3635 4C 1C 36
+.L_3638	jsr set_up_screen_for_menu		;3638 20 1F 35
+		ldx #$86		;363B A2 86
+		jsr print_msg_4		;363D 20 27 30
+		lda #$01		;3640 A9 01
+		sta ZP_19		;3642 85 19
+.L_3644	jsr L_3858		;3644 20 58 38
+		jsr L_364F		;3647 20 4F 36
+		bne L_3644		;364A D0 F8
+		jmp L_361C		;364C 4C 1C 36
+}
+
+.L_364F			; in Cart
+{
+		ldy ZP_C7		;364F A4 C7
+		ldx L_C758,Y	;3651 BE 58 C7
+		stx ZP_C6		;3654 86 C6
+		jsr print_driver_name		;3656 20 8B 38
+		jsr print_space		;3659 20 AF 91
+		ldx ZP_C6		;365C A6 C6
+		lda L_C39C		;365E AD 9C C3
+		bpl L_3674		;3661 10 11
+		jsr L_99FF		;3663 20 FF 99
+		jsr print_2space		;3666 20 AA 91
+		txa				;3669 8A
+		clc				;366A 18
+		adc #$0C		;366B 69 0C
+		tax				;366D AA
+		jsr L_99FF		;366E 20 FF 99
+		jmp L_368F		;3671 4C 8F 36
+.L_3674	lda L_C740,X	;3674 BD 40 C7
+		jsr print_number_pad2		;3677 20 45 33
+		lda L_C728,X	;367A BD 28 C7
+		jsr print_number_pad4		;367D 20 39 33
+		lda L_C734,X	;3680 BD 34 C7
+		jsr print_number_pad4		;3683 20 39 33
+		jsr print_3space		;3686 20 A5 91
+		lda L_C74C,X	;3689 BD 4C C7
+		jsr print_number_pad2		;368C 20 45 33
+.L_368F	inc ZP_C7		;368F E6 C7
+		lda ZP_C7		;3691 A5 C7
+		cmp ZP_8A		;3693 C5 8A
+		rts				;3695 60
+}
+
+.L_3738
+{
+		sta ZP_19		;3738 85 19
+		jsr kernel_L_E8E5		;373A 20 E5 E8
+		jsr L_3858		;373D 20 58 38
+		ldx L_C771		;3740 AE 71 C7
+		jsr print_driver_name		;3743 20 8B 38
+		ldx #$28		;3746 A2 28
+		jsr print_msg_4		;3748 20 27 30
+		ldx L_C772		;374B AE 72 C7
+		jsr print_driver_name		;374E 20 8B 38
+		jmp L_361F		;3751 4C 1F 36
+}
+
+.L_3754_from_game_start
+{
+		jsr set_up_screen_for_menu		;3754 20 1F 35
+		jsr L_375D		;3757 20 5D 37
+		jmp L_361C		;375A 4C 1C 36
+.L_375D
+		ldx #$0B		;375D A2 0B
+.L_375F	lda L_C758,X	;375F BD 58 C7
+		sta L_C70C,X	;3762 9D 0C C7
+		dex				;3765 CA
+		bpl L_375F		;3766 10 F7
+		jsr kernel_L_E8C2		;3768 20 C2 E8
+		ldx #$0F		;376B A2 0F
+		ldy #$0C		;376D A0 0C
+		jsr kernel_set_text_cursor		;376F 20 6B 10
+		ldx #$D7		;3772 A2 D7
+		jsr print_msg_4		;3774 20 27 30
+		lda #$01		;3777 A9 01
+		sta ZP_19		;3779 85 19
+		ldy ZP_50		;377B A4 50
+		bne L_3797		;377D D0 18
+		lda L_C758		;377F AD 58 C7
+		cmp L_31A4		;3782 CD A4 31
+		bne L_37B6		;3785 D0 2F
+		lda L_C71A		;3787 AD 1A C7
+		beq L_3797		;378A F0 0B
+		jsr L_3858		;378C 20 58 38
+		ldx #$CE		;378F A2 CE
+		jsr print_msg_2		;3791 20 CB A1
+		jmp L_37CE		;3794 4C CE 37
+.L_3797	jsr L_3858		;3797 20 58 38
+		ldx #$B7		;379A A2 B7
+		jsr print_msg_4		;379C 20 27 30
+		ldy ZP_50		;379F A4 50
+		ldx L_C758,Y	;37A1 BE 58 C7
+		jsr print_driver_name		;37A4 20 8B 38
+		ldy ZP_50		;37A7 A4 50
+		bne L_37B6		;37A9 D0 0B
+		jsr L_3858		;37AB 20 58 38
+		ldx #$A7		;37AE A2 A7
+		jsr print_msg_2		;37B0 20 CB A1
+		jmp L_37CE		;37B3 4C CE 37
+.L_37B6	ldy ZP_8A		;37B6 A4 8A
+		dey				;37B8 88
+		cpy #$0B		;37B9 C0 0B
+		beq L_37CE		;37BB F0 11
+		jsr L_3858		;37BD 20 58 38
+		ldx #$C7		;37C0 A2 C7
+		jsr print_msg_4		;37C2 20 27 30
+		ldy ZP_8A		;37C5 A4 8A
+		dey				;37C7 88
+		ldx L_C758,Y	;37C8 BE 58 C7
+		jsr print_driver_name		;37CB 20 8B 38
+.L_37CE	lda #$02		;37CE A9 02
+		sta L_C360		;37D0 8D 60 C3
+.L_37D3	jsr kernel_L_E8C2		;37D3 20 C2 E8
+		ldy ZP_50		;37D6 A4 50
+		ldx L_C70C,Y	;37D8 BE 0C C7
+		lda L_C70B,Y	;37DB B9 0B C7
+		sta L_C70C,Y	;37DE 99 0C C7
+		txa				;37E1 8A
+		sta L_C70B,Y	;37E2 99 0B C7
+		dec L_C360		;37E5 CE 60 C3
+		bpl L_37D3		;37E8 10 E9
+		lda L_31A4		;37EA AD A4 31
+		cmp L_C758		;37ED CD 58 C7
+		bne L_3807		;37F0 D0 15
+		ldx L_C71A		;37F2 AE 1A C7
+		bne L_3813		;37F5 D0 1C
+		sta L_C71A		;37F7 8D 1A C7
+		ldx #$0B		;37FA A2 0B
+.L_37FC	txa				;37FC 8A
+		sta L_C70C,X	;37FD 9D 0C C7
+		dex				;3800 CA
+		bpl L_37FC		;3801 10 F9
+		lda #$00		;3803 A9 00
+		beq L_380D		;3805 F0 06
+.L_3807	jsr L_3829		;3807 20 29 38
+		lda L_381D,X	;380A BD 1D 38
+.L_380D	sta L_C718		;380D 8D 18 C7
+		beq L_3813		;3810 F0 01
+		rts				;3812 60
+.L_3813	lda #$06		;3813 A9 06
+		asl A			;3815 0A
+		sec				;3816 38
+		sbc #$02		;3817 E9 02
+		sta L_C719		;3819 8D 19 C7
+		rts				;381C 60
+
+.L_381D	equb $03,$03,$03,$02,$02,$02,$01,$01,$01,$00,$00,$00
+}
+
+.L_3829			; in Cart
+{
+		ldx #$0B		;3829 A2 0B
+.L_382B	cmp L_C70C,X	;382B DD 0C C7
+		beq L_3833		;382E F0 03
+		dex				;3830 CA
+		bpl L_382B		;3831 10 F8
+.L_3833	rts				;3833 60
+}
+
+.menu_colour_map_stuff
+{
+		ldx #$00		;38C4 A2 00
+		ldy #$08		;38C6 A0 08
+		jsr get_colour_map_ptr		;38C8 20 FA 38
+		lda #$11		;38CB A9 11
+		sta ZP_A0		;38CD 85 A0
+.L_38CF	ldx #$00		;38CF A2 00
+		lda ZP_A0		;38D1 A5 A0
+		cmp #$09		;38D3 C9 09
+		bcs L_38D9		;38D5 B0 02
+		ldx #$0E		;38D7 A2 0E
+.L_38D9	jsr fill_colourmap_varying		;38D9 20 32 39
+		ldx #$08		;38DC A2 08
+		lda #$01		;38DE A9 01
+		jsr fill_colourmap_solid		;38E0 20 16 39
+		ldx #$05		;38E3 A2 05
+		jsr fill_colourmap_varying		;38E5 20 32 39
+		dec ZP_A0		;38E8 C6 A0
+		bne L_38CF		;38EA D0 E3
+		ldx #$04		;38EC A2 04
+		ldy #$08		;38EE A0 08
+		jsr get_colour_map_ptr		;38F0 20 FA 38
+		ldx #$10		;38F3 A2 10
+		lda #$01		;38F5 A9 01
+		jmp fill_colourmap_solid		;38F7 4C 16 39
+}
+
+.fill_colourmap_varying		; in Cart
+{
+		lda L_397A,X	;3932 BD 7A 39
+		sta ZP_14		;3935 85 14
+		inx				;3937 E8
+.L_3938	lda L_397A,X	;3938 BD 7A 39
+		sta (ZP_1E),Y	;393B 91 1E
+		iny				;393D C8
+		inx				;393E E8
+		dec ZP_14		;393F C6 14
+		bne L_3938		;3941 D0 F5
+		rts				;3943 60
+}
+
+.L_398D				; in Cart
+{
+		lda #$01		;398D A9 01
+		sta ZP_17		;398F 85 17
+.L_3991	ldy #$F7		;3991 A0 F7
+.L_3993	jsr rndQ		;3993 20 B9 29
+		lsr A			;3996 4A
+		ror ZP_16		;3997 66 16
+		and #$07		;3999 29 07
+		clc				;399B 18
+		adc #$04		;399C 69 04
+		sta ZP_14		;399E 85 14
+		jmp L_39BE		;39A0 4C BE 39
+.L_39A3	bit ZP_16		;39A3 24 16
+		bpl L_39AE		;39A5 10 07
+		lda (ZP_1E),Y	;39A7 B1 1E
+		ora ZP_18		;39A9 05 18
+		jmp L_39B6		;39AB 4C B6 39
+.L_39AE	lda (ZP_1E),Y	;39AE B1 1E
+		ora ZP_17		;39B0 05 17
+		ora ZP_18		;39B2 05 18
+		and ZP_19		;39B4 25 19
+.L_39B6	sta (ZP_1E),Y	;39B6 91 1E
+		tya				;39B8 98
+		dey				;39B9 88
+		and #$07		;39BA 29 07
+		bne L_39C1		;39BC D0 03
+.L_39BE	jsr L_39D1		;39BE 20 D1 39
+.L_39C1	cpy #$70		;39C1 C0 70
+		bcc L_39CC		;39C3 90 07
+		dec ZP_14		;39C5 C6 14
+		bpl L_39A3		;39C7 10 DA
+		jmp L_3993		;39C9 4C 93 39
+.L_39CC	asl ZP_17		;39CC 06 17
+		bne L_3991		;39CE D0 C1
+		rts				;39D0 60
+}
+
+.L_39D1
+{
+		txa				;39D1 8A
+		sec				;39D2 38
+		sbc #$40		;39D3 E9 40
+		and #$7C		;39D5 29 7C
+		asl A			;39D7 0A
+		adc Q_pointers_LO,Y	;39D8 79 00 A5
+		sta ZP_1E		;39DB 85 1E
+		lda Q_pointers_HI,Y	;39DD B9 00 A6
+		adc #$00		;39E0 69 00
+		sta ZP_1F		;39E2 85 1F
+		cpx #$40		;39E4 E0 40
+		bcs L_39EA		;39E6 B0 02
+		dec ZP_1F		;39E8 C6 1F
+.L_39EA	cpx #$C0		;39EA E0 C0
+		bcc L_39F0		;39EC 90 02
+		inc ZP_1F		;39EE E6 1F
+.L_39F0	rts				;39F0 60
+}
+
+.L_39F1
+{
+		jsr save_rndQ_stateQ		;39F1 20 2C 16
+		ldy #$04		;39F4 A0 04
+		jsr L_1637		;39F6 20 37 16
+		lda #$09		;39F9 A9 09
+		sta ZP_1A		;39FB 85 1A
+.L_39FD	ldy ZP_1A		;39FD A4 1A
+		ldx L_3A1E,Y	;39FF BE 1E 3A
+		lda L_3A28,Y	;3A02 B9 28 3A
+		sta ZP_19		;3A05 85 19
+		lda L_3A32,Y	;3A07 B9 32 3A
+		sta ZP_18		;3A0A 85 18
+		jsr L_398D		;3A0C 20 8D 39
+		dec ZP_1A		;3A0F C6 1A
+		bpl L_39FD		;3A11 10 EA
+		ldy #$70		;3A13 A0 70
+		jsr L_3A4B		;3A15 20 4B 3A
+		ldy #$09		;3A18 A0 09
+		jsr L_1637		;3A1A 20 37 16
+		rts				;3A1D 60
+		
+.L_3A1E	equb $38,$3C,$B0,$B4,$B8,$BC,$C0,$C4,$C8,$CC
+.L_3A28	equb $7F,$FE,$7F,$FF,$80,$DF,$FE,$EF,$F8,$3F
+.L_3A32	equb $00,$00,$00,$00,$80,$C0,$02,$E0,$08,$10
+}
+
+.set_up_colour_map_for_track_preview
+{
+		lda L_C76B		;3A77 AD 6B C7
+		sta L_3AEE		;3A7A 8D EE 3A
+		sta L_3AF2		;3A7D 8D F2 3A
+		ldx #$00		;3A80 A2 00
+		ldy #$00		;3A82 A0 00
+		jsr get_colour_map_ptr		;3A84 20 FA 38
+		ldx #$00		;3A87 A2 00
+		ldy #$00		;3A89 A0 00
+.L_3A8B	lda L_3AD9,X	;3A8B BD D9 3A
+		cmp #$C8		;3A8E C9 C8
+		bcs L_3A98		;3A90 B0 06
+		jsr L_3AC3		;3A92 20 C3 3A
+		jmp L_3A8B		;3A95 4C 8B 3A
+.L_3A98	cmp #$FF		;3A98 C9 FF
+		bne L_3AA5		;3A9A D0 09
+		lda #$0E		;3A9C A9 0E
+		sta L_7C53		;3A9E 8D 53 7C
+		sta L_7C74		;3AA1 8D 74 7C
+		rts				;3AA4 60
+.L_3AA5	sec				;3AA5 38
+		sbc #$C8		;3AA6 E9 C8
+		sta ZP_A0		;3AA8 85 A0
+		inx				;3AAA E8
+		stx ZP_50		;3AAB 86 50
+.L_3AAD	ldx ZP_50		;3AAD A6 50
+		lda L_3AD9,X	;3AAF BD D9 3A
+		inx				;3AB2 E8
+		sta ZP_52		;3AB3 85 52
+.L_3AB5	jsr L_3AC3		;3AB5 20 C3 3A
+		dec ZP_52		;3AB8 C6 52
+		bne L_3AB5		;3ABA D0 F9
+		dec ZP_A0		;3ABC C6 A0
+		bne L_3AAD		;3ABE D0 ED
+		jmp L_3A8B		;3AC0 4C 8B 3A
+.L_3AC3	lda L_3AD9,X	;3AC3 BD D9 3A
+		inx				;3AC6 E8
+		sta ZP_51		;3AC7 85 51
+		lda L_3AD9,X	;3AC9 BD D9 3A
+		inx				;3ACC E8
+.L_3ACD	sta (ZP_1E),Y	;3ACD 91 1E
+		iny				;3ACF C8
+		bne L_3AD4		;3AD0 D0 02
+		inc ZP_1F		;3AD2 E6 1F
+.L_3AD4	dec ZP_51		;3AD4 C6 51
+		bne L_3ACD		;3AD6 D0 F5
+		rts				;3AD8 60
+
+.L_3AD9	equb $01,$BB,$26,$CB,$02,$BB,$01,$CB,$24,$1F,$D8,$08,$01,$CB,$02,$BB
+		equb $01,$CB,$01,$1F,$01
+.L_3AEE	equb $05,$20,$1E,$01
+.L_3AF2	equb $05,$01,$1F,$01,$CB,$02,$BB,$01,$CB,$24,$1F,$01,$CB,$02,$BB,$26
+		equb $CB,$0A,$BB,$01,$FB,$14,$1B,$01,$FB,$CA,$04,$12,$BB,$01,$FB,$14
+		equb $10,$01,$FB,$12,$BB,$01,$FB,$14,$CB,$01,$FB,$09,$BB,$28,$BB,$FF
 }
 
 ; *****************************************************************************

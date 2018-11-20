@@ -163,6 +163,9 @@ ENDIF
 .kernel_L_CFD2 DLL_CALL_KERNEL L_CFD2, 74
 .kernel_track_preview_check_keys DLL_CALL_KERNEL track_preview_check_keys, 75
 
+.kernel_select_track DLL_CALL_KERNEL select_track, 76
+.kernel_L_36AD_from_game_start DLL_CALL_KERNEL L_36AD_from_game_start, 77
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -247,6 +250,9 @@ ENDIF
 	EQUB LO(L_CFC5)
 	EQUB LO(L_CFD2)
 	EQUB LO(track_preview_check_keys)
+
+	EQUB LO(select_track)
+	EQUB LO(L_36AD_from_game_start)
 }
 
 .kernel_table_HI
@@ -329,7 +335,12 @@ ENDIF
 	EQUB HI(L_CFC5)
 	EQUB HI(L_CFD2)
 	EQUB HI(track_preview_check_keys)
+
+	EQUB HI(select_track)
+	EQUB HI(L_36AD_from_game_start)
 }
+
+PRINT "KERNEL Jump Table Entries =", kernel_table_HI-kernel_table_LO, "(", P%-kernel_table_HI, ")"
 
 ; *****************************************************************************
 ; Same again but for functions in Cart module
@@ -456,6 +467,21 @@ ENDIF
 .cart_draw_crash_smokeQ DLL_CALL_CART draw_crash_smokeQ, 48
 .cart_L_2A5C DLL_CALL_CART L_2A5C, 49
 
+.cart_L_2C64 DLL_CALL_CART L_2C64, 50
+.cart_L_2C6F DLL_CALL_CART L_2C6F, 51
+.cart_draw_track_preview_border DLL_CALL_CART draw_track_preview_border, 52
+.cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
+.cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
+.cart_L_3092_from_game_start DLL_CALL_CART L_3092_from_game_start, 55
+.cart_L_3389_from_game_start DLL_CALL_CART L_3389_from_game_start, 56
+.cart_L_3626_from_game_start DLL_CALL_CART L_3626_from_game_start, 57
+.cart_L_3738 DLL_CALL_CART L_3738, 58
+.cart_L_3754_from_game_start DLL_CALL_CART L_3754_from_game_start, 59
+.cart_menu_colour_map_stuff DLL_CALL_CART menu_colour_map_stuff, 60
+.cart_L_39D1 DLL_CALL_CART L_39D1, 61
+.cart_L_39F1 DLL_CALL_CART L_39F1, 62
+.cart_set_up_colour_map_for_track_preview DLL_CALL_CART set_up_colour_map_for_track_preview, 63
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -513,6 +539,21 @@ ENDIF
 	EQUB LO(L_2809)
 	EQUB LO(draw_crash_smokeQ)
 	EQUB LO(L_2A5C)
+
+	EQUB LO(L_2C64)
+	EQUB LO(L_2C6F)
+	EQUB LO(draw_track_preview_border)
+	EQUB LO(draw_track_preview_track_name)
+	EQUB LO(do_initial_screen)
+	EQUB LO(L_3092_from_game_start)
+	EQUB LO(L_3389_from_game_start)
+	EQUB LO(L_3626_from_game_start)
+	EQUB LO(L_3738)
+	EQUB LO(L_3754_from_game_start)
+	EQUB LO(menu_colour_map_stuff)
+	EQUB LO(L_39D1)
+	EQUB LO(L_39F1)
+	EQUB LO(set_up_colour_map_for_track_preview)
 }
 
 .cart_table_HI
@@ -568,6 +609,23 @@ ENDIF
 	EQUB HI(L_2809)
 	EQUB HI(draw_crash_smokeQ)
 	EQUB HI(L_2A5C)
+
+	EQUB HI(L_2C64)
+	EQUB HI(L_2C6F)
+	EQUB HI(draw_track_preview_border)
+	EQUB HI(draw_track_preview_track_name)
+	EQUB HI(do_initial_screen)
+	EQUB HI(L_3092_from_game_start)
+	EQUB HI(L_3389_from_game_start)
+	EQUB HI(L_3626_from_game_start)
+	EQUB HI(L_3738)
+	EQUB HI(L_3754_from_game_start)
+	EQUB HI(menu_colour_map_stuff)
+	EQUB HI(L_39D1)
+	EQUB HI(L_39F1)
+	EQUB HI(set_up_colour_map_for_track_preview)
 }
+
+PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
 
 .beeb_dll_end

@@ -32,7 +32,7 @@ ENDMACRO
 ; C64 MEMORY DEFINES
 ; *****************************************************************************
 
-BEEB_RAM_OFFSET = $1000				; map C64 memory from $D000 to $E000
+BEEB_RAM_OFFSET = $0				; map C64 memory from $D000 to $D000
 
 L_CFFF = $CFFF + BEEB_RAM_OFFSET
 
@@ -121,6 +121,8 @@ L_D41C = $D41C + BEEB_RAM_OFFSET
 L_D41D = $D41D + BEEB_RAM_OFFSET
 L_D41E = $D41E + BEEB_RAM_OFFSET
 L_D41F = $D41F + BEEB_RAM_OFFSET
+
+L_D440 = $D440 + BEEB_RAM_OFFSET
 
 L_D800 = $D800 + BEEB_RAM_OFFSET		; COLOR RAM
 L_D805 = $D805 + BEEB_RAM_OFFSET		; COLOR RAM
@@ -292,6 +294,7 @@ INCLUDE "lib/bbc.h.asm"
 ; *****************************************************************************
 ; VARIABLES
 ; *****************************************************************************
+BEEB_ZP_OFFSET = &900
 
 DATA_6510	= $00	; 6510 On-Chip I/O DATA Direction Register
 RAM_SELECT	= $01	; 6510 RAM Selection Register
@@ -428,21 +431,22 @@ ZP_8C	= $8C
 ZP_8D	= $8D
 ZP_8E	= $8E
 ZP_8F	= $8F
-ZP_90	= $90
-ZP_91	= $91
-ZP_92	= $92
-ZP_93	= $93
-ZP_94	= $94
-ZP_95	= $95
-ZP_97	= $97
+ZP_90	= $90 + BEEB_ZP_OFFSET
+ZP_91	= $91 + BEEB_ZP_OFFSET
+ZP_92	= $92 + BEEB_ZP_OFFSET
+ZP_93	= $93 + BEEB_ZP_OFFSET
+ZP_94	= $94 + BEEB_ZP_OFFSET
+ZP_95	= $95 + BEEB_ZP_OFFSET
+; $96
+ZP_97	= $97 + BEEB_ZP_OFFSET
 ZP_98	= $98
 ZP_99	= $99
 ZP_9A	= $9A
 ZP_9B	= $9B
-ZP_9C	= $9C
-ZP_9D	= $9D
-ZP_9E	= $9E
-ZP_9F	= $9F
+ZP_9C	= $9C + BEEB_ZP_OFFSET
+ZP_9D	= $9D + BEEB_ZP_OFFSET
+ZP_9E	= $9E + BEEB_ZP_OFFSET
+ZP_9F	= $9F + BEEB_ZP_OFFSET
 ZP_A0	= $A0
 ZP_A1	= $A1
 ZP_A2	= $A2
@@ -509,30 +513,30 @@ ZP_DF	= $DF
 ZP_E0	= $E0
 ZP_E1	= $E1
 ZP_E3	= $E3
-ZP_E4	= $E4
-ZP_E7	= $E7
-ZP_E8	= $E8
-ZP_E9	= $E9
-ZP_EA	= $EA
-ZP_EB	= $EB
-ZP_EC	= $EC
-ZP_ED	= $ED
-ZP_EE	= $EE
-ZP_EF	= $EF
-ZP_F0	= $F0
-ZP_F1	= $F1
-ZP_F2	= $F2
-ZP_F4	= $F4
-ZP_F5	= $F5
-ZP_F6	= $F6
-ZP_F7	= $F7
-ZP_F8	= $F8
-ZP_F9	= $F9
-ZP_FA	= $FA
-ZP_FB	= $FB
-ZP_FC	= $FC
-ZP_FD	= $FD
-ZP_FE	= $FE
+ZP_E4	= $E4 + BEEB_ZP_OFFSET
+ZP_E7	= $E7 + BEEB_ZP_OFFSET
+ZP_E8	= $E8 + BEEB_ZP_OFFSET
+ZP_E9	= $E9 + BEEB_ZP_OFFSET
+ZP_EA	= $EA + BEEB_ZP_OFFSET
+ZP_EB	= $EB + BEEB_ZP_OFFSET
+ZP_EC	= $EC + BEEB_ZP_OFFSET
+ZP_ED	= $ED + BEEB_ZP_OFFSET
+ZP_EE	= $EE + BEEB_ZP_OFFSET
+ZP_EF	= $EF + BEEB_ZP_OFFSET
+ZP_F0	= $90;$F0
+ZP_F1	= $91;$F1
+ZP_F2	= $F2 + BEEB_ZP_OFFSET
+ZP_F4	= $94;$F4
+ZP_F5	= $95;$F5
+ZP_F6	= $96;$F6
+ZP_F7	= $97;$F7
+ZP_F8	= $9C;$F8
+ZP_F9	= $9D;$F9
+ZP_FA	= $FA + BEEB_ZP_OFFSET
+ZP_FB	= $FB + BEEB_ZP_OFFSET
+ZP_FC	= $FC + BEEB_ZP_OFFSET
+ZP_FD	= $FD + BEEB_ZP_OFFSET
+ZP_FE	= $FE + BEEB_ZP_OFFSET
 
 ; *****************************************************************************
 ; VARIABLES IN LOWER RAM
@@ -651,16 +655,17 @@ L_0190	= $0190
 L_01C1	= $01C1
 
 \\ These can't stay here on BEEB obviously!!
-L_0200	= $0200
-L_0201	= $0201
-L_0240	= $0240
-L_0241	= $0241
-L_0242	= $0242
-L_0243	= $0243
-L_0280	= $0280
-L_0291	= $0291
-L_02C0	= $02C0
-\\ BEEB_STUB
+BEEB_VEC_OFFSET = $600
+
+L_0200	= $0200 + BEEB_VEC_OFFSET
+L_0201	= $0201 + BEEB_VEC_OFFSET
+L_0240	= $0240 + BEEB_VEC_OFFSET
+L_0241	= $0241 + BEEB_VEC_OFFSET
+L_0242	= $0242 + BEEB_VEC_OFFSET
+L_0243	= $0243 + BEEB_VEC_OFFSET
+L_0280	= $0280 + BEEB_VEC_OFFSET
+L_0291	= $0291 + BEEB_VEC_OFFSET
+L_02C0	= $02C0 + BEEB_VEC_OFFSET
 
 ; Camera matrices?
 L_0300	= $0300
@@ -902,7 +907,8 @@ GUARD &8000
 	LDA #HI(hazel_start)
 	JSR disksys_load_file
 
-	\\ Not sure what this is doing! Copying from C64 Memory Mapped area
+	\\ Not sure what this is doing! Copying from C64 COLOR RAM
+	\\ $D800-$DBFF Color RAM
 
 		ldx #$0B		;40B0 A2 0B
 .L_40B2	lda L_DAB6,X	;40B2 BD B6 DA		; 
