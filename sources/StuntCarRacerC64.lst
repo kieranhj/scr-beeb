@@ -2746,7 +2746,7 @@ seg000:0FB5	     loc_FB5:				     ; CODE XREF: sub_FAD+2j
 seg000:0FB5 BD 74 C3		     LDA     plcar_track_segment,X
 seg000:0FB8 BC 76 C3		     LDY     unk_C376,X
 seg000:0FBB 10 0B		     BPL     loc_FC8
-seg000:0FBD CD 67 C7		     CMP     byte_C767
+seg000:0FBD CD 67 C7		     CMP     half_a_lap_section
 seg000:0FC0 D0 05		     BNE     locret_FC7
 seg000:0FC2 A9 00		     LDA     #0
 seg000:0FC4 9D 76 C3		     STA     $C376,X
@@ -4497,7 +4497,7 @@ seg000:1958 85 D3		     STA     byte_D3
 seg000:195A A9 00		     LDA     #0
 seg000:195C A6 62		     LDX     byte_62
 seg000:195E A4 2E		     LDY     byte_2E
-seg000:1960 CC 66 C7		     CPY     byte_C766
+seg000:1960 CC 66 C7		     CPY     near_start_line_section
 seg000:1963 D0 02		     BNE     loc_1967
 seg000:1965 A9 01		     LDA     #1
 seg000:1967	     
@@ -10754,14 +10754,14 @@ seg000:3CAC						     ; A=$46 ->	update colour map
 seg000:3CAC						     ; A=$55 ->	fill scanlines (A=value, YX=ptr, byte_52=count)
 seg000:3CAC						     ; A=$81 ->	poll for key X (like OSBYTE $81)
 seg000:3CAF 20 B6 3E		     JSR     sub_3EB6
-seg000:3CB2 AE 65 C7		     LDX     byte_C765
+seg000:3CB2 AE 65 C7		     LDX     players_start_section
 seg000:3CB5 8E 75 C3		     STX     aicar_track_segmentQ
 seg000:3CB8 A9 04		     LDA     #4
 seg000:3CBA 85 C4		     STA     byte_C4
 seg000:3CBC A9 4C		     LDA     #$4C ; 'L'
 seg000:3CBE 85 B0		     STA     byte_B0
 seg000:3CC0 20 E2 1E		     JSR     sub_1EE2
-seg000:3CC3 AE 65 C7		     LDX     byte_C765
+seg000:3CC3 AE 65 C7		     LDX     players_start_section
 seg000:3CC6	     
 seg000:3CC6	     loc_3CC6:				     ; CODE XREF: sub_3C99+F9j
 seg000:3CC6 20 88 F4		     JSR     sub_F488
@@ -43259,16 +43259,16 @@ seg000:C762 0A			     .BYTE   $A	;
 seg000:C763 0B			     .BYTE   $B	;  
 seg000:C764 2C	     number_of_road_sections:.BYTE $2C	     ; DATA XREF: find_track_segment_index+7r
 seg000:C764						     ; find_track_segment_index+12r ...
-seg000:C765 0F	     byte_C765:	     .BYTE $F		     ; DATA XREF: sub_3C99+19r
+seg000:C765 0F	     players_start_section:.BYTE $F	     ; DATA XREF: sub_3C99+19r
 seg000:C765						     ; sub_3C99+2Ar
-seg000:C766 0F	     byte_C766:	     .BYTE $F		     ; DATA XREF: sub_1948+18r
+seg000:C766 0F	     near_start_line_section:.BYTE $F	     ; DATA XREF: sub_1948+18r
 seg000:C766						     ; prepare_trackQ+14Ar
-seg000:C767 25	     byte_C767:	     .BYTE $25		     ; DATA XREF: sub_FAD+10r
-seg000:C768 C0	     byte_C768:	     .BYTE $C0		     ; DATA XREF: prepare_trackQ+16Aw
+seg000:C767 25	     half_a_lap_section:.BYTE $25	     ; DATA XREF: sub_FAD+10r
+seg000:C768 C0	     total_road_distance:.WORD $31C0	     ; DATA XREF: prepare_trackQ+16Aw
 seg000:C768						     ; sub_F585+3Br
-seg000:C769 31	     byte_C769:	     .BYTE $31		     ; DATA XREF: prepare_trackQ+165w
+seg000:C769 31						     ; DATA XREF: prepare_trackQ+165w
 seg000:C769						     ; sub_F585+42r
-seg000:C76A 32	     boost_left_BCD: .BYTE $32		     ; DATA XREF: sub_3DF9+A6w
+seg000:C76A 32	     boost_reserve: .BYTE $32		     ; DATA XREF: sub_3DF9+A6w
 seg000:C76A						     ; update_boosting+12r ...
 seg000:C76B 08	     background_colour:.BYTE 8		     ; DATA XREF: select_track+13w
 seg000:C76B						     ; set_up_colour_map_for_track_previewr ...
@@ -51015,7 +51015,7 @@ seg000:EB7B 4C 65 EA		     JMP     loc_EA65
 seg000:EB7E	     ; 컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
 seg000:EB7E	     
 seg000:EB7E	     loc_EB7E:				     ; CODE XREF: prepare_trackQ+145j
-seg000:EB7E AE 66 C7		     LDX     byte_C766
+seg000:EB7E AE 66 C7		     LDX     near_start_line_section
 seg000:EB81 E8			     INX     
 seg000:EB82 EC 64 C7		     CPX     number_of_road_sections
 seg000:EB85 90 02		     BCC     loc_EB89
@@ -51032,9 +51032,9 @@ seg000:EB96 20 BF C9		     JSR     shift_16bit     ; 16-bit arithmetic shift of 
 seg000:EB96						     ; 
 seg000:EB96						     ; If Y is +ve, shift Y places right.
 seg000:EB96						     ; If Y is -ve, shift abs(Y) places	left.
-seg000:EB99 8D 69 C7		     STA     byte_C769
+seg000:EB99 8D 69 C7		     STA     total_road_distance+1
 seg000:EB9C A5 14		     LDA     byte_14
-seg000:EB9E 8D 68 C7		     STA     byte_C768
+seg000:EB9E 8D 68 C7		     STA     total_road_distance+0
 seg000:EBA1 A4 17		     LDY     byte_17
 seg000:EBA3 A2 00		     LDX     #0
 seg000:EBA5	     
@@ -52898,11 +52898,11 @@ seg000:F5BB						     ;
 seg000:F5BB						     ; on entry: byte_14=LSB, A=MSB, N=1 to negate or N=0 to do	nothing
 seg000:F5BB						     ; on exit:	byte_14=LSB, A=MSB
 seg000:F5BE 85 15		     STA     byte_15
-seg000:F5C0 AD 68 C7		     LDA     byte_C768
+seg000:F5C0 AD 68 C7		     LDA     total_road_distance+0
 seg000:F5C3 38			     SEC     
 seg000:F5C4 E5 14		     SBC     byte_14
 seg000:F5C6 AA			     TAX     
-seg000:F5C7 AD 69 C7		     LDA     byte_C769
+seg000:F5C7 AD 69 C7		     LDA     total_road_distance+1
 seg000:F5CA E5 15		     SBC     byte_15
 seg000:F5CC A8			     TAY     
 seg000:F5CD A5 3B		     LDA     byte_3B
@@ -52974,7 +52974,7 @@ seg000:F61D 29 03		     AND     #3		     ; Brake or	Accelerate?
 seg000:F61F F0 3C		     BEQ     no_boost	     ; No boosting if not braking or accelerating
 seg000:F621	     
 seg000:F621	     boost_if_possible:			     ; CODE XREF: update_boosting+Aj
-seg000:F621 AD 6A C7		     LDA     boost_left_BCD
+seg000:F621 AD 6A C7		     LDA     boost_reserve
 seg000:F624 F0 37		     BEQ     no_boost	     ; No boosting if out of boost
 seg000:F626 CE 6E C3		     DEC     byte_C36E	     ; Decrement fractional part
 seg000:F629 10 21		     BPL     boost	     ; Boost if	we're not out
@@ -52984,14 +52984,14 @@ seg000:F631 F8			     SED
 seg000:F632 38			     SEC     
 seg000:F633 E9 01		     SBC     #1
 seg000:F635 D8			     CLD     
-seg000:F636 8D 6A C7		     STA     boost_left_BCD  ; Decrement boost left
+seg000:F636 8D 6A C7		     STA     boost_reserve  ; Decrement boost left
 seg000:F639 4A			     LSR     A
 seg000:F63A 4A			     LSR     A
 seg000:F63B 4A			     LSR     A
 seg000:F63C 4A			     LSR     A
 seg000:F63D A2 44		     LDX     #$44 ; 'D'
 seg000:F63F 20 2E 14		     JSR     copy_char_into_sprite_unshifted ; Update tens display
-seg000:F642 AD 6A C7		     LDA     boost_left_BCD
+seg000:F642 AD 6A C7		     LDA     boost_reserve
 seg000:F645 29 0F		     AND     #$F
 seg000:F647 A2 45		     LDX     #$45 ; 'E'
 seg000:F649 20 2E 14		     JSR     copy_char_into_sprite_unshifted ; Update units display
