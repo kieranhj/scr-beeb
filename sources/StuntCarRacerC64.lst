@@ -68,7 +68,7 @@ seg000:001B 00	     byte_1B:	     .BYTE 0		     ; DATA XREF: sub_21DE+AAw
 seg000:001B						     ; sub_21DE+C4r ...
 seg000:001C BA	     byte_1C:	     .BYTE $BA		     ; DATA XREF: sub_14D0+3Dr
 seg000:001C						     ; seg000:157Cw ...
-seg000:001D C0	     track_segment_cardidir:.BYTE $C0	     ; DATA XREF: sub_177D+Dr
+seg000:001D C0	     track_segment_cardidir:.BYTE $C0	     ; DATA XREF: make_near_road_coords+Dr
 seg000:001D						     ; sub_9A38+Br ...
 seg000:001E F0 74    ptr:	     .WORD $74F0	     ; DATA XREF: copy_char_into_sprite_unshifted+7r
 seg000:001E						     ; get_font_char_address+11w ...
@@ -87,7 +87,7 @@ seg000:0025						     ; update_damage_display+Aw ...
 seg000:0026	     ; camera_pos_1_byte2 must stay with camera_pos_0_byte2
 seg000:0026 06	     camera_pos_1_byte2:.BYTE	 6 ;  
 seg000:0027 0A	     byte_27:	     .BYTE $A		     ; DATA XREF: sub_167A+98w
-seg000:0027						     ; sub_177D+14r ...
+seg000:0027						     ; make_near_road_coords+14r ...
 seg000:0028 00	     byte_28:	     .BYTE 0		     ; DATA XREF: sub_167A+CBw
 seg000:0028						     ; sub_167A+D9w
 seg000:0029 00	     byte_29:	     .BYTE 0		     ; DATA XREF: seg000:8D5Cw
@@ -131,8 +131,8 @@ seg000:003B 00	     byte_3B:	     .BYTE 0		     ; DATA XREF: sub_F585+34w
 seg000:003B						     ; sub_F585+48r ...
 seg000:003C 78	     byte_3C:	     .BYTE $78		     ; DATA XREF: integrate_plcar+F0r
 seg000:003C						     ; seg000:1580w ...
-seg000:003D 00	     camera_cardidir_track_segment_relative:.BYTE 0 ; DATA XREF: sub_177D+Fw
-seg000:003D						     ; sub_177D+24r ...
+seg000:003D 00	     camera_cardidir_track_segment_relative:.BYTE 0 ; DATA XREF: make_near_road_coords+Fw
+seg000:003D						     ; make_near_road_coords+24r ...
 seg000:003E FF	     byte_3E:	     .BYTE $FF		     ; DATA XREF: sub_24AD+BFr
 seg000:003E						     ; sub_24AD+FAr ...
 seg000:003F 00	     byte_3F:	     .BYTE 0		     ; DATA XREF: sub_1948+68r
@@ -204,7 +204,7 @@ seg000:0060 00	     min_line_x:     .BYTE 0		     ; DATA XREF: sub_167A+E8r
 seg000:0060						     ; seg000:8CDAr ...
 seg000:0061 00	     max_line_x:     .BYTE 0		     ; DATA XREF: sub_167A+F9r
 seg000:0061						     ; seg000:8CD0r ...
-seg000:0062 10	     byte_62:	     .BYTE $10		     ; DATA XREF: sub_177D+4Er
+seg000:0062 10	     byte_62:	     .BYTE $10		     ; DATA XREF: make_near_road_coords+4Er
 seg000:0062						     ; sub_1948+14r ...
 seg000:0063 38	     camera_pos_0_byte1:.BYTE  $38 ; 8	     ; DATA XREF: copy_out_negated_camera_pos_elem+Ew
 seg000:0063						     ; copy_out_camera_pos_elem+9w
@@ -216,7 +216,7 @@ seg000:0066 00	     current_inputs: .BYTE 0		     ; DATA XREF: seg000:1C6Fr
 seg000:0066						     ; seg000:1C81r ...
 seg000:0066						     ; %TLRBA (T=16=Boost L=8=Left R=4=Right B=2=Brake A=1=Accelerate)
 seg000:0067 00			     .BYTE    0	;  
-seg000:0068 C0	     camera_cardidir:.BYTE $C0		     ; DATA XREF: sub_177D+Ar
+seg000:0068 C0	     camera_cardidir:.BYTE $C0		     ; DATA XREF: make_near_road_coords+Ar
 seg000:0068						     ; sub_9A38+8r ...
 seg000:0069 00	     byte_69:	     .BYTE 0		     ; DATA XREF: integrate_plcar+FBw
 seg000:0069						     ; seg000:1CF6r ...
@@ -306,16 +306,16 @@ seg000:0097 00	     byte_97:	     .BYTE 0		     ; DATA XREF: sub_1948+28w
 seg000:0097						     ; sub_1948+41w ...
 seg000:0098 36 B5    word_98:	     .WORD $B536	     ; DATA XREF: sub_1948+2Er
 seg000:0098						     ; sub_1948+38r ...
-seg000:009A 50 B2    word_9A:	     .WORD $B250	     ; DATA XREF: sub_177D+64r
-seg000:009A						     ; sub_177D+B7r ...
+seg000:009A 50 B2    word_9A:	     .WORD $B250	     ; DATA XREF: make_near_road_coords+64r
+seg000:009A						     ; make_near_road_coords+B7r ...
 seg000:009C C0	     byte_9C:	     .BYTE $C0		     ; DATA XREF: sub_E4DA+9w
 seg000:009C						     ; sub_E4DA+8Cr ...
 seg000:009D 00	     byte_9D:	     .BYTE 0		     ; DATA XREF: sub_800+Fw
-seg000:009D						     ; sub_177D+33r ...
-seg000:009E 12	     byte_9E:	     .BYTE $12		     ; DATA XREF: sub_177D+A5r
-seg000:009E						     ; sub_177D+ACr ...
-seg000:009F 0B	     byte_9F:	     .BYTE $B		     ; DATA XREF: sub_177D+69w
-seg000:009F						     ; sub_177D+86r ...
+seg000:009D						     ; make_near_road_coords+33r ...
+seg000:009E 12	     byte_9E:	     .BYTE $12		     ; DATA XREF: make_near_road_coords+A5r
+seg000:009E						     ; make_near_road_coords+ACr ...
+seg000:009F 0B	     byte_9F:	     .BYTE $B		     ; DATA XREF: make_near_road_coords+69w
+seg000:009F						     ; make_near_road_coords+86r ...
 seg000:00A0 00	     byte_A0:	     .BYTE 0		     ; DATA XREF: set_up_text_sprite+6w
 seg000:00A0						     ; set_up_text_sprite+4Aw ...
 seg000:00A1 00	     byte_A1:	     .BYTE 0		     ; DATA XREF: update_aicar+33r
@@ -325,7 +325,7 @@ seg000:00A2						     ; sub_1948+43r ...
 seg000:00A3 03	     byte_A3:	     .BYTE 3		     ; DATA XREF: sub_1A3B+33r
 seg000:00A3						     ; sub_E5A1+1Fw
 seg000:00A4 00	     byte_A4:	     .BYTE 0		     ; DATA XREF: sub_158E+6Ar
-seg000:00A4						     ; sub_177D+26r ...
+seg000:00A4						     ; make_near_road_coords+26r ...
 seg000:00A5 00	     byte_A5:	     .BYTE 0		     ; DATA XREF: sub_2DC2+4Ew
 seg000:00A5						     ; sub_2DC2+92r
 seg000:00A6 0F	     byte_A6:	     .BYTE $F		     ; DATA XREF: sub_167A+83r
@@ -401,7 +401,7 @@ seg000:00C9						     ; sub_1D25+FCr ...
 seg000:00CA 44 B5    word_CA:	     .WORD $B544	     ; DATA XREF: sub_1948+76r
 seg000:00CA						     ; sub_1948+81r ...
 seg000:00CC 0A	     byte_CC:	     .BYTE $A		     ; DATA XREF: sub_167A+53w
-seg000:00CC						     ; sub_177D+A1w ...
+seg000:00CC						     ; make_near_road_coords+A1w ...
 seg000:00CD 0D	     byte_CD:	     .BYTE $D		     ; DATA XREF: sub_167A+55w
 seg000:00CD						     ; sub_1909+37w ...
 seg000:00CE 22	     byte_CE:	     .BYTE $22		     ; DATA XREF: convert_X_to_BCDw
@@ -421,8 +421,8 @@ seg000:00D6 00	     byte_D6:	     .BYTE 0		     ; DATA XREF: update_aicar+1Er
 seg000:00D6						     ; sub_1F48+6r ...
 seg000:00D7 00	     byte_D7:	     .BYTE 0		     ; DATA XREF: update_aicar+22r
 seg000:00D7						     ; sub_1F48+9r ...
-seg000:00D8 00	     byte_D8:	     .BYTE 0		     ; DATA XREF: sub_177D+4Br
-seg000:00D8						     ; sub_177D+52w ...
+seg000:00D8 00	     byte_D8:	     .BYTE 0		     ; DATA XREF: make_near_road_coords+4Br
+seg000:00D8						     ; make_near_road_coords+52w ...
 seg000:00D9 00	     byte_D9:	     .BYTE 0		     ; DATA XREF: sub_E372+Bw
 seg000:00D9						     ; sub_E388+Bw ...
 seg000:00DA 00	     byte_DA:	     .BYTE 0		     ; DATA XREF: sub_E388+12w
@@ -4097,7 +4097,7 @@ seg000:1704	     loc_1704:				     ; CODE XREF: sub_167A+85j
 seg000:1704 20 C5 CF		     JSR     sub_CFC5
 seg000:1707	     
 seg000:1707	     loc_1707:				     ; CODE XREF: sub_167A+7Ej
-seg000:1707 20 7D 17		     JSR     sub_177D
+seg000:1707 20 7D 17		     JSR     make_near_road_coords
 seg000:170A 20 0B 1B		     JSR     sub_1B0B
 seg000:170D 20 3B 1A		     JSR     sub_1A3B
 seg000:1710 A9 00		     LDA     #0
@@ -4106,7 +4106,7 @@ seg000:1714 A9 02		     LDA     #2
 seg000:1716 85 D0		     STA     byte_D0
 seg000:1718 20 09 19		     JSR     sub_1909
 seg000:171B 20 C5 CF		     JSR     sub_CFC5
-seg000:171E 20 7D 17		     JSR     sub_177D
+seg000:171E 20 7D 17		     JSR     make_near_road_coords
 seg000:1721 20 3B 1A		     JSR     sub_1A3B
 seg000:1724 20 09 19		     JSR     sub_1909
 seg000:1727 AC 7D C7		     LDY     current_track
@@ -4135,7 +4135,7 @@ seg000:1745 85 28		     STA     byte_28
 seg000:1747	     
 seg000:1747	     loc_1747:				     ; CODE XREF: sub_167A+DBj
 seg000:1747 20 C5 CF		     JSR     sub_CFC5
-seg000:174A 20 7D 17		     JSR     sub_177D
+seg000:174A 20 7D 17		     JSR     make_near_road_coords
 seg000:174D 20 3B 1A		     JSR     sub_1A3B
 seg000:1750 20 09 19		     JSR     sub_1909
 seg000:1753 C6 28		     DEC     byte_28
@@ -4174,7 +4174,7 @@ seg000:177D
 seg000:177D	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:177D	     
 seg000:177D	     
-seg000:177D	     sub_177D:				     ; CODE XREF: sub_167A+8Dp
+seg000:177D	     make_near_road_coords:				     ; CODE XREF: sub_167A+8Dp
 seg000:177D A6 2E					     ; sub_167A+A4p ...
 seg000:177D			     LDX     byte_2E
 seg000:177F 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
@@ -4193,7 +4193,7 @@ seg000:1798 8D 96 C3		     STA     byte_C396
 seg000:179B BD 2F A3		     LDA     unk_A32F,X
 seg000:179E 8D 97 C3		     STA     byte_C397
 seg000:17A1	     
-seg000:17A1	     loc_17A1:				     ; CODE XREF: sub_177D+16j
+seg000:17A1	     loc_17A1:				     ; CODE XREF: make_near_road_coords+16j
 seg000:17A1 A5 3D		     LDA     camera_cardidir_track_segment_relative
 seg000:17A3 45 A4		     EOR     byte_A4
 seg000:17A5 2C 61 C3		     BIT     byte_C361
@@ -4202,16 +4202,16 @@ seg000:17AA 24 B2		     BIT     byte_B2
 seg000:17AC 30 06		     BMI     loc_17B4
 seg000:17AE 50 04		     BVC     loc_17B4
 seg000:17B0	     
-seg000:17B0	     loc_17B0:				     ; CODE XREF: sub_177D+2Bj
+seg000:17B0	     loc_17B0:				     ; CODE XREF: make_near_road_coords+2Bj
 seg000:17B0 24 9D		     BIT     byte_9D
 seg000:17B2 10 03		     BPL     loc_17B7
 seg000:17B4	     
-seg000:17B4	     loc_17B4:				     ; CODE XREF: sub_177D+2Fj
-seg000:17B4 18						     ; sub_177D+31j
+seg000:17B4	     loc_17B4:				     ; CODE XREF: make_near_road_coords+2Fj
+seg000:17B4 18						     ; make_near_road_coords+31j
 seg000:17B4			     CLC     
 seg000:17B5 69 40		     ADC     #$40
 seg000:17B7	     
-seg000:17B7	     loc_17B7:				     ; CODE XREF: sub_177D+35j
+seg000:17B7	     loc_17B7:				     ; CODE XREF: make_near_road_coords+35j
 seg000:17B7 8D A8 C3		     STA     byte_C3A8
 seg000:17BA 29 FF		     AND     #$FF
 seg000:17BC 10 1A		     BPL     loc_17D8
@@ -4229,14 +4229,14 @@ seg000:17D3 D0 0A		     BNE     loc_17DF
 seg000:17D5 4C 29 18		     JMP     loc_1829
 seg000:17D8	     ; ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
 seg000:17D8	     
-seg000:17D8	     loc_17D8:				     ; CODE XREF: sub_177D+3Fj
+seg000:17D8	     loc_17D8:				     ; CODE XREF: make_near_road_coords+3Fj
 seg000:17D8 A5 A4		     LDA     byte_A4
 seg000:17DA F0 03		     BEQ     loc_17DF
 seg000:17DC 4C 29 18		     JMP     loc_1829
 seg000:17DF	     ; ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
 seg000:17DF	     
-seg000:17DF	     loc_17DF:				     ; CODE XREF: sub_177D+56j
-seg000:17DF A0 00					     ; sub_177D+5Dj
+seg000:17DF	     loc_17DF:				     ; CODE XREF: make_near_road_coords+56j
+seg000:17DF A0 00					     ; make_near_road_coords+5Dj
 seg000:17DF			     LDY     #0
 seg000:17E1 B1 9A		     LDA     (word_9A),Y
 seg000:17E3 18			     CLC     
@@ -4244,7 +4244,7 @@ seg000:17E4 69 07		     ADC     #7
 seg000:17E6 85 9F		     STA     byte_9F
 seg000:17E8 A6 D0		     LDX     byte_D0
 seg000:17EA	     
-seg000:17EA	     loc_17EA:				     ; CODE XREF: sub_177D+A7j
+seg000:17EA	     loc_17EA:				     ; CODE XREF: make_near_road_coords+A7j
 seg000:17EA BD 30 A3		     LDA     unk_A330,X
 seg000:17ED 30 32		     BMI     loc_1821
 seg000:17EF A9 80		     LDA     #$80
@@ -4256,7 +4256,7 @@ seg000:17FA 9D 30 A3		     STA     unk_A330,X
 seg000:17FD 4C 21 18		     JMP     loc_1821
 seg000:1800	     ; ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
 seg000:1800	     
-seg000:1800	     loc_1800:				     ; CODE XREF: sub_177D+79j
+seg000:1800	     loc_1800:				     ; CODE XREF: make_near_road_coords+79j
 seg000:1800 8A			     TXA     
 seg000:1801 0A			     ASL     A
 seg000:1802 0A			     ASL     A
@@ -4274,23 +4274,23 @@ seg000:1812 29 02		     AND     #2
 seg000:1814 D0 03		     BNE     loc_1819
 seg000:1816 20 AB 18		     JSR     sub_18AB
 seg000:1819	     
-seg000:1819	     loc_1819:				     ; CODE XREF: sub_177D+97j
+seg000:1819	     loc_1819:				     ; CODE XREF: make_near_road_coords+97j
 seg000:1819 8A			     TXA     
 seg000:181A 29 01		     AND     #1
 seg000:181C A8			     TAY     
 seg000:181D 8A			     TXA     
 seg000:181E 99 CC 00		     STA     byte_CC,Y
 seg000:1821	     
-seg000:1821	     loc_1821:				     ; CODE XREF: sub_177D+70j
-seg000:1821 E8						     ; sub_177D+80j
+seg000:1821	     loc_1821:				     ; CODE XREF: make_near_road_coords+70j
+seg000:1821 E8						     ; make_near_road_coords+80j
 seg000:1821			     INX     
 seg000:1822 E4 9E		     CPX     byte_9E
 seg000:1824 D0 C4		     BNE     loc_17EA
 seg000:1826 4C 83 18		     JMP     loc_1883
 seg000:1829	     ; ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
 seg000:1829	     
-seg000:1829	     loc_1829:				     ; CODE XREF: sub_177D+58j
-seg000:1829 A5 9E					     ; sub_177D+5Fj
+seg000:1829	     loc_1829:				     ; CODE XREF: make_near_road_coords+58j
+seg000:1829 A5 9E					     ; make_near_road_coords+5Fj
 seg000:1829			     LDA     byte_9E
 seg000:182B 38			     SEC     
 seg000:182C E9 01		     SBC     #1
@@ -4307,7 +4307,7 @@ seg000:183C 85 A0		     STA     byte_A0
 seg000:183E 85 9F		     STA     byte_9F
 seg000:1840 A6 D0		     LDX     byte_D0
 seg000:1842	     
-seg000:1842	     loc_1842:				     ; CODE XREF: sub_177D+104j
+seg000:1842	     loc_1842:				     ; CODE XREF: make_near_road_coords+104j
 seg000:1842 BD 30 A3		     LDA     unk_A330,X
 seg000:1845 30 37		     BMI     loc_187E
 seg000:1847 A9 80		     LDA     #$80
@@ -4319,7 +4319,7 @@ seg000:1852 9D 30 A3		     STA     unk_A330,X
 seg000:1855 4C 7E 18		     JMP     loc_187E
 seg000:1858	     ; ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД
 seg000:1858	     
-seg000:1858	     loc_1858:				     ; CODE XREF: sub_177D+D1j
+seg000:1858	     loc_1858:				     ; CODE XREF: make_near_road_coords+D1j
 seg000:1858 8A			     TXA     
 seg000:1859 0A			     ASL     A
 seg000:185A 0A			     ASL     A
@@ -4340,20 +4340,20 @@ seg000:186F 29 02		     AND     #2
 seg000:1871 D0 03		     BNE     loc_1876
 seg000:1873 20 AB 18		     JSR     sub_18AB
 seg000:1876	     
-seg000:1876	     loc_1876:				     ; CODE XREF: sub_177D+F4j
+seg000:1876	     loc_1876:				     ; CODE XREF: make_near_road_coords+F4j
 seg000:1876 8A			     TXA     
 seg000:1877 29 01		     AND     #1
 seg000:1879 A8			     TAY     
 seg000:187A 8A			     TXA     
 seg000:187B 99 CC 00		     STA     byte_CC,Y
 seg000:187E	     
-seg000:187E	     loc_187E:				     ; CODE XREF: sub_177D+C8j
-seg000:187E E8						     ; sub_177D+D8j
+seg000:187E	     loc_187E:				     ; CODE XREF: make_near_road_coords+C8j
+seg000:187E E8						     ; make_near_road_coords+D8j
 seg000:187E			     INX     
 seg000:187F E4 9E		     CPX     byte_9E
 seg000:1881 D0 BF		     BNE     loc_1842
 seg000:1883	     
-seg000:1883	     loc_1883:				     ; CODE XREF: sub_177D+A9j
+seg000:1883	     loc_1883:				     ; CODE XREF: make_near_road_coords+A9j
 seg000:1883 BD FE A1		     LDA     unk_A1FE,X
 seg000:1886 8D 1E A2		     STA     byte_A21E
 seg000:1889 BD 96 A2		     LDA     byte_A296,X
@@ -4364,24 +4364,24 @@ seg000:1895 BD 97 A2		     LDA     byte_A297,X
 seg000:1898 8D B7 A2		     STA     byte_A2B7
 seg000:189B A6 D0		     LDX     byte_D0
 seg000:189D	     
-seg000:189D	     loc_189D:				     ; CODE XREF: sub_177D+12Bj
+seg000:189D	     loc_189D:				     ; CODE XREF: make_near_road_coords+12Bj
 seg000:189D BD 30 A3		     LDA     unk_A330,X
 seg000:18A0 30 03		     BMI     loc_18A5
 seg000:18A2 20 0E 28		     JSR     sub_280E
 seg000:18A5	     
-seg000:18A5	     loc_18A5:				     ; CODE XREF: sub_177D+123j
+seg000:18A5	     loc_18A5:				     ; CODE XREF: make_near_road_coords+123j
 seg000:18A5 E8			     INX     
 seg000:18A6 E4 9E		     CPX     byte_9E
 seg000:18A8 D0 F3		     BNE     loc_189D
 seg000:18AA 60			     RTS     
-seg000:18AA	     ; End of function sub_177D
+seg000:18AA	     ; End of function make_near_road_coords
 seg000:18AA	     
 seg000:18AB	     
 seg000:18AB	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:18AB	     
 seg000:18AB	     
-seg000:18AB	     sub_18AB:				     ; CODE XREF: sub_177D+99p
-seg000:18AB 8A						     ; sub_177D+F6p
+seg000:18AB	     sub_18AB:				     ; CODE XREF: make_near_road_coords+99p
+seg000:18AB 8A						     ; make_near_road_coords+F6p
 seg000:18AB			     TXA     
 seg000:18AC 29 01		     AND     #1
 seg000:18AE A8			     TAY     
@@ -4483,7 +4483,7 @@ seg000:1948
 seg000:1948	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:1948	     
 seg000:1948	     
-seg000:1948	     sub_1948:				     ; CODE XREF: sub_177D+11p
+seg000:1948	     sub_1948:				     ; CODE XREF: make_near_road_coords+11p
 seg000:1948 A9 2A		     LDA     #$2A
 seg000:194A 38			     SEC     
 seg000:194B E5 D3		     SBC     byte_D3
@@ -6474,8 +6474,8 @@ seg000:2458
 seg000:2458	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:2458	     
 seg000:2458	     
-seg000:2458	     sub_2458:				     ; CODE XREF: sub_177D+8Cp
-seg000:2458 86 16					     ; sub_177D+E9p ...
+seg000:2458	     sub_2458:				     ; CODE XREF: make_near_road_coords+8Cp
+seg000:2458 86 16					     ; make_near_road_coords+E9p ...
 seg000:2458			     STX     byte_16	     ; Save X
 seg000:245A A5 52		     LDA     byte_52	     ; byte_52 = value originally from C520 table
 seg000:245C	     
@@ -6747,8 +6747,8 @@ seg000:25EA
 seg000:25EA	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:25EA	     
 seg000:25EA	     
-seg000:25EA	     sub_25EA:				     ; CODE XREF: sub_177D+8Fp
-seg000:25EA 86 16					     ; sub_177D+ECp ...
+seg000:25EA	     sub_25EA:				     ; CODE XREF: make_near_road_coords+8Fp
+seg000:25EA 86 16					     ; make_near_road_coords+ECp ...
 seg000:25EA			     STX     byte_16
 seg000:25EC A0 00		     LDY     #0
 seg000:25EE BD 40 80		     LDA     $8040,X
@@ -7158,7 +7158,7 @@ seg000:280E
 seg000:280E	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:280E	     
 seg000:280E	     
-seg000:280E	     sub_280E:				     ; CODE XREF: sub_177D+125p
+seg000:280E	     sub_280E:				     ; CODE XREF: make_near_road_coords+125p
 seg000:280E BD 98 A2		     LDA     $A298,X
 seg000:2811 1D E4 A2		     ORA     $A2E4,X
 seg000:2814 D0 46		     BNE     loc_285C
@@ -33769,8 +33769,8 @@ seg000:A026	     ;
 seg000:A026	     ; entry: Y	= index	into (word_9A) data
 seg000:A026	     ; exit: Y points after data read
 seg000:A026	     
-seg000:A026	     sub_A026:				     ; CODE XREF: sub_177D+89p
-seg000:A026 24 3D					     ; sub_177D+E6p ...
+seg000:A026	     sub_A026:				     ; CODE XREF: make_near_road_coords+89p
+seg000:A026 24 3D					     ; make_near_road_coords+E6p ...
 seg000:A026			     BIT     camera_cardidir_track_segment_relative
 seg000:A028 30 43		     BMI     loc_A06D	     ; taken if	%1xxxxxxx
 seg000:A02A 70 1F		     BVS     loc_A04B	     ; taken if	%01xxxxxx
@@ -34109,8 +34109,8 @@ seg000:A1FA 42			     .BYTE  $42	; B
 seg000:A1FB 45			     .BYTE  $45	; E
 seg000:A1FC 52			     .BYTE  $52	; R
 seg000:A1FD 44			     .BYTE  $44	; D
-seg000:A1FE 42	     unk_A1FE:	     .BYTE  $42	; B	     ; DATA XREF: sub_177D+106r
-seg000:A1FF 49	     unk_A1FF:	     .BYTE  $49	; I	     ; DATA XREF: sub_177D+112r
+seg000:A1FE 42	     unk_A1FE:	     .BYTE  $42	; B	     ; DATA XREF: make_near_road_coords+106r
+seg000:A1FF 49	     unk_A1FF:	     .BYTE  $49	; I	     ; DATA XREF: make_near_road_coords+112r
 seg000:A200 AC	     unk_A200:	     .BYTE  $AC	; ¬	     ; DATA XREF: sub_18AB+18r
 seg000:A200						     ; sub_18AB+1Cr ...
 seg000:A201 A7			     .BYTE  $A7	; §
@@ -34143,8 +34143,8 @@ seg000:A21A 1E			     .BYTE  $1E	;
 seg000:A21B 1C			     .BYTE  $1C	;  
 seg000:A21C 00			     .BYTE    0	;  
 seg000:A21D 00			     .BYTE    0	;  
-seg000:A21E 76	     byte_A21E:	     .BYTE $76		     ; DATA XREF: sub_177D+109w
-seg000:A21F B1	     byte_A21F:	     .BYTE $B1		     ; DATA XREF: sub_177D+115w
+seg000:A21E 76	     byte_A21E:	     .BYTE $76		     ; DATA XREF: make_near_road_coords+109w
+seg000:A21F B1	     byte_A21F:	     .BYTE $B1		     ; DATA XREF: make_near_road_coords+115w
 seg000:A220 4B	     byte_A220:	     .BYTE $4B		     ; DATA XREF: sub_18AB+4Cw
 seg000:A220						     ; draw_crash_smokeQ+26w
 seg000:A221 8E	     byte_A221:	     .BYTE $8E		     ; DATA XREF: draw_crash_smokeQ+32w
@@ -34275,9 +34275,9 @@ seg000:A293 00	     byte_A293:	     .BYTE 0		     ; DATA XREF: sub_E2AA+12w
 seg000:A294 00	     byte_A294:	     .BYTE 0		     ; DATA XREF: sub_E6E8+34w
 seg000:A295 00	     byte_A295:	     .BYTE 0		     ; DATA XREF: sub_E6E8+2Ew
 seg000:A295						     ; sub_E6E8+AEr
-seg000:A296 00	     byte_A296:	     .BYTE 0		     ; DATA XREF: sub_177D+10Cr
+seg000:A296 00	     byte_A296:	     .BYTE 0		     ; DATA XREF: make_near_road_coords+10Cr
 seg000:A296						     ; sub_E6E8+12w ...
-seg000:A297 00	     byte_A297:	     .BYTE 0		     ; DATA XREF: sub_177D+118r
+seg000:A297 00	     byte_A297:	     .BYTE 0		     ; DATA XREF: make_near_road_coords+118r
 seg000:A297						     ; sub_E6E8+18w
 seg000:A298 01	     unk_A298:	     .BYTE    1	;	     ; DATA XREF: sub_18AB+1Fr
 seg000:A298						     ; sub_18AB+22r ...
@@ -34311,8 +34311,8 @@ seg000:A2B2 01			     .BYTE    1	;
 seg000:A2B3 01			     .BYTE    1	;  
 seg000:A2B4 00			     .BYTE    0	;  
 seg000:A2B5 00			     .BYTE    0	;  
-seg000:A2B6 00	     byte_A2B6:	     .BYTE 0		     ; DATA XREF: sub_177D+10Fw
-seg000:A2B7 00	     byte_A2B7:	     .BYTE 0		     ; DATA XREF: sub_177D+11Bw
+seg000:A2B6 00	     byte_A2B6:	     .BYTE 0		     ; DATA XREF: make_near_road_coords+10Fw
+seg000:A2B7 00	     byte_A2B7:	     .BYTE 0		     ; DATA XREF: make_near_road_coords+11Bw
 seg000:A2B8 00	     unk_A2B8:	     .BYTE    0	;	     ; DATA XREF: sub_18AB+46w
 seg000:A2B9 01			     .BYTE    1	;  
 seg000:A2BA 00			     .BYTE    0	;  
@@ -34432,10 +34432,10 @@ seg000:A32A 00			     .BYTE    0	;
 seg000:A32B 00			     .BYTE    0	;  
 seg000:A32C 00			     .BYTE    0	;  
 seg000:A32D 00			     .BYTE    0	;  
-seg000:A32E 00	     unk_A32E:	     .BYTE    0	;	     ; DATA XREF: sub_177D+18r
-seg000:A32F 00	     unk_A32F:	     .BYTE    0	;	     ; DATA XREF: sub_177D+1Er
-seg000:A330 80	     unk_A330:	     .BYTE  $80	; Ђ	     ; DATA XREF: sub_177D+6Dr
-seg000:A330						     ; sub_177D+7Dw ...
+seg000:A32E 00	     unk_A32E:	     .BYTE    0	;	     ; DATA XREF: make_near_road_coords+18r
+seg000:A32F 00	     unk_A32F:	     .BYTE    0	;	     ; DATA XREF: make_near_road_coords+1Er
+seg000:A330 80	     unk_A330:	     .BYTE  $80	; Ђ	     ; DATA XREF: make_near_road_coords+6Dr
+seg000:A330						     ; make_near_road_coords+7Dw ...
 seg000:A331 80	     unk_A331:	     .BYTE  $80	; Ђ	     ; DATA XREF: sub_1948+57w
 seg000:A331						     ; sub_1948+87w ...
 seg000:A332 80			     .BYTE  $80	; Ђ
@@ -34468,8 +34468,8 @@ seg000:A34C 00			     .BYTE    0	;
 seg000:A34D 00			     .BYTE    0	;  
 seg000:A34E 00			     .BYTE    0	;  
 seg000:A34F 00			     .BYTE    0	;  
-seg000:A350 80	     unk_A350:	     .BYTE  $80	; Ђ	     ; DATA XREF: sub_177D+74w
-seg000:A350						     ; sub_177D+CCw ...
+seg000:A350 80	     unk_A350:	     .BYTE  $80	; Ђ	     ; DATA XREF: make_near_road_coords+74w
+seg000:A350						     ; make_near_road_coords+CCw ...
 seg000:A351 80			     .BYTE  $80	; Ђ
 seg000:A352 80			     .BYTE  $80	; Ђ
 seg000:A353 80			     .BYTE  $80	; Ђ
@@ -42177,7 +42177,7 @@ seg000:C35F 80	     byte_C35F:	     .BYTE $80		     ; DATA XREF: set_up_single_p
 seg000:C35F						     ; seg000:CDCAr ...
 seg000:C360 00	     byte_C360:	     .BYTE 0		     ; DATA XREF: set_up_screen_for_menu+3w
 seg000:C360						     ; set_up_screen_for_menu+50r ...
-seg000:C361 00	     byte_C361:	     .BYTE 0		     ; DATA XREF: sub_177D+28r
+seg000:C361 00	     byte_C361:	     .BYTE 0		     ; DATA XREF: make_near_road_coords+28r
 seg000:C361						     ; draw_track_preview+14w ...
 seg000:C362 00	     byte_C362:	     .BYTE 0		     ; DATA XREF: sub_1020+32w
 seg000:C362						     ; sub_1020+3Cr ...
@@ -42260,8 +42260,8 @@ seg000:C393 00			     .BYTE    0	;
 seg000:C394 00			     .BYTE    0	;  
 seg000:C395 00	     byte_C395:	     .BYTE 0		     ; DATA XREF: sub_FAD+64w
 seg000:C395						     ; sub_1020+41r ...
-seg000:C396 06	     byte_C396:	     .BYTE 6		     ; DATA XREF: sub_177D+1Bw
-seg000:C397 04	     byte_C397:	     .BYTE 4		     ; DATA XREF: sub_177D+21w
+seg000:C396 06	     byte_C396:	     .BYTE 6		     ; DATA XREF: make_near_road_coords+1Bw
+seg000:C397 04	     byte_C397:	     .BYTE 4		     ; DATA XREF: make_near_road_coords+21w
 seg000:C398 10	     not_boosting:   .BYTE $10		     ; DATA XREF: seg000:1C87w
 seg000:C398						     ; sub_EC11+75r ...
 seg000:C398						     ; $00 if Boost active; $10	if Boost inactive.
@@ -42286,10 +42286,10 @@ seg000:C3A5 FF	     byte_C3A5:	     .BYTE $FF		     ; DATA XREF: sub_9CBA+62w
 seg000:C3A5						     ; sub_A0B6+Cr ...
 seg000:C3A6 00	     unk_C3A6:	     .BYTE    0	;  
 seg000:C3A7 00			     .BYTE    0	;  
-seg000:C3A8 00	     byte_C3A8:	     .BYTE 0		     ; DATA XREF: sub_177D+3Aw
+seg000:C3A8 00	     byte_C3A8:	     .BYTE 0		     ; DATA XREF: make_near_road_coords+3Aw
 seg000:C3A8						     ; sub_1A3B+2r
 seg000:C3A9 00	     byte_C3A9:	     .BYTE 0		     ; DATA XREF: start_of_frame+21w
-seg000:C3A9						     ; sub_177D+41w ...
+seg000:C3A9						     ; make_near_road_coords+41w ...
 seg000:C3AA 00			     .BYTE    0	;  
 seg000:C3AB 00	     byte_C3AB:	     .BYTE 0		     ; DATA XREF: draw_aicar+41r
 seg000:C3AB						     ; set_linedraw_colourw
@@ -51949,7 +51949,7 @@ seg000:F02F	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:F02F	     
 seg000:F02F	     ; entry: X	= track	segment	index
 seg000:F02F	     
-seg000:F02F	     fetch_near_section_stuff:	     ; CODE XREF: sub_177D+2p
+seg000:F02F	     fetch_near_section_stuff:	     ; CODE XREF: make_near_road_coords+2p
 seg000:F02F BD 9C 04					     ; update_aicar+8p	...
 seg000:F02F			     LDA     left_y_coordinate_IDs,X ; Get byte
 seg000:F032 85 A2		     STA     byte_A2
@@ -52043,7 +52043,7 @@ seg000:F0C5
 seg000:F0C5	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
 seg000:F0C5	     ; Sets ?$93=X*8+?$CF; ?$95=Y*8+$D1
 seg000:F0C5	     
-seg000:F0C5	     fetch_xz_position:				     ; CODE XREF: sub_177D+7p
+seg000:F0C5	     fetch_xz_position:				     ; CODE XREF: make_near_road_coords+7p
 seg000:F0C5 BD 4E 04					     ; sub_9A38+5p ...
 seg000:F0C5			     LDA     road_section_xz_positions,X ; Get value
 seg000:F0C8 A8			     TAY		     ; Y = value
@@ -52598,7 +52598,7 @@ seg000:F373 85 D0		     STA     byte_D0
 seg000:F375 A9 80		     LDA     #$80 ; 'Ђ'
 seg000:F377 85 CC		     STA     byte_CC
 seg000:F379 85 CD		     STA     byte_CD
-seg000:F37B 20 7D 17		     JSR     sub_177D
+seg000:F37B 20 7D 17		     JSR     make_near_road_coords
 seg000:F37E 20 3B 1A		     JSR     sub_1A3B
 seg000:F381	     
 seg000:F381	     done:				     ; CODE XREF: draw_track_preview_part+3Bj
@@ -52740,7 +52740,7 @@ seg000:F440
 seg000:F440	     ; ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ S U B R O U T I N E ЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫЫ
 seg000:F440	     
 seg000:F440	     
-seg000:F440	     sub_F440:				     ; CODE XREF: sub_177D+48p
+seg000:F440	     sub_F440:				     ; CODE XREF: make_near_road_coords+48p
 seg000:F440 A2 00		     LDX     #0
 seg000:F442 A4 9E		     LDY     byte_9E
 seg000:F444 88			     DEY     
