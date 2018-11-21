@@ -194,11 +194,11 @@ seg000:005A 00	     byte_5A:	     .BYTE 0		     ; DATA XREF: sub_E73+86w
 seg000:005A						     ; sub_9CBA+A7w ...
 seg000:005B 00	     byte_5B:	     .BYTE 0		     ; DATA XREF: sub_9CBA+F0w
 seg000:005B						     ; sub_9CBA+140w ...
-seg000:005C 02	     byte_5C:	     .BYTE 2		     ; DATA XREF: sub_F0C5+7r
+seg000:005C 02	     byte_5C:	     .BYTE 2		     ; DATA XREF: fetch_xz_position+7r
 seg000:005C						     ; sub_F15D+1Aw ...
 seg000:005D 00	     byte_5D:	     .BYTE 0		     ; DATA XREF: sub_2D89+12r
 seg000:005D						     ; sub_2D89+18r ...
-seg000:005E 00	     byte_5E:	     .BYTE 0		     ; DATA XREF: sub_F0C5+10r
+seg000:005E 00	     byte_5E:	     .BYTE 0		     ; DATA XREF: fetch_xz_position+10r
 seg000:005E						     ; sub_FF6Ar
 seg000:005F E5	     byte_5F:	     .BYTE $E5		     ; DATA XREF: seg000:CF37r
 seg000:005F						     ; seg000:CF3Cw
@@ -372,7 +372,7 @@ seg000:00BA FE	     byte_BA:	     .BYTE $FE		     ; DATA XREF: sub_9A38+C0w
 seg000:00BA						     ; sub_9A38+C6r ...
 seg000:00BB 00	     unk_BB:	     .BYTE    0	;  
 seg000:00BC AB	     byte_BC:	     .BYTE $AB		     ; DATA XREF: sub_9CBA+20r
-seg000:00BC						     ; get_track_segment_detailsQ+87w
+seg000:00BC						     ; fetch_near_section_stuff+87w
 seg000:00BD 80	     byte_BD:	     .BYTE $80		     ; DATA XREF: update_aicar+1Ar
 seg000:00BD						     ; sub_9CBA+9Fr ...
 seg000:00BE 08	     byte_BE:	     .BYTE 8		     ; DATA XREF: sub_1948+Er
@@ -408,10 +408,10 @@ seg000:00CD 0D	     byte_CD:	     .BYTE $D		     ; DATA XREF: sub_167A+55w
 seg000:00CD						     ; sub_1909+37w ...
 seg000:00CE 22	     byte_CE:	     .BYTE $22		     ; DATA XREF: convert_X_to_BCDw
 seg000:00CE						     ; convert_X_to_BCD+Dr
-seg000:00CF FC	     byte_CF:	     .BYTE $FC		     ; DATA XREF: sub_F0C5+44r
+seg000:00CF FC	     byte_CF:	     .BYTE $FC		     ; DATA XREF: fetch_xz_position+44r
 seg000:00D0 00	     byte_D0:	     .BYTE 0		     ; DATA XREF: sub_167A+6Fw
 seg000:00D0						     ; sub_167A+9Cw ...
-seg000:00D1 FC	     byte_D1:	     .BYTE $FC		     ; DATA XREF: sub_F0C5+4Dr
+seg000:00D1 FC	     byte_D1:	     .BYTE $FC		     ; DATA XREF: fetch_xz_position+4Dr
 seg000:00D2 22	     byte_D2:	     .BYTE $22		     ; DATA XREF: sub_1A3B+18r
 seg000:00D2						     ; sub_1A3B+ABw ...
 seg000:00D3 25	     byte_D3:	     .BYTE $25		     ; DATA XREF: sub_1948+3r
@@ -1128,39 +1128,39 @@ seg000:0380 00 00 00+		     .BYTE 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0,	0
 seg000:0380 00 00 00+		     .BYTE 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0,	0, 0
 seg000:0380 00 00 00+		     .BYTE 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0,	0, 0
 seg000:0380 00 00 00+		     .BYTE 0, 0, 0, 0, 0, 0, 0,	0, 0
-seg000:0400 A0 A0 A0+trackdata_400:  .BYTE $A0,	$A0, $A0, $A0, $A0, $A0, $A0, $A0, $A0,	$A0
-seg000:0400 A0 A0 A0+					     ; DATA XREF: get_track_segment_detailsQ+3Ar
-seg000:0400 A0 A0 A0+					     ; get_track_segment_detailsQ+41r ...
+seg000:0400 A0 A0 A0+road_section_angle_and_piece:  .BYTE $A0,	$A0, $A0, $A0, $A0, $A0, $A0, $A0, $A0,	$A0
+seg000:0400 A0 A0 A0+					     ; DATA XREF: fetch_near_section_stuff+3Ar
+seg000:0400 A0 A0 A0+					     ; fetch_near_section_stuff+41r ...
 seg000:0400 A0 80 86+		     .BYTE $80,	$86, $57, $C0, $E0, $E0, $E0, $E0, $E0,	$E0
 seg000:0400 57 C0 E0+		     .BYTE $E0,	$E0, $E0, $E0, $C0, $C6, $B7, 1, $94, $2A, $2A
 seg000:0400 E0 E0 E0+		     .BYTE $2A,	$2A, $2A, $2A, $2A, $2A, $2A, $2A, 4, $D3, $66
 seg000:0400 E0 E0 E0+		     .BYTE $17,	$80, 5,	5, 5, 5, 5, 5, 5, 5, 5,	5, 5, 5, 5
 seg000:0400 E0 E0 E0+		     .BYTE 5, 5, 5, 5, 5, 5, $F, $F, 5,	5, 5, 5, 5, 5, 5, 5
 seg000:0400 C0 C6 B7+		     .BYTE 5, 5, 5, 5, 5
-seg000:044E CF BF AF+trackdata_44e:  .BYTE $CF,	$BF, $AF, $9F, $8F, $7F, $6F, $5F, $4F,	$3F
+seg000:044E CF BF AF+road_section_xz_positions:  .BYTE $CF,	$BF, $AF, $9F, $8F, $7F, $6F, $5F, $4F,	$3F
 seg000:044E 9F 8F 7F+					     ; DATA XREF: find_track_segment_index+Cr
-seg000:044E 6F 5F 4F+					     ; sub_F0C5r
+seg000:044E 6F 5F 4F+					     ; fetch_xz_positionr
 seg000:044E 3F 2F 1F+		     .BYTE $2F,	$1F, $E, $D, $C, $B, $A, 9, 8, 7, 6, 5,	4, 3
 seg000:044E 0E 0D 0C+		     .BYTE 2, 1, $10, $20, $31,	$42, $53, $64, $75, $86, $97
 seg000:044E 0B 0A 09+		     .BYTE $A8,	$B9, $CA, $DB, $EC, $FD, $FE, $EF, $DF,	5, 5
 seg000:044E 08 07 06+		     .BYTE 5, 5, 5, 5, 5, 5, 5,	5, 5, 5, 5, 6, $F, 2, $A, $A
 seg000:044E 05 04 03+		     .BYTE 2, 6, $F, 6,	$C, 9, 9, 5, 5,	5, 5, 5, 5, 5, 5, 5
-seg000:049C 6A 6B 24+trackdata_49c:  .BYTE $6A,	$6B, $24, $50, $50, $25, 0, 0, $19, $63, 4
-seg000:049C 50 50 25+					     ; DATA XREF: get_track_segment_detailsQr
+seg000:049C 6A 6B 24+left_y_coordinate_IDs:  .BYTE $6A,	$6B, $24, $50, $50, $25, 0, 0, $19, $63, 4
+seg000:049C 50 50 25+					     ; DATA XREF: fetch_near_section_stuffr
 seg000:049C 00 00 19+		     .BYTE $65,	$68, $64, $69, $17, 0, 0, 0, 0,	0, 0, 0, 0
 seg000:049C 63 04 65+		     .BYTE 3, $16, 0, $19, 4, 0, 0, 0, $28, $29, 0, $2A, $2B
 seg000:049C 68 64 69+		     .BYTE 0, 0, 9, $16, 0, $1B, 4, 5, 5, 5, 5,	5, 5, 5, 5
 seg000:049C 17 00 00+		     .BYTE 5, 5, 5, 5, 5, 5, 5,	6, 6, 2, 5, 5, 5, 6, 6,	5, 5
 seg000:049C 00 00 00+		     .BYTE 5, 5, $A, 6,	5, 5, 5, 5, 5
-seg000:04EA 6A 6B 24+trackdata_4ea:  .BYTE $6A,	$6B, $24, $50, $50, $25, 0, 0, $19, $63, $64
-seg000:04EA 50 50 25+					     ; DATA XREF: get_track_segment_detailsQ+11r
+seg000:04EA 6A 6B 24+right_y_coordinate_IDs:  .BYTE $6A,	$6B, $24, $50, $50, $25, 0, 0, $19, $63, $64
+seg000:04EA 50 50 25+					     ; DATA XREF: fetch_near_section_stuff+11r
 seg000:04EA 00 00 19+		     .BYTE $66,	$E7, 4,	$69, $17, 0, 0,	0, 0, 0, 0, 0, 0, 4
 seg000:04EA 63 64 66+		     .BYTE $17,	$80, $18, 3, $80, 0, $80, $28, $A9, 0, $AA
 seg000:04EA E7 04 69+		     .BYTE $2B,	$80, 0,	$8A, $17, 0, $9A, 3, 7,	5, 5, 5, 8
 seg000:04EA 17 00 00+		     .BYTE $F, 5, 5, 5,	9, 9, 9, 9, 9, 9, 9, 9,	9, 9, 9, 9
 seg000:04EA 00 00 00+		     .BYTE 9, 9, 9, 9, 9, 9, 9,	9, 9, 9, 9, 9, 5
 seg000:0538 80 80 80+trackdata_538:  .BYTE $80,	$80, $80, $60, $60, $60, $40, $40, $E0,	$20
-seg000:0538 60 60 60+					     ; DATA XREF: get_track_segment_detailsQ+26r
+seg000:0538 60 60 60+					     ; DATA XREF: fetch_near_section_stuff+26r
 seg000:0538 40 40 E0+		     .BYTE $A0,	$80, $A0, $60, $60, 0, 0, 0, 0,	0, 0, 0, 0
 seg000:0538 20 A0 80+		     .BYTE 0, 0, 0, $60, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0
 seg000:0538 A0 60 60+		     .BYTE 0, 0, $60, 0, 0, $20, $20, $20, $20,	$20, $20, $20
@@ -1168,14 +1168,14 @@ seg000:0538 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$
 seg000:0538 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:0538 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20
 seg000:0586 02 02 07+trackdata_586:  .BYTE 2, 2, 7, $A,	$12, $1A, $1D, $1D, $1C, $19, $17, $13,	$E
-seg000:0586 0A 12 1A+					     ; DATA XREF: get_track_segment_detailsQ+2Br
+seg000:0586 0A 12 1A+					     ; DATA XREF: fetch_near_section_stuff+2Br
 seg000:0586 1D 1D 1C+		     .BYTE 6, 5, 5, 5, 5, 5, 5,	5, 5, 5, 5, 5, 7
 seg000:0586 19 17 13+		     .BYTE 7, 7, 5, 5, 5, 5, 5,	5, 5, 5, 5, 5, 5
 seg000:0586 0E 06 05+		     .BYTE 5, 7, 7, 7, 5, $20, $20, $20, $20, $20, $20,	$20, $20
 seg000:0586 05 05 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20, $20, $20, $20
 seg000:0586 05 05 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20, $20, $20, $20
 seg000:05D4 80 80 80+trackdata_5d4:  .BYTE $80,	$80, $80, $60, $60, $60, $40, $40, $E0,	$20
-seg000:05D4 60 60 60+					     ; DATA XREF: get_track_segment_detailsQ+30r
+seg000:05D4 60 60 60+					     ; DATA XREF: fetch_near_section_stuff+30r
 seg000:05D4 40 40 E0+		     .BYTE $60,	$C0, $A0, $A0, $60, 0, 0, 0, 0,	0, 0, 0, 0
 seg000:05D4 20 60 C0+		     .BYTE 0, 0, $A0, $A0, $A0,	0, 0, 0, 0, 0, 0, 0, 0,	0, 0
 seg000:05D4 A0 A0 60+		     .BYTE 0, 0, $A0, $A0, $A0,	0, $20,	$20, $20, $20, $20
@@ -1183,7 +1183,7 @@ seg000:05D4 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$
 seg000:05D4 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:05D4 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20
 seg000:0622 02 02 07+trackdata_622:  .BYTE 2, 2, 7, $A,	$12, $1A, $1D, $1D, $1C, $19, $11, $E
-seg000:0622 0A 12 1A+					     ; DATA XREF: get_track_segment_detailsQ+35r
+seg000:0622 0A 12 1A+					     ; DATA XREF: fetch_near_section_stuff+35r
 seg000:0622 1D 1D 1C+		     .BYTE $A, 8, 5, 5,	5, 5, 5, 5, 5, 5, 5, 5,	3, 2, 2, 2
 seg000:0622 19 11 0E+		     .BYTE 3, 5, 5, 5, 5, 5, 5,	5, 5, 5, 5, 3, 2, 2, 2,	3, $20
 seg000:0622 0A 08 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
@@ -4175,9 +4175,9 @@ seg000:177D
 seg000:177D	     sub_177D:				     ; CODE XREF: sub_167A+8Dp
 seg000:177D A6 2E					     ; sub_167A+A4p ...
 seg000:177D			     LDX     byte_2E
-seg000:177F 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:177F 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:1782 A6 2E		     LDX     byte_2E
-seg000:1784 20 C5 F0		     JSR     sub_F0C5	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
+seg000:1784 20 C5 F0		     JSR     fetch_xz_position	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
 seg000:1784						     ; Sets ?$93=X*8+?$CF; ?$95=Y*8+$D1
 seg000:1787 A5 68		     LDA     camera_cardidir
 seg000:1789 38			     SEC     
@@ -5343,7 +5343,7 @@ seg000:1DE5 AE 75 C3		     LDX     aicar_track_segmentQ
 seg000:1DE8 86 2E		     STX     byte_2E
 seg000:1DEA	     
 seg000:1DEA	     loc_1DEA:				     ; CODE XREF: sub_1D25+D9j
-seg000:1DEA BD 00 04		     LDA     $400,X
+seg000:1DEA BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:1DED 29 0F		     AND     #$F
 seg000:1DEF A8			     TAY     
 seg000:1DF0 B9 40 B2		     LDA     $B240,Y
@@ -5472,7 +5472,7 @@ seg000:1E66 EC 64 C7		     CPX     number_of_road_sections	; Past end?
 seg000:1E69 B0 12		     BCS     return_FF	     ; Taken if	so
 seg000:1E6B	     
 seg000:1E6B	     loc_1E6B:				     ; CODE XREF: find_track_segment_index+1Cj
-seg000:1E6B DD 4E 04		     CMP     trackdata_44e,X ; Got right entry?
+seg000:1E6B DD 4E 04		     CMP     road_section_xz_positions,X ; Got right entry?
 seg000:1E6E F0 0F		     BEQ     loc_1E7F	     ; Return if yes
 seg000:1E70 E8			     INX		     ; Next entry
 seg000:1E71 EC 64 C7		     CPX     number_of_road_sections	; Reachend end of track?
@@ -5505,7 +5505,7 @@ seg000:1E85 AD 7C C3					     ; sub_167A+5Cp
 seg000:1E85			     LDA     byte_C37C
 seg000:1E88 F0 57		     BEQ     locret_1EE1
 seg000:1E8A AE 75 C3		     LDX     aicar_track_segmentQ
-seg000:1E8D 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:1E8D 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:1E90 20 DE 21		     JSR     sub_21DE
 seg000:1E93 20 8E 15		     JSR     sub_158E
 seg000:1E96 20 1B 20		     JSR     sub_201B
@@ -7642,7 +7642,7 @@ seg000:2B12 A2 00		     LDX     #0
 seg000:2B14 A9 20		     LDA     #$20 ; ' '
 seg000:2B16	     
 seg000:2B16	     loc_2B16:				     ; CODE XREF: sub_2AAE+77j
-seg000:2B16 9D 00 04		     STA     $400,X
+seg000:2B16 9D 00 04		     STA     road_section_angle_and_piece,X
 seg000:2B19 9D FA 04		     STA     $4FA,X
 seg000:2B1C 9D F4 05		     STA     $5F4,X
 seg000:2B1F 9D EE 06		     STA     $6EE,X
@@ -8250,7 +8250,7 @@ seg000:2DC2
 seg000:2DC2	     sub_2DC2:				     ; CODE XREF: game_update+2Cp
 seg000:2DC2 AE 74 C3		     LDX     plcar_track_segment
 seg000:2DC5 86 2E		     STX     byte_2E
-seg000:2DC7 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:2DC7 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:2DCA AD 89 01		     LDA     track_segment_angleQ_lsb
 seg000:2DCD 38			     SEC     
 seg000:2DCE ED 22 01		     SBC     camera_y_rot_lsb ;	yaw/steer
@@ -8304,7 +8304,7 @@ seg000:2E15 E5 C3		     SBC     byte_C3
 seg000:2E17 C9 02		     CMP     #2
 seg000:2E19 B0 06		     BCS     loc_2E21
 seg000:2E1B 20 C5 CF		     JSR     sub_CFC5
-seg000:2E1E 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:2E1E 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:2E21	     
 seg000:2E21	     loc_2E21:				     ; CODE XREF: sub_2DC2+57j
 seg000:2E21 A5 9D		     LDA     byte_9D
@@ -29518,7 +29518,7 @@ seg000:881C	     loc_881C:				     ; CODE XREF: sysctl+102j
 seg000:881C B1 1E		     LDA     (ptr),Y
 seg000:881E 99 00 7C		     STA     $7C00,Y
 seg000:8821 B1 20		     LDA     ($20),Y
-seg000:8823 99 00 04		     STA     $400,Y
+seg000:8823 99 00 04		     STA     road_section_angle_and_piece,Y
 seg000:8826 88			     DEY     
 seg000:8827 D0 F3		     BNE     loc_881C
 seg000:8829 E6 1F		     INC     ptr+1
@@ -29550,7 +29550,7 @@ seg000:8850 8D 1A D0		     STA     VIC_D01A_irq_control
 seg000:8853 A2 00		     LDX     #0
 seg000:8855	     
 seg000:8855	     loc_8855:				     ; CODE XREF: sysctl+137j
-seg000:8855 BD 00 04		     LDA     $400,X
+seg000:8855 BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:8858 9D 00 D8		     STA     $D800,X
 seg000:885B CA			     DEX     
 seg000:885C D0 F7		     BNE     loc_8855
@@ -30836,7 +30836,7 @@ seg000:8F41 85 14		     STA     byte_14
 seg000:8F43 10 2F		     BPL     loc_8F74
 seg000:8F45	     
 seg000:8F45	     loc_8F45:				     ; CODE XREF: seg000:8F31j
-seg000:8F45 BD 00 04		     LDA     $400,X
+seg000:8F45 BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:8F48 29 0F		     AND     #$F
 seg000:8F4A A8			     TAY     
 seg000:8F4B B9 40 B2		     LDA     $B240,Y
@@ -32461,7 +32461,7 @@ seg000:98E5
 seg000:98E5	     loc_98E5:				     ; CODE XREF: do_hall_of_fame_screen+Fj
 seg000:98E5 B9 00 DE					     ; do_hall_of_fame_screen+21j
 seg000:98E5			     LDA     $DE00,Y
-seg000:98E8 9D 00 04		     STA     $400,X
+seg000:98E8 9D 00 04		     STA     road_section_angle_and_piece,X
 seg000:98EB B9 00 DF		     LDA     $DF00,Y
 seg000:98EE 9D 80 04		     STA     $480,X
 seg000:98F1 88			     DEY     
@@ -32577,14 +32577,14 @@ seg000:9998 AA			     TAX
 seg000:9999 A0 0C		     LDY     #$C
 seg000:999B	     
 seg000:999B	     loc_999B:				     ; CODE XREF: do_hall_of_fame_screen+D1j
-seg000:999B BD 00 04		     LDA     $400,X
+seg000:999B BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:999E 20 6F 84		     JSR     oswrch
 seg000:99A1 E8			     INX     
 seg000:99A2 88			     DEY     
 seg000:99A3 D0 F6		     BNE     loc_999B
 seg000:99A5 20 AF 91		     JSR     print_space
 seg000:99A8 CE D9 C3		     DEC     byte_C3D9
-seg000:99AB BD 00 04		     LDA     $400,X
+seg000:99AB BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:99AE 8D 98 83		     STA     byte_8398
 seg000:99B1 BD 01 04		     LDA     $401,X
 seg000:99B4 8D B0 82		     STA     byte_82B0
@@ -32680,8 +32680,8 @@ seg000:9A38
 seg000:9A38	     sub_9A38:				     ; CODE XREF: sub_167A+3Cp
 seg000:9A38 A6 2E					     ; sub_9A38+15Bj ...
 seg000:9A38			     LDX     byte_2E
-seg000:9A3A 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
-seg000:9A3D 20 C5 F0		     JSR     sub_F0C5	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
+seg000:9A3A 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
+seg000:9A3D 20 C5 F0		     JSR     fetch_xz_position	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
 seg000:9A3D						     ; Sets ?$93=X*8+?$CF; ?$95=Y*8+$D1
 seg000:9A40 A5 68		     LDA     camera_cardidir
 seg000:9A42 38			     SEC     
@@ -32901,7 +32901,7 @@ seg000:9B87	     loc_9B87:				     ; CODE XREF: sub_9A38+147j
 seg000:9B87 20 C5 CF		     JSR     sub_CFC5
 seg000:9B8A	     
 seg000:9B8A	     loc_9B8A:				     ; CODE XREF: sub_9A38+14Cj
-seg000:9B8A BD 00 04		     LDA     $400,X
+seg000:9B8A BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:9B8D 29 0F		     AND     #$F
 seg000:9B8F C9 04		     CMP     #4
 seg000:9B91 D0 03		     BNE     loc_9B96
@@ -33146,7 +33146,7 @@ seg000:9CBA
 seg000:9CBA	     sub_9CBA:				     ; CODE XREF: game_update+Cp
 seg000:9CBA AE 74 C3		     LDX     plcar_track_segment
 seg000:9CBD 86 2E		     STX     byte_2E
-seg000:9CBF 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:9CBF 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:9CC2 A9 00		     LDA     #0
 seg000:9CC4 8D 59 C3		     STA     byte_C359
 seg000:9CC7 A2 02		     LDX     #2
@@ -33158,7 +33158,7 @@ seg000:9CCE C5 2E		     CMP     byte_2E
 seg000:9CD0 F0 08		     BEQ     loc_9CDA
 seg000:9CD2 AA			     TAX     
 seg000:9CD3 86 2E		     STX     byte_2E
-seg000:9CD5 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:9CD5 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:9CD8 A6 52		     LDX     byte_52
 seg000:9CDA	     
 seg000:9CDA	     loc_9CDA:				     ; CODE XREF: sub_9CBA+16j
@@ -33453,14 +33453,14 @@ seg000:9E74 A5 BF		     LDA     byte_BF
 seg000:9E76 45 A4		     EOR     byte_A4
 seg000:9E78 10 0C		     BPL     loc_9E86
 seg000:9E7A 20 D2 CF		     JSR     sub_CFD2
-seg000:9E7D 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:9E7D 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:9E80 A5 A4		     LDA     byte_A4
 seg000:9E82 10 16		     BPL     loc_9E9A
 seg000:9E84 30 0A		     BMI     loc_9E90	     ; JMP, in effect
 seg000:9E86	     
 seg000:9E86	     loc_9E86:				     ; CODE XREF: sub_9E74+4j
 seg000:9E86 20 C5 CF		     JSR     sub_CFC5
-seg000:9E89 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:9E89 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:9E8C A5 A4		     LDA     byte_A4
 seg000:9E8E 30 0A		     BMI     loc_9E9A
 seg000:9E90	     
@@ -37682,8 +37682,8 @@ seg000:B0FC 3F			     .BYTE  $3F	; ?
 seg000:B0FD 37			     .BYTE  $37	; 7
 seg000:B0FE 2D			     .BYTE  $2D	; -
 seg000:B0FF 20			     .BYTE  $20	;  
-seg000:B100 50 B2    off_B100:	     .WORD unk_B250	     ; DATA XREF: get_track_segment_detailsQ+55r
-seg000:B100						     ; get_track_segment_detailsQ+5Ar
+seg000:B100 50 B2    off_B100:	     .WORD unk_B250	     ; DATA XREF: fetch_near_section_stuff+55r
+seg000:B100						     ; fetch_near_section_stuff+5Ar
 seg000:B102 A3 B2		     .WORD unk_B2A3
 seg000:B104 A9			     .BYTE $A9
 seg000:B105 FF			     .BYTE $FF
@@ -37706,8 +37706,8 @@ seg000:B11B A5			     .BYTE $A5
 seg000:B11C 30			     .BYTE $30
 seg000:B11D C9			     .BYTE $C9
 seg000:B11E 81 90		     .WORD $9081
-seg000:B120 0D B5    b120_table:     .WORD unk_B50D	     ; DATA XREF: get_track_segment_detailsQ+7r
-seg000:B120						     ; get_track_segment_detailsQ+1Cr ...
+seg000:B120 0D B5    b120_table:     .WORD unk_B50D	     ; DATA XREF: fetch_near_section_stuff+7r
+seg000:B120						     ; fetch_near_section_stuff+1Cr ...
 seg000:B122 1B B5		     .WORD unk_B51B
 seg000:B124 24 B5		     .WORD unk_B524
 seg000:B126 36 B5		     .WORD unk_B536
@@ -49814,8 +49814,8 @@ seg000:E4DC 20 A1 E5		     JSR     sub_E5A1
 seg000:E4DF 86 D4		     STX     byte_D4
 seg000:E4E1 85 D5		     STA     byte_D5
 seg000:E4E3 84 9C		     STY     byte_9C
-seg000:E4E5 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
-seg000:E4E8 20 C5 F0		     JSR     sub_F0C5	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
+seg000:E4E5 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
+seg000:E4E8 20 C5 F0		     JSR     fetch_xz_position	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
 seg000:E4E8						     ; Sets ?$93=X*8+?$CF; ?$95=Y*8+$D1
 seg000:E4EB A5 68		     LDA     camera_cardidir
 seg000:E4ED 38			     SEC     
@@ -49853,11 +49853,11 @@ seg000:E51F E8			     INX
 seg000:E520 E4 9E		     CPX     byte_9E
 seg000:E522 90 14		     BCC     loc_E538
 seg000:E524 20 C5 CF		     JSR     sub_CFC5
-seg000:E527 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:E527 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:E52A A2 02		     LDX     #2
 seg000:E52C 20 C7 E5		     JSR     sub_E5C7
 seg000:E52F 20 D2 CF		     JSR     sub_CFD2
-seg000:E532 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:E532 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:E535 4C 3B E5		     JMP     loc_E53B
 seg000:E538	     ; ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 seg000:E538	     
@@ -49934,7 +49934,7 @@ seg000:E5AF A5 C4		     LDA     byte_C4
 seg000:E5B1 E9 00		     SBC     #0
 seg000:E5B3 10 0B		     BPL     loc_E5C0
 seg000:E5B5 20 D2 CF		     JSR     sub_CFD2
-seg000:E5B8 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:E5B8 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:E5BB A5 BE		     LDA     byte_BE	     ; $08, $09, $0B or	$0D (I think??)
 seg000:E5BD 38			     SEC     
 seg000:E5BE E9 01		     SBC     #1
@@ -50863,7 +50863,7 @@ seg000:EA67 F0 1B		     BEQ     loc_EA84
 seg000:EA69 C6 08		     DEC     byte_8
 seg000:EA6B A5 4F		     LDA     byte_4F
 seg000:EA6D 85 15		     STA     byte_15
-seg000:EA6F 9D 00 04		     STA     $400,X
+seg000:EA6F 9D 00 04		     STA     road_section_angle_and_piece,X
 seg000:EA72 29 10		     AND     #$10
 seg000:EA74 F0 06		     BEQ     loc_EA7C
 seg000:EA76 A5 15		     LDA     byte_15
@@ -50881,7 +50881,7 @@ seg000:EA84
 seg000:EA84	     loc_EA84:				     ; CODE XREF: set_road_data1+33j
 seg000:EA84 20 12 EA		     JSR     get_road_data_byte ; get byte
 seg000:EA87 85 15		     STA     byte_15	     ; save
-seg000:EA89 9D 00 04		     STA     $400,X	     ; store
+seg000:EA89 9D 00 04		     STA     road_section_angle_and_piece,X	     ; store
 seg000:EA8C 29 0F		     AND     #$F
 seg000:EA8E C9 0F		     CMP     #$F
 seg000:EA90 D0 0A		     BNE     loc_EA9C
@@ -50894,12 +50894,12 @@ seg000:EA98 85 08		     STA     byte_8	     ; save top	4 bits in counter
 seg000:EA9A 10 C9		     BPL     loc_EA65	     ; JMP, in effect
 seg000:EA9C	     
 seg000:EA9C	     loc_EA9C:				     ; CODE XREF: set_road_data1+5Cj
-seg000:EA9C BD 00 04		     LDA     $400,X	     ; get stored byte
+seg000:EA9C BD 00 04		     LDA     road_section_angle_and_piece,X	     ; get stored byte
 seg000:EA9F 85 4F		     STA     byte_4F	     ; save it for later
 seg000:EAA1 20 12 EA		     JSR     get_road_data_byte ; get next byte
 seg000:EAA4	     
 seg000:EAA4	     loc_EAA4:				     ; CODE XREF: set_road_data1+4Dj
-seg000:EAA4 9D 4E 04		     STA     $44E,X	     ; store in	2nd part
+seg000:EAA4 9D 4E 04		     STA     road_section_xz_positions,X	     ; store in	2nd part
 seg000:EAA7 85 30		     STA     byte_30	     ; save it for later
 seg000:EAA9 A5 D8		     LDA     byte_D8
 seg000:EAAB 4A			     LSR     A
@@ -50912,23 +50912,23 @@ seg000:EAB4 C9 0C		     CMP     #$C
 seg000:EAB6 90 19		     BCC     loc_EAD1
 seg000:EAB8 84 16		     STY     byte_16
 seg000:EABA A8			     TAY     
-seg000:EABB BD 00 04		     LDA     $400,X
+seg000:EABB BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:EABE 29 F0		     AND     #$F0
-seg000:EAC0 9D 00 04		     STA     $400,X
-seg000:EAC3 B9 DB EB		     LDA     $EBDB,Y	     ; 3,4,4,3
-seg000:EAC6 9D 9C 04		     STA     $49C,X
-seg000:EAC9 B9 DD EB		     LDA     $EBDD,Y	     ; 3,4,4,3
+seg000:EAC0 9D 00 04		     STA     road_section_angle_and_piece,X
+seg000:EAC3 B9 DB EB		     LDA     TAB_5b2c4-12,Y	     ; 3,4,4,3
+seg000:EAC6 9D 9C 04		     STA     left_y_coordinate_IDs,X
+seg000:EAC9 B9 DD EB		     LDA     TAB_5bc24-12+2,Y	     ; 3,4,4,3
 seg000:EACC A4 16		     LDY     byte_16
 seg000:EACE 4C E6 EA		     JMP     loc_EAE6
 seg000:EAD1	     ; ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 seg000:EAD1	     
 seg000:EAD1	     loc_EAD1:				     ; CODE XREF: set_road_data1+82j
 seg000:EAD1 20 12 EA		     JSR     get_road_data_byte
-seg000:EAD4 9D 9C 04		     STA     $49C,X
+seg000:EAD4 9D 9C 04		     STA     left_y_coordinate_IDs,X
 seg000:EAD7 A5 15		     LDA     byte_15
 seg000:EAD9 29 20		     AND     #$20 ; ' '
 seg000:EADB F0 06		     BEQ     loc_EAE3
-seg000:EADD BD 9C 04		     LDA     $49C,X
+seg000:EADD BD 9C 04		     LDA     left_y_coordinate_IDs,X
 seg000:EAE0 4C E6 EA		     JMP     loc_EAE6
 seg000:EAE3	     ; ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 seg000:EAE3	     
@@ -50939,7 +50939,7 @@ seg000:EAE6	     loc_EAE6:				     ; CODE XREF: set_road_data1+9Aj
 seg000:EAE6 29 7F					     ; set_road_data1+ACj
 seg000:EAE6			     AND     #$7F ; ''
 seg000:EAE8 05 14		     ORA     byte_14
-seg000:EAEA 9D EA 04		     STA     $4EA,X
+seg000:EAEA 9D EA 04		     STA     right_y_coordinate_IDs,X
 seg000:EAED 98			     TYA     
 seg000:EAEE 48			     PHA     
 seg000:EAEF A5 7D		     LDA     byte_7D
@@ -50953,7 +50953,7 @@ seg000:EAF7						     ; If Y is -ve, shift abs(Y) places	left.
 seg000:EAFA 9D BE 06		     STA     $6BE,X
 seg000:EAFD A5 14		     LDA     byte_14
 seg000:EAFF 9D 70 06		     STA     $670,X
-seg000:EB02 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
+seg000:EB02 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
 seg000:EB05 A5 D8		     LDA     byte_D8
 seg000:EB07 18			     CLC     
 seg000:EB08 65 62		     ADC     byte_62
@@ -51089,7 +51089,7 @@ seg000:EBE4						     ; A=$46 ->	update colour map
 seg000:EBE4						     ; A=$55 ->	fill scanlines (A=value, YX=ptr, byte_52=count)
 seg000:EBE4						     ; A=$81 ->	poll for key X (like OSBYTE $81)
 seg000:EBE4	     ; ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-seg000:EBE7 03			     .BYTE    3	;  
+seg000:EBE7 03	TAB_5b2c4:	     .BYTE    3	;  
 seg000:EBE8 04			     .BYTE    4	;  
 seg000:EBE9 04			     .BYTE    4	;  
 seg000:EBEA 03			     .BYTE    3	;  
@@ -51885,9 +51885,9 @@ seg000:F02F	     ; ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ S U B R O U T I N E ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ
 seg000:F02F	     
 seg000:F02F	     ; entry: X	= track	segment	index
 seg000:F02F	     
-seg000:F02F	     get_track_segment_detailsQ:	     ; CODE XREF: sub_177D+2p
+seg000:F02F	     fetch_near_section_stuff:	     ; CODE XREF: sub_177D+2p
 seg000:F02F BD 9C 04					     ; update_aicar+8p	...
-seg000:F02F			     LDA     trackdata_49c,X ; Get byte
+seg000:F02F			     LDA     left_y_coordinate_IDs,X ; Get byte
 seg000:F032 85 A2		     STA     byte_A2
 seg000:F034 0A			     ASL     A
 seg000:F035 A8			     TAY     
@@ -51895,7 +51895,7 @@ seg000:F036 B9 20 B1		     LDA     b120_table,Y
 seg000:F039 85 98		     STA     word_98
 seg000:F03B B9 21 B1		     LDA     b120_table+1,Y
 seg000:F03E 85 99		     STA     word_98+1
-seg000:F040 BD EA 04		     LDA     trackdata_4ea,X ; Get byte	from region 3
+seg000:F040 BD EA 04		     LDA     right_y_coordinate_IDs,X ; Get byte	from region 3
 seg000:F043 0A			     ASL     A		     ; <<1
 seg000:F044 A8			     TAY		     ; Y=byte<<1
 seg000:F045 A9 00		     LDA     #0
@@ -51915,16 +51915,16 @@ seg000:F05F BD D4 05		     LDA     trackdata_5d4,X
 seg000:F062 85 40		     STA     byte_40
 seg000:F064 BD 22 06		     LDA     trackdata_622,X
 seg000:F067 85 36		     STA     byte_36
-seg000:F069 BD 00 04		     LDA     trackdata_400,X
+seg000:F069 BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:F06C 29 C0		     AND     #$C0	     ; %11000000
 seg000:F06E 85 1D		     STA     track_segment_cardidir
-seg000:F070 BD 00 04		     LDA     trackdata_400,X
+seg000:F070 BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:F073 29 10		     AND     #$10	     ; %000x0000
 seg000:F075 0A			     ASL     A		     ; %00x00000
 seg000:F076 0A			     ASL     A		     ; %0x000000
 seg000:F077 0A			     ASL     A		     ; %x0000000
 seg000:F078 85 A4		     STA     byte_A4
-seg000:F07A BD 00 04		     LDA     trackdata_400,X
+seg000:F07A BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:F07D 29 0F		     AND     #$F	     ; %00001111
 seg000:F07F 8D CD C3		     STA     byte_C3CD
 seg000:F082 0A			     ASL     A
@@ -51971,7 +51971,7 @@ seg000:F0BF B1 9A		     LDA     (word_9A),Y
 seg000:F0C1 C8			     INY     
 seg000:F0C2 85 C8		     STA     byte_C8
 seg000:F0C4 60			     RTS     
-seg000:F0C4	     ; End of function get_track_segment_detailsQ
+seg000:F0C4	     ; End of function fetch_near_section_stuff
 seg000:F0C4	     
 seg000:F0C5	     
 seg000:F0C5	     ; ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ S U B R O U T I N E ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ
@@ -51979,9 +51979,9 @@ seg000:F0C5
 seg000:F0C5	     ; looks up	entry in 44E table, disentangles it (getting X and Y).
 seg000:F0C5	     ; Sets ?$93=X*8+?$CF; ?$95=Y*8+$D1
 seg000:F0C5	     
-seg000:F0C5	     sub_F0C5:				     ; CODE XREF: sub_177D+7p
+seg000:F0C5	     fetch_xz_position:				     ; CODE XREF: sub_177D+7p
 seg000:F0C5 BD 4E 04					     ; sub_9A38+5p ...
-seg000:F0C5			     LDA     trackdata_44e,X ; Get value
+seg000:F0C5			     LDA     road_section_xz_positions,X ; Get value
 seg000:F0C8 A8			     TAY		     ; Y = value
 seg000:F0C9	     ; This does the opposite of FF6A...
 seg000:F0C9 29 0F		     AND     #$F	     ; A = bottom 4 bits
@@ -52010,7 +52010,7 @@ seg000:F0E7 A4 14		     LDY     byte_14
 seg000:F0E9 4C 04 F1		     JMP     loc_F104
 seg000:F0EC	     ; ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 seg000:F0EC	     
-seg000:F0EC	     loc_F0EC:				     ; CODE XREF: sub_F0C5+15j
+seg000:F0EC	     loc_F0EC:				     ; CODE XREF: fetch_xz_position+15j
 seg000:F0EC 70 0B		     BVS     loc_F0F9	     ; Taken if	%11xxxxxx
 seg000:F0EE	     ; %10xxxxxx -- X=-X, Y=-Y
 seg000:F0EE 8A			     TXA     
@@ -52023,19 +52023,19 @@ seg000:F0F6 4C FE F0		     JMP     loc_F0FE	     ; does Y=-Y
 seg000:F0F9	     ; ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 seg000:F0F9	     ; %11xxxxxx -- X=Y, Y=-X
 seg000:F0F9	     
-seg000:F0F9	     loc_F0F9:				     ; CODE XREF: sub_F0C5+27j
+seg000:F0F9	     loc_F0F9:				     ; CODE XREF: fetch_xz_position+27j
 seg000:F0F9 84 14		     STY     byte_14
 seg000:F0FB 8A			     TXA     
 seg000:F0FC A6 14		     LDX     byte_14
 seg000:F0FE	     
-seg000:F0FE	     loc_F0FE:				     ; CODE XREF: sub_F0C5+31j
+seg000:F0FE	     loc_F0FE:				     ; CODE XREF: fetch_xz_position+31j
 seg000:F0FE 49 FF		     EOR     #$FF
 seg000:F100 18			     CLC     
 seg000:F101 69 01		     ADC     #1
 seg000:F103 A8			     TAY		     ; Y=-A
 seg000:F104	     
-seg000:F104	     loc_F104:				     ; CODE XREF: sub_F0C5+17j
-seg000:F104 8A						     ; sub_F0C5+24j
+seg000:F104	     loc_F104:				     ; CODE XREF: fetch_xz_position+17j
+seg000:F104 8A						     ; fetch_xz_position+24j
 seg000:F104			     TXA     
 seg000:F105	     ; ?$93 = X*8+?$CF
 seg000:F105 0A			     ASL     A
@@ -52053,7 +52053,7 @@ seg000:F111 18			     CLC
 seg000:F112 65 D1		     ADC     byte_D1
 seg000:F114 85 95		     STA     byte_95
 seg000:F116 60			     RTS     
-seg000:F116	     ; End of function sub_F0C5
+seg000:F116	     ; End of function fetch_xz_position
 seg000:F116	     
 seg000:F117	     
 seg000:F117	     ; ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ S U B R O U T I N E ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ
@@ -52728,7 +52728,7 @@ seg000:F488
 seg000:F488	     sub_F488:				     ; CODE XREF: sub_3C99+2Dp
 seg000:F488 86 2E		     STX     byte_2E
 seg000:F48A 8E 74 C3		     STX     plcar_track_segment
-seg000:F48D BD 00 04		     LDA     $400,X
+seg000:F48D BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:F490 29 0F		     AND     #$F
 seg000:F492 A8			     TAY     
 seg000:F493 B9 40 B2		     LDA     byte_B240,Y
@@ -52755,11 +52755,11 @@ seg000:F4AE C0 90		     CPY     #$90
 seg000:F4B0 90 F8		     BCC     loc_F4AA
 seg000:F4B2 A9 F0		     LDA     #$F0
 seg000:F4B4 85 2F		     STA     byte_2F	     ; non-zero	if on crane
-seg000:F4B6 20 2F F0		     JSR     get_track_segment_detailsQ	; entry: X = track segment index
-seg000:F4B9 BD 4E 04		     LDA     $44E,X
+seg000:F4B6 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
+seg000:F4B9 BD 4E 04		     LDA     road_section_xz_positions,X
 seg000:F4BC 29 0F		     AND     #$F
 seg000:F4BE 85 0B		     STA     byte_B
-seg000:F4C0 BD 4E 04		     LDA     $44E,X
+seg000:F4C0 BD 4E 04		     LDA     road_section_xz_positions,X
 seg000:F4C3 4A			     LSR     A
 seg000:F4C4 4A			     LSR     A
 seg000:F4C5 4A			     LSR     A
@@ -54988,7 +54988,7 @@ seg000:FFE5 9D 00 D9		     STA     $D900,X
 seg000:FFE8 9D 00 DA		     STA     $DA00,X
 seg000:FFEB 9D 00 DB		     STA     $DB00,X
 seg000:FFEE A0 20		     LDY     #$20 ; ' '
-seg000:FFF0 8C 00 04		     STY     trackdata_400
+seg000:FFF0 8C 00 04		     STY     road_section_angle_and_piece
 seg000:FFF3 60			     RTS     
 seg000:FFF3	     ; End of function sub_FFE2
 seg000:FFF3	     
