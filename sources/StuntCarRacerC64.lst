@@ -5468,14 +5468,14 @@ seg000:1E5F			     STX     x_tmp	     ; Save X
 seg000:1E62 8A			     TXA		     ; A = segment
 seg000:1E63	     ; Start from plcar's segment (presumably as we're usually looking forwards)
 seg000:1E63 AE 74 C3		     LDX     plcar_track_segment ; Get player car segment
-seg000:1E66 EC 64 C7		     CPX     num_track_segments	; Past end?
+seg000:1E66 EC 64 C7		     CPX     number_of_road_sections	; Past end?
 seg000:1E69 B0 12		     BCS     return_FF	     ; Taken if	so
 seg000:1E6B	     
 seg000:1E6B	     loc_1E6B:				     ; CODE XREF: find_track_segment_index+1Cj
 seg000:1E6B DD 4E 04		     CMP     trackdata_44e,X ; Got right entry?
 seg000:1E6E F0 0F		     BEQ     loc_1E7F	     ; Return if yes
 seg000:1E70 E8			     INX		     ; Next entry
-seg000:1E71 EC 64 C7		     CPX     num_track_segments	; Reachend end of track?
+seg000:1E71 EC 64 C7		     CPX     number_of_road_sections	; Reachend end of track?
 seg000:1E74 90 02		     BCC     loc_1E78	     ; Taken if	no
 seg000:1E76 A2 00		     LDX     #0		     ; Wrap around
 seg000:1E78	     
@@ -5544,7 +5544,7 @@ seg000:1ECF E5 BE		     SBC     byte_BE	     ; $08, $09, $0B or	$0D (I think??)
 seg000:1ED1 85 C4		     STA     byte_C4
 seg000:1ED3 AE 75 C3		     LDX     aicar_track_segmentQ
 seg000:1ED6 E8			     INX     
-seg000:1ED7 EC 64 C7		     CPX     num_track_segments
+seg000:1ED7 EC 64 C7		     CPX     number_of_road_sections
 seg000:1EDA 90 02		     BCC     loc_1EDE
 seg000:1EDC A2 00		     LDX     #0
 seg000:1EDE	     
@@ -30873,7 +30873,7 @@ seg000:8F74 CA			     DEX
 seg000:8F75 10 AB		     BPL     loc_8F22
 seg000:8F77	     
 seg000:8F77	     next_iter:				     ; CODE XREF: seg000:8F20j
-seg000:8F77 AE 64 C7		     LDX     num_track_segments
+seg000:8F77 AE 64 C7		     LDX     number_of_road_sections
 seg000:8F7A CA			     DEX     
 seg000:8F7B C6 A0		     DEC     byte_A0	     ; next go
 seg000:8F7D D0 A3		     BNE     loc_8F22	     ; Taken if	more goes left
@@ -43257,7 +43257,7 @@ seg000:C760 08			     .BYTE    8	;
 seg000:C761 09			     .BYTE    9	;  
 seg000:C762 0A			     .BYTE   $A	;  
 seg000:C763 0B			     .BYTE   $B	;  
-seg000:C764 2C	     num_track_segments:.BYTE $2C	     ; DATA XREF: find_track_segment_index+7r
+seg000:C764 2C	     number_of_road_sections:.BYTE $2C	     ; DATA XREF: find_track_segment_index+7r
 seg000:C764						     ; find_track_segment_index+12r ...
 seg000:C765 0F	     byte_C765:	     .BYTE $F		     ; DATA XREF: sub_3C99+19r
 seg000:C765						     ; sub_3C99+2Ar
@@ -44854,7 +44854,7 @@ seg000:CFC5	     sub_CFC5:				     ; CODE XREF: sub_167A+75p
 seg000:CFC5 A6 2E					     ; sub_167A+8Ap ...
 seg000:CFC5			     LDX     byte_2E
 seg000:CFC7 E8			     INX     
-seg000:CFC8 EC 64 C7		     CPX     num_track_segments
+seg000:CFC8 EC 64 C7		     CPX     number_of_road_sections
 seg000:CFCB 90 02		     BCC     loc_CFCF
 seg000:CFCD A2 00		     LDX     #0
 seg000:CFCF	     
@@ -44872,7 +44872,7 @@ seg000:CFD2 A6 2E					     ; sub_9A38+149p ...
 seg000:CFD2			     LDX     byte_2E
 seg000:CFD4 CA			     DEX     
 seg000:CFD5 10 04		     BPL     loc_CFDB
-seg000:CFD7 AE 64 C7		     LDX     num_track_segments
+seg000:CFD7 AE 64 C7		     LDX     number_of_road_sections
 seg000:CFDA CA			     DEX     
 seg000:CFDB	     
 seg000:CFDB	     loc_CFDB:				     ; CODE XREF: sub_CFD2+3j
@@ -51009,7 +51009,7 @@ seg000:EB71 85 78		     STA     byte_78
 seg000:EB73 68			     PLA     
 seg000:EB74 A8			     TAY     
 seg000:EB75 E8			     INX     
-seg000:EB76 EC 64 C7		     CPX     num_track_segments
+seg000:EB76 EC 64 C7		     CPX     number_of_road_sections
 seg000:EB79 F0 03		     BEQ     loc_EB7E
 seg000:EB7B 4C 65 EA		     JMP     loc_EA65
 seg000:EB7E	     ; 컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
@@ -51017,7 +51017,7 @@ seg000:EB7E
 seg000:EB7E	     loc_EB7E:				     ; CODE XREF: prepare_trackQ+145j
 seg000:EB7E AE 66 C7		     LDX     byte_C766
 seg000:EB81 E8			     INX     
-seg000:EB82 EC 64 C7		     CPX     num_track_segments
+seg000:EB82 EC 64 C7		     CPX     number_of_road_sections
 seg000:EB85 90 02		     BCC     loc_EB89
 seg000:EB87 A2 00		     LDX     #0
 seg000:EB89	     
@@ -52942,7 +52942,7 @@ seg000:F5F4 BD 74 C3		     LDA     $C374,X
 seg000:F5F7 38			     SEC     
 seg000:F5F8 ED 7C C7		     SBC     byte_C77C
 seg000:F5FB B0 03		     BCS     loc_F600
-seg000:F5FD 6D 64 C7		     ADC     num_track_segments
+seg000:F5FD 6D 64 C7		     ADC     number_of_road_sections
 seg000:F600	     
 seg000:F600	     loc_F600:				     ; CODE XREF: sub_F5E9+12j
 seg000:F600 95 14		     STA     $14,X
