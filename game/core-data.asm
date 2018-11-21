@@ -164,6 +164,7 @@ PAGE_ALIGN
 		equb $41,$6D,$90,$B4,$D8,$FB,$FF,$22,$46,$69,$8D,$A8,$D4,$F7,$FB,$1E
 		equb $3A,$5D,$79,$A4,$C7,$E3,$FE,$0A,$2D,$49,$6C
 
+.driver_name_data
 .L_AE00	equb $20
 .L_AE01	equb "Hot Rod      ",$B1,$8B
 		equb " Whizz Kid    ",$F0,$36
@@ -183,6 +184,7 @@ PAGE_ALIGN
 .L_AEE0	equb $22,$20,$62,$20,$3E,$04,$30,$14,$4A,$10,$08,$00,$84,$2B,$A9,$00
 		equb $85,$2C,$85,$2D,$A9,$40,$60,$A5,$1E,$4C,$D8,$AE,$A5,$00,$A4,$01
 
+.track_name_data
 		equb "LITTLE RAMP     "
 		equb "STEPPING STONES "
 		equb "HUMP BACK       "
@@ -539,6 +541,11 @@ PAGE_ALIGN
 
 ; KEY DEFINITIONS
 
-.control_keys	equb $2E,$27,$29,$12,$08
+; $12 = 'D'
+
+.control_keys
+;		equb $2E,$27,$29,$12,$08
+		; equals, space, s, d, return
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
 .L_F80C			equb $07,$1F,$01,$19
 .L_F810			equb $11

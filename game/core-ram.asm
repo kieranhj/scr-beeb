@@ -48,7 +48,7 @@
 .L_140F	equb $06
 .L_1410	equb $1A
 
-.L_2458				; SELF-MOD CODE by fn L_F386?
+.L_2458				; SELF-MOD CODE by fn update_track_preview?
 		stx ZP_16		;2458 86 16
 		lda ZP_52		;245A A5 52
 .L_245C
@@ -255,6 +255,126 @@
 		sta L_A298,X	;25E6 9D 98 A2
 		rts				;25E9 60
 }
+
+.L_25EA				; WAS DLL
+		stx ZP_16		;25EA 86 16
+		ldy #$00		;25EC A0 00
+		lda L_8040,X	;25EE BD 40 80
+		sec				;25F1 38
+		sbc ZP_37		;25F2 E5 37
+		sta ZP_14		;25F4 85 14
+		lda L_A330,X	;25F6 BD 30 A3
+		sbc ZP_38		;25F9 E5 38
+		bpl L_2614		;25FB 10 17
+		ldy #$08		;25FD A0 08
+		sta ZP_15		;25FF 85 15
+		lda #$00		;2601 A9 00
+		sec				;2603 38
+		sbc ZP_14		;2604 E5 14
+		sta ZP_14		;2606 85 14
+		lda #$00		;2608 A9 00
+		sbc ZP_15		;260A E5 15
+		bpl L_2614		;260C 10 06
+		ldy #$0F		;260E A0 0F
+		lda #$FF		;2610 A9 FF
+		bne L_2620		;2612 D0 0C
+.L_2614	bne L_261A		;2614 D0 04
+		beq L_2620		;2616 F0 08
+.L_2618	ror ZP_14		;2618 66 14
+.L_261A	iny				;261A C8
+		lsr A			;261B 4A
+		bne L_2618		;261C D0 FA
+		ror ZP_14		;261E 66 14
+.L_2620	ldx ZP_14		;2620 A6 14
+		lda log_msb,X	;2622 BD 00 AB
+		clc				;2625 18
+		adc L_A610,Y	;2626 79 10 A6
+		sec				;2629 38
+		sbc #$08		;262A E9 08
+L_262B	= *-1			;! self-mod! by update_track_preview
+		sta ZP_AD		;262C 85 AD
+		cpy #$08		;262E C0 08
+		bcs L_2682		;2630 B0 50
+		lda log_lsb,X	;2632 BD 00 AA
+		sec				;2635 38
+		sbc ZP_AB		;2636 E5 AB
+		sta ZP_14		;2638 85 14
+		lda ZP_AD		;263A A5 AD
+		sbc ZP_AC		;263C E5 AC
+		bpl L_2662		;263E 10 22
+		jsr pow36Q		;2640 20 D2 26
+		sta ZP_14		;2643 85 14
+		ldx #$00		;2645 A2 00
+		stx ZP_15		;2647 86 15
+		ldx ZP_16		;2649 A6 16
+		lda #$00		;264B A9 00
+		sec				;264D 38
+		sbc ZP_14		;264E E5 14
+		bcc L_2654		;2650 90 02
+		inc ZP_15		;2652 E6 15
+.L_2654	sec				;2654 38
+		sbc ZP_33		;2655 E5 33
+		sta L_A24C,X	;2657 9D 4C A2
+		lda ZP_15		;265A A5 15
+		sbc ZP_69		;265C E5 69
+		sta L_A2E4,X	;265E 9D E4 A2
+		rts				;2661 60
+.L_2662	sta ZP_15		;2662 85 15
+		lda #$00		;2664 A9 00
+		sec				;2666 38
+		sbc ZP_14		;2667 E5 14
+		sta ZP_14		;2669 85 14
+		lda #$00		;266B A9 00
+		sbc ZP_15		;266D E5 15
+		jsr pow36Q		;266F 20 D2 26
+		ldx ZP_16		;2672 A6 16
+		sec				;2674 38
+		sbc ZP_33		;2675 E5 33
+		sta L_A24C,X	;2677 9D 4C A2
+		lda #$FF		;267A A9 FF
+		sbc ZP_69		;267C E5 69
+		sta L_A2E4,X	;267E 9D E4 A2
+		rts				;2681 60
+.L_2682	lda log_lsb,X	;2682 BD 00 AA
+		sec				;2685 38
+		sbc ZP_AB		;2686 E5 AB
+		sta ZP_14		;2688 85 14
+		lda ZP_AD		;268A A5 AD
+		sbc ZP_AC		;268C E5 AC
+		bpl L_26A3		;268E 10 13
+		jsr pow36Q		;2690 20 D2 26
+		ldx ZP_16		;2693 A6 16
+		sec				;2695 38
+		sbc ZP_33		;2696 E5 33
+		sta L_A24C,X	;2698 9D 4C A2
+		lda #$01		;269B A9 01
+		sbc ZP_69		;269D E5 69
+		sta L_A2E4,X	;269F 9D E4 A2
+		rts				;26A2 60
+.L_26A3	sta ZP_15		;26A3 85 15
+		lda #$00		;26A5 A9 00
+		sec				;26A7 38
+		sbc ZP_14		;26A8 E5 14
+		sta ZP_14		;26AA 85 14
+		lda #$00		;26AC A9 00
+		sbc ZP_15		;26AE E5 15
+		jsr pow36Q		;26B0 20 D2 26
+		sta ZP_14		;26B3 85 14
+		ldx #$02		;26B5 A2 02
+		stx ZP_15		;26B7 86 15
+		ldx ZP_16		;26B9 A6 16
+		lda #$00		;26BB A9 00
+		sec				;26BD 38
+		sbc ZP_14		;26BE E5 14
+		bcc L_26C4		;26C0 90 02
+		inc ZP_15		;26C2 E6 15
+.L_26C4	sec				;26C4 38
+		sbc ZP_33		;26C5 E5 33
+		sta L_A24C,X	;26C7 9D 4C A2
+		lda ZP_15		;26CA A5 15
+		sbc ZP_69		;26CC E5 69
+		sta L_A2E4,X	;26CE 9D E4 A2
+		rts				;26D1 60
 
 .L_2806	equb $FF
 .L_2807	equb $00
@@ -684,13 +804,13 @@ ENDIF
 
 .print_driver_name
 {
-		lda #$AE		;388B A9 AE
+		lda #HI(driver_name_data)		;388B A9 AE
 		ldy #$0D		;388D A0 0D
 		jmp print_name		;388F 4C 96 38
 }
 
 .print_track_name
-		lda #$AF		;3892 A9 AF
+		lda #HI(track_name_data)		;3892 A9 AF
 		ldy #$0F		;3894 A0 0F
 .print_name
 {
@@ -888,7 +1008,7 @@ ENDIF
 		lda #$C0		;3BB0 A9 C0
 		sta L_C305		;3BB2 8D 05 C3
 		jsr L_357E		;3BB5 20 7E 35
-		ldx #$20		;3BB8 A2 20
+		ldx #KEY_DEF_REDEFINE		;3BB8 A2 20
 		jsr kernel_poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
 		jsr L_3C36		;3BBF 20 36 3C
@@ -968,7 +1088,7 @@ ENDIF
 		ldx L_C77D		;3C68 AE 7D C7
 		jsr kernel_prepare_trackQ		;3C6B 20 34 EA
 		jsr cart_update_per_track_stuff		;3C6E 20 18 1D
-		jsr kernel_L_F386		;3C71 20 86 F3
+		jsr kernel_update_track_preview		;3C71 20 86 F3
 
 .L_3C74	ldx #$27		;3C74 A2 27
 		lda #$3B		;3C76 A9 3B
@@ -980,7 +1100,7 @@ ENDIF
 		jsr print_msg_4		;3C80 20 27 30
 		jsr kernel_track_preview_check_keys		;3C83 20 DE CF
 		bcc L_3C8E		;3C86 90 06
-		jsr kernel_L_F386		;3C88 20 86 F3
+		jsr kernel_update_track_preview		;3C88 20 86 F3
 		jmp L_3C74		;3C8B 4C 74 3C
 
 .L_3C8E	lda #$00		;3C8E A9 00
@@ -1108,7 +1228,7 @@ ENDIF
 		bmi L_3DA8		;3D9B 30 0B
 		lda ZP_6A		;3D9D A5 6A
 		beq L_3DA8		;3D9F F0 07
-.L_3DA1	ldx #$2F		;3DA1 A2 2F
+.L_3DA1	ldx #KEY_DEF_QUIT		;3DA1 A2 2F
 		jsr kernel_poll_key_with_sysctl		;3DA3 20 C9 C7
 		beq L_3DAB		;3DA6 F0 03
 .L_3DA8	jmp L_3D05		;3DA8 4C 05 3D
@@ -1276,7 +1396,7 @@ ENDIF
 {
 		lda L_C306		;3EE0 AD 06 C3
 		bpl L_3EEC		;3EE3 10 07
-		ldx #$0D		;3EE5 A2 0D
+		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
 		jsr kernel_poll_key_with_sysctl		;3EE7 20 C9 C7
 		beq L_3EED		;3EEA F0 01
 .L_3EEC	rts				;3EEC 60
@@ -1295,7 +1415,7 @@ ENDIF
 		lda #$02		;3F04 A9 02
 		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
-		ldx #$34		;3F0C A2 34
+		ldx #KEY_DEF_CONTINUE		;3F0C A2 34
 		jsr kernel_poll_key_with_sysctl		;3F0E 20 C9 C7
 		bne L_3F09		;3F11 D0 F6
 		pla				;3F13 68
@@ -1349,14 +1469,17 @@ ENDIF
 		rts				;3F6A 60
 }
 
-.ensure_screen_enabled
+.ensure_screen_enabled		RTS
+IF _NOT_BEEB
 {
 		lda VIC_SCROLY		;3F9E AD 11 D0
 		and #$10		;3FA1 29 10
 		bne L_3FB4		;3FA3 D0 0F
 }
+ENDIF
 \\
 .enable_screen_and_set_irq50
+IF _NOT_BEEB
 		lda VIC_SCROLY		;3FA5 AD 11 D0
 		ora #$10		;3FA8 09 10
 		and #$7F		;3FAA 29 7F
@@ -1365,6 +1488,7 @@ ENDIF
 		sta VIC_RASTER		;3FB1 8D 12 D0
 .L_3FB4	lda #$01		;3FB4 A9 01
 		sta VIC_IRQMASK		;3FB6 8D 1A D0
+ENDIF
 		rts				;3FB9 60
 		
 .L_3FBA	equb $00

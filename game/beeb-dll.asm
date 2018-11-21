@@ -102,7 +102,7 @@ ENDIF
 .kernel_L_F117 DLL_CALL_KERNEL L_F117, 23
 .kernel_L_F1DC DLL_CALL_KERNEL L_F1DC, 24
 .kernel_L_F2B7 DLL_CALL_KERNEL L_F2B7, 25
-.kernel_L_F386 DLL_CALL_KERNEL L_F386, 26
+.kernel_update_track_preview DLL_CALL_KERNEL update_track_preview, 26
 .kernel_L_F440 DLL_CALL_KERNEL L_F440, 27
 .kernel_L_F488 DLL_CALL_KERNEL L_F488, 28
 .kernel_L_F585 DLL_CALL_KERNEL L_F585, 29
@@ -198,7 +198,7 @@ ENDIF
 	EQUB LO(L_F117)
 	EQUB LO(L_F1DC)
 	EQUB LO(L_F2B7)
-	EQUB LO(L_F386)
+	EQUB LO(update_track_preview)
 	EQUB LO(L_F440)
 	EQUB LO(L_F488)
 	EQUB LO(L_F585)
@@ -283,7 +283,7 @@ ENDIF
 	EQUB HI(L_F117)
 	EQUB HI(L_F1DC)
 	EQUB HI(L_F2B7)
-	EQUB HI(L_F386)
+	EQUB HI(update_track_preview)
 	EQUB HI(L_F440)
 	EQUB HI(L_F488)
 	EQUB HI(L_F585)
@@ -460,7 +460,7 @@ ENDIF
 .cart_update_per_track_stuff DLL_CALL_CART update_per_track_stuff, 41
 .cart_L_1EE2_from_main_loop DLL_CALL_CART L_1EE2_from_main_loop, 42
 .cart_L_238E DLL_CALL_CART L_238E, 43
-.cart_L_25EA DLL_CALL_CART L_25EA, 44
+.cart_L_25EA BRK
 .cart_pow36Q DLL_CALL_CART pow36Q, 45
 .cart_update_camera_roll_tables DLL_CALL_CART update_camera_roll_tables, 46
 .cart_L_2809 DLL_CALL_CART L_2809, 47
@@ -481,6 +481,8 @@ ENDIF
 .cart_L_39D1 DLL_CALL_CART L_39D1, 61
 .cart_L_39F1 DLL_CALL_CART L_39F1, 62
 .cart_set_up_colour_map_for_track_preview DLL_CALL_CART set_up_colour_map_for_track_preview, 63
+
+.cart_start_of_frame DLL_CALL_CART start_of_frame, 64
 
 ; *****************************************************************************
 \\ Function addresses
@@ -533,7 +535,7 @@ ENDIF
 	EQUB LO(update_per_track_stuff)
 	EQUB LO(L_1EE2_from_main_loop)
 	EQUB LO(L_238E)
-	EQUB LO(L_25EA)
+	EQUB 0
 	EQUB LO(pow36Q)
 	EQUB LO(update_camera_roll_tables)
 	EQUB LO(L_2809)
@@ -554,6 +556,8 @@ ENDIF
 	EQUB LO(L_39D1)
 	EQUB LO(L_39F1)
 	EQUB LO(set_up_colour_map_for_track_preview)
+
+	EQUB LO(start_of_frame)
 }
 
 .cart_table_HI
@@ -603,7 +607,7 @@ ENDIF
 	EQUB HI(update_per_track_stuff)
 	EQUB HI(L_1EE2_from_main_loop)
 	EQUB HI(L_238E)
-	EQUB HI(L_25EA)
+	EQUB 0
 	EQUB HI(pow36Q)
 	EQUB HI(update_camera_roll_tables)
 	EQUB HI(L_2809)
@@ -624,6 +628,8 @@ ENDIF
 	EQUB HI(L_39D1)
 	EQUB HI(L_39F1)
 	EQUB HI(set_up_colour_map_for_track_preview)
+
+	EQUB HI(start_of_frame)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"

@@ -113,7 +113,7 @@
 .L_C349	skip 1
 .L_C34A	skip 1
 .L_C34B	skip 1
-.L_C34C	skip 1
+.L_C34C	skip 1			; rotation angle of track preview
 .L_C34D	skip 1
 .L_C34E	skip 1
 .L_C34F	skip 1
@@ -293,7 +293,7 @@
 
 PAGE_ALIGN
 
-.L_8000	skip $C8
+.L_8000	skip $C0
 L_801B	= L_8000 + $1B
 L_8020	= L_8000 + $20
 L_8025	= L_8000 + $25
@@ -307,6 +307,9 @@ L_807E	= L_8000 + $7E
 L_807F	= L_8000 + $7F
 L_8080	= L_8000 + $80
 L_80A0	= L_8000 + $A0
+
+\\ FONT START at $80C0
+.font_data equb $00,$00,$00,$00,$00,$00,$00,$00
 
 .L_80C8	equb $95,$95,$95,$95,$AA,$EA,$EA,$EA,$15,$15,$15,$15,$15,$6A,$6A,$6A
 		equb $75,$C3,$00,$00,$00,$00,$80,$80,$40,$40,$C0,$00,$00,$80,$80,$80

@@ -4352,7 +4352,7 @@ L_99F0	= L_99EF + 1
 		lda L_C530,Y	;E650 B9 30 C5
 		sta ZP_78		;E653 85 78
 		jsr L_2458		;E655 20 58 24
-		jsr cart_L_25EA		;E658 20 EA 25
+		jsr L_25EA		;E658 20 EA 25
 		jmp cart_L_2809		;E65B 4C 09 28
 }
 
@@ -5529,7 +5529,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		bcc L_EF8C		;EF63 90 27
 		bne L_EF37		;EF65 D0 D0
 		jsr cart_L_1611		;EF67 20 11 16
-		ldx #$20		;EF6A A2 20
+		ldx #KEY_DEF_REDEFINE		;EF6A A2 20
 		jsr poll_key_with_sysctl		;EF6C 20 C9 C7
 		bne L_EF77		;EF6F D0 06
 		jsr L_3500_with_VIC		;EF71 20 00 35
@@ -6093,7 +6093,8 @@ L_EBDD	= L_EBE7 - $A			;!
 		rts				;F385 60
 }
 
-.L_F386
+\\ Believe this is effecively do "draw_track_preview"
+.update_track_preview
 {
 		lda L_C34C		;F386 AD 4C C3
 		and #$03		;F389 29 03
@@ -6114,7 +6115,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta ZP_12		;F3AE 85 12
 		lda #$B8		;F3B0 A9 B8
 		sta ZP_33		;F3B2 85 33
-		jsr start_of_frame		;F3B4 20 4D 16
+		jsr cart_start_of_frame		;F3B4 20 4D 16
 		ldx #$7F		;F3B7 A2 7F
 		lda #$C0		;F3B9 A9 C0
 .L_F3BB	sta L_C640,X	;F3BB 9D 40 C6
@@ -6151,10 +6152,21 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_F3FC	equb $04,$00,$04,$08
 .L_F400	equb $00,$04,$08,$04
 .L_F404	equb $00,$40,$80,$C0
-.L_F408	equb $4C,$0B,$F4,$86,$16,$A5,$77,$18,$10,$01,$38,$6A,$66,$51,$85,$77
-}
 
-.L_F418			\\ Unused?
+.L_F408	jmp L_F40B		; equb $4C,$0B,$F4
+
+.L_F40B stx ZP_16		; equb $86,$16
+		lda ZP_77		; equb $A5,$77
+		clc				; equb $18
+		bpl L_F413		; equb $10,$01
+		sec				; equb $38
+.L_F413
+		ror A			; equb $6A
+		ror ZP_51		; equb $66,$51
+		sta ZP_77		; equb $85,$77
+}
+\\ Fall through!
+.L_F418			\\ Unused? - NO!
 {
 		jsr L_F42D		;F418 20 2D F4
 		lda ZP_70		;F41B A5 70
@@ -6666,6 +6678,8 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_F7DE	tya				;F7DE 98
 		bne L_F802		;F7DF D0 21
 		inc L_F810		;F7E1 EE 10 F8
+
+IF _NOT_BEEB
 		lda #$00		;F7E4 A9 00
 		sta CIA1_CIDDRA		;F7E6 8D 02 DC
 		lda CIA1_CIAPRA		;F7E9 AD 00 DC			; CIA1
@@ -6673,11 +6687,14 @@ L_EBDD	= L_EBE7 - $A			;!
 		bne L_F802		;F7EE D0 12
 		ldy L_3DF8		;F7F0 AC F8 3D
 		bmi L_F802		;F7F3 30 0D
-		ldx #$08		;F7F5 A2 08
+ENDIF
+
+		ldx #KEY_RETURN		;F7F5 A2 08
 		jsr poll_key_with_sysctl		;F7F7 20 C9 C7
 		bne L_F800		;F7FA D0 04
 		lda #$10		;F7FC A9 10
 		bne L_F802		;F7FE D0 02
+
 .L_F800	lda #$00		;F800 A9 00
 .L_F802	and #$1F		;F802 29 1F
 		sta ZP_66		;F804 85 66

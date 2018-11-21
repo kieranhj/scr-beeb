@@ -3,6 +3,12 @@
 ; *****************************************************************************
 
 ; *****************************************************************************
+; BEEB OS DEFINES
+; *****************************************************************************
+
+INCLUDE "lib/bbc.h.asm"
+
+; *****************************************************************************
 ; GLOBAL DEFINES
 ; *****************************************************************************
 
@@ -10,8 +16,36 @@ _TODO = FALSE
 _NOT_BEEB = FALSE
 _DEBUG = TRUE
 
+BEEB_SCREEN_MODE = 4
+BEEB_SCREEN_ADDR = $4000
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
+
+; C64 controls
+; Left/Right = S/D
+; Boost = Return
+; Brake = '='
+; Reverse = Space
+; Pause = P
+; Resume = O
+; Redefine Keys whilst paused = F1
+; Quit = 'Commodore'
+
+KEY_DEF_FIRE = IKN_return				; Return
+KEY_DEF_LEFT = IKN_s					; S
+KEY_DEF_RIGHT = IKN_d					; D
+KEY_DEF_BACK = IKN_space				; Space
+KEY_DEF_BRAKE = IKN_colon				; =
+
+KEY_DEF_PAUSE = IKN_p			;$0D	; P
+KEY_DEF_REDEFINE = IKN_f1		;$20	; F1
+KEY_DEF_QUIT = IKN_esc			;$2F	; Commodore
+KEY_DEF_CONTINUE = IKN_o		;$34	; O
+KEY_DEF_CANCEL = IKN_esc		;$3F	; run stop?
+
+KEY_RETURN = IKN_return
+KEY_RIGHT_SHIFT = IKN_shift		;$26	; right shift
+KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
 
 ; *****************************************************************************
 ; MACROS
@@ -284,12 +318,6 @@ CIA1_CIACRB	= L_DC0F	; Control Register B
 CIA2_CI2PRA = L_DD00
 CIA2_C2DDRA = L_DD02
 CIA2_CIAICR	= L_DD0D	; Interrupt Control Register
-
-; *****************************************************************************
-; BEEB OS DEFINES
-; *****************************************************************************
-
-INCLUDE "lib/bbc.h.asm"
 
 ; *****************************************************************************
 ; VARIABLES
@@ -830,7 +858,7 @@ GUARD &8000
 
 	LDA #22
 	JSR oswrch
-	LDA #5
+	LDA #BEEB_SCREEN_MODE
 	JSR oswrch
 
 \ Ensure HAZEL RAM is writeable - assume this says writable throughout?
@@ -922,10 +950,10 @@ GUARD &8000
 	LDA #25:STA &FE01		; 25 rows = 200 scanlines
 
 	LDA #12:STA &FE00
-	LDA #HI($6000/8):STA &FE01
+	LDA #HI(BEEB_SCREEN_ADDR/8):STA &FE01
 
 	LDA #13:STA &FE00
-	LDA #HI($6000/8):STA &FE01
+	LDA #LO(BEEB_SCREEN_ADDR/8):STA &FE01
 
 		jmp game_start		;425A 4C 22 3B
 

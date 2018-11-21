@@ -3,14 +3,15 @@
 \ *	Define OS entries (could be INCLUDE bbc_os.h)
 \ ******************************************************************
 
-osfile = &FFDD
-oswrch = &FFEE
-osasci = &FFE3
-osbyte = &FFF4
-osword = &FFF1
 osfind = &FFCE
 osgbpb = &FFD1
 osargs = &FFDA
+osfile = &FFDD
+osrdch = &FFE0
+osasci = &FFE3
+oswrch = &FFEE
+osword = &FFF1
+osbyte = &FFF4
 
 BRKV=&202
 IRQ1V = &204
@@ -73,6 +74,7 @@ IKN_9 = 37
 IKN_t = 35
 IKN_minus = 23
 IKN_hat = 24
+IKN_f1 = 113
 
 \\ Opcodes
 SEI_OP = $78

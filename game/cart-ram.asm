@@ -191,11 +191,11 @@
 		asl A			;84D9 0A
 		rol ZP_F1		;84DA 26 F1
 		clc				;84DC 18
-		adc #$C0		;84DD 69 C0
+		adc #LO(font_data - $100)		;84DD 69 C0
 		sta ZP_F0		;84DF 85 F0
 		lda ZP_F1		;84E1 A5 F1
 		and #$07		;84E3 29 07
-		adc #$7F		;84E5 69 7F
+		adc #HI(font_data - $100)		;84E5 69 7F
 		sta ZP_F1		;84E7 85 F1
 		lda L_85C5		;84E9 AD C5 85
 		asl A			;84EC 0A
@@ -336,10 +336,12 @@
 
 ; poll for	key.
 ; entry: X=key number (column in bits 0-3,	row in bits 3-6).
+; entry: X=key number (bits 0-2 = row, bits 3-5 = column read off)
 ; exit: X=0, Z=1, N=0, if key not pressed;	X=$FF, Z=0, N=1	if key pressed.
 
 .poll_key			; in Cart
 {
+IF _NOT_BEEB
 		lda #$FF		;85D2 A9 FF
 		sta CIA1_CIDDRA		;85D4 8D 02 DC
 		lda #$00		;85D7 A9 00
@@ -364,30 +366,45 @@
 .L_85FA	rts				;85FA 60
 
 .L_85FB	equb $01,$02,$04,$08,$10,$20,$40,$80
+ELSE
+	TXA
+	EOR #&80
+	TAX
+	LDA #&79
+	JSR osbyte
+	TXA
+	BMI key_pressed
+	LDX #0
+	RTS
+	.key_pressed
+	LDX #&FF
+	RTS
+ENDIF
 }
 
 .getch				; HAS DLL
 {
 		stx L_85C8		;8603 8E C8 85
 		sty L_85C9		;8606 8C C9 85
+
 .L_8609	ldx L_85CF		;8609 AE CF 85
 		jsr poll_key		;860C 20 D2 85
 		bmi L_8609		;860F 30 F8
 .L_8611	lda #$00		;8611 A9 00
 		sta L_85CE		;8613 8D CE 85
-		ldx #$39		;8616 A2 39
+		ldx #KEY_LEFT_SHIFT		;8616 A2 39
 		jsr poll_key		;8618 20 D2 85
 		bmi L_8629		;861B 30 0C
-		ldx #$26		;861D A2 26
+		ldx #KEY_RIGHT_SHIFT		;861D A2 26
 		jsr poll_key		;861F 20 D2 85
 		bmi L_8629		;8622 30 05
 		lda #$40		;8624 A9 40
 		sta L_85CE		;8626 8D CE 85
-.L_8629	ldx #$3F		;8629 A2 3F
+.L_8629	ldx #$7F		;8629 A2 3F
 .L_862B	stx ZP_FA		;862B 86 FA
-		cpx #$39		;862D E0 39
+		cpx #KEY_LEFT_SHIFT		;862D E0 39
 		beq L_863A		;862F F0 09
-		cpx #$26		;8631 E0 26
+		cpx #KEY_RIGHT_SHIFT		;8631 E0 26
 		beq L_863A		;8633 F0 05
 		jsr poll_key		;8635 20 D2 85
 		bmi L_8641		;8638 30 07
@@ -399,7 +416,8 @@
 		sta L_85CF		;8643 8D CF 85
 		ora L_85CE		;8646 0D CE 85
 		tax				;8649 AA
-		lda L_9125,X	;864A BD 25 91
+		lda ikn_to_ascii,X	;864A BD 25 91
+
 		ldx L_85C8		;864D AE C8 85
 		ldy L_85C9		;8650 AC C9 85
 		clc				;8653 18
@@ -408,14 +426,28 @@
 .L_85CE	equb $00
 .L_85CF	equb $00
 
-.L_9125	equb $7F,$33,$35,$37,$39,$2B,$5C,$31,$0D,$57,$52,$59,$49,$50,$2A,$00
-		equb $00,$41,$44,$47,$4A,$4C,$3B,$00,$00,$34,$36,$38,$30,$2D,$1E,$32
-		equb $00,$5A,$43,$42,$4D,$2E,$10,$20,$00,$53,$46,$48,$4B,$3A,$3D,$01
-		equb $00,$45,$54,$55,$4F,$40,$5E,$51,$00,$10,$58,$56,$4E,$2C,$2F,$00
-		equb $7F,$33,$35,$37,$39,$2B,$5C,$31,$0D,$77,$72,$79,$69,$70,$2A,$00
-		equb $00,$61,$64,$67,$6A,$6C,$3B,$00,$00,$34,$36,$38,$30,$2D,$1E,$32
-		equb $00,$7A,$63,$62,$6D,$2E,$00,$20,$00,$73,$66,$68,$6B,$3A,$3D,$01
-		equb $00,$65,$74,$75,$6F,$40,$5E,$71,$00,$00,$78,$76,$6E,$2C,$3F,$00
+\\ Converts C64 key matrix codes to ASCII
+\\ Upper case
+.L_9125	equb $7F,$33,$35,$37,$39,$2B,$5C,$31, $0D,$57,$52,$59,$49,$50,$2A,$00
+		equb $00,$41,$44,$47,$4A,$4C,$3B,$00, $00,$34,$36,$38,$30,$2D,$1E,$32
+		equb $00,$5A,$43,$42,$4D,$2E,$10,$20, $00,$53,$46,$48,$4B,$3A,$3D,$01
+		equb $00,$45,$54,$55,$4F,$40,$5E,$51, $00,$10,$58,$56,$4E,$2C,$2F,$00
+\\ Lower case
+		equb $7F,$33,$35,$37,$39,$2B,$5C,$31, $0D,$77,$72,$79,$69,$70,$2A,$00
+		equb $00,$61,$64,$67,$6A,$6C,$3B,$00, $00,$34,$36,$38,$30,$2D,$1E,$32
+		equb $00,$7A,$63,$62,$6D,$2E,$00,$20, $00,$73,$66,$68,$6B,$3A,$3D,$01
+		equb $00,$65,$74,$75,$6F,$40,$5E,$71, $00,$00,$78,$76,$6E,$2C,$3F,$00
+
+.ikn_to_ascii
+\\ Starting at &10
+		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00, $00,$00,$00,$00,$00,$00
+		equb 'Q','3','4','5',$00,'8',$00,'-','^',$00, $00,$00,$00,$00,$00,$00
+		equb $00,'W','E','T','7','9','I','0','_',$00, $00,$00,$00,$00,$00,$00
+		equb '1','2','D',$00,'6','U','O','P','[',$00, $00,$00,$00,$00,$00,$00
+		equb $00,'A','X','F','Y','J','K','@',':',$0D, $00,$00,$00,$00,$00,$00
+		equb $00,'S','C','G','H','N','L',';',']',$7F, $00,$00,$00,$00,$00,$00
+		equb $00,'Z',$00,'V','B','M',$00,'.','/',$00, $00,$00,$00,$00,$00,$00
+		equb $1F,$00,$00,$00,$00,$00,$00,$00,'\',$00, $00,$00,$00,$00,$00,$00
 }
 
 ; *****************************************************************************
@@ -2370,7 +2402,7 @@
 
 .maybe_define_keys			; HAS DLL
 {
-		ldx #$20		;97AF A2 20
+		ldx #KEY_DEF_REDEFINE		;97AF A2 20
 		jsr kernel_poll_key_with_sysctl		;97B1 20 C9 C7
 		beq L_97B7		;97B4 F0 01
 		rts				;97B6 60
@@ -2386,7 +2418,7 @@
 		ldy L_9841,X	;97CD BC 41 98
 		lda #$04		;97D0 A9 04
 		jsr kernel_set_up_text_sprite		;97D2 20 A9 12
-.L_97D5	ldx #$3F		;97D5 A2 3F
+.L_97D5	ldx #KEY_DEF_CANCEL		;97D5 A2 3F
 .L_97D7	stx ZP_17		;97D7 86 17
 		jsr kernel_poll_key_with_sysctl		;97D9 20 C9 C7
 		bne L_9816		;97DC D0 38
@@ -5497,126 +5529,6 @@ L_14B6 = L_14B8-2
 		sta L_07DC,Y	;2454 99 DC 07
 		rts				;2457 60
 }
-
-.L_25EA				; HAS DLL
-		stx ZP_16		;25EA 86 16
-		ldy #$00		;25EC A0 00
-		lda L_8040,X	;25EE BD 40 80
-		sec				;25F1 38
-		sbc ZP_37		;25F2 E5 37
-		sta ZP_14		;25F4 85 14
-		lda L_A330,X	;25F6 BD 30 A3
-		sbc ZP_38		;25F9 E5 38
-		bpl L_2614		;25FB 10 17
-		ldy #$08		;25FD A0 08
-		sta ZP_15		;25FF 85 15
-		lda #$00		;2601 A9 00
-		sec				;2603 38
-		sbc ZP_14		;2604 E5 14
-		sta ZP_14		;2606 85 14
-		lda #$00		;2608 A9 00
-		sbc ZP_15		;260A E5 15
-		bpl L_2614		;260C 10 06
-		ldy #$0F		;260E A0 0F
-		lda #$FF		;2610 A9 FF
-		bne L_2620		;2612 D0 0C
-.L_2614	bne L_261A		;2614 D0 04
-		beq L_2620		;2616 F0 08
-.L_2618	ror ZP_14		;2618 66 14
-.L_261A	iny				;261A C8
-		lsr A			;261B 4A
-		bne L_2618		;261C D0 FA
-		ror ZP_14		;261E 66 14
-.L_2620	ldx ZP_14		;2620 A6 14
-		lda log_msb,X	;2622 BD 00 AB
-		clc				;2625 18
-		adc L_A610,Y	;2626 79 10 A6
-		sec				;2629 38
-		sbc #$08		;262A E9 08
-L_262B	= *-1			;! self-mod!
-		sta ZP_AD		;262C 85 AD
-		cpy #$08		;262E C0 08
-		bcs L_2682		;2630 B0 50
-		lda log_lsb,X	;2632 BD 00 AA
-		sec				;2635 38
-		sbc ZP_AB		;2636 E5 AB
-		sta ZP_14		;2638 85 14
-		lda ZP_AD		;263A A5 AD
-		sbc ZP_AC		;263C E5 AC
-		bpl L_2662		;263E 10 22
-		jsr pow36Q		;2640 20 D2 26
-		sta ZP_14		;2643 85 14
-		ldx #$00		;2645 A2 00
-		stx ZP_15		;2647 86 15
-		ldx ZP_16		;2649 A6 16
-		lda #$00		;264B A9 00
-		sec				;264D 38
-		sbc ZP_14		;264E E5 14
-		bcc L_2654		;2650 90 02
-		inc ZP_15		;2652 E6 15
-.L_2654	sec				;2654 38
-		sbc ZP_33		;2655 E5 33
-		sta L_A24C,X	;2657 9D 4C A2
-		lda ZP_15		;265A A5 15
-		sbc ZP_69		;265C E5 69
-		sta L_A2E4,X	;265E 9D E4 A2
-		rts				;2661 60
-.L_2662	sta ZP_15		;2662 85 15
-		lda #$00		;2664 A9 00
-		sec				;2666 38
-		sbc ZP_14		;2667 E5 14
-		sta ZP_14		;2669 85 14
-		lda #$00		;266B A9 00
-		sbc ZP_15		;266D E5 15
-		jsr pow36Q		;266F 20 D2 26
-		ldx ZP_16		;2672 A6 16
-		sec				;2674 38
-		sbc ZP_33		;2675 E5 33
-		sta L_A24C,X	;2677 9D 4C A2
-		lda #$FF		;267A A9 FF
-		sbc ZP_69		;267C E5 69
-		sta L_A2E4,X	;267E 9D E4 A2
-		rts				;2681 60
-.L_2682	lda log_lsb,X	;2682 BD 00 AA
-		sec				;2685 38
-		sbc ZP_AB		;2686 E5 AB
-		sta ZP_14		;2688 85 14
-		lda ZP_AD		;268A A5 AD
-		sbc ZP_AC		;268C E5 AC
-		bpl L_26A3		;268E 10 13
-		jsr pow36Q		;2690 20 D2 26
-		ldx ZP_16		;2693 A6 16
-		sec				;2695 38
-		sbc ZP_33		;2696 E5 33
-		sta L_A24C,X	;2698 9D 4C A2
-		lda #$01		;269B A9 01
-		sbc ZP_69		;269D E5 69
-		sta L_A2E4,X	;269F 9D E4 A2
-		rts				;26A2 60
-.L_26A3	sta ZP_15		;26A3 85 15
-		lda #$00		;26A5 A9 00
-		sec				;26A7 38
-		sbc ZP_14		;26A8 E5 14
-		sta ZP_14		;26AA 85 14
-		lda #$00		;26AC A9 00
-		sbc ZP_15		;26AE E5 15
-		jsr pow36Q		;26B0 20 D2 26
-		sta ZP_14		;26B3 85 14
-		ldx #$02		;26B5 A2 02
-		stx ZP_15		;26B7 86 15
-		ldx ZP_16		;26B9 A6 16
-		lda #$00		;26BB A9 00
-		sec				;26BD 38
-		sbc ZP_14		;26BE E5 14
-		bcc L_26C4		;26C0 90 02
-		inc ZP_15		;26C2 E6 15
-.L_26C4	sec				;26C4 38
-		sbc ZP_33		;26C5 E5 33
-		sta L_A24C,X	;26C7 9D 4C A2
-		lda ZP_15		;26CA A5 15
-		sbc ZP_69		;26CC E5 69
-		sta L_A2E4,X	;26CE 9D E4 A2
-		rts				;26D1 60
 
 ; raises number to	the power of 36	(? - experimentally determined)
 ; entry: A	= MSB; byte_14 = LSB
