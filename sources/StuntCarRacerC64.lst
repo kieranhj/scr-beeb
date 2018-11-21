@@ -107,8 +107,8 @@ seg000:002E						     ; sub_167A+42r ...
 seg000:002F 01	     byte_2F:	     .BYTE 1		     ; DATA XREF: sub_A97+182r
 seg000:002F						     ; sub_DE8+18r ...
 seg000:002F						     ; non-zero	if on crane
-seg000:0030 00	     byte_30:	     .BYTE 0		     ; DATA XREF: prepare_trackQ+48r
-seg000:0030						     ; prepare_trackQ+73w ...
+seg000:0030 00	     byte_30:	     .BYTE 0		     ; DATA XREF: set_road_data1+48r
+seg000:0030						     ; set_road_data1+73w ...
 seg000:0031 00	     byte_31:	     .BYTE 0		     ; DATA XREF: do_menu_screen+1w
 seg000:0031						     ; do_menu_screen+5Ar ...
 seg000:0032 80	     byte_32:	     .BYTE $80		     ; DATA XREF: sub_24AD+B8r
@@ -5586,7 +5586,7 @@ seg000:1F06
 seg000:1F06	     ; €€€€€€€€€€€€€€€ S U B R O U T I N E €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 seg000:1F06	     
 seg000:1F06	     
-seg000:1F06	     sub_1F06:				     ; CODE XREF: prepare_trackQ+1A8p
+seg000:1F06	     sub_1F06:				     ; CODE XREF: set_road_data1+1A8p
 seg000:1F06 AD A1 31		     LDA     num_players
 seg000:1F09 F0 05		     BEQ     loc_1F10
 seg000:1F0B AD 7F C7		     LDA     byte_C77F
@@ -5866,7 +5866,7 @@ seg000:2098	     ; ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
 seg000:2099 45	     byte_2099:	     .BYTE $45		     ; DATA XREF: sub_1F06+31w
 seg000:2099						     ; sub_2037+Dr ...
 seg000:209A 48	     byte_209A:	     .BYTE $48		     ; DATA XREF: sub_1F06+3Ew
-seg000:209A						     ; prepare_trackQ+1ABr
+seg000:209A						     ; set_road_data1+1ABr
 seg000:209B 06	     byte_209B:	     .BYTE 6		     ; DATA XREF: sub_A97+A3r
 seg000:209B						     ; sub_1F06+24w
 seg000:209C	     
@@ -10668,7 +10668,7 @@ seg000:3C5F 20 03 2F		     JSR     draw_track_preview_border
 seg000:3C62 20 CE 2F		     JSR     draw_track_preview_track_name
 seg000:3C65 20 A8 3E		     JSR     sub_3EA8	     ; clear 32	bytes at A350 and 8080
 seg000:3C68 AE 7D C7		     LDX     current_track
-seg000:3C6B 20 34 EA		     JSR     prepare_trackQ  ; entry: X	= some kind of index (track index?)
+seg000:3C6B 20 34 EA		     JSR     set_road_data1  ; entry: X	= some kind of index (track index?)
 seg000:3C6E 20 18 1D		     JSR     update_per_track_stuff
 seg000:3C71 20 86 F3		     JSR     sub_F386
 seg000:3C74	     
@@ -37839,8 +37839,8 @@ seg000:B218 3A BA		     .WORD unk_BA3A
 seg000:B21A 44 BA		     .WORD unk_BA44
 seg000:B21C 4E BA		     .WORD unk_BA4E
 seg000:B21E 58 BA		     .WORD unk_BA58
-seg000:B220 62 BA    tracks_table:   .WORD little_ramp_data  ; DATA XREF: prepare_trackQ+3r
-seg000:B220						     ; prepare_trackQ+8r
+seg000:B220 62 BA    tracks_table:   .WORD little_ramp_data  ; DATA XREF: set_road_data1+3r
+seg000:B220						     ; set_road_data1+8r
 seg000:B222 DE BA		     .WORD stepping_stones_data
 seg000:B224 6F BB		     .WORD hump_back_data
 seg000:B226 00 BC		     .WORD big_ramp_data
@@ -43262,11 +43262,11 @@ seg000:C764						     ; find_track_segment_index+12r ...
 seg000:C765 0F	     players_start_section:.BYTE $F	     ; DATA XREF: sub_3C99+19r
 seg000:C765						     ; sub_3C99+2Ar
 seg000:C766 0F	     near_start_line_section:.BYTE $F	     ; DATA XREF: sub_1948+18r
-seg000:C766						     ; prepare_trackQ+14Ar
+seg000:C766						     ; set_road_data1+14Ar
 seg000:C767 25	     half_a_lap_section:.BYTE $25	     ; DATA XREF: sub_FAD+10r
-seg000:C768 C0	     total_road_distance:.WORD $31C0	     ; DATA XREF: prepare_trackQ+16Aw
+seg000:C768 C0	     total_road_distance:.WORD $31C0	     ; DATA XREF: set_road_data1+16Aw
 seg000:C768						     ; sub_F585+3Br
-seg000:C769 31						     ; DATA XREF: prepare_trackQ+165w
+seg000:C769 31						     ; DATA XREF: set_road_data1+165w
 seg000:C769						     ; sub_F585+42r
 seg000:C76A 32	     boost_reserve: .BYTE $32		     ; DATA XREF: sub_3DF9+A6w
 seg000:C76A						     ; update_boosting+12r ...
@@ -43294,14 +43294,14 @@ seg000:C775 05	     byte_C775:	     .BYTE 5		     ; DATA XREF: sub_1F06+20r
 seg000:C776 22	     byte_C776:	     .BYTE $22		     ; DATA XREF: sub_3DF9+97r
 seg000:C777 2F	     byte_C777:	     .BYTE $2F		     ; DATA XREF: sub_3DF9+9Fr
 seg000:C778 02	     byte_C778:	     .BYTE 2		     ; DATA XREF: seg000:8F22r
-seg000:C778						     ; prepare_trackQ+17Cr ...
-seg000:C779 02	     byte_C779:	     .BYTE 2		     ; DATA XREF: prepare_trackQ+195r
-seg000:C779						     ; prepare_trackQ+1A3r ...
+seg000:C778						     ; set_road_data1+17Cr ...
+seg000:C779 02	     byte_C779:	     .BYTE 2		     ; DATA XREF: set_road_data1+195r
+seg000:C779						     ; set_road_data1+1A3r ...
 seg000:C77A 00			     .BYTE    0	;  
 seg000:C77B 00	     byte_C77B:	     .BYTE 0		     ; DATA XREF: sub_2AAE+1Cr
 seg000:C77B						     ; sub_2AAE+DFr ...
 seg000:C77C 10	     byte_C77C:	     .BYTE $10		     ; DATA XREF: sub_FAD+1Br
-seg000:C77C						     ; prepare_trackQ+155w ...
+seg000:C77C						     ; set_road_data1+155w ...
 seg000:C77D 00	     current_track:  .BYTE 0		     ; DATA XREF: sub_A97+18Fr
 seg000:C77D						     ; sub_167A+ADr ...
 seg000:C77E 00	     byte_C77E:	     .BYTE 0		     ; DATA XREF: do_main_menu_dwim+66r
@@ -50773,17 +50773,17 @@ seg000:EA12
 seg000:EA12	     ; €€€€€€€€€€€€€€€ S U B R O U T I N E €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 seg000:EA12	     
 seg000:EA12	     
-seg000:EA12	     get_next_ptr_byte:			     ; CODE XREF: prepare_trackQ+Fp
-seg000:EA12 B1 1E					     ; prepare_trackQ+19p ...
+seg000:EA12	     get_road_data_byte:			     ; CODE XREF: set_road_data1+Fp
+seg000:EA12 B1 1E					     ; set_road_data1+19p ...
 seg000:EA12			     LDA     (ptr),Y
 seg000:EA14 C8			     INY     
 seg000:EA15 D0 02		     BNE     loc_EA19
 seg000:EA17 E6 1F		     INC     ptr+1
 seg000:EA19	     
-seg000:EA19	     loc_EA19:				     ; CODE XREF: get_next_ptr_byte+3j
+seg000:EA19	     loc_EA19:				     ; CODE XREF: get_road_data_byte+3j
 seg000:EA19 29 FF		     AND     #$FF
 seg000:EA1B 60			     RTS     
-seg000:EA1B	     ; End of function get_next_ptr_byte
+seg000:EA1B	     ; End of function get_road_data_byte
 seg000:EA1B	     
 seg000:EA1C	     
 seg000:EA1C	     ; €€€€€€€€€€€€€€€ S U B R O U T I N E €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
@@ -50792,7 +50792,7 @@ seg000:EA1C	     ; adjusts accumulator according to	top 2 bits of byte_15:
 seg000:EA1C	     ; 
 seg000:EA1C	     ; %00xxxxxx -> +$10; %01xxxxxx -> +$01; %10xxxxxx -> -$10;	%11xxxxxx -> -$01.
 seg000:EA1C	     
-seg000:EA1C	     adjust_accumulator:		     ; CODE XREF: prepare_trackQ+4Ap
+seg000:EA1C	     adjust_accumulator:		     ; CODE XREF: set_road_data1+4Ap
 seg000:EA1C 24 15		     BIT     byte_15	     ; check byte_15, top 2 bits
 seg000:EA1E 30 0A		     BMI     value_is_1xxxxxxx ; taken if bit 7	set
 seg000:EA20 70 04		     BVS     value_is_01xxxxxx ; taken if bit 6	set
@@ -50829,7 +50829,7 @@ seg000:EA34	     ; €€€€€€€€€€€€€€€ S U B R O U T I N E €€€€€€€€€€€€€€€€€€€€€€€€€
 seg000:EA34	     
 seg000:EA34	     ; entry: X	= some kind of index (track index?)
 seg000:EA34	     
-seg000:EA34	     prepare_trackQ:			     ; CODE XREF: sub_3C36+35p
+seg000:EA34	     set_road_data1:			     ; CODE XREF: sub_3C36+35p
 seg000:EA34 8A			     TXA     
 seg000:EA35 0A			     ASL     A
 seg000:EA36 A8			     TAY     
@@ -50839,15 +50839,15 @@ seg000:EA3C B9 21 B2		     LDA     tracks_table+1,Y
 seg000:EA3F 85 1F		     STA     ptr+1
 seg000:EA41 A0 00		     LDY     #0
 seg000:EA43	     
-seg000:EA43	     copy_header:			     ; CODE XREF: prepare_trackQ+17j
-seg000:EA43 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EA43	     copy_header:			     ; CODE XREF: set_road_data1+17j
+seg000:EA43 20 12 EA		     JSR     get_road_data_byte
 seg000:EA46 99 63 C7		     STA     $C763,Y
 seg000:EA49 C0 04		     CPY     #4
 seg000:EA4B D0 F6		     BNE     copy_header
-seg000:EA4D 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EA4D 20 12 EA		     JSR     get_road_data_byte
 seg000:EA50 85 51		     STA     byte_51
 seg000:EA52 85 52		     STA     byte_52
-seg000:EA54 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EA54 20 12 EA		     JSR     get_road_data_byte
 seg000:EA57 85 77		     STA     byte_77
 seg000:EA59 85 78		     STA     byte_78
 seg000:EA5B A2 00		     LDX     #0
@@ -50856,8 +50856,8 @@ seg000:EA5F 86 7D		     STX     byte_7D
 seg000:EA61 86 7F		     STX     byte_7F
 seg000:EA63 86 08		     STX     byte_8
 seg000:EA65	     
-seg000:EA65	     loc_EA65:				     ; CODE XREF: prepare_trackQ+66j
-seg000:EA65 A5 08					     ; prepare_trackQ+147j
+seg000:EA65	     loc_EA65:				     ; CODE XREF: set_road_data1+66j
+seg000:EA65 A5 08					     ; set_road_data1+147j
 seg000:EA65			     LDA     byte_8
 seg000:EA67 F0 1B		     BEQ     loc_EA84
 seg000:EA69 C6 08		     DEC     byte_8
@@ -50870,7 +50870,7 @@ seg000:EA76 A5 15		     LDA     byte_15
 seg000:EA78 49 C0		     EOR     #$C0
 seg000:EA7A 85 15		     STA     byte_15
 seg000:EA7C	     
-seg000:EA7C	     loc_EA7C:				     ; CODE XREF: prepare_trackQ+40j
+seg000:EA7C	     loc_EA7C:				     ; CODE XREF: set_road_data1+40j
 seg000:EA7C A5 30		     LDA     byte_30
 seg000:EA7E 20 1C EA		     JSR     adjust_accumulator	; adjusts accumulator according	to top 2 bits of byte_15:
 seg000:EA7E						     ; 
@@ -50878,8 +50878,8 @@ seg000:EA7E						     ; %00xxxxxx -> +$10; %01xxxxxx -> +$01; %10xxxxxx -> -$10;
 seg000:EA81 4C A4 EA		     JMP     loc_EAA4
 seg000:EA84	     ; ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
 seg000:EA84	     
-seg000:EA84	     loc_EA84:				     ; CODE XREF: prepare_trackQ+33j
-seg000:EA84 20 12 EA		     JSR     get_next_ptr_byte ; get byte
+seg000:EA84	     loc_EA84:				     ; CODE XREF: set_road_data1+33j
+seg000:EA84 20 12 EA		     JSR     get_road_data_byte ; get byte
 seg000:EA87 85 15		     STA     byte_15	     ; save
 seg000:EA89 9D 00 04		     STA     $400,X	     ; store
 seg000:EA8C 29 0F		     AND     #$F
@@ -50893,12 +50893,12 @@ seg000:EA97 4A			     LSR     A
 seg000:EA98 85 08		     STA     byte_8	     ; save top	4 bits in counter
 seg000:EA9A 10 C9		     BPL     loc_EA65	     ; JMP, in effect
 seg000:EA9C	     
-seg000:EA9C	     loc_EA9C:				     ; CODE XREF: prepare_trackQ+5Cj
+seg000:EA9C	     loc_EA9C:				     ; CODE XREF: set_road_data1+5Cj
 seg000:EA9C BD 00 04		     LDA     $400,X	     ; get stored byte
 seg000:EA9F 85 4F		     STA     byte_4F	     ; save it for later
-seg000:EAA1 20 12 EA		     JSR     get_next_ptr_byte ; get next byte
+seg000:EAA1 20 12 EA		     JSR     get_road_data_byte ; get next byte
 seg000:EAA4	     
-seg000:EAA4	     loc_EAA4:				     ; CODE XREF: prepare_trackQ+4Dj
+seg000:EAA4	     loc_EAA4:				     ; CODE XREF: set_road_data1+4Dj
 seg000:EAA4 9D 4E 04		     STA     $44E,X	     ; store in	2nd part
 seg000:EAA7 85 30		     STA     byte_30	     ; save it for later
 seg000:EAA9 A5 D8		     LDA     byte_D8
@@ -50922,8 +50922,8 @@ seg000:EACC A4 16		     LDY     byte_16
 seg000:EACE 4C E6 EA		     JMP     loc_EAE6
 seg000:EAD1	     ; ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
 seg000:EAD1	     
-seg000:EAD1	     loc_EAD1:				     ; CODE XREF: prepare_trackQ+82j
-seg000:EAD1 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EAD1	     loc_EAD1:				     ; CODE XREF: set_road_data1+82j
+seg000:EAD1 20 12 EA		     JSR     get_road_data_byte
 seg000:EAD4 9D 9C 04		     STA     $49C,X
 seg000:EAD7 A5 15		     LDA     byte_15
 seg000:EAD9 29 20		     AND     #$20 ; ' '
@@ -50932,11 +50932,11 @@ seg000:EADD BD 9C 04		     LDA     $49C,X
 seg000:EAE0 4C E6 EA		     JMP     loc_EAE6
 seg000:EAE3	     ; ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
 seg000:EAE3	     
-seg000:EAE3	     loc_EAE3:				     ; CODE XREF: prepare_trackQ+A7j
-seg000:EAE3 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EAE3	     loc_EAE3:				     ; CODE XREF: set_road_data1+A7j
+seg000:EAE3 20 12 EA		     JSR     get_road_data_byte
 seg000:EAE6	     
-seg000:EAE6	     loc_EAE6:				     ; CODE XREF: prepare_trackQ+9Aj
-seg000:EAE6 29 7F					     ; prepare_trackQ+ACj
+seg000:EAE6	     loc_EAE6:				     ; CODE XREF: set_road_data1+9Aj
+seg000:EAE6 29 7F					     ; set_road_data1+ACj
 seg000:EAE6			     AND     #$7F ; ''
 seg000:EAE8 05 14		     ORA     byte_14
 seg000:EAEA 9D EA 04		     STA     $4EA,X
@@ -51014,14 +51014,14 @@ seg000:EB79 F0 03		     BEQ     loc_EB7E
 seg000:EB7B 4C 65 EA		     JMP     loc_EA65
 seg000:EB7E	     ; ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
 seg000:EB7E	     
-seg000:EB7E	     loc_EB7E:				     ; CODE XREF: prepare_trackQ+145j
+seg000:EB7E	     loc_EB7E:				     ; CODE XREF: set_road_data1+145j
 seg000:EB7E AE 66 C7		     LDX     near_start_line_section
 seg000:EB81 E8			     INX     
 seg000:EB82 EC 64 C7		     CPX     number_of_road_sections
 seg000:EB85 90 02		     BCC     loc_EB89
 seg000:EB87 A2 00		     LDX     #0
 seg000:EB89	     
-seg000:EB89	     loc_EB89:				     ; CODE XREF: prepare_trackQ+151j
+seg000:EB89	     loc_EB89:				     ; CODE XREF: set_road_data1+151j
 seg000:EB89 8E 7C C7		     STX     byte_C77C
 seg000:EB8C 84 17		     STY     byte_17
 seg000:EB8E A5 7D		     LDA     byte_7D
@@ -51038,8 +51038,8 @@ seg000:EB9E 8D 68 C7		     STA     total_road_distance+0
 seg000:EBA1 A4 17		     LDY     byte_17
 seg000:EBA3 A2 00		     LDX     #0
 seg000:EBA5	     
-seg000:EBA5	     loc_EBA5:				     ; CODE XREF: prepare_trackQ+17Aj
-seg000:EBA5 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EBA5	     loc_EBA5:				     ; CODE XREF: set_road_data1+17Aj
+seg000:EBA5 20 12 EA		     JSR     get_road_data_byte
 seg000:EBA8 9D 74 C7		     STA     $C774,X
 seg000:EBAB E8			     INX     
 seg000:EBAC E0 06		     CPX     #6
@@ -51048,33 +51048,33 @@ seg000:EBB0 AD 78 C7		     LDA     byte_C778
 seg000:EBB3 F0 14		     BEQ     loc_EBC9
 seg000:EBB5 A2 00		     LDX     #0
 seg000:EBB7	     
-seg000:EBB7	     loc_EBB7:				     ; CODE XREF: prepare_trackQ+193j
-seg000:EBB7 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EBB7	     loc_EBB7:				     ; CODE XREF: set_road_data1+193j
+seg000:EBB7 20 12 EA		     JSR     get_road_data_byte
 seg000:EBBA 9D 5E 07		     STA     $75E,X
-seg000:EBBD 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EBBD 20 12 EA		     JSR     get_road_data_byte
 seg000:EBC0 9D 69 07		     STA     $769,X
 seg000:EBC3 E8			     INX     
 seg000:EBC4 EC 78 C7		     CPX     byte_C778
 seg000:EBC7 D0 EE		     BNE     loc_EBB7
 seg000:EBC9	     
-seg000:EBC9	     loc_EBC9:				     ; CODE XREF: prepare_trackQ+17Fj
+seg000:EBC9	     loc_EBC9:				     ; CODE XREF: set_road_data1+17Fj
 seg000:EBC9 AD 79 C7		     LDA     byte_C779
 seg000:EBCC F0 0E		     BEQ     loc_EBDC
 seg000:EBCE A2 00		     LDX     #0
 seg000:EBD0	     
-seg000:EBD0	     loc_EBD0:				     ; CODE XREF: prepare_trackQ+1A6j
-seg000:EBD0 20 12 EA		     JSR     get_next_ptr_byte
+seg000:EBD0	     loc_EBD0:				     ; CODE XREF: set_road_data1+1A6j
+seg000:EBD0 20 12 EA		     JSR     get_road_data_byte
 seg000:EBD3 9D 90 01		     STA     $190,X
 seg000:EBD6 E8			     INX     
 seg000:EBD7 EC 79 C7		     CPX     byte_C779
 seg000:EBDA D0 F4		     BNE     loc_EBD0
 seg000:EBDC	     
-seg000:EBDC	     loc_EBDC:				     ; CODE XREF: prepare_trackQ+198j
+seg000:EBDC	     loc_EBDC:				     ; CODE XREF: set_road_data1+198j
 seg000:EBDC 20 06 1F		     JSR     sub_1F06
 seg000:EBDF AE 9A 20		     LDX     byte_209A
 seg000:EBE2 A9 44		     LDA     #$44 ; 'D'
 seg000:EBE4 4C 25 87		     JMP     sysctl	     ; Various OSBYTE-ish functions
-seg000:EBE4	     ; End of function prepare_trackQ	     ; 
+seg000:EBE4	     ; End of function set_road_data1	     ; 
 seg000:EBE4						     ; A=1 -> B&W mode,	screenmem +$3C00, bmp +$0000
 seg000:EBE4						     ; A=2 -> multicolour mode,	screenmem +$1C00, bmp +$2000
 seg000:EBE4						     ; A=$15 ->	silence	SID channel X
@@ -51097,8 +51097,8 @@ seg000:EBEB
 seg000:EBEB	     ; €€€€€€€€€€€€€€€ S U B R O U T I N E €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 seg000:EBEB	     
 seg000:EBEB	     
-seg000:EBEB	     sub_EBEB:				     ; CODE XREF: prepare_trackQ+115p
-seg000:EBEB A5 CA					     ; prepare_trackQ+12Bp
+seg000:EBEB	     sub_EBEB:				     ; CODE XREF: set_road_data1+115p
+seg000:EBEB A5 CA					     ; set_road_data1+12Bp
 seg000:EBEB			     LDA     word_CA
 seg000:EBED 85 98		     STA     word_98
 seg000:EBEF A5 CB		     LDA     word_CA+1
@@ -51109,8 +51109,8 @@ seg000:EBF3
 seg000:EBF3	     ; €€€€€€€€€€€€€€€ S U B R O U T I N E €€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€
 seg000:EBF3	     
 seg000:EBF3	     
-seg000:EBF3	     sub_EBF3:				     ; CODE XREF: prepare_trackQ+E9p
-seg000:EBF3 A5 A2					     ; prepare_trackQ+FFp
+seg000:EBF3	     sub_EBF3:				     ; CODE XREF: set_road_data1+E9p
+seg000:EBF3 A5 A2					     ; set_road_data1+FFp
 seg000:EBF3			     LDA     byte_A2
 seg000:EBF5 10 0E		     BPL     loc_EC05
 seg000:EBF7 98			     TYA     
