@@ -1,5 +1,3 @@
-  
-  
 seg000:0000	     ;
 seg000:0000	     ; File Name   : Z:\beeb\beebcode\scr\running.dat
 seg000:0000	     ; Format	   : Binary File
@@ -1159,7 +1157,7 @@ seg000:04EA 63 64 66+		     .BYTE $17,	$80, $18, 3, $80, 0, $80, $28, $A9, 0, $A
 seg000:04EA E7 04 69+		     .BYTE $2B,	$80, 0,	$8A, $17, 0, $9A, 3, 7,	5, 5, 5, 8
 seg000:04EA 17 00 00+		     .BYTE $F, 5, 5, 5,	9, 9, 9, 9, 9, 9, 9, 9,	9, 9, 9, 9
 seg000:04EA 00 00 00+		     .BYTE 9, 9, 9, 9, 9, 9, 9,	9, 9, 9, 9, 9, 5
-seg000:0538 80 80 80+trackdata_538:  .BYTE $80,	$80, $80, $60, $60, $60, $40, $40, $E0,	$20
+seg000:0538 80 80 80+overall_left_y_shifts_LSBs:  .BYTE $80,	$80, $80, $60, $60, $60, $40, $40, $E0,	$20
 seg000:0538 60 60 60+					     ; DATA XREF: fetch_near_section_stuff+26r
 seg000:0538 40 40 E0+		     .BYTE $A0,	$80, $A0, $60, $60, 0, 0, 0, 0,	0, 0, 0, 0
 seg000:0538 20 A0 80+		     .BYTE 0, 0, 0, $60, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0
@@ -1167,14 +1165,14 @@ seg000:0538 A0 60 60+		     .BYTE 0, 0, $60, 0, 0, $20, $20, $20, $20,	$20, $20,
 seg000:0538 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:0538 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:0538 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20
-seg000:0586 02 02 07+trackdata_586:  .BYTE 2, 2, 7, $A,	$12, $1A, $1D, $1D, $1C, $19, $17, $13,	$E
+seg000:0586 02 02 07+overall_left_y_shifts_MSBs:  .BYTE 2, 2, 7, $A,	$12, $1A, $1D, $1D, $1C, $19, $17, $13,	$E
 seg000:0586 0A 12 1A+					     ; DATA XREF: fetch_near_section_stuff+2Br
 seg000:0586 1D 1D 1C+		     .BYTE 6, 5, 5, 5, 5, 5, 5,	5, 5, 5, 5, 5, 7
 seg000:0586 19 17 13+		     .BYTE 7, 7, 5, 5, 5, 5, 5,	5, 5, 5, 5, 5, 5
 seg000:0586 0E 06 05+		     .BYTE 5, 7, 7, 7, 5, $20, $20, $20, $20, $20, $20,	$20, $20
 seg000:0586 05 05 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20, $20, $20, $20
 seg000:0586 05 05 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20, $20, $20, $20
-seg000:05D4 80 80 80+trackdata_5d4:  .BYTE $80,	$80, $80, $60, $60, $60, $40, $40, $E0,	$20
+seg000:05D4 80 80 80+overall_right_y_shifts_LSBs:  .BYTE $80,	$80, $80, $60, $60, $60, $40, $40, $E0,	$20
 seg000:05D4 60 60 60+					     ; DATA XREF: fetch_near_section_stuff+30r
 seg000:05D4 40 40 E0+		     .BYTE $60,	$C0, $A0, $A0, $60, 0, 0, 0, 0,	0, 0, 0, 0
 seg000:05D4 20 60 C0+		     .BYTE 0, 0, $A0, $A0, $A0,	0, 0, 0, 0, 0, 0, 0, 0,	0, 0
@@ -1182,7 +1180,7 @@ seg000:05D4 A0 A0 60+		     .BYTE 0, 0, $A0, $A0, $A0,	0, $20,	$20, $20, $20, $2
 seg000:05D4 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:05D4 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:05D4 00 00 00+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20
-seg000:0622 02 02 07+trackdata_622:  .BYTE 2, 2, 7, $A,	$12, $1A, $1D, $1D, $1C, $19, $11, $E
+seg000:0622 02 02 07+overall_right_y_shifts_MSBs:  .BYTE 2, 2, 7, $A,	$12, $1A, $1D, $1D, $1C, $19, $11, $E
 seg000:0622 0A 12 1A+					     ; DATA XREF: fetch_near_section_stuff+35r
 seg000:0622 1D 1D 1C+		     .BYTE $A, 8, 5, 5,	5, 5, 5, 5, 5, 5, 5, 5,	3, 2, 2, 2
 seg000:0622 19 11 0E+		     .BYTE 3, 5, 5, 5, 5, 5, 5,	5, 5, 5, 5, 3, 2, 2, 2,	3, $20
@@ -1190,7 +1188,11 @@ seg000:0622 0A 08 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$
 seg000:0622 05 05 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:0622 05 05 05+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:0622 05 05 05+		     .BYTE $20,	$20, $20
-seg000:0670 00 00 00+trackdata_670:  .BYTE 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, $20, $40, $40
+
+(distances.around.road in the Amiga version is a table of words, but
+on the C64 it's 2 tables of bytes.)
+
+seg000:0670 00 00 00+distances_around_road_LSBs:  .BYTE 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, $20, $40, $40
 seg000:0670 00 00 00+		     .BYTE $40,	$40, $40, $40, $40, $40, $40, $40, $40,	$40
 seg000:0670 00 00 00+		     .BYTE $40,	$60, $80, $80, $20, $80, $E0, $40, $A0,	0, $60
 seg000:0670 00 00 00+		     .BYTE $C0,	$20, $80, $E0, $80, $80, $A0, $C0, $20,	$20
@@ -1198,7 +1200,7 @@ seg000:0670 20 40 40+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$
 seg000:0670 40 40 40+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:0670 40 40 40+		     .BYTE $20,	$20, $20, $20, $20, $20, $20, $20, $20,	$20
 seg000:0670 40 40 40+		     .BYTE $20,	$20
-seg000:06BE 00 01 02+trackdata_6be:  .BYTE 0, 1, 2, 3, 4, 5, 6,	7, 8, 9, $A, $B, $C, $D, $E
+seg000:06BE 00 01 02+distances_around_road_MSBs:  .BYTE 0, 1, 2, 3, 4, 5, 6,	7, 8, 9, $A, $B, $C, $D, $E
 seg000:06BE 03 04 05+		     .BYTE $F, $10, $11, $12, $13, $14,	$15, $16, $17, $18
 seg000:06BE 06 07 08+		     .BYTE $19,	$1A, $1B, $1C, $1E, $1F, $20, $22, $23,	$25
 seg000:06BE 09 0A 0B+		     .BYTE $26,	$27, $29, $2A, $2B, $2D, $2E, $2F, $30,	$20
@@ -50935,7 +50937,7 @@ seg000:EAE3
 seg000:EAE3	     loc_EAE3:				     ; CODE XREF: set_road_data1+A7j
 seg000:EAE3 20 12 EA		     JSR     get_road_data_byte
 seg000:EAE6	     
-seg000:EAE6	     loc_EAE6:				     ; CODE XREF: set_road_data1+9Aj
+seg000:EAE6	     loc_EAE6:				     ; CODE XREF: set_road_data1+9Aj ; Amiga = srd16a
 seg000:EAE6 29 7F					     ; set_road_data1+ACj
 seg000:EAE6			     AND     #$7F ; ''
 seg000:EAE8 05 14		     ORA     byte_14
@@ -50950,15 +50952,29 @@ seg000:EAF7 20 BF C9		     JSR     shift_16bit     ; 16-bit arithmetic shift of 
 seg000:EAF7						     ; 
 seg000:EAF7						     ; If Y is +ve, shift Y places right.
 seg000:EAF7						     ; If Y is -ve, shift abs(Y) places	left.
-seg000:EAFA 9D BE 06		     STA     $6BE,X
+seg000:EAFA 9D BE 06		     STA     distances_around_road_MSBs,X
 seg000:EAFD A5 14		     LDA     byte_14
-seg000:EAFF 9D 70 06		     STA     $670,X
+seg000:EAFF 9D 70 06		     STA     distances_around_road_LSBs,X
 seg000:EB02 20 2F F0		     JSR     fetch_near_section_stuff	; entry: X = track segment index
+
+	move.b	other.road.line.colour,d0
+	add.b	number.of.coords.minus2,d0
+	andi.b	#2,d0
+	move.b	d0,other.road.line.colour
+
 seg000:EB05 A5 D8		     LDA     byte_D8
 seg000:EB07 18			     CLC     
 seg000:EB08 65 62		     ADC     byte_62
 seg000:EB0A 29 02		     AND     #2
 seg000:EB0C 85 D8		     STA     byte_D8
+
+	move.b	number.of.segments,d0
+	andi.w	#$ff,d0
+	add.w	d0,pos.difference.angle
+	move.b	#0,d2
+	jsr	get.road.data.left.y
+	move.b	d0,factor1
+
 seg000:EB0E A5 7D		     LDA     byte_7D
 seg000:EB10 18			     CLC     
 seg000:EB11 65 BE		     ADC     byte_BE	     ; $08, $09, $0B or	$0D (I think??)
@@ -50969,43 +50985,91 @@ seg000:EB19 85 7F		     STA     byte_7F
 seg000:EB1B A0 00		     LDY     #0
 seg000:EB1D 20 F3 EB		     JSR     sub_EBF3
 seg000:EB20 85 15		     STA     byte_15
+
+	move.l	#overall.left.y.shifts,a3
+	move.l	#overall.right.y.shifts,a4
+	move.w	near.x.coord,d4
+	sub.w	factor1,d4
+	move.w	d4,(a3,d1.w)
+
 seg000:EB22 A5 51		     LDA     byte_51
 seg000:EB24 38			     SEC     
 seg000:EB25 E5 14		     SBC     byte_14
-seg000:EB27 9D 38 05		     STA     $538,X
+seg000:EB27 9D 38 05		     STA     overall_left_y_shifts_LSBs,X
 seg000:EB2A A5 77		     LDA     byte_77
 seg000:EB2C E5 15		     SBC     byte_15
-seg000:EB2E 9D 86 05		     STA     $586,X
+seg000:EB2E 9D 86 05		     STA     overall_left_y_shifts_MSBs,X
+
+	move.b	number.of.segments,d2
+	jsr	get.road.data.left.y
+	move.b	d0,factor1
+
 seg000:EB31 A4 BE		     LDY     byte_BE	     ; $08, $09, $0B or	$0D (I think??)
 seg000:EB33 20 F3 EB		     JSR     sub_EBF3
 seg000:EB36 85 15		     STA     byte_15
-seg000:EB38 BD 38 05		     LDA     $538,X
+
+d4 = current entry in overall_left_y_shifts
+
+	add.w	factor1,d4
+	move.w	d4,near.x.coord
+
+seg000:EB38 BD 38 05		     LDA     overall_left_y_shifts_LSBs,X
 seg000:EB3B 18			     CLC     
 seg000:EB3C 65 14		     ADC     byte_14
 seg000:EB3E 85 51		     STA     byte_51
-seg000:EB40 BD 86 05		     LDA     $586,X
+seg000:EB40 BD 86 05		     LDA     overall_left_y_shifts_MSBs,X
 seg000:EB43 65 15		     ADC     byte_15
 seg000:EB45 85 77		     STA     byte_77
+
+	move.b	#0,d2
+	jsr	get.road.data.right.y
+	move.b	d0,factor1
+
 seg000:EB47 A0 00		     LDY     #0
 seg000:EB49 20 EB EB		     JSR     sub_EBEB
 seg000:EB4C 85 15		     STA     byte_15
+
+a4 = overall.right.y.shifts
+
+	move.w	near.z.coord,d4
+	sub.w	factor1,d4
+	move.w	d4,(a4,d1.w)
+
 seg000:EB4E A5 52		     LDA     byte_52
 seg000:EB50 38			     SEC     
 seg000:EB51 E5 14		     SBC     byte_14
-seg000:EB53 9D D4 05		     STA     $5D4,X
+seg000:EB53 9D D4 05		     STA     overall_right_y_shifts_LSBs,X
 seg000:EB56 A5 78		     LDA     byte_78
 seg000:EB58 E5 15		     SBC     byte_15
-seg000:EB5A 9D 22 06		     STA     $622,X
+seg000:EB5A 9D 22 06		     STA     overall_right_y_shifts_MSBs,X
+
+	move.b	number.of.segments,d2
+	jsr	get.road.data.right.y
+	move.b	d0,factor1
+
 seg000:EB5D A4 BE		     LDY     byte_BE	     ; $08, $09, $0B or	$0D (I think??)
 seg000:EB5F 20 EB EB		     JSR     sub_EBEB
 seg000:EB62 85 15		     STA     byte_15
-seg000:EB64 BD D4 05		     LDA     $5D4,X
+
+	add.w	factor1,d4
+	move.w	d4,near.z.coord
+
+seg000:EB64 BD D4 05		     LDA     overall_right_y_shifts_LSBs,X
 seg000:EB67 18			     CLC     
 seg000:EB68 65 14		     ADC     byte_14
 seg000:EB6A 85 52		     STA     byte_52
-seg000:EB6C BD 22 06		     LDA     $622,X
+seg000:EB6C BD 22 06		     LDA     overall_right_y_shifts_MSBs,X
 seg000:EB6F 65 15		     ADC     byte_15
 seg000:EB71 85 78		     STA     byte_78
+
+	lsr.b	#1,d1
+	move.b	(sp)+,d0
+	move.b	d0,d2
+	addq.b	#1,d1
+	cmp.b	number.of.road.sections,d1
+	beq	srd17
+	jmp	srd11a
+
 seg000:EB73 68			     PLA     
 seg000:EB74 A8			     TAY     
 seg000:EB75 E8			     INX     
@@ -51907,13 +51971,13 @@ seg000:F04B B9 20 B1		     LDA     b120_table,Y
 seg000:F04E 85 CA		     STA     word_CA
 seg000:F050 B9 21 B1		     LDA     b120_table+1,Y
 seg000:F053 85 CB		     STA     word_CA+1
-seg000:F055 BD 38 05		     LDA     trackdata_538,X
+seg000:F055 BD 38 05		     LDA     overall_left_y_shifts_LSBs,X
 seg000:F058 85 3F		     STA     byte_3F
-seg000:F05A BD 86 05		     LDA     trackdata_586,X
+seg000:F05A BD 86 05		     LDA     overall_left_y_shifts_MSBs,X
 seg000:F05D 85 35		     STA     byte_35
-seg000:F05F BD D4 05		     LDA     trackdata_5d4,X
+seg000:F05F BD D4 05		     LDA     overall_right_y_shifts_LSBs,X
 seg000:F062 85 40		     STA     byte_40
-seg000:F064 BD 22 06		     LDA     trackdata_622,X
+seg000:F064 BD 22 06		     LDA     overall_right_y_shifts_MSBs,X
 seg000:F067 85 36		     STA     byte_36
 seg000:F069 BD 00 04		     LDA     road_section_angle_and_piece,X
 seg000:F06C 29 C0		     AND     #$C0	     ; %11000000
@@ -52879,12 +52943,12 @@ seg000:F592						     ; If Y is -ve, shift abs(Y) places	left.
 seg000:F595 85 15		     STA     byte_15
 seg000:F597 AE 75 C3		     LDX     aicar_track_segmentQ
 seg000:F59A AC 74 C3		     LDY     plcar_track_segment
-seg000:F59D BD 70 06		     LDA     $670,X
+seg000:F59D BD 70 06		     LDA     distances_around_road_LSBs,X
 seg000:F5A0 38			     SEC     
-seg000:F5A1 F9 70 06		     SBC     $670,Y
+seg000:F5A1 F9 70 06		     SBC     distances_around_road_LSBs,Y
 seg000:F5A4 85 16		     STA     byte_16
-seg000:F5A6 BD BE 06		     LDA     $6BE,X
-seg000:F5A9 F9 BE 06		     SBC     $6BE,Y
+seg000:F5A6 BD BE 06		     LDA     distances_around_road_MSBs,X
+seg000:F5A9 F9 BE 06		     SBC     distances_around_road_MSBs,Y
 seg000:F5AC 85 17		     STA     byte_17
 seg000:F5AE A5 16		     LDA     byte_16
 seg000:F5B0 18			     CLC     
