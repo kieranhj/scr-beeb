@@ -512,7 +512,7 @@
 		ldy #$FF		;0C1F A0 FF
 		lda L_0124		;0C21 AD 24 01
 		bpl L_0C39		;0C24 10 13
-		lda L_C77D		;0C26 AD 7D C7
+		lda current_track		;0C26 AD 7D C7
 		cmp #$07		;0C29 C9 07
 		bne L_0C31		;0C2B D0 04
 		ldx #$F0		;0C2D A2 F0
@@ -974,7 +974,7 @@
 .L_0FB5	lda L_C374,X	;0FB5 BD 74 C3
 		ldy L_C376,X	;0FB8 BC 76 C3
 		bpl L_0FC8		;0FBB 10 0B
-		cmp L_C767		;0FBD CD 67 C7
+		cmp half_a_lap_section		;0FBD CD 67 C7
 		bne L_0FC7		;0FC0 D0 05
 		lda #$00		;0FC2 A9 00
 		sta L_C376,X	;0FC4 9D 76 C3
@@ -1545,12 +1545,12 @@
 		stx L_1E84		;1E5F 8E 84 1E
 		txa				;1E62 8A
 		ldx L_C374		;1E63 AE 74 C3
-		cpx L_C764		;1E66 EC 64 C7
+		cpx number_of_road_sections		;1E66 EC 64 C7
 		bcs L_1E7D		;1E69 B0 12
-.L_1E6B	cmp L_044E,X	;1E6B DD 4E 04
+.L_1E6B	cmp road_section_xz_positions,X	;1E6B DD 4E 04
 		beq L_1E7F		;1E6E F0 0F
 		inx				;1E70 E8
-		cpx L_C764		;1E71 EC 64 C7
+		cpx number_of_road_sections		;1E71 EC 64 C7
 		bcc L_1E78		;1E74 90 02
 		ldx #$00		;1E76 A2 00
 .L_1E78	cpx L_C374		;1E78 EC 74 C3
@@ -1573,7 +1573,7 @@
 .L_1F12	jsr rndQ		;1F12 20 B9 29
 		dex				;1F15 CA
 		bne L_1F12		;1F16 D0 FA
-		lda L_C77D		;1F18 AD 7D C7
+		lda current_track		;1F18 AD 7D C7
 		ldy L_C774		;1F1B AC 74 C7
 		ldx L_C71A		;1F1E AE 1A C7
 		beq L_1F29		;1F21 F0 06
@@ -1689,7 +1689,7 @@
 		jsr cart_L_93A8		;2B0F 20 A8 93
 		ldx #$00		;2B12 A2 00
 		lda #$20		;2B14 A9 20
-.L_2B16	sta L_0400,X	;2B16 9D 00 04
+.L_2B16	sta road_section_angle_and_piece,X	;2B16 9D 00 04
 		sta L_04FA,X	;2B19 9D FA 04
 		sta L_05F4,X	;2B1C 9D F4 05
 		sta L_06EE,X	;2B1F 9D EE 06
@@ -1724,7 +1724,7 @@
 		cli				;2B58 58
 ;L_2B59
 		lda #$47		;2B59 A9 47
-;L_2B5A	= *-1			;!
+;L_2B5A	= *-1			;! _SELF_MOD
 ;L_2B5B
 		ldx #$00		;2B5B A2 00
 		jsr cart_sysctl		;2B5D 20 25 87
@@ -1855,7 +1855,7 @@
 {
 		ldx L_C374		;2DC2 AE 74 C3
 		stx ZP_2E		;2DC5 86 2E
-		jsr get_track_segment_detailsQ		;2DC7 20 2F F0
+		jsr fetch_near_section_stuff		;2DC7 20 2F F0
 		lda L_0189		;2DCA AD 89 01
 		sec				;2DCD 38
 		sbc L_0122		;2DCE ED 22 01
@@ -1896,7 +1896,7 @@
 		cmp #$02		;2E17 C9 02
 		bcs L_2E21		;2E19 B0 06
 		jsr L_CFC5		;2E1B 20 C5 CF
-		jsr get_track_segment_detailsQ		;2E1E 20 2F F0
+		jsr fetch_near_section_stuff		;2E1E 20 2F F0
 .L_2E21	lda ZP_9D		;2E21 A5 9D
 		eor ZP_A4		;2E23 45 A4
 		sta ZP_79		;2E25 85 79
@@ -2006,7 +2006,7 @@
 {
 		tax				;302F AA
 		lda track_order,X	;3030 BD 28 37
-		sta L_C77D		;3033 8D 7D C7
+		sta current_track		;3033 8D 7D C7
 		lda L_C71A		;3036 AD 1A C7
 		beq L_303F		;3039 F0 04
 		txa				;303B 8A
@@ -2272,7 +2272,7 @@
 		beq L_98E5		;98E1 F0 02
 		ldy #$FF		;98E3 A0 FF
 .L_98E5	lda L_DE00,Y	;98E5 B9 00 DE
-		sta L_0400,X	;98E8 9D 00 04
+		sta road_section_angle_and_piece,X	;98E8 9D 00 04
 		lda L_DF00,Y	;98EB B9 00 DF
 		sta L_0480,X	;98EE 9D 80 04
 		dey				;98F1 88
@@ -2358,18 +2358,18 @@
 		ora ZP_08		;9996 05 08
 		tax				;9998 AA
 		ldy #$0C		;9999 A0 0C
-.L_999B	lda L_0400,X	;999B BD 00 04
+.L_999B	lda road_section_angle_and_piece,X	;999B BD 00 04
 		jsr cart_write_char		;999E 20 6F 84
 		inx				;99A1 E8
 		dey				;99A2 88
 		bne L_999B		;99A3 D0 F6
 		jsr cart_print_space		;99A5 20 AF 91
 		dec L_C3D9		;99A8 CE D9 C3
-		lda L_0400,X	;99AB BD 00 04
+		lda road_section_angle_and_piece,X	;99AB BD 00 04
 		sta L_8398		;99AE 8D 98 83
-		lda L_0401,X	;99B1 BD 01 04
+		lda road_section_angle_and_piece + 1,X	;99B1 BD 01 04
 		sta L_82B0		;99B4 8D B0 82
-		lda L_0402,X	;99B7 BD 02 04
+		lda road_section_angle_and_piece + 2,X	;99B7 BD 02 04
 		sta L_8298		;99BA 8D 98 82
 		ldx #$00		;99BD A2 00
 		jsr cart_L_99FF		;99BF 20 FF 99
@@ -2728,7 +2728,7 @@ L_99F0	= L_99EF + 1
 		lda #$00		;C8E9 A9 00
 		sta ZP_14		;C8EB 85 14
 		rts				;C8ED 60
-.L_C8EE	lda L_AD01,X	;C8EE BD 01 AD
+.L_C8EE	lda L_AD00+1,X	;C8EE BD 01 AD
 		asl A			;C8F1 0A
 		asl A			;C8F2 0A
 		asl A			;C8F3 0A
@@ -2747,7 +2747,7 @@ L_99F0	= L_99EF + 1
 		sta ZP_15		;C905 85 15
 		lda cosine_table,X	;C907 BD 00 A7
 		sta ZP_17		;C90A 85 17
-		sbc cosine_table_plus_1,X	;C90C FD 01 A7
+		sbc cosine_table+1,X	;C90C FD 01 A7
 		lsr A			;C90F 4A
 		ror ZP_15		;C910 66 15
 		lda ZP_14		;C912 A5 14
@@ -3549,7 +3549,7 @@ L_99F0	= L_99EF + 1
 {
 		ldx ZP_2E		;CFC5 A6 2E
 		inx				;CFC7 E8
-		cpx L_C764		;CFC8 EC 64 C7
+		cpx number_of_road_sections		;CFC8 EC 64 C7
 		bcc L_CFCF		;CFCB 90 02
 		ldx #$00		;CFCD A2 00
 .L_CFCF	stx ZP_2E		;CFCF 86 2E
@@ -3561,7 +3561,7 @@ L_99F0	= L_99EF + 1
 		ldx ZP_2E		;CFD2 A6 2E
 		dex				;CFD4 CA
 		bpl L_CFDB		;CFD5 10 04
-		ldx L_C764		;CFD7 AE 64 C7
+		ldx number_of_road_sections		;CFD7 AE 64 C7
 		dex				;CFDA CA
 .L_CFDB	stx ZP_2E		;CFDB 86 2E
 		rts				;CFDD 60
@@ -3582,10 +3582,10 @@ L_99F0	= L_99EF + 1
 		beq track_preview_check_keys		;CFF0 F0 EC
 		clc				;CFF2 18
 		rts				;CFF3 60
-.L_CFF4	dec L_C34C		;CFF4 CE 4C C3
+.L_CFF4	dec track_preview_rotation		;CFF4 CE 4C C3
 		sec				;CFF7 38
 		rts				;CFF8 60
-.L_CFF9	inc L_C34C		;CFF9 EE 4C C3
+.L_CFF9	inc track_preview_rotation		;CFF9 EE 4C C3
 		sec				;CFFC 38
 		rts				;CFFD 60
 }
@@ -4139,8 +4139,8 @@ L_99F0	= L_99EF + 1
 		stx ZP_D4		;E4DF 86 D4
 		sta ZP_D5		;E4E1 85 D5
 		sty ZP_9C		;E4E3 84 9C
-		jsr get_track_segment_detailsQ		;E4E5 20 2F F0
-		jsr L_F0C5		;E4E8 20 C5 F0
+		jsr fetch_near_section_stuff		;E4E5 20 2F F0
+		jsr fetch_xz_position		;E4E8 20 C5 F0
 		lda ZP_68		;E4EB A5 68
 		sec				;E4ED 38
 		sbc ZP_1D		;E4EE E5 1D
@@ -4177,11 +4177,11 @@ L_99F0	= L_99EF + 1
 		cpx ZP_9E		;E520 E4 9E
 		bcc L_E538		;E522 90 14
 		jsr L_CFC5		;E524 20 C5 CF
-		jsr get_track_segment_detailsQ		;E527 20 2F F0
+		jsr fetch_near_section_stuff		;E527 20 2F F0
 		ldx #$02		;E52A A2 02
 		jsr L_E5C7_in_kernel		;E52C 20 C7 E5
 		jsr L_CFD2		;E52F 20 D2 CF
-		jsr get_track_segment_detailsQ		;E532 20 2F F0
+		jsr fetch_near_section_stuff		;E532 20 2F F0
 		jmp L_E53B		;E535 4C 3B E5
 }
 
@@ -4253,7 +4253,7 @@ L_99F0	= L_99EF + 1
 		sbc #$00		;E5B1 E9 00
 		bpl L_E5C0		;E5B3 10 0B
 		jsr L_CFD2		;E5B5 20 D2 CF
-		jsr get_track_segment_detailsQ		;E5B8 20 2F F0
+		jsr fetch_near_section_stuff		;E5B8 20 2F F0
 		lda ZP_BE		;E5BB A5 BE
 		sec				;E5BD 38
 		sbc #$01		;E5BE E9 01
@@ -4693,7 +4693,7 @@ L_99F0	= L_99EF + 1
 		jmp L_E919		;E8FA 4C 19 E9
 .L_E8FD	ldx L_C77F		;E8FD AE 7F C7
 		lda L_E920,X	;E900 BD 20 E9
-;L_E902	= *-1			;!
+;L_E902	= *-1			;! _SELF_MOD
 		clc				;E903 18
 		adc ZP_50		;E904 65 50
 		tay				;E906 A8
@@ -4825,7 +4825,7 @@ L_99F0	= L_99EF + 1
 		rts				;EA11 60
 }
 
-.get_next_ptr_byte		\\ only called from Kernel fns
+.get_road_data_byte		\\ only called from Kernel fns
 {
 		lda (ZP_1E),Y	;EA12 B1 1E
 		iny				;EA14 C8
@@ -4855,24 +4855,24 @@ L_99F0	= L_99EF + 1
 		rts				;EA33 60
 }
 
-.prepare_trackQ
+.set_road_data1
 {
 		txa				;EA34 8A
 		asl A			;EA35 0A
 		tay				;EA36 A8
-		lda L_B220,Y	;EA37 B9 20 B2
+		lda tracks_table,Y	;EA37 B9 20 B2
 		sta ZP_1E		;EA3A 85 1E
-		lda L_B221,Y	;EA3C B9 21 B2
+		lda tracks_table+1,Y	;EA3C B9 21 B2
 		sta ZP_1F		;EA3F 85 1F
 		ldy #$00		;EA41 A0 00
-.L_EA43	jsr get_next_ptr_byte		;EA43 20 12 EA
+.L_EA43	jsr get_road_data_byte		;EA43 20 12 EA
 		sta L_C763,Y	;EA46 99 63 C7
 		cpy #$04		;EA49 C0 04
 		bne L_EA43		;EA4B D0 F6
-		jsr get_next_ptr_byte		;EA4D 20 12 EA
+		jsr get_road_data_byte		;EA4D 20 12 EA
 		sta ZP_51		;EA50 85 51
 		sta ZP_52		;EA52 85 52
-		jsr get_next_ptr_byte		;EA54 20 12 EA
+		jsr get_road_data_byte		;EA54 20 12 EA
 		sta ZP_77		;EA57 85 77
 		sta ZP_78		;EA59 85 78
 		ldx #$00		;EA5B A2 00
@@ -4885,7 +4885,7 @@ L_99F0	= L_99EF + 1
 		dec ZP_08		;EA69 C6 08
 		lda ZP_4F		;EA6B A5 4F
 		sta ZP_15		;EA6D 85 15
-		sta L_0400,X	;EA6F 9D 00 04
+		sta road_section_angle_and_piece,X	;EA6F 9D 00 04
 		and #$10		;EA72 29 10
 		beq L_EA7C		;EA74 F0 06
 		lda ZP_15		;EA76 A5 15
@@ -4894,9 +4894,9 @@ L_99F0	= L_99EF + 1
 .L_EA7C	lda ZP_30		;EA7C A5 30
 		jsr adjust_accumulator		;EA7E 20 1C EA
 		jmp L_EAA4		;EA81 4C A4 EA
-.L_EA84	jsr get_next_ptr_byte		;EA84 20 12 EA
+.L_EA84	jsr get_road_data_byte		;EA84 20 12 EA
 		sta ZP_15		;EA87 85 15
-		sta L_0400,X	;EA89 9D 00 04
+		sta road_section_angle_and_piece,X	;EA89 9D 00 04
 		and #$0F		;EA8C 29 0F
 		cmp #$0F		;EA8E C9 0F
 		bne L_EA9C		;EA90 D0 0A
@@ -4907,10 +4907,10 @@ L_99F0	= L_99EF + 1
 		lsr A			;EA97 4A
 		sta ZP_08		;EA98 85 08
 		bpl L_EA65		;EA9A 10 C9
-.L_EA9C	lda L_0400,X	;EA9C BD 00 04
+.L_EA9C	lda road_section_angle_and_piece,X	;EA9C BD 00 04
 		sta ZP_4F		;EA9F 85 4F
-		jsr get_next_ptr_byte		;EAA1 20 12 EA
-.L_EAA4	sta L_044E,X	;EAA4 9D 4E 04
+		jsr get_road_data_byte		;EAA1 20 12 EA
+.L_EAA4	sta road_section_xz_positions,X	;EAA4 9D 4E 04
 		sta ZP_30		;EAA7 85 30
 		lda ZP_D8		;EAA9 A5 D8
 		lsr A			;EAAB 4A
@@ -4923,25 +4923,25 @@ L_99F0	= L_99EF + 1
 		bcc L_EAD1		;EAB6 90 19
 		sty ZP_16		;EAB8 84 16
 		tay				;EABA A8
-		lda L_0400,X	;EABB BD 00 04
+		lda road_section_angle_and_piece,X	;EABB BD 00 04
 		and #$F0		;EABE 29 F0
-		sta L_0400,X	;EAC0 9D 00 04
+		sta road_section_angle_and_piece,X	;EAC0 9D 00 04
 		lda L_EBDB,Y	;EAC3 B9 DB EB
-		sta L_049C,X	;EAC6 9D 9C 04
+		sta left_y_coordinate_IDs,X	;EAC6 9D 9C 04
 		lda L_EBDD,Y	;EAC9 B9 DD EB
 		ldy ZP_16		;EACC A4 16
 		jmp L_EAE6		;EACE 4C E6 EA
-.L_EAD1	jsr get_next_ptr_byte		;EAD1 20 12 EA
-		sta L_049C,X	;EAD4 9D 9C 04
+.L_EAD1	jsr get_road_data_byte		;EAD1 20 12 EA
+		sta left_y_coordinate_IDs,X	;EAD4 9D 9C 04
 		lda ZP_15		;EAD7 A5 15
 		and #$20		;EAD9 29 20
 		beq L_EAE3		;EADB F0 06
-		lda L_049C,X	;EADD BD 9C 04
+		lda left_y_coordinate_IDs,X	;EADD BD 9C 04
 		jmp L_EAE6		;EAE0 4C E6 EA
-.L_EAE3	jsr get_next_ptr_byte		;EAE3 20 12 EA
+.L_EAE3	jsr get_road_data_byte		;EAE3 20 12 EA
 .L_EAE6	and #$7F		;EAE6 29 7F
 		ora ZP_14		;EAE8 05 14
-		sta L_04EA,X	;EAEA 9D EA 04
+		sta right_y_coordinate_IDs,X	;EAEA 9D EA 04
 		tya				;EAED 98
 		pha				;EAEE 48
 		lda ZP_7D		;EAEF A5 7D
@@ -4949,10 +4949,10 @@ L_99F0	= L_99EF + 1
 		lda ZP_7F		;EAF3 A5 7F
 		ldy #$FB		;EAF5 A0 FB
 		jsr shift_16bit		;EAF7 20 BF C9
-		sta L_06BE,X	;EAFA 9D BE 06
+		sta distances_around_road_MSBs,X	;EAFA 9D BE 06
 		lda ZP_14		;EAFD A5 14
-		sta L_0670,X	;EAFF 9D 70 06
-		jsr get_track_segment_detailsQ		;EB02 20 2F F0
+		sta distances_around_road_LSBs,X	;EAFF 9D 70 06
+		jsr fetch_near_section_stuff		;EB02 20 2F F0
 		lda ZP_D8		;EB05 A5 D8
 		clc				;EB07 18
 		adc ZP_62		;EB08 65 62
@@ -4971,18 +4971,18 @@ L_99F0	= L_99EF + 1
 		lda ZP_51		;EB22 A5 51
 		sec				;EB24 38
 		sbc ZP_14		;EB25 E5 14
-		sta L_0538,X	;EB27 9D 38 05
+		sta overall_left_y_shifts_LSBs,X	;EB27 9D 38 05
 		lda ZP_77		;EB2A A5 77
 		sbc ZP_15		;EB2C E5 15
-		sta L_0586,X	;EB2E 9D 86 05
+		sta overall_left_y_shifts_MSBs,X	;EB2E 9D 86 05
 		ldy ZP_BE		;EB31 A4 BE
 		jsr L_EBF3_in_kernel		;EB33 20 F3 EB
 		sta ZP_15		;EB36 85 15
-		lda L_0538,X	;EB38 BD 38 05
+		lda overall_left_y_shifts_LSBs,X	;EB38 BD 38 05
 		clc				;EB3B 18
 		adc ZP_14		;EB3C 65 14
 		sta ZP_51		;EB3E 85 51
-		lda L_0586,X	;EB40 BD 86 05
+		lda overall_left_y_shifts_MSBs,X	;EB40 BD 86 05
 		adc ZP_15		;EB43 65 15
 		sta ZP_77		;EB45 85 77
 		ldy #$00		;EB47 A0 00
@@ -4991,29 +4991,29 @@ L_99F0	= L_99EF + 1
 		lda ZP_52		;EB4E A5 52
 		sec				;EB50 38
 		sbc ZP_14		;EB51 E5 14
-		sta L_05D4,X	;EB53 9D D4 05
+		sta overall_right_y_shifts_LSBs,X	;EB53 9D D4 05
 		lda ZP_78		;EB56 A5 78
 		sbc ZP_15		;EB58 E5 15
-		sta L_0622,X	;EB5A 9D 22 06
+		sta overall_right_y_shifts_MSBs,X	;EB5A 9D 22 06
 		ldy ZP_BE		;EB5D A4 BE
 		jsr L_EBEB_in_kernel		;EB5F 20 EB EB
 		sta ZP_15		;EB62 85 15
-		lda L_05D4,X	;EB64 BD D4 05
+		lda overall_right_y_shifts_LSBs,X	;EB64 BD D4 05
 		clc				;EB67 18
 		adc ZP_14		;EB68 65 14
 		sta ZP_52		;EB6A 85 52
-		lda L_0622,X	;EB6C BD 22 06
+		lda overall_right_y_shifts_MSBs,X	;EB6C BD 22 06
 		adc ZP_15		;EB6F 65 15
 		sta ZP_78		;EB71 85 78
 		pla				;EB73 68
 		tay				;EB74 A8
 		inx				;EB75 E8
-		cpx L_C764		;EB76 EC 64 C7
+		cpx number_of_road_sections		;EB76 EC 64 C7
 		beq L_EB7E		;EB79 F0 03
 		jmp L_EA65		;EB7B 4C 65 EA
-.L_EB7E	ldx L_C766		;EB7E AE 66 C7
+.L_EB7E	ldx near_start_line_section		;EB7E AE 66 C7
 		inx				;EB81 E8
-		cpx L_C764		;EB82 EC 64 C7
+		cpx number_of_road_sections		;EB82 EC 64 C7
 		bcc L_EB89		;EB85 90 02
 		ldx #$00		;EB87 A2 00
 .L_EB89	stx L_C77C		;EB89 8E 7C C7
@@ -5023,12 +5023,12 @@ L_99F0	= L_99EF + 1
 		lda ZP_7F		;EB92 A5 7F
 		ldy #$FB		;EB94 A0 FB
 		jsr shift_16bit		;EB96 20 BF C9
-		sta L_C769		;EB99 8D 69 C7
+		sta total_road_distance+1		;EB99 8D 69 C7
 		lda ZP_14		;EB9C A5 14
-		sta L_C768		;EB9E 8D 68 C7
+		sta total_road_distance		;EB9E 8D 68 C7
 		ldy ZP_17		;EBA1 A4 17
 		ldx #$00		;EBA3 A2 00
-.L_EBA5	jsr get_next_ptr_byte		;EBA5 20 12 EA
+.L_EBA5	jsr get_road_data_byte		;EBA5 20 12 EA
 		sta L_C774,X	;EBA8 9D 74 C7
 		inx				;EBAB E8
 		cpx #$06		;EBAC E0 06
@@ -5036,9 +5036,9 @@ L_99F0	= L_99EF + 1
 		lda L_C778		;EBB0 AD 78 C7
 		beq L_EBC9		;EBB3 F0 14
 		ldx #$00		;EBB5 A2 00
-.L_EBB7	jsr get_next_ptr_byte		;EBB7 20 12 EA
+.L_EBB7	jsr get_road_data_byte		;EBB7 20 12 EA
 		sta L_075E,X	;EBBA 9D 5E 07
-		jsr get_next_ptr_byte		;EBBD 20 12 EA
+		jsr get_road_data_byte		;EBBD 20 12 EA
 		sta L_0769,X	;EBC0 9D 69 07
 		inx				;EBC3 E8
 		cpx L_C778		;EBC4 EC 78 C7
@@ -5046,7 +5046,7 @@ L_99F0	= L_99EF + 1
 .L_EBC9	lda L_C779		;EBC9 AD 79 C7
 		beq L_EBDC		;EBCC F0 0E
 		ldx #$00		;EBCE A2 00
-.L_EBD0	jsr get_next_ptr_byte		;EBD0 20 12 EA
+.L_EBD0	jsr get_road_data_byte		;EBD0 20 12 EA
 		sta L_0190,X	;EBD3 9D 90 01
 		inx				;EBD6 E8
 		cpx L_C779		;EBD7 EC 79 C7
@@ -5618,17 +5618,17 @@ L_EBDD	= L_EBE7 - $A			;!
 		rts				;F02E 60
 }
 
-.get_track_segment_detailsQ
+.fetch_near_section_stuff
 {
-		lda L_049C,X	;F02F BD 9C 04
+		lda left_y_coordinate_IDs,X	;F02F BD 9C 04
 		sta ZP_A2		;F032 85 A2
 		asl A			;F034 0A
 		tay				;F035 A8
 		lda L_B120,Y	;F036 B9 20 B1
 		sta ZP_98		;F039 85 98
-		lda L_B121,Y	;F03B B9 21 B1
+		lda L_B120+1,Y	;F03B B9 21 B1
 		sta ZP_99		;F03E 85 99
-		lda L_04EA,X	;F040 BD EA 04
+		lda right_y_coordinate_IDs,X	;F040 BD EA 04
 		asl A			;F043 0A
 		tay				;F044 A8
 		lda #$00		;F045 A9 00
@@ -5637,33 +5637,33 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta ZP_D8		;F049 85 D8
 		lda L_B120,Y	;F04B B9 20 B1
 		sta ZP_CA		;F04E 85 CA
-		lda L_B121,Y	;F050 B9 21 B1
+		lda L_B120+1,Y	;F050 B9 21 B1
 		sta ZP_CB		;F053 85 CB
-		lda L_0538,X	;F055 BD 38 05
+		lda overall_left_y_shifts_LSBs,X	;F055 BD 38 05
 		sta ZP_3F		;F058 85 3F
-		lda L_0586,X	;F05A BD 86 05
+		lda overall_left_y_shifts_MSBs,X	;F05A BD 86 05
 		sta ZP_35		;F05D 85 35
-		lda L_05D4,X	;F05F BD D4 05
+		lda overall_right_y_shifts_LSBs,X	;F05F BD D4 05
 		sta ZP_40		;F062 85 40
-		lda L_0622,X	;F064 BD 22 06
+		lda overall_right_y_shifts_MSBs,X	;F064 BD 22 06
 		sta ZP_36		;F067 85 36
-		lda L_0400,X	;F069 BD 00 04
+		lda road_section_angle_and_piece,X	;F069 BD 00 04
 		and #$C0		;F06C 29 C0
 		sta ZP_1D		;F06E 85 1D
-		lda L_0400,X	;F070 BD 00 04
+		lda road_section_angle_and_piece,X	;F070 BD 00 04
 		and #$10		;F073 29 10
 		asl A			;F075 0A
 		asl A			;F076 0A
 		asl A			;F077 0A
 		sta ZP_A4		;F078 85 A4
-		lda L_0400,X	;F07A BD 00 04
+		lda road_section_angle_and_piece,X	;F07A BD 00 04
 		and #$0F		;F07D 29 0F
 		sta L_C3CD		;F07F 8D CD C3
 		asl A			;F082 0A
 		tay				;F083 A8
 		lda L_B100,Y	;F084 B9 00 B1
 		sta ZP_9A		;F087 85 9A
-		lda L_B101,Y	;F089 B9 01 B1
+		lda L_B100+1,Y	;F089 B9 01 B1
 		sta ZP_9B		;F08C 85 9B
 		ldy #$01		;F08E A0 01
 		lda (ZP_9A),Y	;F090 B1 9A
@@ -5702,9 +5702,10 @@ L_EBDD	= L_EBE7 - $A			;!
 		rts				;F0C4 60
 }
 
-.L_F0C5
+; TomS - looks up entry in 44E table, disentangles it (getting X and Y).
+.fetch_xz_position
 {
-		lda L_044E,X	;F0C5 BD 4E 04
+		lda road_section_xz_positions,X	;F0C5 BD 4E 04
 		tay				;F0C8 A8
 		and #$0F		;F0C9 29 0F
 		sec				;F0CB 38
@@ -6006,7 +6007,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda ZP_B6		;F2DE A5 B6
 		sta L_C36F		;F2E0 8D 6F C3
 		lda #$0F		;F2E3 A9 0F
-;L_F2E4	= *-1			;!
+;L_F2E4	= *-1			;! _SELF_MOD
 		sta L_C368		;F2E5 8D 68 C3
 		jsr cart_L_2C64		;F2E8 20 64 2C
 .L_F2EB	rts				;F2EB 60
@@ -6029,14 +6030,14 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta L_C3D8		;F305 8D D8 C3
 		ldx #$00		;F308 A2 00
 		stx L_C361		;F30A 8E 61 C3
-.L_F30D	jsr L_F32E		;F30D 20 2E F3
+.L_F30D	jsr draw_track_preview_section		;F30D 20 2E F3
 		dex				;F310 CA
 		cpx L_C3D8		;F311 EC D8 C3
 		bcs L_F30D		;F314 B0 F7
 		ldx #$01		;F316 A2 01
 		lda #$80		;F318 A9 80
 		sta L_C361		;F31A 8D 61 C3
-.L_F31D	jsr L_F32E		;F31D 20 2E F3
+.L_F31D	jsr draw_track_preview_section		;F31D 20 2E F3
 		inx				;F320 E8
 		cpx L_C3D7		;F321 EC D7 C3
 		bcc L_F31D		;F324 90 F7
@@ -6045,7 +6046,11 @@ L_EBDD	= L_EBE7 - $A			;!
 		cpy #$11		;F329 C0 11
 		bne L_F2FA		;F32B D0 CD
 		rts				;F32D 60
-.L_F32E	stx ZP_30		;F32E 86 30
+}
+
+.draw_track_preview_section			; in Kernel
+{
+		stx ZP_30		;F32E 86 30
 		sty ZP_31		;F330 84 31
 		bit ZP_68		;F332 24 68
 		bmi L_F343		;F334 30 0D
@@ -6056,6 +6061,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sbc ZP_30		;F33D E5 30
 		tay				;F33F A8
 		jmp L_F35C		;F340 4C 5C F3
+
 .L_F343	bvs L_F354		;F343 70 0F
 		lda #$00		;F345 A9 00
 		sec				;F347 38
@@ -6066,11 +6072,13 @@ L_EBDD	= L_EBE7 - $A			;!
 		sbc ZP_31		;F34E E5 31
 		tay				;F350 A8
 		jmp L_F35C		;F351 4C 5C F3
+
 .L_F354	lda #$00		;F354 A9 00
 		sec				;F356 38
 		sbc ZP_31		;F357 E5 31
 		tax				;F359 AA
 		ldy ZP_30		;F35A A4 30
+
 .L_F35C	stx ZP_0B		;F35C 86 0B
 		sty ZP_0C		;F35E 84 0C
 		lda #$00		;F360 A9 00
@@ -6086,8 +6094,10 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda #$80		;F375 A9 80
 		sta ZP_CC		;F377 85 CC
 		sta ZP_CD		;F379 85 CD
-		jsr cart_L_177D		;F37B 20 7D 17
+
+		jsr cart_make_near_road_coords		;F37B 20 7D 17
 		jsr cart_L_1A3B		;F37E 20 3B 1A
+
 .L_F381	ldx ZP_30		;F381 A6 30
 		ldy ZP_31		;F383 A4 31
 		rts				;F385 60
@@ -6096,7 +6106,7 @@ L_EBDD	= L_EBE7 - $A			;!
 \\ Believe this is effecively do "draw_track_preview"
 .update_track_preview
 {
-		lda L_C34C		;F386 AD 4C C3
+		lda track_preview_rotation		;F386 AD 4C C3
 		and #$03		;F389 29 03
 		tax				;F38B AA
 		lda L_F3FC,X	;F38C BD FC F3
@@ -6130,20 +6140,23 @@ L_EBDD	= L_EBE7 - $A			;!
 		bne L_F3C5		;F3CF D0 F4
 		jsr ensure_screen_enabled		;F3D1 20 9E 3F
 		lda #$0B		;F3D4 A9 0B
-		sta L_262B		;F3D6 8D 2B 26
+		sta L_262B		;F3D6 8D 2B 26	_SELF_MOD to L_25EA in Core
 		ldx #$02		;F3D9 A2 02
-.L_F3DB	lda L_2458,X	;F3DB BD 58 24
+.L_F3DB	lda L_2458,X	;F3DB BD 58 24  _SELF_MOD
 		pha				;F3DE 48
 		lda L_F408,X	;F3DF BD 08 F4
-		sta L_2458,X	;F3E2 9D 58 24
+		sta L_2458,X	;F3E2 9D 58 24  _SELF_MOD
 		dex				;F3E5 CA
 		bpl L_F3DB		;F3E6 10 F3
 		jsr draw_track_preview		;F3E8 20 F6 F2
+
+\\ We never get here!
+
 		lda #$08		;F3EB A9 08
-		sta L_262B		;F3ED 8D 2B 26
+		sta L_262B		;F3ED 8D 2B 26	_SELF_MOD to L_25EA in Core
 		ldx #$00		;F3F0 A2 00
 .L_F3F2	pla				;F3F2 68
-		sta L_2458,X	;F3F3 9D 58 24
+		sta L_2458,X	;F3F3 9D 58 24   _SELF_MOD
 		inx				;F3F6 E8
 		cpx #$03		;F3F7 E0 03
 		bne L_F3F2		;F3F9 D0 F7
@@ -6154,44 +6167,9 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_F404	equb $00,$40,$80,$C0
 
 .L_F408	jmp L_F40B		; equb $4C,$0B,$F4
+}
 
-.L_F40B stx ZP_16		; equb $86,$16
-		lda ZP_77		; equb $A5,$77
-		clc				; equb $18
-		bpl L_F413		; equb $10,$01
-		sec				; equb $38
-.L_F413
-		ror A			; equb $6A
-		ror ZP_51		; equb $66,$51
-		sta ZP_77		; equb $85,$77
-}
-\\ Fall through!
-.L_F418			\\ Unused? - NO!
-{
-		jsr L_F42D		;F418 20 2D F4
-		lda ZP_70		;F41B A5 70
-		pha				;F41D 48
-		lda ZP_71		;F41E A5 71
-		pha				;F420 48
-		jsr L_F42D		;F421 20 2D F4
-		pla				;F424 68
-		sta ZP_AC		;F425 85 AC
-		pla				;F427 68
-		sta ZP_AB		;F428 85 AB
-		ldx ZP_16		;F42A A6 16
-		rts				;F42C 60
-.L_F42D	lda ZP_78		;F42D A5 78
-		clc				;F42F 18
-		bpl L_F433		;F430 10 01
-		sec				;F432 38
-.L_F433	ror A			;F433 6A
-		ror ZP_52		;F434 66 52
-		clc				;F436 18
-		adc #$30		;F437 69 30
-		sta ZP_78		;F439 85 78
-		lda ZP_52		;F43B A5 52
-		jmp L_245C		;F43D 4C 5C 24
-}
+\\ Code moved to Core
 
 .L_F440
 {
@@ -6237,7 +6215,7 @@ L_EBDD	= L_EBE7 - $A			;!
 {
 		stx ZP_2E		;F488 86 2E
 		stx L_C374		;F48A 8E 74 C3
-		lda L_0400,X	;F48D BD 00 04
+		lda road_section_angle_and_piece,X	;F48D BD 00 04
 		and #$0F		;F490 29 0F
 		tay				;F492 A8
 		lda L_B240,Y	;F493 B9 40 B2
@@ -6258,11 +6236,11 @@ L_EBDD	= L_EBE7 - $A			;!
 		bcc L_F4AA		;F4B0 90 F8
 		lda #$F0		;F4B2 A9 F0
 		sta ZP_2F		;F4B4 85 2F
-		jsr get_track_segment_detailsQ		;F4B6 20 2F F0
-		lda L_044E,X	;F4B9 BD 4E 04
+		jsr fetch_near_section_stuff		;F4B6 20 2F F0
+		lda road_section_xz_positions,X	;F4B9 BD 4E 04
 		and #$0F		;F4BC 29 0F
 		sta ZP_0B		;F4BE 85 0B
-		lda L_044E,X	;F4C0 BD 4E 04
+		lda road_section_xz_positions,X	;F4C0 BD 4E 04
 		lsr A			;F4C3 4A
 		lsr A			;F4C4 4A
 		lsr A			;F4C5 4A
@@ -6365,12 +6343,12 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta ZP_15		;F595 85 15
 		ldx L_C375		;F597 AE 75 C3
 		ldy L_C374		;F59A AC 74 C3
-		lda L_0670,X	;F59D BD 70 06
+		lda distances_around_road_LSBs,X	;F59D BD 70 06
 		sec				;F5A0 38
-		sbc L_0670,Y	;F5A1 F9 70 06
+		sbc distances_around_road_LSBs,Y	;F5A1 F9 70 06
 		sta ZP_16		;F5A4 85 16
-		lda L_06BE,X	;F5A6 BD BE 06
-		sbc L_06BE,Y	;F5A9 F9 BE 06
+		lda distances_around_road_MSBs,X	;F5A6 BD BE 06
+		sbc distances_around_road_MSBs,Y	;F5A9 F9 BE 06
 		sta ZP_17		;F5AC 85 17
 		lda ZP_16		;F5AE A5 16
 		clc				;F5B0 18
@@ -6381,11 +6359,11 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta ZP_3B		;F5B9 85 3B
 		jsr negate_if_N_set		;F5BB 20 BD C8
 		sta ZP_15		;F5BE 85 15
-		lda L_C768		;F5C0 AD 68 C7
+		lda total_road_distance		;F5C0 AD 68 C7
 		sec				;F5C3 38
 		sbc ZP_14		;F5C4 E5 14
 		tax				;F5C6 AA
-		lda L_C769		;F5C7 AD 69 C7
+		lda total_road_distance+1		;F5C7 AD 69 C7
 		sbc ZP_15		;F5CA E5 15
 		tay				;F5CC A8
 		lda ZP_3B		;F5CD A5 3B
@@ -6415,7 +6393,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sec				;F5F7 38
 		sbc L_C77C		;F5F8 ED 7C C7
 		bcs L_F600		;F5FB B0 03
-		adc L_C764		;F5FD 6D 64 C7
+		adc number_of_road_sections		;F5FD 6D 64 C7
 .L_F600	sta ZP_14,X		;F600 95 14
 		dex				;F602 CA
 		bpl L_F5F4		;F603 10 EF
@@ -6437,7 +6415,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda ZP_66		;F61B A5 66
 		and #$03		;F61D 29 03
 		beq L_F65D		;F61F F0 3C
-.L_F621	lda L_C76A		;F621 AD 6A C7
+.L_F621	lda boost_reserve		;F621 AD 6A C7
 		beq L_F65D		;F624 F0 37
 		dec L_C36E		;F626 CE 6E C3
 		bpl L_F64C		;F629 10 21
@@ -6448,14 +6426,14 @@ L_EBDD	= L_EBE7 - $A			;!
 		sbc #$01		;F633 E9 01
 ;L_F634	= *-1			;!
 		cld				;F635 D8
-		sta L_C76A		;F636 8D 6A C7
+		sta boost_reserve		;F636 8D 6A C7
 		lsr A			;F639 4A
 		lsr A			;F63A 4A
 		lsr A			;F63B 4A
 		lsr A			;F63C 4A
 		ldx #$44		;F63D A2 44
 		jsr L_142E		;F63F 20 2E 14
-		lda L_C76A		;F642 AD 6A C7
+		lda boost_reserve		;F642 AD 6A C7
 		and #$0F		;F645 29 0F
 		ldx #$45		;F647 A2 45
 		jsr L_142E		;F649 20 2E 14
@@ -6809,7 +6787,7 @@ ENDIF
 .L_F8C7	sta ZP_0F		;F8C7 85 0F
 .L_F8C9	tya				;F8C9 98
 		cmp L_C600,X	;F8CA DD 00 C6
-L_F8CB	= *-2			;! self-mod!
+L_F8CB	= *-2			;! _SELF_MOD
 		bcs L_F8E3		;F8CD B0 14
 		sta L_C600,X	;F8CF 9D 00 C6
 		cmp L_0240,X	;F8D2 DD 40 02
@@ -6817,8 +6795,8 @@ L_F8CB	= *-2			;! self-mod!
 		cmp L_C500,X	;F8D7 DD 00 C5
 		bcs L_F8E3		;F8DA B0 07
 .L_F8DC	lda (ZP_1E),Y	;F8DC B1 1E
-.L_F8DE	and L_A400,X	;F8DE 3D 00 A4
-L_F8DF	= *-2			;!
+.L_F8DE	and L_A400,X	;F8DE 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+L_F8DF	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;F8E1 91 1E
 .L_F8E3	dey				;F8E3 88
 		cpy ZP_07		;F8E4 C4 07
@@ -6859,7 +6837,7 @@ L_F8DF	= *-2			;!
 		dec ZP_89		;F925 C6 89
 		lda #$40		;F927 A9 40
 .L_F929	sta L_C600,X	;F929 9D 00 C6
-L_F92B	= *-1			;! self-mod!
+L_F92B	= *-1			;! _SELF_MOD
 		dex				;F92C CA
 		cpx ZP_89		;F92D E4 89
 		bne L_F929		;F92F D0 F8
@@ -6951,7 +6929,7 @@ L_F92B	= *-1			;! self-mod!
 .L_F9CE	sta ZP_0F		;F9CE 85 0F
 .L_F9D0	tya				;F9D0 98
 		cmp L_C600,X	;F9D1 DD 00 C6
-L_F9D2	= *-2			;! self-mod!
+L_F9D2	= *-2			;! _SELF_MOD
 		bcs L_F9EA		;F9D4 B0 14
 		sta L_C600,X	;F9D6 9D 00 C6
 		cmp L_0240,X	;F9D9 DD 40 02
@@ -6959,8 +6937,8 @@ L_F9D2	= *-2			;! self-mod!
 		cmp L_C500,X	;F9DE DD 00 C5
 		bcs L_F9EA		;F9E1 B0 07
 .L_F9E3	lda (ZP_1E),Y	;F9E3 B1 1E
-.L_F9E5	and L_A400,X	;F9E5 3D 00 A4
-L_F9E6	= *-2			;! self-mod!
+.L_F9E5	and L_A400,X	;F9E5 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+L_F9E6	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;F9E8 91 1E
 .L_F9EA	dey				;F9EA 88
 		cpy ZP_07		;F9EB C4 07
@@ -6999,7 +6977,7 @@ L_F9E6	= *-2			;! self-mod!
 		bcs L_FA38		;FA2C B0 0A
 .L_FA2E	lda #$40		;FA2E A9 40
 .L_FA30	sta L_C600,X	;FA30 9D 00 C6
-L_FA32	= *-1			;! self-mod!
+L_FA32	= *-1			;! _SELF_MOD
 		inx				;FA33 E8
 		cpx ZP_89		;FA34 E4 89
 		bne L_FA30		;FA36 D0 F8
@@ -7091,7 +7069,7 @@ L_FA32	= *-1			;! self-mod!
 .L_FAD6	sta ZP_0F		;FAD6 85 0F
 .L_FAD8	tya				;FAD8 98
 		cmp L_C600,X	;FAD9 DD 00 C6
-L_FADA	= *-2			;! self-mod!
+L_FADA	= *-2			;! _SELF_MOD
 		bcs L_FAF2		;FADC B0 14
 		sta L_C600,X	;FADE 9D 00 C6
 		cmp L_0240,X	;FAE1 DD 40 02
@@ -7099,8 +7077,8 @@ L_FADA	= *-2			;! self-mod!
 		cmp L_C500,X	;FAE6 DD 00 C5
 		bcs L_FAF2		;FAE9 B0 07
 .L_FAEB	lda (ZP_1E),Y	;FAEB B1 1E
-.L_FAED	and L_A400,X	;FAED 3D 00 A4
-L_FAEE	= *-2			;! self-mod!
+.L_FAED	and L_A400,X	;FAED 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;FAF0 91 1E
 .L_FAF2	dex				;FAF2 CA
 		cpx ZP_07		;FAF3 E4 07
@@ -7212,7 +7190,7 @@ L_FAEE	= *-2			;! self-mod!
 .L_FBBD	sta ZP_0F		;FBBD 85 0F
 .L_FBBF	tya				;FBBF 98
 		cmp L_C600,X	;FBC0 DD 00 C6
-L_FBC1	= *-2			;! self-mod!
+L_FBC1	= *-2			;! _SELF_MOD
 		bcs L_FBD9		;FBC3 B0 14
 		sta L_C600,X	;FBC5 9D 00 C6
 		cmp L_0240,X	;FBC8 DD 40 02
@@ -7220,8 +7198,8 @@ L_FBC1	= *-2			;! self-mod!
 		cmp L_C500,X	;FBCD DD 00 C5
 		bcs L_FBD9		;FBD0 B0 07
 .L_FBD2	lda (ZP_1E),Y	;FBD2 B1 1E
-.L_FBD4	and L_A400,X	;FBD4 3D 00 A4
-L_FBD5	= *-2			;! self-mod!
+.L_FBD4	and L_A400,X	;FBD4 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;FBD7 91 1E
 .L_FBD9	cpx ZP_07		;FBD9 E4 07
 		bcc L_FB8B		;FBDB 90 AE
@@ -7250,9 +7228,9 @@ L_FBD5	= *-2			;! self-mod!
 {
 		stx L_C3AB		;FC01 8E AB C3
 		lda L_FC14,X	;FC04 BD 14 FC
-		sta L_F8DF		;FC07 8D DF F8
-		sta L_F9E6		;FC0A 8D E6 F9
-		sta L_FAEE		;FC0D 8D EE FA
+		sta L_F8DF		;FC07 8D DF F8	_SELF_MOD
+		sta L_F9E6		;FC0A 8D E6 F9	_SELF_MOD
+		sta L_FAEE		;FC0D 8D EE FA	_SELF_MOD
 		sta L_FBD5		;FC10 8D D5 FB
 		rts				;FC13 60
 
@@ -7262,27 +7240,27 @@ L_FBD5	= *-2			;! self-mod!
 
 .set_linedraw_op
 {
-		sta L_F8DE		;FC16 8D DE F8
-		sta L_F9E5		;FC19 8D E5 F9
-		sta L_FAED		;FC1C 8D ED FA
-		sta L_FBD4		;FC1F 8D D4 FB
+		sta L_F8DE		;FC16 8D DE F8  _SELF_MOD
+		sta L_F9E5		;FC19 8D E5 F9  _SELF_MOD
+		sta L_FAED		;FC1C 8D ED FA  _SELF_MOD
+		sta L_FBD4		;FC1F 8D D4 FB  _SELF_MOD
 		rts				;FC22 60
 }
 
 .L_FC23_in_kernel
 {
-		lda #$C6		;FC23 A9 C6
-		sta L_F92B		;FC25 8D 2B F9
-		sta L_FA32		;FC28 8D 32 FA
+		lda #HI(L_C600)		;FC23 A9 C6
+		sta L_F92B		;FC25 8D 2B F9  _SELF_MOD
+		sta L_FA32		;FC28 8D 32 FA  _SELF_MOD
 		lda #$00		;FC2B A9 00
 		ldy #$11		;FC2D A0 11
 		bne L_FC4E		;FC2F D0 1D
 }
 \\
 .L_FC31_in_kernel
-		lda #$C5		;FC31 A9 C5
-		sta L_F92B		;FC33 8D 2B F9
-		sta L_FA32		;FC36 8D 32 FA
+		lda #HI(L_C500)		;FC31 A9 C5
+		sta L_F92B		;FC33 8D 2B F9  _SELF_MOD
+		sta L_FA32		;FC36 8D 32 FA  _SELF_MOD
 		ldx #$3F		;FC39 A2 3F
 .L_FC3B	lda L_C640,X	;FC3B BD 40 C6
 		sta L_C540,X	;FC3E 9D 40 C5
@@ -7297,14 +7275,16 @@ L_FBD5	= *-2			;! self-mod!
 		ldx #$10		;FC4E A2 10
 		sta L_C3AD		;FC50 8D AD C3
 .L_FC53	lda L_FC67,Y	;FC53 B9 67 FC
-		sta L_F8CB,X	;FC56 9D CB F8
-		sta L_F9D2,X	;FC59 9D D2 F9
-		sta L_FADA,X	;FC5C 9D DA FA
-		sta L_FBC1,X	;FC5F 9D C1 FB
+		sta L_F8CB,X	;FC56 9D CB F8	_SELF_MOD
+		sta L_F9D2,X	;FC59 9D D2 F9	_SELF_MOD
+		sta L_FADA,X	;FC5C 9D DA FA	_SELF_MOD
+		sta L_FBC1,X	;FC5F 9D C1 FB	_SELF_MOD
 		dey				;FC62 88
 		dex				;FC63 CA
 		bpl L_FC53		;FC64 10 ED
 		rts				;FC66 60
+
+\\ Code ($11 bytes) pasted into L_F8CB, L_F9D2, L_FADA, L_FBC1
 .L_FC67	cmp L_C600,X	;FC67 DD 00 C6
 		bcs L_FC80		;FC6A B0 14
 		sta L_C600,X	;FC6C 9D 00 C6
@@ -7312,6 +7292,7 @@ L_FBD5	= *-2			;! self-mod!
 		bcs L_FC79		;FC72 B0 05
 		cmp L_C500,X	;FC74 DD 00 C5
 		bcs L_FC80		;FC77 B0 07
+
 .L_FC79	nop				;FC79 EA
 		nop				;FC7A EA
 		nop				;FC7B EA
@@ -7734,6 +7715,7 @@ L_FBD5	= *-2			;! self-mod!
 .L_FF87	jsr find_track_segment_index		;FF87 20 5F 1E
 		clc				;FF8A 18
 		rts				;FF8B 60
+\\
 .L_FF8C	sec				;FF8C 38
 		rts				;FF8D 60
 
@@ -7806,7 +7788,7 @@ L_FBD5	= *-2			;! self-mod!
 		sta L_DA00,X	;FFE8 9D 00 DA
 		sta L_DB00,X	;FFEB 9D 00 DB		; COLOR RAM
 		ldy #$20		;FFEE A0 20
-		sty L_0400		;FFF0 8C 00 04
+		sty road_section_angle_and_piece		;FFF0 8C 00 04
 		rts				;FFF3 60
 }
 

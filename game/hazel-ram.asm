@@ -113,7 +113,7 @@
 .L_C349	skip 1
 .L_C34A	skip 1
 .L_C34B	skip 1
-.L_C34C	skip 1			; rotation angle of track preview
+.track_preview_rotation	skip 1			; rotation angle of track preview
 .L_C34D	skip 1
 .L_C34E	skip 1
 .L_C34F	skip 1
@@ -258,13 +258,12 @@
 .L_C758	equb $00
 .L_C759	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .L_C763	equb $00
-.L_C764	equb $00
-.L_C765	equb $00
-.L_C766	equb $00
-.L_C767	equb $00
-.L_C768	equb $00
-.L_C769	equb $00
-.L_C76A	equb $00
+.number_of_road_sections	equb $00
+.players_start_section	equb $00
+.near_start_line_section	equb $00
+.half_a_lap_section	equb $00
+.total_road_distance	equw $00
+.boost_reserve	equb $00
 .L_C76B	equb $00
 .L_C76C	equb $00
 .L_C76D	equb $00
@@ -282,7 +281,7 @@
 .L_C779	equb $00,$00
 .L_C77B	equb $00
 .L_C77C	equb $00
-.L_C77D	equb $00
+.current_track	equb $00
 .L_C77E	equb $00
 .L_C77F	equb $00
 .L_C780	equb $00,$40

@@ -701,26 +701,24 @@ L_0314	= $0314
 L_0380	= $0380
 
 ; Some sort of track variables?
-L_0400	= $0400
-L_0401	= $0401
-L_0402	= $0402
+road_section_angle_and_piece	= $0400
 L_042A	= $042A
-L_044E	= $044E
+road_section_xz_positions	= $044E
 L_0480	= $0480
-L_049C	= $049C
-L_04EA	= $04EA
+left_y_coordinate_IDs	= $049C
+right_y_coordinate_IDs	= $04EA
 L_04FA	= $04FA
 
 L_0500	= $0500
-L_0538	= $0538
-L_0586	= $0586
-L_05D4	= $05D4
+overall_left_y_shifts_LSBs	= $0538
+overall_left_y_shifts_MSBs	= $0586
+overall_right_y_shifts_LSBs	= $05D4
 L_05F4	= $05F4
 
 L_0600	= $0600
-L_0622	= $0622
-L_0670	= $0670
-L_06BE	= $06BE
+overall_right_y_shifts_MSBs	= $0622
+distances_around_road_LSBs	= $0670
+distances_around_road_MSBs	= $06BE
 L_06EE	= $06EE
 
 L_0700	= $0700

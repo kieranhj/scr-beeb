@@ -703,7 +703,7 @@ ENDIF
 .L_881C	lda (ZP_1E),Y	;881C B1 1E
 		sta L_7C00,Y	;881E 99 00 7C
 		lda (ZP_20),Y	;8821 B1 20
-		sta L_0400,Y	;8823 99 00 04
+		sta road_section_angle_and_piece,Y	;8823 99 00 04
 		dey				;8826 88
 		bne L_881C		;8827 D0 F3
 		inc ZP_1F		;8829 E6 1F
@@ -727,7 +727,7 @@ ENDIF
 		lda #$01		;884E A9 01
 		sta VIC_IRQMASK		;8850 8D 1A D0
 		ldx #$00		;8853 A2 00
-.L_8855	lda L_0400,X	;8855 BD 00 04
+.L_8855	lda road_section_angle_and_piece,X	;8855 BD 00 04
 		sta L_D800,X	;8858 9D 00 D8
 		dex				;885B CA
 		bne L_8855		;885C D0 F7
@@ -908,7 +908,7 @@ ENDIF
 		ldx #$BE		;89AB A2 BE
 		lda L_B120,X	;89AD BD 20 B1
 		sta ZP_1E		;89B0 85 1E
-		lda L_B121,X	;89B2 BD 21 B1
+		lda L_B120+1,X	;89B2 BD 21 B1
 		sta ZP_1F		;89B5 85 1F
 		ldx #$0F		;89B7 A2 0F
 .L_89B9	lda ZP_7D		;89B9 A5 7D
@@ -1557,7 +1557,7 @@ ENDIF
 .L_8F3F	and #$7F		;8F3F 29 7F
 		sta ZP_14		;8F41 85 14
 		bpl L_8F74		;8F43 10 2F
-.L_8F45	lda L_0400,X	;8F45 BD 00 04
+.L_8F45	lda road_section_angle_and_piece,X	;8F45 BD 00 04
 		and #$0F		;8F48 29 0F
 		tay				;8F4A A8
 		lda L_B240,Y	;8F4B B9 40 B2
@@ -1581,7 +1581,7 @@ ENDIF
 .L_8F71	sta L_0710,X	;8F71 9D 10 07
 .L_8F74	dex				;8F74 CA
 		bpl L_8F22		;8F75 10 AB
-.L_8F77	ldx L_C764		;8F77 AE 64 C7
+.L_8F77	ldx number_of_road_sections		;8F77 AE 64 C7
 		dex				;8F7A CA
 		dec ZP_A0		;8F7B C6 A0
 		bne L_8F22		;8F7D D0 A3
@@ -1927,7 +1927,7 @@ ENDIF
 {
 		sta ZP_14		;9319 85 14
 		jsr disable_ints_and_page_in_RAM		;931B 20 F1 33
-		ldx L_C77D		;931E AE 7D C7
+		ldx current_track		;931E AE 7D C7
 		lda track_order,X	;9321 BD 28 37
 		ldy L_C71A		;9324 AC 1A C7
 		beq L_932C		;9327 F0 03
@@ -2540,8 +2540,8 @@ ENDIF
 .L_9A38				; HAS DLL
 {
 		ldx ZP_2E		;9A38 A6 2E
-		jsr kernel_get_track_segment_detailsQ		;9A3A 20 2F F0
-		jsr kernel_L_F0C5		;9A3D 20 C5 F0
+		jsr kernel_fetch_near_section_stuff		;9A3A 20 2F F0
+		jsr kernel_fetch_xz_position		;9A3D 20 C5 F0
 		lda ZP_68		;9A40 A5 68
 		sec				;9A42 38
 		sbc ZP_1D		;9A43 E5 1D
@@ -2712,7 +2712,7 @@ ENDIF
 		jsr kernel_L_CFD2		;9B81 20 D2 CF
 		jmp L_9B8A		;9B84 4C 8A 9B
 .L_9B87	jsr kernel_L_CFC5		;9B87 20 C5 CF
-.L_9B8A	lda L_0400,X	;9B8A BD 00 04
+.L_9B8A	lda road_section_angle_and_piece,X	;9B8A BD 00 04
 		and #$0F		;9B8D 29 0F
 		cmp #$04		;9B8F C9 04
 		bne L_9B96		;9B91 D0 03
@@ -2897,7 +2897,7 @@ ENDIF
 {
 		ldx L_C374		;9CBA AE 74 C3
 		stx ZP_2E		;9CBD 86 2E
-		jsr kernel_get_track_segment_detailsQ		;9CBF 20 2F F0
+		jsr kernel_fetch_near_section_stuff		;9CBF 20 2F F0
 		lda #$00		;9CC2 A9 00
 		sta L_C359		;9CC4 8D 59 C3
 		ldx #$02		;9CC7 A2 02
@@ -2907,7 +2907,7 @@ ENDIF
 		beq L_9CDA		;9CD0 F0 08
 		tax				;9CD2 AA
 		stx ZP_2E		;9CD3 86 2E
-		jsr kernel_get_track_segment_detailsQ		;9CD5 20 2F F0
+		jsr kernel_fetch_near_section_stuff		;9CD5 20 2F F0
 		ldx ZP_52		;9CD8 A6 52
 .L_9CDA	lda ZP_BC		;9CDA A5 BC
 		sta ZP_15		;9CDC 85 15
@@ -3144,12 +3144,12 @@ ENDIF
 		eor ZP_A4		;9E76 45 A4
 		bpl L_9E86		;9E78 10 0C
 		jsr kernel_L_CFD2		;9E7A 20 D2 CF
-		jsr kernel_get_track_segment_detailsQ		;9E7D 20 2F F0
+		jsr kernel_fetch_near_section_stuff		;9E7D 20 2F F0
 		lda ZP_A4		;9E80 A5 A4
 		bpl L_9E9A		;9E82 10 16
 		bmi L_9E90		;9E84 30 0A
 .L_9E86	jsr kernel_L_CFC5		;9E86 20 C5 CF
-		jsr kernel_get_track_segment_detailsQ		;9E89 20 2F F0
+		jsr kernel_fetch_near_section_stuff		;9E89 20 2F F0
 		lda ZP_A4		;9E8C A5 A4
 		bmi L_9E9A		;9E8E 30 0A
 .L_9E90	lda #$00		;9E90 A9 00
@@ -3911,7 +3911,7 @@ L_14B6 = L_14B8-2
 		bne L_1704		;16FF D0 03
 		jsr kernel_L_E195		;1701 20 95 E1
 .L_1704	jsr kernel_L_CFC5		;1704 20 C5 CF
-.L_1707	jsr L_177D		;1707 20 7D 17
+.L_1707	jsr make_near_road_coords		;1707 20 7D 17
 		jsr L_1B0B		;170A 20 0B 1B
 		jsr L_1A3B		;170D 20 3B 1A
 		lda #$00		;1710 A9 00
@@ -3920,10 +3920,10 @@ L_14B6 = L_14B8-2
 		sta ZP_D0		;1716 85 D0
 		jsr L_1909		;1718 20 09 19
 		jsr kernel_L_CFC5		;171B 20 C5 CF
-		jsr L_177D		;171E 20 7D 17
+		jsr make_near_road_coords		;171E 20 7D 17
 		jsr L_1A3B		;1721 20 3B 1A
 		jsr L_1909		;1724 20 09 19
-		ldy L_C77D		;1727 AC 7D C7
+		ldy current_track		;1727 AC 7D C7
 		cpy #$05		;172A C0 05
 		bne L_173D		;172C D0 0F
 		lda #$31		;172E A9 31
@@ -3943,7 +3943,7 @@ L_14B6 = L_14B8-2
 		lda #$05		;1743 A9 05
 .L_1745	sta ZP_28		;1745 85 28
 .L_1747	jsr kernel_L_CFC5		;1747 20 C5 CF
-		jsr L_177D		;174A 20 7D 17
+		jsr make_near_road_coords		;174A 20 7D 17
 		jsr L_1A3B		;174D 20 3B 1A
 		jsr L_1909		;1750 20 09 19
 		dec ZP_28		;1753 C6 28
@@ -3966,12 +3966,12 @@ L_14B6 = L_14B8-2
 		rts				;177C 60
 }
 
-.L_177D				; HAS DLL
+.make_near_road_coords				; HAS DLL
 {
 		ldx ZP_2E		;177D A6 2E
-		jsr kernel_get_track_segment_detailsQ		;177F 20 2F F0
+		jsr kernel_fetch_near_section_stuff		;177F 20 2F F0
 		ldx ZP_2E		;1782 A6 2E
-		jsr kernel_L_F0C5		;1784 20 C5 F0
+		jsr kernel_fetch_xz_position		;1784 20 C5 F0
 		lda ZP_68		;1787 A5 68
 		sec				;1789 38
 		sbc ZP_1D		;178A E5 1D
@@ -4001,6 +4001,7 @@ L_14B6 = L_14B8-2
 		lda #$00		;17C1 A9 00
 		sta ZP_D0		;17C3 85 D0
 		jsr kernel_L_F440		;17C5 20 40 F4
+\\ OK to here
 		lda ZP_D8		;17C8 A5 D8
 		clc				;17CA 18
 		adc ZP_62		;17CB 65 62
@@ -4206,7 +4207,7 @@ L_14B6 = L_14B8-2
 		lda #$00		;195A A9 00
 		ldx ZP_62		;195C A6 62
 		ldy ZP_2E		;195E A4 2E
-		cpy L_C766		;1960 CC 66 C7
+		cpy near_start_line_section		;1960 CC 66 C7
 		bne L_1967		;1963 D0 02
 		lda #$01		;1965 A9 01
 .L_1967	sta L_8080,X	;1967 9D 80 80
@@ -4701,7 +4702,7 @@ L_14B6 = L_14B8-2
 
 .update_per_track_stuff		; HAS DLL
 {
-		lda L_C77D		;1D18 AD 7D C7
+		lda current_track		;1D18 AD 7D C7
 		cmp #$05		;1D1B C9 05
 		beq L_1D20		;1D1D F0 01
 		rts				;1D1F 60
@@ -4801,7 +4802,7 @@ L_14B6 = L_14B8-2
 		sta ZP_16		;1DE3 85 16
 		ldx L_C375		;1DE5 AE 75 C3
 		stx ZP_2E		;1DE8 86 2E
-.L_1DEA	lda L_0400,X	;1DEA BD 00 04
+.L_1DEA	lda road_section_angle_and_piece,X	;1DEA BD 00 04
 		and #$0F		;1DED 29 0F
 		tay				;1DEF A8
 		lda L_B240,Y	;1DF0 B9 40 B2
@@ -4868,7 +4869,7 @@ L_14B6 = L_14B8-2
 		lda L_C37C		;1E85 AD 7C C3
 		beq L_1EE1		;1E88 F0 57
 		ldx L_C375		;1E8A AE 75 C3
-		jsr kernel_get_track_segment_detailsQ		;1E8D 20 2F F0
+		jsr kernel_fetch_near_section_stuff		;1E8D 20 2F F0
 		jsr L_21DE		;1E90 20 DE 21
 		jsr L_158E		;1E93 20 8E 15
 		jsr L_201B		;1E96 20 1B 20
@@ -4901,7 +4902,7 @@ L_14B6 = L_14B8-2
 		sta ZP_C4		;1ED1 85 C4
 		ldx L_C375		;1ED3 AE 75 C3
 		inx				;1ED6 E8
-		cpx L_C764		;1ED7 EC 64 C7
+		cpx number_of_road_sections		;1ED7 EC 64 C7
 		bcc L_1EDE		;1EDA 90 02
 		ldx #$00		;1EDC A2 00
 .L_1EDE	stx L_C375		;1EDE 8E 75 C3
@@ -5626,12 +5627,12 @@ L_14B6 = L_14B8-2
 		lda #$80		;2776 A9 80
 		bne L_2780		;2778 D0 06
 .L_277A	adc #$01		;277A 69 01
-L_277B	= *-1			;!
+L_277B	= *-1			;! _SELF_MOD LOCAL
 		bcc L_2780		;277C 90 02
 		iny				;277E C8
 		clc				;277F 18
 .L_2780	sty L_0300		;2780 8C 00 03
-L_2781	= *-2			;!
+L_2781	= *-2			;! _SELF_MOD LOCAL
 		inc L_2781		;2783 EE 81 27
 		bpl L_277A		;2786 10 F2
 		lda #$80		;2788 A9 80
@@ -5647,23 +5648,23 @@ L_2781	= *-2			;!
 		sta L_27AD		;279F 8D AD 27
 		jmp L_27AC		;27A2 4C AC 27
 .L_27A5	adc #$01		;27A5 69 01
-L_27A6	= *-1			;!
+L_27A6	= *-1			;! _SELF_MOD LOCAL
 		iny				;27A7 C8
 		bcc L_27AC		;27A8 90 02
 		iny				;27AA C8
 		clc				;27AB 18
 .L_27AC	sty L_0380		;27AC 8C 80 03
-L_27AD	= *-2			;!
+L_27AD	= *-2			;! _SELF_MOD LOCAL
 		inc L_27AD		;27AF EE AD 27
 		bmi L_27A5		;27B2 30 F1
 		jmp L_27C5		;27B4 4C C5 27
 .L_27B7	adc #$01		;27B7 69 01
-L_27B8	= *-1			;!
+L_27B8	= *-1			;! _SELF_MOD LOCAL
 		bcc L_27BD		;27B9 90 02
 		iny				;27BB C8
 		clc				;27BC 18
 .L_27BD	sty L_0380		;27BD 8C 80 03
-L_27BE	= *-2			;!
+L_27BE	= *-2			;! _SELF_MOD LOCAL
 		inc L_27BE		;27C0 EE BE 27
 		bmi L_27B7		;27C3 30 F2
 .L_27C5	lda #$80		;27C5 A9 80
@@ -5719,6 +5720,7 @@ L_27BE	= *-2			;!
 		lda L_0280,Y	;2822 B9 80 02
 		sta ZP_15		;2825 85 15
 		jmp L_2846		;2827 4C 46 28
+
 .L_282A	tya				;282A 98
 		eor #$7F		;282B 49 7F
 		tay				;282D A8
@@ -5735,6 +5737,7 @@ L_27BE	= *-2			;!
 		sec				;2840 38
 		sbc L_0300,Y	;2841 F9 00 03
 		sta ZP_15		;2844 85 15
+
 .L_2846	ldy L_A24C,X	;2846 BC 4C A2
 		sty ZP_18		;2849 84 18
 		bpl L_285F		;284B 10 12
@@ -5745,7 +5748,9 @@ L_27BE	= *-2			;!
 		sta ZP_16		;2854 85 16
 		lda L_0280,Y	;2856 B9 80 02
 		jmp L_287B		;2859 4C 7B 28
+
 .L_285C	jmp L_28B0		;285C 4C B0 28
+
 .L_285F	tya				;285F 98
 		eor #$7F		;2860 49 7F
 		tay				;2862 A8
@@ -5787,6 +5792,7 @@ L_27BE	= *-2			;!
 .L_28A5	eor #$80		;28A5 49 80
 		sta L_A200,X	;28A7 9D 00 A2
 		rts				;28AA 60
+
 .L_28AB	lda ZP_18		;28AB A5 18
 		sta L_A24C,X	;28AD 9D 4C A2
 .L_28B0	stx ZP_0D		;28B0 86 0D
@@ -5897,6 +5903,7 @@ L_27BE	= *-2			;!
 		lda ZP_77		;297D A5 77
 		adc ZP_7F		;297F 65 7F
 		jmp L_2990		;2981 4C 90 29
+
 .L_2984	lda ZP_51		;2984 A5 51
 		sec				;2986 38
 		sbc ZP_7D		;2987 E5 7D
@@ -6325,12 +6332,12 @@ L_27BE	= *-2			;!
 .draw_track_preview_track_name			; called from game_start
 {
 		jsr L_3884		;2FCE 20 84 38
-		ldx L_C77D		;2FD1 AE 7D C7
+		ldx current_track		;2FD1 AE 7D C7
 		lda L_301B,X	;2FD4 BD 1B 30
 		sta L_3460		;2FD7 8D 60 34
 		ldx #$58		;2FDA A2 58
 		jsr print_msg_4		;2FDC 20 27 30
-		ldx L_C77D		;2FDF AE 7D C7
+		ldx current_track		;2FDF AE 7D C7
 		jsr print_track_name		;2FE2 20 92 38
 		jsr L_361F		;2FE5 20 1F 36
 		lda #$03		;2FE8 A9 03
@@ -6964,7 +6971,7 @@ L_27BE	= *-2			;!
 		sta ZP_14		;CF81 85 14
 		lda L_A298,X	;CF83 BD 98 A2
 		sbc #$00		;CF86 E9 00
-		jsr negate_if_N_set		;CF88 20 BD C8
+		jsr kernel_negate_if_N_set		;CF88 20 BD C8
 		sta ZP_15		;CF8B 85 15
 		lda ZP_14		;CF8D A5 14
 		sec				;CF8F 38

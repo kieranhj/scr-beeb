@@ -90,15 +90,15 @@ ENDIF
 .kernel_L_E8C2 DLL_CALL_KERNEL L_E8C2, 11
 .kernel_L_E8E5 DLL_CALL_KERNEL L_E8E5, 12
 .kernel_L_E9A3 DLL_CALL_KERNEL L_E9A3, 13
-.kernel_prepare_trackQ DLL_CALL_KERNEL prepare_trackQ, 14
+.kernel_set_road_data1 DLL_CALL_KERNEL set_road_data1, 14
 .kernel_L_EC11 DLL_CALL_KERNEL L_EC11, 15
 .kernel_get_entered_name DLL_CALL_KERNEL get_entered_name, 16
 .kernel_L_EDAB DLL_CALL_KERNEL L_EDAB, 17
 .kernel_do_menu_screen DLL_CALL_KERNEL do_menu_screen, 18
 .kernel_do_main_menu_dwim DLL_CALL_KERNEL do_main_menu_dwim, 19
 .kernel_L_F021 DLL_CALL_KERNEL L_F021, 20
-.kernel_get_track_segment_detailsQ DLL_CALL_KERNEL get_track_segment_detailsQ, 21
-.kernel_L_F0C5 DLL_CALL_KERNEL L_F0C5, 22
+.kernel_fetch_near_section_stuff DLL_CALL_KERNEL fetch_near_section_stuff, 21
+.kernel_fetch_xz_position DLL_CALL_KERNEL fetch_xz_position, 22
 .kernel_L_F117 DLL_CALL_KERNEL L_F117, 23
 .kernel_L_F1DC DLL_CALL_KERNEL L_F1DC, 24
 .kernel_L_F2B7 DLL_CALL_KERNEL L_F2B7, 25
@@ -186,15 +186,15 @@ ENDIF
 	EQUB LO(L_E8C2)
 	EQUB LO(L_E8E5)
 	EQUB LO(L_E9A3)
-	EQUB LO(prepare_trackQ)
+	EQUB LO(set_road_data1)
 	EQUB LO(L_EC11)
 	EQUB LO(get_entered_name)
 	EQUB LO(L_EDAB)
 	EQUB LO(do_menu_screen)
 	EQUB LO(do_main_menu_dwim)
 	EQUB LO(L_F021)
-	EQUB LO(get_track_segment_detailsQ)
-	EQUB LO(L_F0C5)
+	EQUB LO(fetch_near_section_stuff)
+	EQUB LO(fetch_xz_position)
 	EQUB LO(L_F117)
 	EQUB LO(L_F1DC)
 	EQUB LO(L_F2B7)
@@ -271,15 +271,15 @@ ENDIF
 	EQUB HI(L_E8C2)
 	EQUB HI(L_E8E5)
 	EQUB HI(L_E9A3)
-	EQUB HI(prepare_trackQ)
+	EQUB HI(set_road_data1)
 	EQUB HI(L_EC11)
 	EQUB HI(get_entered_name)
 	EQUB HI(L_EDAB)
 	EQUB HI(do_menu_screen)
 	EQUB HI(do_main_menu_dwim)
 	EQUB HI(L_F021)
-	EQUB HI(get_track_segment_detailsQ)
-	EQUB HI(L_F0C5)
+	EQUB HI(fetch_near_section_stuff)
+	EQUB HI(fetch_xz_position)
 	EQUB HI(L_F117)
 	EQUB HI(L_F1DC)
 	EQUB HI(L_F2B7)
@@ -449,7 +449,7 @@ ENDIF
 .cart_save_rndQ_stateQ DLL_CALL_CART save_rndQ_stateQ, 30
 .cart_L_1637 DLL_CALL_CART L_1637, 31
 .cart_draw_trackQ DLL_CALL_CART draw_trackQ, 32
-.cart_L_177D DLL_CALL_CART L_177D, 33
+.cart_make_near_road_coords DLL_CALL_CART make_near_road_coords, 33
 .cart_L_1A3B DLL_CALL_CART L_1A3B, 34
 .cart_update_damage_display DLL_CALL_CART update_damage_display, 35
 .cart_draw_crane_with_sysctl DLL_CALL_CART draw_crane_with_sysctl, 36
@@ -524,7 +524,7 @@ ENDIF
 	EQUB LO(save_rndQ_stateQ)
 	EQUB LO(L_1637)
 	EQUB LO(draw_trackQ)
-	EQUB LO(L_177D)
+	EQUB LO(make_near_road_coords)
 	EQUB LO(L_1A3B)
 	EQUB LO(update_damage_display)
 	EQUB LO(draw_crane_with_sysctl)
@@ -596,7 +596,7 @@ ENDIF
 	EQUB HI(save_rndQ_stateQ)
 	EQUB HI(L_1637)
 	EQUB HI(draw_trackQ)
-	EQUB HI(L_177D)
+	EQUB HI(make_near_road_coords)
 	EQUB HI(L_1A3B)
 	EQUB HI(update_damage_display)
 	EQUB HI(draw_crane_with_sysctl)

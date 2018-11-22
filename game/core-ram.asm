@@ -48,7 +48,7 @@
 .L_140F	equb $06
 .L_1410	equb $1A
 
-.L_2458				; SELF-MOD CODE by fn update_track_preview?
+.L_2458				; SELF-MOD CODE from update_track_preview
 		stx ZP_16		;2458 86 16
 		lda ZP_52		;245A A5 52
 .L_245C
@@ -131,7 +131,7 @@
 		lda log_lsb,X	;24F1 BD 00 AA
 		sta ZP_A9		;24F4 85 A9
 		cpy #$08		;24F6 C0 08
-.L_24F8	bcc L_2572		;24F8 90 78		;! self-mod
+.L_24F8	bcc L_2572		;24F8 90 78		;! _SELF_MOD self-mod
 		lda ZP_A9		;24FA A5 A9
 		sec				;24FC 38
 		sbc ZP_70		;24FD E5 70
@@ -291,7 +291,7 @@
 		adc L_A610,Y	;2626 79 10 A6
 		sec				;2629 38
 		sbc #$08		;262A E9 08
-L_262B	= *-1			;! self-mod! by update_track_preview
+L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		sta ZP_AD		;262C 85 AD
 		cpy #$08		;262E C0 08
 		bcs L_2682		;2630 B0 50
@@ -376,6 +376,46 @@ L_262B	= *-1			;! self-mod! by update_track_preview
 		sta L_A2E4,X	;26CE 9D E4 A2
 		rts				;26D1 60
 
+\\ Moved from Kernel RAM as self-mod code above gets redirected here!
+
+.L_F40B
+{
+		stx ZP_16		; equb $86,$16
+		lda ZP_77		; equb $A5,$77
+		clc				; equb $18
+		bpl L_F413		; equb $10,$01
+		sec				; equb $38
+.L_F413	ror A			; equb $6A
+		ror ZP_51		; equb $66,$51
+		sta ZP_77		; equb $85,$77
+
+\\ Previously thought to be ununsed...
+
+		jsr L_F42D		;F418 20 2D F4
+		lda ZP_70		;F41B A5 70
+		pha				;F41D 48
+		lda ZP_71		;F41E A5 71
+		pha				;F420 48
+		jsr L_F42D		;F421 20 2D F4
+		pla				;F424 68
+		sta ZP_AC		;F425 85 AC
+		pla				;F427 68
+		sta ZP_AB		;F428 85 AB
+		ldx ZP_16		;F42A A6 16
+		rts				;F42C 60
+.L_F42D	lda ZP_78		;F42D A5 78
+		clc				;F42F 18
+		bpl L_F433		;F430 10 01
+		sec				;F432 38
+.L_F433	ror A			;F433 6A
+		ror ZP_52		;F434 66 52
+		clc				;F436 18
+		adc #$30		;F437 69 30
+		sta ZP_78		;F439 85 78
+		lda ZP_52		;F43B A5 52
+		jmp L_245C		;F43D 4C 5C 24
+}
+
 .L_2806	equb $FF
 .L_2807	equb $00
 
@@ -449,7 +489,7 @@ L_262B	= *-1			;! self-mod! by update_track_preview
 		jsr kernel_set_text_cursor		;3172 20 6B 10
 		ldx #$93		;3175 A2 93
 		jsr cart_print_msg_3		;3177 20 DC A1
-		ldx L_C77D		;317A AE 7D C7
+		ldx current_track		;317A AE 7D C7
 		jsr print_track_name		;317D 20 92 38
 		lda L_31A1		;3180 AD A1 31
 		beq L_318F		;3183 F0 0A
@@ -1085,10 +1125,12 @@ ENDIF
 		jsr cart_draw_track_preview_border		;3C5F 20 03 2F
 		jsr cart_draw_track_preview_track_name		;3C62 20 CE 2F
 		jsr L_3EA8		;3C65 20 A8 3E
-		ldx L_C77D		;3C68 AE 7D C7
-		jsr kernel_prepare_trackQ		;3C6B 20 34 EA
+		ldx current_track		;3C68 AE 7D C7
+		jsr kernel_set_road_data1		;3C6B 20 34 EA
 		jsr cart_update_per_track_stuff		;3C6E 20 18 1D
 		jsr kernel_update_track_preview		;3C71 20 86 F3
+
+\\ We never get here!
 
 .L_3C74	ldx #$27		;3C74 A2 27
 		lda #$3B		;3C76 A9 3B
@@ -1126,14 +1168,14 @@ ENDIF
 		lda #$02		;3CAA A9 02
 		jsr cart_sysctl		;3CAC 20 25 87
 		jsr L_3EB6_from_main_loop		;3CAF 20 B6 3E
-		ldx L_C765		;3CB2 AE 65 C7
+		ldx players_start_section		;3CB2 AE 65 C7
 		stx L_C375		;3CB5 8E 75 C3
 		lda #$04		;3CB8 A9 04
 		sta ZP_C4		;3CBA 85 C4
 		lda #$4C		;3CBC A9 4C
 		sta ZP_B0		;3CBE 85 B0
 		jsr cart_L_1EE2_from_main_loop		;3CC0 20 E2 1E
-		ldx L_C765		;3CC3 AE 65 C7
+		ldx players_start_section		;3CC3 AE 65 C7
 .L_3CC6
 		jsr kernel_L_F488		;3CC6 20 88 F4
 		jsr cart_L_2C64		;3CC9 20 64 2C
@@ -1352,7 +1394,7 @@ ENDIF
 		ldx L_C777		;3E98 AE 77 C7
 .L_3E9B	txa				;3E9B 8A
 		jsr cart_convert_X_to_BCD		;3E9C 20 15 92
-		sta L_C76A		;3E9F 8D 6A C7
+		sta boost_reserve		;3E9F 8D 6A C7
 		lda L_C719		;3EA2 AD 19 C7
 		sta L_C37E		;3EA5 8D 7E C3
 }
@@ -1531,7 +1573,7 @@ ENDIF
 .L_3FF1	bne L_3FEF		;3FF1 D0 FC
 		dec ZP_15		;3FF3 C6 15
 		bne L_3FEF		;3FF5 D0 F8
-L_3FF6	= *-1			;!
+L_3FF6	= *-1			;! _SELF_MOD
 		dey				;3FF7 88
 		bne delay_approx_Y_25ths_sec		;3FF8 D0 F1
 .L_3FFA	rts				;3FFA 60
