@@ -2403,7 +2403,7 @@ ENDIF
 .maybe_define_keys			; HAS DLL
 {
 		ldx #KEY_DEF_REDEFINE		;97AF A2 20
-		jsr kernel_poll_key_with_sysctl		;97B1 20 C9 C7
+		jsr poll_key_with_sysctl		;97B1 20 C9 C7
 		beq L_97B7		;97B4 F0 01
 		rts				;97B6 60
 .L_97B7	ldy #$64		;97B7 A0 64
@@ -2420,7 +2420,7 @@ ENDIF
 		jsr kernel_set_up_text_sprite		;97D2 20 A9 12
 .L_97D5	ldx #KEY_DEF_CANCEL		;97D5 A2 3F
 .L_97D7	stx ZP_17		;97D7 86 17
-		jsr kernel_poll_key_with_sysctl		;97D9 20 C9 C7
+		jsr poll_key_with_sysctl		;97D9 20 C9 C7
 		bne L_9816		;97DC D0 38
 		lda ZP_17		;97DE A5 17
 		ldx L_983A		;97E0 AE 3A 98
@@ -2439,7 +2439,7 @@ ENDIF
 .L_9802	lda #$00		;9802 A9 00
 		jsr kernel_L_CF68		;9804 20 68 CF
 .L_9807	ldx ZP_17		;9807 A6 17
-		jsr kernel_poll_key_with_sysctl		;9809 20 C9 C7
+		jsr poll_key_with_sysctl		;9809 20 C9 C7
 		beq L_9807		;980C F0 F9
 		ldy #$03		;980E A0 03
 		jsr delay_approx_Y_25ths_sec		;9810 20 EB 3F
@@ -5107,10 +5107,6 @@ L_14B6 = L_14B8-2
 		sta L_C3C7		;2095 8D C7 C3
 		rts				;2098 60
 }
-
-.L_2099	equb $78
-.L_209A	equb $6E
-.L_209B	equb $05
 
 .L_209C				; in Cart
 {

@@ -147,7 +147,7 @@ ENDIF
 ; *****************************************************************************
 
 .kernel_mul_8_8_16bit DLL_CALL_KERNEL mul_8_8_16bit, 60
-.kernel_poll_key_with_sysctl DLL_CALL_KERNEL poll_key_with_sysctl, 61
+.kernel_poll_key_with_sysctl BRK	; sets flags on exit
 .kernel_L_C81E DLL_CALL_KERNEL L_C81E, 62
 .kernel_mul_8_16_16bit DLL_CALL_KERNEL mul_8_16_16bit, 63
 .kernel_mul_8_16_16bit_2 DLL_CALL_KERNEL mul_8_16_16bit_2, 64
@@ -235,7 +235,7 @@ ENDIF
 	EQUB LO(set_up_text_sprite)
 
 	EQUB LO(mul_8_8_16bit)
-	EQUB LO(poll_key_with_sysctl)
+	EQUB 0	; poll_key_with_sysctl
 	EQUB LO(L_C81E)
 	EQUB LO(mul_8_16_16bit)
 	EQUB LO(mul_8_16_16bit_2)
@@ -320,7 +320,7 @@ ENDIF
 	EQUB HI(set_up_text_sprite)
 
 	EQUB HI(mul_8_8_16bit)
-	EQUB HI(poll_key_with_sysctl)
+	EQUB 0	; poll_key_with_sysctl
 	EQUB HI(L_C81E)
 	EQUB HI(mul_8_16_16bit)
 	EQUB HI(mul_8_16_16bit_2)

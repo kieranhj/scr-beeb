@@ -2525,23 +2525,6 @@ L_99F0	= L_99EF + 1
 		rts				;C7C8 60
 }
 
-; entry: X	holds key to test.
-; 
-; exit: Z set if key pressed.
-
-.poll_key_with_sysctl
-{
-		tya				;C7C9 98
-		pha				;C7CA 48
-		lda #$81		;C7CB A9 81
-		ldy #$FF		;C7CD A0 FF
-		jsr cart_sysctl		;C7CF 20 25 87
-		pla				;C7D2 68
-		tay				;C7D3 A8
-		cpx #$FF		;C7D4 E0 FF
-		rts				;C7D6 60
-}
-
 ; get sin and cos.
 ; 
 ; entry: byte_14=angle LSB, A=angle MSB
@@ -3527,9 +3510,9 @@ L_99F0	= L_99EF + 1
 		asl A			;CF68 0A
 		asl A			;CF69 0A
 		asl A			;CF6A 0A
-		adc #$80		;CF6B 69 80
+		adc #LO(L_AF80)		;CF6B 69 80
 		tax				;CF6D AA
-		ldy #$AF		;CF6E A0 AF
+		ldy #HI(L_AF80)		;CF6E A0 AF
 		jmp cart_sid_process		;CF70 4C 55 86
 }
 

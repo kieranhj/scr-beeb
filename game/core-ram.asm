@@ -1049,7 +1049,7 @@ ENDIF
 		sta L_C305		;3BB2 8D 05 C3
 		jsr L_357E		;3BB5 20 7E 35
 		ldx #KEY_DEF_REDEFINE		;3BB8 A2 20
-		jsr kernel_poll_key_with_sysctl		;3BBA 20 C9 C7
+		jsr poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
 		jsr L_3C36		;3BBF 20 36 3C
 		jsr L_3500_with_VIC		;3BC2 20 00 35
@@ -1271,7 +1271,7 @@ ENDIF
 		lda ZP_6A		;3D9D A5 6A
 		beq L_3DA8		;3D9F F0 07
 .L_3DA1	ldx #KEY_DEF_QUIT		;3DA1 A2 2F
-		jsr kernel_poll_key_with_sysctl		;3DA3 20 C9 C7
+		jsr poll_key_with_sysctl		;3DA3 20 C9 C7
 		beq L_3DAB		;3DA6 F0 03
 .L_3DA8	jmp L_3D05		;3DA8 4C 05 3D
 
@@ -1439,7 +1439,7 @@ ENDIF
 		lda L_C306		;3EE0 AD 06 C3
 		bpl L_3EEC		;3EE3 10 07
 		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
-		jsr kernel_poll_key_with_sysctl		;3EE7 20 C9 C7
+		jsr poll_key_with_sysctl		;3EE7 20 C9 C7
 		beq L_3EED		;3EEA F0 01
 .L_3EEC	rts				;3EEC 60
 
@@ -1458,7 +1458,7 @@ ENDIF
 		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
 		ldx #KEY_DEF_CONTINUE		;3F0C A2 34
-		jsr kernel_poll_key_with_sysctl		;3F0E 20 C9 C7
+		jsr poll_key_with_sysctl		;3F0E 20 C9 C7
 		bne L_3F09		;3F11 D0 F6
 		pla				;3F13 68
 		sta L_1328		;3F14 8D 28 13
@@ -1587,5 +1587,25 @@ L_3FF6	= *-1			;! _SELF_MOD
 		pla				;9A36 68
 		rti				;9A37 40
 }
+
+\\ Moved from Hazel RAM
+
+; entry: X	holds key to test.
+; 
+; exit: Z set if key pressed.
+
+.poll_key_with_sysctl
+{
+		tya				;C7C9 98
+		pha				;C7CA 48
+		lda #$81		;C7CB A9 81
+		ldy #$FF		;C7CD A0 FF
+		jsr cart_sysctl		;C7CF 20 25 87
+		pla				;C7D2 68
+		tay				;C7D3 A8
+		cpx #$FF		;C7D4 E0 FF
+		rts				;C7D6 60
+}
+\\ NB. can't be put in DLL as sets flag on exit
 
 .core_end

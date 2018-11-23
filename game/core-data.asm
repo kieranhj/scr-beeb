@@ -204,8 +204,8 @@ PAGE_ALIGN
 		equb "HIGH JUMP       "
 		equb "ROLLER COASTER  "
 
-\\ This data is unknown so far!
-
+\\ This data is unknown so far! - used by sid_process
+.L_AF80
 		equb $01,$41,$05,$00,$50,$98,$04,$80,$01,$81,$0F,$E0
 .L_AF8C	equb $64,$08,$1E,$80,$01,$81,$0F,$E0,$14,$08,$1E,$80,$01,$81,$00,$F0
 		equb $03,$08,$03,$80,$01,$41,$02,$00,$64,$98,$01,$80,$02,$00,$00,$FF
@@ -789,5 +789,9 @@ PAGE_ALIGN
 ; equb $2E,$27,$29,$12,$08
 	equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
 
-.L_F80C			equb $07,$1F,$01,$19
-.L_F810			equb $11
+.L_F80C	equb $07,$1F,$01,$19
+.L_F810	equb $11
+
+.L_2099	equb $78
+.L_209A	equb $6E
+.L_209B	equb $05
