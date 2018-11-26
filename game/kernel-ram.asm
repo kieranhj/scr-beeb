@@ -1531,10 +1531,10 @@
 		asl A			;1474 0A
 		rol ZP_14		;1475 26 14
 		clc				;1477 18
-		adc #$C0		;1478 69 C0
+		adc #LO(L_7FC0)		;1478 69 C0
 		sta ZP_1E		;147A 85 1E
 		lda ZP_14		;147C A5 14
-		adc #$7F		;147E 69 7F
+		adc #HI(L_7FC0)		;147E 69 7F
 		sta ZP_1F		;1480 85 1F
 		iny				;1482 C8
 		rts				;1483 60
@@ -6132,8 +6132,6 @@ L_EBDD	= L_EBE7 - $A			;!
 		dex				;F3E5 CA
 		bpl L_F3DB		;F3E6 10 F3
 		jsr draw_track_preview		;F3E8 20 F6 F2
-
-\\ We never get here!
 
 		lda #$08		;F3EB A9 08
 		sta L_262B		;F3ED 8D 2B 26	_SELF_MOD to L_25EA in Core

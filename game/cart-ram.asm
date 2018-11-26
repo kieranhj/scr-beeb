@@ -118,14 +118,14 @@
 		rts				;8452 60
 .L_8453	lda #$14		;8453 A9 14
 		sta ZP_52		;8455 85 52
-		ldx #$00		;8457 A2 00
-		ldy #$40		;8459 A0 40
+		ldx #LO(L_4000)		;8457 A2 00
+		ldy #HI(L_4000)		;8459 A0 40
 		lda #$AA		;845B A9 AA
 		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
 		sta ZP_52		;8462 85 52
-		ldx #$00		;8464 A2 00
-		ldy #$59		;8466 A0 59
+		ldx #LO(L_5900)		;8464 A2 00
+		ldy #HI(L_5900)		;8466 A0 59
 		lda #$00		;8468 A9 00
 		jmp fill_64s		;846A 4C 21 89
 }
@@ -665,14 +665,14 @@ ENDIF
 		sta ZP_1F		;87D4 85 1F
 		ldx #$00		;87D6 A2 00
 .L_87D8	ldy #$00		;87D8 A0 00
-		lda L_D400,X	;87DA BD 00 D4	; SID
+		lda L_D400,X	;87DA BD 00 D4	; NOT SID
 		sta ZP_08		;87DD 85 08
 		bne L_87E2		;87DF D0 01
 		iny				;87E1 C8
 .L_87E2	sty ZP_16		;87E2 84 16
-		lda L_D401,X	;87E4 BD 01 D4	; SID
+		lda L_D401,X	;87E4 BD 01 D4	; NOT SID
 		sta ZP_20		;87E7 85 20
-		lda L_D402,X	;87E9 BD 02 D4	; SID
+		lda L_D401+1,X	;87E9 BD 02 D4	; NOT SID
 		sta ZP_21		;87EC 85 21
 		ldy #$00		;87EE A0 00
 .L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
@@ -717,8 +717,8 @@ ENDIF
 		bpl L_882F		;883A 10 F3
 		lda #$11		;883C A9 11
 		sta ZP_52		;883E 85 52
-		ldy #$4A		;8840 A0 4A
-		ldx #$00		;8842 A2 00
+		ldy #HI(L_4A00)		;8840 A0 4A
+		ldx #LO(L_4A00)		;8842 A2 00
 		lda #$00		;8844 A9 00
 		jsr fill_64s		;8846 20 21 89
 		lda #$35		;8849 A9 35
@@ -2166,18 +2166,18 @@ ENDIF
 		sta L_042A,X	;95FB 9D 2A 04
 		dex				;95FE CA
 		bpl L_95F6		;95FF 10 F5
-		lda #$25		;9601 A9 25
+		lda #LO(L_4025)		;9601 A9 25
 		sta ZP_1E		;9603 85 1E
-		lda #$40		;9605 A9 40
+		lda #HI(L_4025)		;9605 A9 40
 		sta ZP_1F		;9607 85 1F
 		lda #$90		;9609 A9 90
 		sta ZP_48		;960B 85 48
 .L_960D	ldx #$36		;960D A2 36
 		lda #$03		;960F A9 03
 		sta ZP_4A		;9611 85 4A
-		lda #$A0		;9613 A9 A0
+		lda #LO(L_04A0)		;9613 A9 A0
 		sta ZP_20		;9615 85 20
-		lda #$04		;9617 A9 04
+		lda #HI(L_04A0)		;9617 A9 04
 		sta ZP_21		;9619 85 21
 .L_961B	ldy #$0D		;961B A0 0D
 		lda #$22		;961D A9 22
@@ -2266,9 +2266,9 @@ ENDIF
 .L_96AF				; in Cart
 {
 		sta ZP_19		;96AF 85 19
-		lda #$00		;96B1 A9 00
+		lda #LO(L_4000)		;96B1 A9 00
 		sta ZP_1E		;96B3 85 1E
-		lda #$40		;96B5 A9 40
+		lda #HI(L_4000)		;96B5 A9 40
 		sta ZP_1F		;96B7 85 1F
 		lda #$3B		;96B9 A9 3B
 		sta L_96A6		;96BB 8D A6 96
@@ -4574,9 +4574,9 @@ L_14B6 = L_14B8-2
 .clear_menu_area			; HAS DLL
 {
 		ldx #$10		;1C23 A2 10
-		lda #$4B		;1C25 A9 4B
+		lda #HI(L_4B60)		;1C25 A9 4B
 		sta ZP_1F		;1C27 85 1F
-		lda #$60		;1C29 A9 60
+		lda #LO(L_4B60)		;1C29 A9 60
 		sta ZP_1E		;1C2B 85 1E
 .L_1C2D	ldy #$DF		;1C2D A0 DF
 		lda #$00		;1C2F A9 00
@@ -4600,8 +4600,8 @@ L_14B6 = L_14B8-2
 {
 		lda #$08		;1C49 A9 08
 		sta ZP_52		;1C4B 85 52
-		ldy #$40		;1C4D A0 40
-		ldx #$00		;1C4F A2 00
+		ldy #HI(L_4000)		;1C4D A0 40
+		ldx #LO(L_4000)		;1C4F A2 00
 		lda #$55		;1C51 A9 55
 		jsr sysctl		;1C53 20 25 87
 		ldx #$38		;1C56 A2 38
@@ -6252,15 +6252,15 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		bne L_2F07		;2F35 D0 D0
 		ldx #$30		;2F37 A2 30
 		ldy #$66		;2F39 A0 66
-		lda #$48		;2F3B A9 48
+		lda #LO(L_4148)		;2F3B A9 48
 		sta ZP_1E		;2F3D 85 1E
-		lda #$41		;2F3F A9 41
+		lda #HI(L_4148)		;2F3F A9 41
 		jsr L_2F4E		;2F41 20 4E 2F
 		ldx #$40		;2F44 A2 40
 		ldy #$66		;2F46 A0 66
-		lda #$68		;2F48 A9 68
+		lda #LO(L_4268)		;2F48 A9 68
 		sta ZP_1E		;2F4A 85 1E
-		lda #$42		;2F4C A9 42
+		lda #HI(L_4268)		;2F4C A9 42
 .L_2F4E	sta ZP_1F		;2F4E 85 1F
 		stx ZP_16		;2F50 86 16
 		sty ZP_17		;2F52 84 17

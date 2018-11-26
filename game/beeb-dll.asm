@@ -2,6 +2,8 @@
 ; Jump tables
 ; *****************************************************************************
 
+_STORE_STATUS = TRUE
+
 MACRO DLL_CALL_KERNEL fn, id
 IF BEEB_KERNEL_SLOT = 0
 {
@@ -9,6 +11,10 @@ IF BEEB_KERNEL_SLOT = 0
 }
 ELSE
 {
+IF _STORE_STATUS
+	PHP
+ENDIF
+
     \\ Preserve X
 	STX DLL_REG_X
 
@@ -26,10 +32,18 @@ ENDMACRO
 
 .DLL_REG_A skip 1           \\ Move these to ZP when possible
 .DLL_REG_X skip 1
+IF _STORE_STATUS
+.DLL_REG_STATUS skip 1
+ENDIF
 
 .jump_to_kernel
 {
     STA DLL_REG_A
+
+IF _STORE_STATUS
+	PLA
+	STA DLL_REG_STATUS
+ENDIF
 
     \\ Remember current bank
     LDA &F4: PHA
@@ -51,23 +65,50 @@ ENDIF
 
     STA kernel_addr + 2
 
+IF _STORE_STATUS
+	LDA DLL_REG_STATUS
+	PHA
+ENDIF
+
     \\ Restore A before fn call
     LDX DLL_REG_X
     LDA DLL_REG_A
+
+IF _STORE_STATUS
+	PLP
+ENDIF
 }
 \\ Call function
 .kernel_addr
     JSR &FFFF
 {
+IF _STORE_STATUS
+	PHP
+ENDIF
+
     \\ Preserve A
     STA DLL_REG_A
+
+IF _STORE_STATUS
+	PLA
+	STA DLL_REG_STATUS
+ENDIF
 
     \\ Restore original bank
     PLA
     STA &F4:STA &FE30
 
+IF _STORE_STATUS
+	LDA DLL_REG_STATUS
+	PHA
+ENDIF
+
     \\ Restore A before return
     LDA DLL_REG_A
+
+IF _STORE_STATUS
+	PLP
+ENDIF
 
     RTS
 }
@@ -353,6 +394,10 @@ IF BEEB_CART_SLOT = 0
 }
 ELSE
 {
+IF _STORE_STATUS
+	PHP
+ENDIF
+
     \\ Preserve X
 	STX DLL_REG_X
 
@@ -360,7 +405,6 @@ ELSE
     LDX #id
 
     \\ Call jump fn
-
     JMP jump_to_cart
 }
 ENDIF
@@ -369,6 +413,11 @@ ENDMACRO
 .jump_to_cart
 {
     STA DLL_REG_A
+
+IF _STORE_STATUS
+	PLA
+	STA DLL_REG_STATUS
+ENDIF
 
     \\ Remember current bank
     LDA &F4: PHA
@@ -390,23 +439,50 @@ ENDIF
 
     STA cart_addr + 2
 
+IF _STORE_STATUS
+	LDA DLL_REG_STATUS
+	PHA
+ENDIF
+
     \\ Restore A before fn call
     LDX DLL_REG_X
     LDA DLL_REG_A
+
+IF _STORE_STATUS
+	PLP
+ENDIF
 }
 \\ Call function
 .cart_addr
     JSR &FFFF
 {
+IF _STORE_STATUS
+	PHP
+ENDIF
+
     \\ Preserve A
     STA DLL_REG_A
+
+IF _STORE_STATUS
+	PLA
+	STA DLL_REG_STATUS
+ENDIF
 
     \\ Restore original bank
     PLA
     STA &F4:STA &FE30
 
+IF _STORE_STATUS
+	LDA DLL_REG_STATUS
+	PHA
+ENDIF
+
     \\ Restore A before return
     LDA DLL_REG_A
+
+IF _STORE_STATUS
+	PLP
+ENDIF
 
     RTS
 }

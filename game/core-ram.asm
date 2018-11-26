@@ -131,7 +131,7 @@
 		lda log_lsb,X	;24F1 BD 00 AA
 		sta ZP_A9		;24F4 85 A9
 		cpy #$08		;24F6 C0 08
-.L_24F8	bcc L_2572		;24F8 90 78		;! _SELF_MOD self-mod
+.L_24F8	bcc L_2572		;24F8 90 78		;! _SELF_MOD local
 		lda ZP_A9		;24FA A5 A9
 		sec				;24FC 38
 		sbc ZP_70		;24FD E5 70
@@ -403,6 +403,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		sta ZP_AB		;F428 85 AB
 		ldx ZP_16		;F42A A6 16
 		rts				;F42C 60
+
 .L_F42D	lda ZP_78		;F42D A5 78
 		clc				;F42F 18
 		bpl L_F433		;F430 10 01
@@ -1129,8 +1130,6 @@ ENDIF
 		jsr kernel_set_road_data1		;3C6B 20 34 EA
 		jsr cart_update_per_track_stuff		;3C6E 20 18 1D
 		jsr kernel_update_track_preview		;3C71 20 86 F3
-
-\\ We never get here!
 
 .L_3C74	ldx #$27		;3C74 A2 27
 		lda #$3B		;3C76 A9 3B
