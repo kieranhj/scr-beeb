@@ -981,13 +981,11 @@ ENDIF
 		txs				;3B24 9A
 		jsr disable_ints_and_page_in_RAM		;3B25 20 F1 33
 
-IF _NOT_BEEB
 		ldx #$00		;3B28 A2 00
-.L_3B2A	lda CIA1_CIAPRA,X	;3B2A BD 00 DC		; CIA1
+.L_3B2A	lda L_DC00,X	;3B2A BD 00 DC		; CIA1
 		sta L_AE00,X	;3B2D 9D 00 AE
 		inx				;3B30 E8
 		bne L_3B2A		;3B31 D0 F7
-ENDIF
 
 		jsr page_in_IO_and_enable_ints		;3B33 20 FC 33
 		jsr kernel_L_E85B		;3B36 20 5B E8
@@ -1001,7 +999,7 @@ ENDIF
 		lda L_C76C		;3B4B AD 6C C7
 		bmi L_3B69		;3B4E 30 19	     ; taken if	racing
 
-		jsr L_3C36		;3B50 20 36 3C
+		jsr do_track_preview		;3B50 20 36 3C
 		jsr L_3500_with_VIC		;3B53 20 00 35
 		jsr game_main_loop		;3B56 20 99 3C
 		jsr set_up_screen_for_frontend		;3B59 20 04 35
@@ -1052,7 +1050,7 @@ ENDIF
 		ldx #KEY_DEF_REDEFINE		;3BB8 A2 20
 		jsr poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
-		jsr L_3C36		;3BBF 20 36 3C
+		jsr do_track_preview		;3BBF 20 36 3C
 		jsr L_3500_with_VIC		;3BC2 20 00 35
 		lda #$80		;3BC5 A9 80
 		jsr cart_store_restore_control_keys		;3BC7 20 46 98
@@ -1102,8 +1100,11 @@ ENDIF
 		cmp #$07		;3C30 C9 07
 		bcs L_3C19		;3C32 B0 E5
 		bcc L_3C1C		;3C34 90 E6
+}
 
-.L_3C36	lda #$0B		;3C36 A9 0B
+.do_track_preview
+{
+		lda #$0B		;3C36 A9 0B
 		jsr L_3FBB_with_VIC		;3C38 20 BB 3F
 		jsr L_3DF9		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40

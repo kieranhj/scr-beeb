@@ -58,9 +58,13 @@ ENDIF
     LDA kernel_table_HI, X
 
 IF _DEBUG
-    BMI fn_ok   ; can only jump into upper half of RAM!
+    BMI fn_ok1   ; can only jump into upper half of RAM!
     BRK         ; X=fn index that isn't implemented
-    .fn_ok
+    .fn_ok1
+	CMP #&C0
+	BCC fn_ok2
+	BRK
+	.fn_ok2
 ENDIF
 
     STA kernel_addr + 2
@@ -432,9 +436,13 @@ ENDIF
     LDA cart_table_HI, X
 
 IF _DEBUG
-    BMI fn_ok   ; can only jump into upper half of RAM!
+    BMI fn_ok1   ; can only jump into upper half of RAM!
     BRK         ; X=fn index that isn't implemented
-    .fn_ok
+    .fn_ok1
+	CMP #&C0
+	BCC fn_ok2
+	BRK
+	.fn_ok2
 ENDIF
 
     STA cart_addr + 2

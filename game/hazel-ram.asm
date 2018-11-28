@@ -399,6 +399,8 @@ L_80A0	= L_8000 + $A0
 
 PAGE_ALIGN
 
+\\ Suspect these are transformed vertices somehow?
+
 .L_A200	skip &180
 L_A202	= L_A200 + $02
 L_A203	= L_A200 + $03
@@ -444,6 +446,8 @@ L_A2B7	= L_A200 + $B7
 L_A2B8	= L_A200 + $B8
 L_A2E4	= L_A200 + $E4
 L_A2E6	= L_A200 + $E6
+
+\\ Suspect these are transformed vertices somehow, perhaps in screen space?
 
 L_A320	= L_A200 + $120
 L_A321	= L_A200 + $121

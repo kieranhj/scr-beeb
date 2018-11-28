@@ -2397,6 +2397,329 @@
 L_99F0	= L_99EF + 1
 }
 
+; only called from game update
+.L_9CBA_from_game_update		; in Kernel
+{
+		ldx L_C374		;9CBA AE 74 C3
+		stx ZP_2E		;9CBD 86 2E
+		jsr fetch_near_section_stuff		;9CBF 20 2F F0
+		lda #$00		;9CC2 A9 00
+		sta L_C359		;9CC4 8D 59 C3
+		ldx #$02		;9CC7 A2 02
+.L_9CC9	stx ZP_52		;9CC9 86 52
+		lda L_C374		;9CCB AD 74 C3
+		cmp ZP_2E		;9CCE C5 2E
+		beq L_9CDA		;9CD0 F0 08
+		tax				;9CD2 AA
+		stx ZP_2E		;9CD3 86 2E
+		jsr fetch_near_section_stuff		;9CD5 20 2F F0
+		ldx ZP_52		;9CD8 A6 52
+.L_9CDA	lda ZP_BC		;9CDA A5 BC
+		sta ZP_15		;9CDC 85 15
+		lda #$00		;9CDE A9 00
+		sta ZP_16		;9CE0 85 16
+		lda L_0133,X	;9CE2 BD 33 01
+		sta ZP_14		;9CE5 85 14
+		bpl L_9CEB		;9CE7 10 02
+		dec ZP_16		;9CE9 C6 16
+.L_9CEB	lda L_0130,X	;9CEB BD 30 01
+		lsr ZP_14		;9CEE 46 14
+		ror A			;9CF0 6A
+		lsr ZP_14		;9CF1 46 14
+		ror A			;9CF3 6A
+		lsr ZP_14		;9CF4 46 14
+		ror A			;9CF6 6A
+		lsr ZP_14		;9CF7 46 14
+		ror A			;9CF9 6A
+		clc				;9CFA 18
+		adc ZP_B7		;9CFB 65 B7
+		sta ZP_14		;9CFD 85 14
+		lda ZP_16		;9CFF A5 16
+		adc ZP_B8		;9D01 65 B8
+		sta ZP_16		;9D03 85 16
+		cmp #$01		;9D05 C9 01
+		bcc L_9D29		;9D07 90 20
+		bne L_9D11		;9D09 D0 06
+		lda ZP_14		;9D0B A5 14
+		cmp #$80		;9D0D C9 80
+		bcc L_9D29		;9D0F 90 18
+.L_9D11	sec				;9D11 38
+		ror L_C3A6		;9D12 6E A6 C3
+		lda ZP_14		;9D15 A5 14
+		sta L_C3A4		;9D17 8D A4 C3
+		lda ZP_16		;9D1A A5 16
+		sta L_C3A5		;9D1C 8D A5 C3
+		bmi L_9D25		;9D1F 30 04
+		lda #$FF		;9D21 A9 FF
+		bne L_9D4B		;9D23 D0 26
+.L_9D25	lda #$00		;9D25 A9 00
+		beq L_9D4B		;9D27 F0 22
+.L_9D29	lda ZP_16		;9D29 A5 16
+		beq L_9D34		;9D2B F0 07
+		lda #$80		;9D2D A9 80
+		sec				;9D2F 38
+		sbc ZP_14		;9D30 E5 14
+		sta ZP_14		;9D32 85 14
+.L_9D34	lda ZP_14		;9D34 A5 14
+		jsr mul_8_8_16bit		;9D36 20 82 C7
+		ldy ZP_16		;9D39 A4 16
+		beq L_9D40		;9D3B F0 03
+		jsr negate_16bit		;9D3D 20 BF C8
+.L_9D40	bit ZP_14		;9D40 24 14
+		bpl L_9D4B		;9D42 10 07
+		clc				;9D44 18
+		adc #$01		;9D45 69 01
+		bcc L_9D4B		;9D47 90 02
+		lda #$FF		;9D49 A9 FF
+.L_9D4B	sta ZP_4C		;9D4B 85 4C
+		bit ZP_A4		;9D4D 24 A4
+		bpl L_9D53		;9D4F 10 02
+		eor #$FF		;9D51 49 FF
+.L_9D53	cpx #$02		;9D53 E0 02
+		bne L_9D59		;9D55 D0 02
+		sta ZP_2B		;9D57 85 2B
+.L_9D59	lda ZP_BD		;9D59 A5 BD
+		sta ZP_15		;9D5B 85 15
+		lda #$00		;9D5D A9 00
+		sta ZP_16		;9D5F 85 16
+		sta ZP_5A		;9D61 85 5A
+		lda L_0139,X	;9D63 BD 39 01
+		sta ZP_14		;9D66 85 14
+		bpl L_9D6C		;9D68 10 02
+		dec ZP_16		;9D6A C6 16
+.L_9D6C	lda L_0136,X	;9D6C BD 36 01
+		lsr ZP_14		;9D6F 46 14
+		ror A			;9D71 6A
+		lsr ZP_14		;9D72 46 14
+		ror A			;9D74 6A
+		lsr ZP_14		;9D75 46 14
+		ror A			;9D77 6A
+		lsr ZP_14		;9D78 46 14
+		ror A			;9D7A 6A
+		jsr L_C81E		;9D7B 20 1E C8
+		asl ZP_14		;9D7E 06 14
+		rol A			;9D80 2A
+		clc				;9D81 18
+		adc ZP_B3		;9D82 65 B3
+		sta ZP_4D		;9D84 85 4D
+		lda ZP_16		;9D86 A5 16
+		adc ZP_B4		;9D88 65 B4
+		sta ZP_BF		;9D8A 85 BF
+		asl A			;9D8C 0A
+		sta ZP_C0		;9D8D 85 C0
+		bmi L_9D95		;9D8F 30 04
+		cmp ZP_62		;9D91 C5 62
+		bcc L_9D98		;9D93 90 03
+.L_9D95	jsr L_9E74		;9D95 20 74 9E
+.L_9D98	lda ZP_A4		;9D98 A5 A4
+		bne L_9DCA		;9D9A D0 2E
+		ldx ZP_C0		;9D9C A6 C0
+		jsr cart_L_9C14		;9D9E 20 14 9C
+		sta ZP_48		;9DA1 85 48
+		lda ZP_15		;9DA3 A5 15
+		lsr A			;9DA5 4A
+		lsr A			;9DA6 4A
+		lsr A			;9DA7 4A
+		lsr A			;9DA8 4A
+		lsr A			;9DA9 4A
+		sta ZP_5B		;9DAA 85 5B
+		inx				;9DAC E8
+		jsr cart_L_9C14		;9DAD 20 14 9C
+		sta ZP_49		;9DB0 85 49
+		inx				;9DB2 E8
+		jsr cart_L_9C14		;9DB3 20 14 9C
+		sta ZP_4A		;9DB6 85 4A
+		lda ZP_15		;9DB8 A5 15
+		lsr A			;9DBA 4A
+		lsr A			;9DBB 4A
+		lsr A			;9DBC 4A
+		lsr A			;9DBD 4A
+		lsr A			;9DBE 4A
+		sta ZP_DC		;9DBF 85 DC
+		inx				;9DC1 E8
+		jsr cart_L_9C14		;9DC2 20 14 9C
+		sta ZP_4B		;9DC5 85 4B
+		jmp L_9DFC		;9DC7 4C FC 9D
+.L_9DCA	lda ZP_9E		;9DCA A5 9E
+		sec				;9DCC 38
+		sbc ZP_C0		;9DCD E5 C0
+		sec				;9DCF 38
+		sbc #$04		;9DD0 E9 04
+		tax				;9DD2 AA
+		jsr cart_L_9C14		;9DD3 20 14 9C
+		sta ZP_4B		;9DD6 85 4B
+		inx				;9DD8 E8
+		jsr cart_L_9C14		;9DD9 20 14 9C
+		sta ZP_4A		;9DDC 85 4A
+		lda ZP_15		;9DDE A5 15
+		lsr A			;9DE0 4A
+		lsr A			;9DE1 4A
+		lsr A			;9DE2 4A
+		lsr A			;9DE3 4A
+		lsr A			;9DE4 4A
+		sta ZP_DC		;9DE5 85 DC
+		inx				;9DE7 E8
+		jsr cart_L_9C14		;9DE8 20 14 9C
+		sta ZP_49		;9DEB 85 49
+		inx				;9DED E8
+		jsr cart_L_9C14		;9DEE 20 14 9C
+		sta ZP_48		;9DF1 85 48
+		lda ZP_15		;9DF3 A5 15
+		lsr A			;9DF5 4A
+		lsr A			;9DF6 4A
+		lsr A			;9DF7 4A
+		lsr A			;9DF8 4A
+		lsr A			;9DF9 4A
+		sta ZP_5B		;9DFA 85 5B
+.L_9DFC	ldx ZP_52		;9DFC A6 52
+		jsr L_9F6A		;9DFE 20 6A 9F
+		dex				;9E01 CA
+		bmi L_9E07		;9E02 30 03
+		jmp L_9CC9		;9E04 4C C9 9C
+.L_9E07	rts				;9E07 60
+}
+
+.L_9E74				; in Kernel
+{
+		lda ZP_BF		;9E74 A5 BF
+		eor ZP_A4		;9E76 45 A4
+		bpl L_9E86		;9E78 10 0C
+		jsr L_CFD2		;9E7A 20 D2 CF
+		jsr fetch_near_section_stuff		;9E7D 20 2F F0
+		lda ZP_A4		;9E80 A5 A4
+		bpl L_9E9A		;9E82 10 16
+		bmi L_9E90		;9E84 30 0A
+.L_9E86	jsr L_CFC5		;9E86 20 C5 CF
+		jsr fetch_near_section_stuff		;9E89 20 2F F0
+		lda ZP_A4		;9E8C A5 A4
+		bmi L_9E9A		;9E8E 30 0A
+.L_9E90	lda #$00		;9E90 A9 00
+		sta ZP_C0		;9E92 85 C0
+		lda ZP_BF		;9E94 A5 BF
+		bpl L_9EBB		;9E96 10 23
+		bmi L_9EA5		;9E98 30 0B
+.L_9E9A	lda ZP_9E		;9E9A A5 9E
+		sec				;9E9C 38
+		sbc #$04		;9E9D E9 04
+		sta ZP_C0		;9E9F 85 C0
+		lda ZP_BF		;9EA1 A5 BF
+		bmi L_9EBB		;9EA3 30 16
+.L_9EA5	lda #$00		;9EA5 A9 00
+		sec				;9EA7 38
+		sbc ZP_4D		;9EA8 E5 4D
+		bne L_9EAE		;9EAA D0 02
+		lda #$FF		;9EAC A9 FF
+.L_9EAE	sta ZP_4D		;9EAE 85 4D
+		lda #$00		;9EB0 A9 00
+		sec				;9EB2 38
+		sbc ZP_4C		;9EB3 E5 4C
+		bne L_9EB9		;9EB5 D0 02
+		lda #$FF		;9EB7 A9 FF
+.L_9EB9	sta ZP_4C		;9EB9 85 4C
+.L_9EBB	rts				;9EBB 60
+}
+
+.L_9F6A				; in Kernel
+{
+		jsr cart_L_9EBC		;9F6A 20 BC 9E
+		asl L_C3A6		;9F6D 0E A6 C3
+		bcc L_9F75		;9F70 90 03
+		jsr L_A0B6		;9F72 20 B6 A0
+.L_9F75	lda L_0188		;9F75 AD 88 01
+		cmp #$0A		;9F78 C9 0A
+		bcc L_9F8C		;9F7A 90 10
+.L_9F7C	lda ZP_14		;9F7C A5 14
+		sta L_C340,X	;9F7E 9D 40 C3
+		lda ZP_15		;9F81 A5 15
+		sta L_C343,X	;9F83 9D 43 C3
+		lda ZP_16		;9F86 A5 16
+		sta L_C3CE,X	;9F88 9D CE C3
+		rts				;9F8B 60
+.L_9F8C	lda L_0124		;9F8C AD 24 01
+		bpl L_9F93		;9F8F 10 02
+		eor #$FF		;9F91 49 FF
+.L_9F93	cmp #$05		;9F93 C9 05
+		bcs L_9F7C		;9F95 B0 E5
+		lda ZP_14		;9F97 A5 14
+		clc				;9F99 18
+		adc L_C340,X	;9F9A 7D 40 C3
+		sta L_C340,X	;9F9D 9D 40 C3
+		lda ZP_15		;9FA0 A5 15
+		adc L_C343,X	;9FA2 7D 43 C3
+		sta L_C343,X	;9FA5 9D 43 C3
+		lda ZP_16		;9FA8 A5 16
+		adc L_C3CE,X	;9FAA 7D CE C3
+		ror A			;9FAD 6A
+		sta L_C3CE,X	;9FAE 9D CE C3
+		ror L_C343,X	;9FB1 7E 43 C3
+		ror L_C340,X	;9FB4 7E 40 C3
+		rts				;9FB7 60
+}
+
+.L_A0B6				; in Cart
+{
+		lda ZP_16		;A0B6 A5 16
+		sta ZP_1A		;A0B8 85 1A
+		lda ZP_15		;A0BA A5 15
+		sta ZP_19		;A0BC 85 19
+		lda ZP_14		;A0BE A5 14
+		sta ZP_18		;A0C0 85 18
+		lda L_C3A5		;A0C2 AD A5 C3
+		bpl L_A0CF		;A0C5 10 08
+		ldy L_C3A4		;A0C7 AC A4 C3
+		sty ZP_14		;A0CA 84 14
+		jmp L_A0DC		;A0CC 4C DC A0
+.L_A0CF	lda #$80		;A0CF A9 80
+		sec				;A0D1 38
+		sbc L_C3A4		;A0D2 ED A4 C3
+		sta ZP_14		;A0D5 85 14
+		lda #$01		;A0D7 A9 01
+		sbc L_C3A5		;A0D9 ED A5 C3
+.L_A0DC	jsr negate_if_N_set		;A0DC 20 BD C8
+		cmp #$00		;A0DF C9 00
+		bne L_A123		;A0E1 D0 40
+		ldy #$FC		;A0E3 A0 FC
+		jsr shift_16bit		;A0E5 20 BF C9
+		sta ZP_15		;A0E8 85 15
+		lda #$00		;A0EA A9 00
+		sta ZP_16		;A0EC 85 16
+		lda ZP_15		;A0EE A5 15
+		cmp #$03		;A0F0 C9 03
+		bcs L_A123		;A0F2 B0 2F
+		lda ZP_18		;A0F4 A5 18
+		sec				;A0F6 38
+		sbc ZP_14		;A0F7 E5 14
+		sta ZP_14		;A0F9 85 14
+		lda ZP_19		;A0FB A5 19
+		sbc ZP_15		;A0FD E5 15
+		sta ZP_15		;A0FF 85 15
+		lda ZP_1A		;A101 A5 1A
+		sbc ZP_16		;A103 E5 16
+		sta ZP_16		;A105 85 16
+		bne L_A114		;A107 D0 0B
+		lda ZP_15		;A109 A5 15
+		sec				;A10B 38
+		sbc #$01		;A10C E9 01
+		cmp #$10		;A10E C9 10
+		bcc L_A123		;A110 90 11
+		sta ZP_15		;A112 85 15
+.L_A114	lda L_C3A5		;A114 AD A5 C3
+		eor ZP_A4		;A117 45 A4
+		and #$80		;A119 29 80
+		bmi L_A11F		;A11B 30 02
+		lda #$40		;A11D A9 40
+.L_A11F	sta L_C30A		;A11F 8D 0A C3
+		rts				;A122 60
+.L_A123	sec				;A123 38
+		ror L_C359		;A124 6E 59 C3
+		lda #$10		;A127 A9 10
+		sta ZP_15		;A129 85 15
+		lda #$00		;A12B A9 00
+		sta ZP_14		;A12D 85 14
+		sta ZP_16		;A12F 85 16
+		rts				;A131 60
+}
+
 .calculate_camera_sines		; only called from Kernel?
 {
 		lda #$00		;A132 A9 00
