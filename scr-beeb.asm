@@ -694,13 +694,15 @@ L_0243	= $0243 + BEEB_LOWER_OFFSET
 L_0280	= $0280 + BEEB_LOWER_OFFSET
 L_0291	= $0291 + BEEB_LOWER_OFFSET
 L_02C0	= $02C0 + BEEB_LOWER_OFFSET
-
+\\ These have to be contiguous as the value at $300 are indexed from L_0280
 ; Camera matrices?
-L_0300	= $0300
-L_0314	= $0314
-L_0380	= $0380
+L_0300	= $0300 + BEEB_LOWER_OFFSET
+L_0314	= $0314 + BEEB_LOWER_OFFSET
+L_0380	= $0380 + BEEB_LOWER_OFFSET
 
 ; Some sort of track variables?
+; MAX ROAD SECTIONS = $4E = 78
+
 road_section_angle_and_piece	= $0400
 L_042A	= $042A
 road_section_xz_positions	= $044E
@@ -723,6 +725,7 @@ distances_around_road_MSBs	= $06BE
 L_06EE	= $06EE
 
 L_0700	= $0700
+
 L_0710	= $0710
 L_0740	= $0740
 L_0743	= $0743
@@ -942,6 +945,22 @@ GUARD &8000
 		sta L_C6C0,X	;40B5 9D C0 C6
 		dex				;40B8 CA
 		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
+
+	\\ Clear lower RAM
+
+		ldx #0
+		lda #0
+		.clear_loop
+		sta &300, X
+		sta &400, X
+		sta &500, X
+		sta &600, X
+		sta &700, X
+		sta &800, X
+		sta &900, X
+		sta &A00, X
+		inx
+		bne clear_loop
 
 	; BEEB SET SCREEN TO 8K
 
