@@ -1499,13 +1499,24 @@ ENDIF
 		sta ZP_12		;3F4F 85 12
 		lda #$80		;3F51 A9 80
 		sta L_C370		;3F53 8D 70 C3
+
+		LDA #HI(screen1_address / 8)
+
 		jmp L_3F64		;3F56 4C 64 3F
 .L_3F59	lda #$18		;3F59 A9 18
 		clc				;3F5B 18
 		adc L_A1F2		;3F5C 6D F2 A1
 		sta ZP_12		;3F5F 85 12
 		sta L_C370		;3F61 8D 70 C3
-.L_3F64	lda #$80		;3F64 A9 80
+
+		LDA #HI(screen2_address / 8)
+
+.L_3F64	
+		PHA
+		LDA #12:STA &FE00
+		PLA:STA &FE01
+
+		lda #$80		;3F64 A9 80
 		sta L_C37A		;3F66 8D 7A C3
 		cli				;3F69 58
 		rts				;3F6A 60
