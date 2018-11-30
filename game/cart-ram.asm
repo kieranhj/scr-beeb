@@ -6605,18 +6605,18 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		sbc ZP_15		;C986 E5 15
 .L_C988	sta ZP_15		;C988 85 15
 		pha				;C98A 48
-		jsr mul_8_8_16bit		;C98B 20 82 C7
+		jsr kernel_mul_8_8_16bit		;C98B 20 82 C7
 		sta ZP_19		;C98E 85 19
 		lda ZP_14		;C990 A5 14
 		sta ZP_18		;C992 85 18
 		tya				;C994 98
 		sta ZP_15		;C995 85 15
-		jsr mul_8_8_16bit		;C997 20 82 C7
+		jsr kernel_mul_8_8_16bit		;C997 20 82 C7
 		sta ZP_17		;C99A 85 17
 		lda ZP_14		;C99C A5 14
 		sta ZP_16		;C99E 85 16
 		pla				;C9A0 68
-		jsr mul_8_8_16bit		;C9A1 20 82 C7
+		jsr kernel_mul_8_8_16bit		;C9A1 20 82 C7
 		asl ZP_14		;C9A4 06 14
 		rol A			;C9A6 2A
 		bcc L_C9AB		;C9A7 90 02

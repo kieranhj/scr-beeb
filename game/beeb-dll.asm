@@ -126,7 +126,7 @@ ENDIF
 .kernel_L_E195 DLL_CALL_KERNEL L_E195, 2
 .kernel_L_E1B1 DLL_CALL_KERNEL L_E1B1, 3
 .kernel_L_E4DA DLL_CALL_KERNEL L_E4DA, 4
-.kernel_L_E544 DLL_CALL_KERNEL L_E544, 5
+.kernel_L_E544 DLL_CALL_KERNEL L_E544, 5		; not required in DLL
 .kernel_L_E631 DLL_CALL_KERNEL L_E631, 6
 .kernel_L_E641 DLL_CALL_KERNEL L_E641, 7
 .kernel_L_E808 DLL_CALL_KERNEL L_E808, 8
@@ -136,38 +136,38 @@ ENDIF
 .kernel_L_E8E5 DLL_CALL_KERNEL L_E8E5, 12
 .kernel_L_E9A3 DLL_CALL_KERNEL L_E9A3, 13
 .kernel_set_road_data1 DLL_CALL_KERNEL set_road_data1, 14
-.kernel_L_EC11 DLL_CALL_KERNEL L_EC11, 15
+.kernel_L_EC11 DLL_CALL_KERNEL L_EC11, 15		; not required in DLL
 .kernel_get_entered_name DLL_CALL_KERNEL get_entered_name, 16
 .kernel_L_EDAB DLL_CALL_KERNEL L_EDAB, 17
 .kernel_do_menu_screen DLL_CALL_KERNEL do_menu_screen, 18
 .kernel_do_main_menu_dwim DLL_CALL_KERNEL do_main_menu_dwim, 19
-.kernel_L_F021 DLL_CALL_KERNEL L_F021, 20
+.kernel_L_F021 DLL_CALL_KERNEL L_F021, 20		; not required in DLL
 .kernel_fetch_near_section_stuff DLL_CALL_KERNEL fetch_near_section_stuff, 21
 .kernel_fetch_xz_position DLL_CALL_KERNEL fetch_xz_position, 22
-.kernel_L_F117 DLL_CALL_KERNEL L_F117, 23
+.kernel_L_F117 DLL_CALL_KERNEL L_F117, 23		; only in Cart
 .kernel_L_F1DC DLL_CALL_KERNEL L_F1DC, 24
 .kernel_L_F2B7 DLL_CALL_KERNEL L_F2B7, 25
 .kernel_update_track_preview DLL_CALL_KERNEL update_track_preview, 26
 .kernel_L_F440 DLL_CALL_KERNEL L_F440, 27
 .kernel_L_F488 DLL_CALL_KERNEL L_F488, 28
 .kernel_L_F585 DLL_CALL_KERNEL L_F585, 29
-.kernel_L_F5E9 DLL_CALL_KERNEL L_F5E9, 30
-.kernel_update_boosting DLL_CALL_KERNEL update_boosting, 31
-.kernel_L_F668 DLL_CALL_KERNEL L_F668, 32
-.kernel_L_F673 DLL_CALL_KERNEL L_F673, 33
+.kernel_L_F5E9 DLL_CALL_KERNEL L_F5E9, 30		; not required in DLL
+.kernel_update_boosting DLL_CALL_KERNEL update_boosting, 31	; only in Cart
+.kernel_L_F668 DLL_CALL_KERNEL L_F668, 32		; not required in DLL
+.kernel_L_F673 DLL_CALL_KERNEL L_F673, 33		; not required in DLL
 .kernel_L_F6A6 DLL_CALL_KERNEL L_F6A6, 34
 .kernel_check_game_keys DLL_CALL_KERNEL check_game_keys, 35
-.kernel_L_F811 DLL_CALL_KERNEL L_F811, 36
+.kernel_L_F811 DLL_CALL_KERNEL L_F811, 36		; not required in DLL
 .kernel_set_linedraw_colour DLL_CALL_KERNEL set_linedraw_colour, 37
 .kernel_set_linedraw_op DLL_CALL_KERNEL set_linedraw_op, 38
 .kernel_L_FE91_with_draw_line DLL_CALL_KERNEL L_FE91_with_draw_line, 39
 .kernel_draw_line DLL_CALL_KERNEL draw_line, 40
 .kernel_L_FF6A DLL_CALL_KERNEL L_FF6A, 41
-.kernel_L_FF84 DLL_CALL_KERNEL L_FF84, 42
-.kernel_L_FF87 DLL_CALL_KERNEL L_FF87, 43
+.kernel_L_FF84 DLL_CALL_KERNEL L_FF84, 42		; not required in DLL
+.kernel_L_FF87 DLL_CALL_KERNEL L_FF87, 43		; not required in DLL
 .kernel_L_FF8E DLL_CALL_KERNEL L_FF8E, 44
-.kernel_update_tyre_spritesQ DLL_CALL_KERNEL update_tyre_spritesQ, 45
-.kernel_L_FFE2 DLL_CALL_KERNEL L_FFE2, 46
+.kernel_update_tyre_spritesQ DLL_CALL_KERNEL update_tyre_spritesQ, 45		; not required in DLL
+.kernel_L_FFE2 DLL_CALL_KERNEL L_FFE2, 46		; only in Cart
 
 ; *****************************************************************************
 \\ Functions in Kernel module moved from Core RAM
@@ -175,7 +175,7 @@ ENDIF
 
 .kernel_game_update DLL_CALL_KERNEL game_update, 47
 .kernel_L_0F2A DLL_CALL_KERNEL L_0F2A, 48
-.kernel_L_0F72 DLL_CALL_KERNEL L_0F72, 49
+.kernel_L_0F72 DLL_CALL_KERNEL L_0F72, 49		; not required in DLL
 .kernel_set_text_cursor DLL_CALL_KERNEL set_text_cursor, 50
 .kernel_print_single_digit DLL_CALL_KERNEL print_single_digit, 51
 .kernel_L_1090 DLL_CALL_KERNEL L_1090, 52
@@ -197,7 +197,7 @@ ENDIF
 .kernel_mul_8_16_16bit DLL_CALL_KERNEL mul_8_16_16bit, 63
 .kernel_mul_8_16_16bit_2 DLL_CALL_KERNEL mul_8_16_16bit_2, 64
 .kernel_negate_if_N_set DLL_CALL_KERNEL negate_if_N_set, 65
-.kernel_negate_16bit DLL_CALL_KERNEL negate_16bit, 66
+.kernel_negate_16bit DLL_CALL_KERNEL negate_16bit, 66		; not required in DLL
 .kernel_accurate_sin BRK      ; only called from Kernel?
 .kernel_square_ay_32bit BRK    ; only called from Cart?
 .kernel_shift_16bit DLL_CALL_KERNEL shift_16bit, 69
@@ -504,12 +504,12 @@ ENDIF
 .cart_sid_process DLL_CALL_CART sid_process, 2	; only called from Kernel
 .cart_sid_update DLL_CALL_CART sid_update, 3	; only called from Kernel
 .cart_sysctl DLL_CALL_CART sysctl, 4
-.cart_print_3space DLL_CALL_CART print_3space, 5
+.cart_print_3space DLL_CALL_CART print_3space, 5	; not required in DLL
 .cart_print_2space DLL_CALL_CART print_2space, 6
 .cart_print_space DLL_CALL_CART print_space, 7
 .cart_L_91B4 DLL_CALL_CART L_91B4, 8			; small fn - move to Core?
 .cart_L_91C3 DLL_CALL_CART L_91C3, 9			; small fn - move to Core?
-.cart_L_91CF DLL_CALL_CART L_91CF, 10
+.cart_L_91CF DLL_CALL_CART L_91CF, 10				; not required in DLL
 .cart_convert_X_to_BCD DLL_CALL_CART convert_X_to_BCD, 11
 .cart_L_9225 DLL_CALL_CART L_9225, 12
 .cart_L_9319 DLL_CALL_CART L_9319, 13
@@ -521,8 +521,8 @@ ENDIF
 .cart_store_restore_control_keys DLL_CALL_CART store_restore_control_keys, 19
 .cart_L_99FF DLL_CALL_CART L_99FF, 20
 .cart_L_9A38 DLL_CALL_CART L_9A38, 21
-.cart_L_9C14 DLL_CALL_CART L_9C14, 22
-.cart_L_9EBC DLL_CALL_CART L_9EBC, 23
+.cart_L_9C14 DLL_CALL_CART L_9C14, 22			; all in Kernel
+.cart_L_9EBC DLL_CALL_CART L_9EBC, 23			; all in Kernel
 .cart_L_A026 DLL_CALL_CART L_A026, 24
 .cart_print_msg_2 DLL_CALL_CART print_msg_2, 25
 .cart_print_msg_3 DLL_CALL_CART print_msg_3, 26
@@ -540,7 +540,7 @@ ENDIF
 .cart_clear_menu_area DLL_CALL_CART clear_menu_area, 37
 .cart_draw_menu_header DLL_CALL_CART draw_menu_header, 38
 .cart_L_1C64_with_keys DLL_CALL_CART L_1C64_with_keys, 39
-.cart_L_1CCB DLL_CALL_CART L_1CCB, 40
+.cart_L_1CCB DLL_CALL_CART L_1CCB, 40				; not required in DLL
 .cart_update_per_track_stuff DLL_CALL_CART update_per_track_stuff, 41
 .cart_L_1EE2_from_main_loop DLL_CALL_CART L_1EE2_from_main_loop, 42
 .cart_L_238E DLL_CALL_CART L_238E, 43
@@ -548,15 +548,15 @@ ENDIF
 .cart_pow36Q DLL_CALL_CART pow36Q, 45
 .cart_update_camera_roll_tables DLL_CALL_CART update_camera_roll_tables, 46
 .cart_L_2809 DLL_CALL_CART L_2809, 47
-.cart_draw_crash_smokeQ DLL_CALL_CART draw_crash_smokeQ, 48
-.cart_L_2A5C DLL_CALL_CART L_2A5C, 49
+.cart_draw_crash_smokeQ DLL_CALL_CART draw_crash_smokeQ, 48	; not required in DLL
+.cart_L_2A5C DLL_CALL_CART L_2A5C, 49			; not required in DLL
 
 .cart_L_2C64 DLL_CALL_CART L_2C64, 50
 .cart_L_2C6F DLL_CALL_CART L_2C6F, 51
 .cart_draw_track_preview_border DLL_CALL_CART draw_track_preview_border, 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
-.cart_L_3092_from_game_start DLL_CALL_CART L_3092_from_game_start, 55
+.cart_L_3092_from_game_start DLL_CALL_CART L_3092_from_game_start, 55	; not required in DLL
 .cart_L_3389_from_game_start DLL_CALL_CART L_3389_from_game_start, 56
 .cart_L_3626_from_game_start DLL_CALL_CART L_3626_from_game_start, 57
 .cart_L_3738 DLL_CALL_CART L_3738, 58

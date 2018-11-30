@@ -302,7 +302,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		lda ZP_AD		;263A A5 AD
 		sbc ZP_AC		;263C E5 AC
 		bpl L_2662		;263E 10 22
-		jsr pow36Q		;2640 20 D2 26
+		jsr cart_pow36Q		;2640 20 D2 26
 		sta ZP_14		;2643 85 14
 		ldx #$00		;2645 A2 00
 		stx ZP_15		;2647 86 15
@@ -326,7 +326,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		sta ZP_14		;2669 85 14
 		lda #$00		;266B A9 00
 		sbc ZP_15		;266D E5 15
-		jsr pow36Q		;266F 20 D2 26
+		jsr cart_pow36Q		;266F 20 D2 26
 		ldx ZP_16		;2672 A6 16
 		sec				;2674 38
 		sbc ZP_33		;2675 E5 33
@@ -342,7 +342,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		lda ZP_AD		;268A A5 AD
 		sbc ZP_AC		;268C E5 AC
 		bpl L_26A3		;268E 10 13
-		jsr pow36Q		;2690 20 D2 26
+		jsr cart_pow36Q		;2690 20 D2 26
 		ldx ZP_16		;2693 A6 16
 		sec				;2695 38
 		sbc ZP_33		;2696 E5 33
@@ -358,7 +358,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		sta ZP_14		;26AA 85 14
 		lda #$00		;26AC A9 00
 		sbc ZP_15		;26AE E5 15
-		jsr pow36Q		;26B0 20 D2 26
+		jsr cart_pow36Q		;26B0 20 D2 26
 		sta ZP_14		;26B3 85 14
 		ldx #$02		;26B5 A2 02
 		stx ZP_15		;26B7 86 15

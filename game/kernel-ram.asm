@@ -2282,7 +2282,7 @@
 		sta RAM_SELECT		;98F7 85 01
 		cli				;98F9 58
 		lda #$01		;98FA A9 01
-		jsr sysctl		;98FC 20 25 87
+		jsr cart_sysctl		;98FC 20 25 87
 		lda #$06		;98FF A9 06
 		sta VIC_EXTCOL		;9901 8D 20 D0
 		lda #$5F		;9904 A9 5F
