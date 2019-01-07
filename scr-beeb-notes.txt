@@ -251,3 +251,13 @@ Track data resides in Cart RAM and is accessed by Kernel fns
 Need to move all non-local data from Cart RAM to Hazel including track data
 Need to move all fns from Hazel to Cart RAM
 Also need DLL interface for fns in Cart RAM in case they are called from Kernel...
+
+2019
+~~~
+To do:
+- Get main menu working (number keypress test?)
+- Find all screen data to remove garbage
+- Remove double-buffer flicker (copy screen data to correct buffer)
+- Add vsync somewhere?!
+- Remove all writes to VIC registers etc.
+- Locate rendering glitch on right-side of screen

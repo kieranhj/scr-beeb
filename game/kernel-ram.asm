@@ -5759,7 +5759,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		bne L_EF03		;EED2 D0 2F
 		ldy ZP_31		;EED4 A4 31
 		iny				;EED6 C8
-.L_EED7	ldx L_F80C,Y	;EED7 BE 0C F8
+.L_EED7	ldx menu_keys,Y	;EED7 BE 0C F8
 		jsr poll_key_with_sysctl		;EEDA 20 C9 C7
 		bne L_EEE4		;EEDD D0 05
 		sty ZP_0C		;EEDF 84 0C

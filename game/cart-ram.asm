@@ -3617,7 +3617,12 @@ L_14B6 = L_14B8-2
 
 \\ According to https://www.c64-wiki.com/wiki/Stunt_Car_Racer changing this number to $06 will increase the draw distance...
 
-.L_173D	lda #$02		;173D A9 02
+.L_173D
+IF _EXTEND_TRACK_DRAW_DISTANCE
+		lda #$06		;173D A9 02
+ELSE
+		lda #$02		;173D A9 02
+ENDIF
 .L_173F	ldy ZP_2F		;173F A4 2F
 		beq L_1745		;1741 F0 02
 		lda #$05		;1743 A9 05
