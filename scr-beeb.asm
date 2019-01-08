@@ -19,7 +19,6 @@ _DEBUG = TRUE
 _EXTEND_TRACK_DRAW_DISTANCE = TRUE
 
 BEEB_SCREEN_MODE = 4
-BEEB_SCREEN_ADDR = $4000
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
 
@@ -80,14 +79,21 @@ L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
 L_D401 = $D401 + BEEB_HAZEL_OFFSET
 L_D440 = $D440 + BEEB_HAZEL_OFFSET
 
-L_D805 = $D805 + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DAB6 = $DAB6 + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DAAC = $DAAC + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DACB = $DACB + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DBDA = $DBDA + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DBDB = $DBDB + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DBCC = $DBCC + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DBCD = $DBCD + BEEB_HAZEL_OFFSET		; COLOR RAM
+L_D805 = $D805 + BEEB_HAZEL_OFFSET
+L_DAB6 = $DAB6 + BEEB_HAZEL_OFFSET
+L_DAAC = $DAAC + BEEB_HAZEL_OFFSET
+L_DACB = $DACB + BEEB_HAZEL_OFFSET
+L_DAD4 = $DAD4 + BEEB_HAZEL_OFFSET
+L_DAFC = $DAFC + BEEB_HAZEL_OFFSET
+L_DAF3 = $DAF3 + BEEB_HAZEL_OFFSET
+
+L_DB1B = $DB1B + BEEB_HAZEL_OFFSET
+L_DB54 = $DB54 + BEEB_HAZEL_OFFSET
+L_DB58 = $DB58 + BEEB_HAZEL_OFFSET
+L_DBDA = $DBDA + BEEB_HAZEL_OFFSET
+L_DBDB = $DBDB + BEEB_HAZEL_OFFSET
+L_DBCC = $DBCC + BEEB_HAZEL_OFFSET
+L_DBCD = $DBCD + BEEB_HAZEL_OFFSET
 
 ; Believe these are high score tables
 L_DE00 = $DE00 + BEEB_HAZEL_OFFSET
@@ -124,6 +130,7 @@ KERNEL_GETIN	= $FFE4	; Get One Byte from the Input Device
 
 BEEB_VIC_BASE = $300	; $D000
 BEEB_SID_BASE = $330	; $D400
+BEEB_COLOR_BASE = $D800	
 BEEB_CIA1_BASE = $350	; $DC00
 BEEB_CIA2_BASE = $360	; $DD00
 
@@ -775,21 +782,34 @@ GUARD &8000
 	LDA #BEEB_SCREEN_MODE
 	JSR oswrch
 
+	LDA #10: STA &FE00		; turn off cursor
+	LDA #32: STA &FE01
+
+	; BEEB SET SCREEN TO 8K
+
+	LDA #6:STA &FE00		; R6 = vertical displayed
+	LDA #25:STA &FE01		; 25 rows = 200 scanlines
+
+	LDA #12:STA &FE00
+	LDA #HI(screen1_address/8):STA &FE01
+
+	LDA #13:STA &FE00
+	LDA #LO(screen1_address/8):STA &FE01
+
 	\\ Clear lower RAM
 
+	{
 		ldx #0
 		lda #0
 		.clear_loop
 		sta &300, X
-		sta &400, X
-		sta &500, X
-		sta &600, X
-		sta &700, X
-		sta &800, X
-		sta &900, X
-		sta &A00, X
 		inx
 		bne clear_loop
+		inc clear_loop+2
+		ldy clear_loop+2
+		cpy #&0D
+		bcc clear_loop
+	}
 
 \ Ensure HAZEL RAM is writeable - assume this says writable throughout?
 
@@ -816,35 +836,6 @@ GUARD &8000
 	LDA #HI(kernel_start)
 	JSR disksys_load_file
 
-	\\ SCR loader copies data from screen RAM to Hazel
-	\\ Manually moved much of this data to Hazel Module
-
-\		ldx #$7F		;40A5 A2 7F
-\.L_40A7	lda L_5780,X	;40A7 BD 80 57
-\		sta L_C280,X	;40AA 9D 80 C2
-\		dex				;40AD CA
-\		bpl L_40A7		;40AE 10 F7         ; copy $80 bytes from $5780 to $C280
-
-\		ldx #$00		;414B A2 00
-\.L_414D	lda L_72E0,X	;414D BD E0 72
-\.L_4150	sta L_C000,X	;4150 9D 00 C0
-\		lda L_7420,X	;4153 BD 20 74
-\		sta L_C100,X	;4156 9D 00 C1
-\		dex				;4159 CA
-\		bne L_414D		;415A D0 F1     ; copy 2x pages from $72E0 to $C000
-
-\		ldx #$17		;415C A2 17
-\.L_415E	lda L_75A0,X	;415E BD A0 75
-\		sta L_C200,X	;4161 9D 00 C2
-\		lda L_7608,X	;4164 BD 08 76
-\		sta L_C218,X	;4167 9D 18 C2
-\		lda L_7560,X	;416A BD 60 75
-\		sta L_C230,X	;416D 9D 30 C2
-\		lda L_7648,X	;4170 BD 48 76
-\		sta L_C248,X	;4173 9D 48 C2
-\		dex				;4176 CA
-\		bpl L_415E		;4177 10 E5     ; copy $18*4 = 96 bytes from $75XX to C2XX
-
 	\\ HAZEL must be last as stomping on FS workspace
 
 	LDX #LO(hazel_filename)
@@ -852,21 +843,201 @@ GUARD &8000
 	LDA #HI(disksys_loadto_addr)
 	JSR disksys_load_direct
 
-	; MISCELLANEOUS DATA
+	\\ Load boot data to screen
 
 	LDX #LO(data_filename)
 	LDY #HI(data_filename)
 	LDA #HI(boot_data_start)
 	JSR disksys_load_file
 
+	\\ Clear Hazel RAM
+
+	{
+		ldx #0
+		lda #0
+		.clear_loop
+		sta &C000, X
+		inx
+		bne clear_loop
+		inc clear_loop+2
+		ldy clear_loop+2
+		cpy #&D0
+		bcc clear_loop
+	}
+
 	\\ Now copy data from screen1 up to Hazel
 
 	LDA #HI(disksys_loadto_addr)
 	LDX #HI(hazel_start)
-	LDY #HI(hazel_end - hazel_start)
+	LDY #HI(hazel_end - hazel_start + &FF)
 	JSR disksys_copy_block
 
 	\\ FS is now unusable as HAZEL has been trashed
+
+	; C64 init at L_400F
+	; Set up VIC etc.
+	; Set up COLOR RAM
+
+		ldx #$7F		;40A5 A2 7F
+.L_40A7	lda L_5780,X	;40A7 BD 80 57
+		sta L_C280,X	;40AA 9D 80 C2
+		dex				;40AD CA
+		bpl L_40A7		;40AE 10 F7         ; copy $80 bytes from $5780 to $C280
+
+		ldx #$0B		;40B0 A2 0B
+.L_40B2	lda L_DAB6,X	;40B2 BD B6 DA
+		sta L_C6C0,X	;40B5 9D C0 C6
+		dex				;40B8 CA
+		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
+
+; Blats $1F to a load of locations around $5CXX - screen RAM?
+
+		ldx #$1F		;40BB A2 1F
+		ldy #$00		;40BD A0 00
+.L_40BF	lda #$0F		;40BF A9 0F
+		sta ZP_08		;40C1 85 08
+		lda #$5C		;40C3 A9 5C		; HI(L_5C00)
+		sta ZP_1F		;40C5 85 1F
+		txa				;40C7 8A
+		clc				;40C8 18
+		adc #$54		;40C9 69 54
+		sta ZP_1E		;40CB 85 1E
+.L_40CD	lda ZP_08		;40CD A5 08
+		cmp L_40EF,X	;40CF DD EF 40
+		bcc L_40E9		;40D2 90 15
+		lda #$1E		;40D4 A9 1E
+		sta (ZP_1E),Y	;40D6 91 1E
+		lda ZP_1E		;40D8 A5 1E
+		clc				;40DA 18
+		adc #$28		;40DB 69 28
+		sta ZP_1E		;40DD 85 1E
+		lda ZP_1F		;40DF A5 1F
+		adc #$00		;40E1 69 00
+		sta ZP_1F		;40E3 85 1F
+		dec ZP_08		;40E5 C6 08
+		bpl L_40CD		;40E7 10 E4
+.L_40E9	dex				;40E9 CA
+		bpl L_40BF		;40EA 10 D3
+
+; More setup weirdness for COLOR RAM
+
+.L_411F	ldx #$0F		;411F A2 0F
+.L_4121	lda #$08		;4121 A9 08
+		sta L_DB54,X	;4123 9D 54 DB
+		dex				;4126 CA
+		bpl L_4121		;4127 10 F8     ; write 16 bytes COLOR RAM
+		
+        lda #$21		;4129 A9 21
+		sta L_5EAC		;412B 8D AC 5E
+		sta L_5ED4		;412E 8D D4 5E
+		sta L_5EFC		;4131 8D FC 5E
+		sta L_5ECB		;4134 8D CB 5E
+		sta L_5EF3		;4137 8D F3 5E
+		sta L_5F1B		;413A 8D 1B 5F  ; setup screen RAM?
+
+		lda #$0C		;413D A9 0C
+		sta L_DAD4		;413F 8D D4 DA
+		sta L_DAFC		;4142 8D FC DA
+		sta L_DAF3		;4145 8D F3 DA
+		sta L_DB1B		;4148 8D 1B DB  ; COLOR RAM
+
+		ldx #$00		;414B A2 00
+.L_414D	lda L_72E0,X	;414D BD E0 72
+.L_4150	sta L_C000,X	;4150 9D 00 C0
+		lda L_7420,X	;4153 BD 20 74
+		sta L_C100,X	;4156 9D 00 C1
+		dex				;4159 CA
+		bne L_414D		;415A D0 F1     ; copy 2x pages from $72E0 to $C000
+
+		ldx #$17		;415C A2 17
+.L_415E	lda L_75A0,X	;415E BD A0 75
+		sta L_C200,X	;4161 9D 00 C2
+		lda L_7608,X	;4164 BD 08 76
+		sta L_C218,X	;4167 9D 18 C2
+		lda L_7560,X	;416A BD 60 75
+		sta L_C230,X	;416D 9D 30 C2
+		lda L_7648,X	;4170 BD 48 76
+		sta L_C248,X	;4173 9D 48 C2
+		dex				;4176 CA
+		bpl L_415E		;4177 10 E5     ; copy $18*4 = 96 bytes from $75XX to C2XX
+
+		ldx #$00		;4179 A2 00
+.L_417B	lda L_63E0,X	;417B BD E0 63
+		sta L_5800,X	;417E 9D 00 58
+		lda L_6520,X	;4181 BD 20 65
+		sta L_5900,X	;4184 9D 00 59
+		dex				;4187 CA
+		bne L_417B		;4188 D0 F1     ; copy 2x pages from $63E0 to $5800
+
+		ldx #$3F		;418A A2 3F
+.L_418C	lda L_66E0,X	;418C BD E0 66
+		sta L_5A00,X	;418F 9D 00 5A
+		lda L_6920,X	;4192 BD 20 69
+		sta L_5A40,X	;4195 9D 40 5A
+		lda L_6B60,X	;4198 BD 60 6B
+		sta L_7F40,X	;419B 9D 40 7F
+		lda L_6BA0,X	;419E BD A0 6B
+		sta L_57C0,X	;41A1 9D C0 57
+		dex				;41A4 CA
+		bpl L_418C		;41A5 10 E5     ; copy $40*4 = 256 bytes from $6XX0 to $5XX0
+
+		ldx #$7F		;41A7 A2 7F
+.L_41A9	lda L_6D20,X	;41A9 BD 20 6D
+		sta L_5A80,X	;41AC 9D 80 5A
+		lda L_6A20,X	;41AF BD 20 6A
+		sta L_5B00,X	;41B2 9D 00 5B
+		lda L_6DE0,X	;41B5 BD E0 6D
+		sta L_5B80,X	;41B8 9D 80 5B
+		dex				;41BB CA
+		bpl L_41A9		;41BC 10 EB     ; copy $80*3 = 384 bytes from $6DX0 to $5XX0
+
+		lda #$00		;41BE A9 00
+		ldx #$03		;41C0 A2 03
+.L_41C2	sta L_5C26,X	;41C2 9D 26 5C
+		sta L_5C4E,X	;41C5 9D 4E 5C
+		sta L_5C76,X	;41C8 9D 76 5C
+		sta L_5C9E,X	;41CB 9D 9E 5C
+		sta L_5CC6,X	;41CE 9D C6 5C
+		sta L_5CEE,X	;41D1 9D EE 5C
+		sta L_5D16,X	;41D4 9D 16 5D
+		sta L_5D3E,X	;41D7 9D 3E 5D
+		dex				;41DA CA
+		bpl L_41C2		;41DB 10 E5     ; wipe 4*8 = 32 bytes in $5XXX
+
+	; C64 page in RAM over IO space at $D000
+	; C64 copy 14x pages to $D000 through $DD00
+
+.L_41E0	ldx #$00		;41E0 A2 00
+.L_41E2	lda L_7C00,X	;41E2 BD 00 7C
+		sta L_D000,X	;41E5 9D 00 D0
+		lda L_7D00,X	;41E8 BD 00 7D
+		sta L_D100,X	;41EB 9D 00 D1
+		lda L_7E00,X	;41EE BD 00 7E
+		sta L_D200,X	;41F1 9D 00 D2
+		lda L_7F00,X	;41F4 BD 00 7F
+		sta L_D300,X	;41F7 9D 00 D3
+		lda L_4F00,X	;41FA BD 00 4F
+		sta L_D400,X	;41FD 9D 00 D4
+		lda L_5000,X	;4200 BD 00 50
+		sta L_D500,X	;4203 9D 00 D5
+		lda L_5100,X	;4206 BD 00 51
+		sta L_D600,X	;4209 9D 00 D6
+		lda L_5200,X	;420C BD 00 52
+		sta L_D700,X	;420F 9D 00 D7
+		lda L_5300,X	;4212 BD 00 53
+		sta L_D800,X	;4215 9D 00 D8
+		lda L_5400,X	;4218 BD 00 54
+		sta L_D900,X	;421B 9D 00 D9
+		lda L_5500,X	;421E BD 00 55
+		sta L_DA00,X	;4221 9D 00 DA
+		lda L_5600,X	;4224 BD 00 56
+		sta L_DB00,X	;4227 9D 00 DB
+		lda L_AE00,X	;422A BD 00 AE
+		sta L_DC00,X	;422D 9D 00 DC
+		lda L_7B00,X	;4230 BD 00 7B
+		sta L_DD00,X	;4233 9D 00 DD
+		dex				;4236 CA
+		bne L_41E2		;4237 D0 A9     ; copy 14x pages to $D000
 
 	\\ Copy blank entries for high score tables
 
@@ -882,36 +1053,21 @@ GUARD &8000
 .L_424B	dex				;424B CA
 		bne L_423D		;424C D0 EF
 
-	\\ Not sure what this is doing! Copying from C64 COLOR RAM
-	\\ $D800-$DBFF Color RAM
-
-		ldx #$0B		;40B0 A2 0B
-.L_40B2	lda L_DAB6,X	;40B2 BD B6 DA		; 
-		sta L_C6C0,X	;40B5 9D C0 C6
-		dex				;40B8 CA
-		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
-
 	\\ Final copy stage uses fn in SWRAM so has to be after module load
 
 		ldx #$00		;4253 A2 00
 		lda #$34		;4255 A9 34
 		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
-	; BEEB SET SCREEN TO 8K
-
-	LDA #6:STA &FE00		; R6 = vertical displayed
-	LDA #25:STA &FE01		; 25 rows = 200 scanlines
-
-	LDA #12:STA &FE00
-	LDA #HI(BEEB_SCREEN_ADDR/8):STA &FE01
-
-	LDA #13:STA &FE00
-	LDA #LO(BEEB_SCREEN_ADDR/8):STA &FE01
-
 		jmp game_start		;425A 4C 22 3B
 
         ; ^^^ JUMP TO GAME START
 
+.L_40EF	EQUB $00,$00,$00,$01,$01,$01,$02,$02,$00,$00,$01,$01,$01,$02,$02,$01,$01
+    	EQUB $02,$02,$01,$01,$01,$00,$00,$02,$02,$01,$01,$01
+    	EQUB $00
+    	EQUB $00
+    	EQUB $00
 .L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
 }
 
@@ -999,43 +1155,7 @@ L_4CA0	= screen1_address+$0ca0
 L_4DE0	= screen1_address+$0de0
 L_4F20	= screen1_address+$0f20
 
-L_5060	= screen1_address+$1060
-L_51A0 	= screen1_address+$11a0
-L_52E0 	= screen1_address+$12e0
-L_5420 	= screen1_address+$1420
-L_5560 	= screen1_address+$1560
-L_5578 	= screen1_address+$1578
-L_55A0 	= screen1_address+$15a0
-L_5608	= screen1_address+$1608
-L_5640	= screen1_address+$1640
-L_5648	= screen1_address+$1648
-L_5658	= screen1_address+$1658
-L_5690	= screen1_address+$1690
-L_56A0	= screen1_address+$16a0
-L_5720	= screen1_address+$1720
-
-\\ Data at L_5780 manually moved to destination at L_C280
-
-L_5798	= screen1_address+$1798
-L_57C0	= screen1_address+$17c0
-L_57C8	= screen1_address+$17c8
-L_57D0	= screen1_address+$17d0
-L_5860	= screen1_address+$1860
-L_58F0	= screen1_address+$18f0
-L_5900	= screen1_address+$1900
-L_5C00	= screen1_address+$1c00
-L_5D00	= screen1_address+$1d00
-L_5E00	= screen1_address+$1e00
-L_5F00	= screen1_address+$1f00
-
-; sprite pointers?
-L_5FF8	= screen1_address+$1ff8
-L_5FF9	= screen1_address+$1ff9
-L_5FFA	= screen1_address+$1ffa
-L_5FFB	= screen1_address+$1ffb
-L_5FFC	= screen1_address+$1ffc
-L_5FFD	= screen1_address+$1ffd
-L_5FFF	= screen1_address+$1fff
+L_5740	= screen1_address+$1740
 
 ;L_6026	= screen2_address+$0026
 ;L_6027	= screen2_address+$0027
@@ -1065,6 +1185,9 @@ L_5FFF	= screen1_address+$1fff
 ;L_71A0	= screen2_address+$11a0
 ;L_7658  = screen2_address+$1658
 ;L_76A0	= screen2_address+$16a0 ; the bottom of the left wheel ($7680 is beginning C64 row)
+
+L_7740	= screen2_address+$1740
+
 ;L_7798	= screen2_address+$1798 ; the bottom of the right wheel
 ;L_77E0	= screen2_address+$17e0 ; bottom of the left wheel ($77c0 is beginning C64 row)
 ;L_78D8	= screen2_address+$18d8 ; the bottom of the right wheel
@@ -1087,7 +1210,7 @@ L_5FFF	= screen1_address+$1fff
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
-ORG &6000
+ORG &4F00
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 
@@ -1157,7 +1280,7 @@ PRINT "--------"
 
 CLEAR &C000, &E000
 ORG &C000
-;GUARD &E000
+GUARD &E000
 
 INCLUDE "game/hazel-ram.asm"
 

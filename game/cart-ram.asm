@@ -95,12 +95,12 @@
 {
 		cmp #$02		;8428 C9 02
 		bcc L_8453		;842A 90 27
-		lda #$40		;842C A9 40
+		lda #LO(L_5740)		;842C A9 40
 		sta ZP_F4		;842E 85 F4
 		sta ZP_F6		;8430 85 F6
-		lda #$77		;8432 A9 77
+		lda #HI(L_7740)		;8432 A9 77
 		sta ZP_F5		;8434 85 F5
-		lda #$57		;8436 A9 57
+		lda #HI(L_5740)		;8436 A9 57
 		sta ZP_F7		;8438 85 F7
 		ldy #$7F		;843A A0 7F
 .L_843C	lda (ZP_F4),Y	;843C B1 F4
@@ -113,7 +113,7 @@
 		dec ZP_F7		;8448 C6 F7
 		dec ZP_F5		;844A C6 F5
 		lda ZP_F7		;844C A5 F7
-		cmp #$41		;844E C9 41
+		cmp #HI(L_4100)		;844E C9 41
 		bcs L_843C		;8450 B0 EA
 		rts				;8452 60
 .L_8453	lda #$14		;8453 A9 14
@@ -784,25 +784,25 @@ ENDIF
 .L_88AC	ldx #$00		;88AC A2 00
 		bit ZP_16		;88AE 24 16
 		bmi L_88CE		;88B0 30 1C
-.L_88B2	lda L_D800,X	;88B2 BD 00 D8		; COLOR RAM
+.L_88B2	lda L_D800,X	;88B2 BD 00 D8
 		sta L_6DE0,X	;88B5 9D E0 6D
-		lda L_D900,X	;88B8 BD 00 D9		; COLOR RAM
+		lda L_D900,X	;88B8 BD 00 D9
 		sta L_6F20,X	;88BB 9D 20 6F
-		lda L_DA00,X	;88BE BD 00 DA		; COLOR RAM
+		lda L_DA00,X	;88BE BD 00 DA
 		sta L_7060,X	;88C1 9D 60 70
-		lda L_DB00,X	;88C4 BD 00 DB		; COLOR RAM
+		lda L_DB00,X	;88C4 BD 00 DB
 		sta L_71A0,X	;88C7 9D A0 71
 		dex				;88CA CA
 		bne L_88B2		;88CB D0 E5
 		rts				;88CD 60
 .L_88CE	lda L_6DE0,X	;88CE BD E0 6D
-		sta L_D800,X	;88D1 9D 00 D8		; COLOR RAM
+		sta L_D800,X	;88D1 9D 00 D8
 		lda L_6F20,X	;88D4 BD 20 6F
-		sta L_D900,X	;88D7 9D 00 D9		; COLOR RAM
+		sta L_D900,X	;88D7 9D 00 D9
 		lda L_7060,X	;88DA BD 60 70
-		sta L_DA00,X	;88DD 9D 00 DA		; COLOR RAM
+		sta L_DA00,X	;88DD 9D 00 DA
 		lda L_71A0,X	;88E0 BD A0 71
-		sta L_DB00,X	;88E3 9D 00 DB		; COLOR RAM
+		sta L_DB00,X	;88E3 9D 00 DB
 		dex				;88E6 CA
 		bne L_88CE		;88E7 D0 E5
 		lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00

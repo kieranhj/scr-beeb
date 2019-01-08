@@ -7,8 +7,6 @@
 ; $CF00 = Raster interrupts
 ; *****************************************************************************
 
-.hazel_start
-
 ; Engine screen data (copied at boot time from elsewhere)
 
 .L_C000
@@ -292,6 +290,8 @@
 
 PAGE_ALIGN
 
+.hazel_start
+
 .L_8000	skip $C0
 L_801B	= L_8000 + $1B
 L_8020	= L_8000 + $20
@@ -497,6 +497,8 @@ L_A36F	= L_A200 + $16F
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
+
+.hazel_end
 
 ORG &D000
 .L_D000
@@ -802,5 +804,3 @@ ORG &D000
 		EQUB $00,$00,$50,$54,$54,$54,$54,$54,$56,$16,$16,$16,$16,$16,$16,$16
 		EQUB $00,$00,$00,$01,$01,$01,$00,$01,$40,$40,$00,$50,$00,$50,$10,$50
 		EQUB $00,$00,$00,$00,$00,$00,$00,$00,$10,$10,$00,$54,$44,$54,$44,$54
-
-.hazel_end
