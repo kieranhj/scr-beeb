@@ -33,7 +33,7 @@
 	 	jsr $FF90
 ;L_0803
 		lda #$15		;0803 A9 15
-		sta VIC_VMCSB		;0805 8D 18 D0			; VIC
+		sta VIC_VMCSB		;0805 8D 18 D0			; VIC - not bitmap mode?
 		lda #$80		;0808 A9 80
 		sta L_0291		;080A 8D 91 02
 		lda #$00		;080D A9 00
@@ -1697,13 +1697,13 @@
 		cpx #$FA		;2B23 E0 FA
 		bne L_2B16		;2B25 D0 EF
 
-		lda #$00		;2B27 A9 00
+		lda #C64_VIC_IRQ_DISABLE		;2B27 A9 00
 		sta VIC_IRQMASK		;2B29 8D 1A D0		; VIC
 
 		sei				;2B2C 78
 		lda L_A000		;2B2D AD 00 A0
 		pha				;2B30 48
-		lda #$36		;2B31 A9 36
+		lda #C64_LORAM_KERNAL_IO		;2B31 A9 36
 		sta RAM_SELECT		;2B33 85 01
 		jsr L_FF84		;2B35 20 84 FF
 		jsr L_FF87		;2B38 20 87 FF
@@ -1719,7 +1719,7 @@
 		sta VIC_BGCOL0		;2B4E 8D 21 D0		; VIC
 
 		jsr L_0800_with_VIC		;2B51 20 00 08
-		lda #$36		;2B54 A9 36
+		lda #C64_LORAM_KERNAL_IO		;2B54 A9 36
 		sta RAM_SELECT		;2B56 85 01
 		cli				;2B58 58
 ;L_2B59
@@ -1790,7 +1790,7 @@
 		sta L_A000		;2BE4 8D 00 A0
 		ldy #$4B		;2BE7 A0 4B
 		jsr delay_approx_Y_25ths_sec		;2BE9 20 EB 3F
-		lda #$35		;2BEC A9 35
+		lda #C64_BASIC_HIRAM_IO		;2BEC A9 35
 		sta RAM_SELECT		;2BEE 85 01
 		bit L_C301		;2BF0 2C 01 C3
 		bpl L_2BFC		;2BF3 10 07
@@ -1806,7 +1806,7 @@
 		sta VIC_SCROLY		;2C0A 8D 11 D0		; VIC
 		jsr set_up_single_page_display		;2C0D 20 8B 3F
 		cli				;2C10 58
-		lda #$01		;2C11 A9 01
+		lda #C64_VIC_IRQ_RASTERCMP		;2C11 A9 01
 		sta VIC_IRQMASK		;2C13 8D 1A D0		; VIC
 		lda #$00		;2C16 A9 00
 		jsr cart_L_93A8		;2C18 20 A8 93
@@ -2120,14 +2120,14 @@
 		jmp L_3F8F		;3F88 4C 8F 3F
 
 .set_up_single_page_display
-		ldy #$70		;3F8B A0 70
+		ldy #C64_VIC_BITMAP_SCREEN1		;3F8B A0 70
 		ldx #$80		;3F8D A2 80
 .L_3F8F	sty ZP_14		;3F8F 84 14
 		php				;3F91 08
 		sei				;3F92 78
 		sty VIC_VMCSB		;3F93 8C 18 D0
-		stx L_C35F		;3F96 8E 5F C3
-		stx L_C370		;3F99 8E 70 C3
+		stx screen_buffer_current		;3F96 8E 5F C3
+		stx screen_buffer_next_vsync		;3F99 8E 70 C3
 		plp				;3F9C 28
 		rts				;3F9D 60
 
@@ -2278,7 +2278,7 @@
 		dey				;98F1 88
 		dex				;98F2 CA
 		bpl L_98E5		;98F3 10 F0
-		lda #$35		;98F5 A9 35
+		lda #C64_BASIC_HIRAM_IO		;98F5 A9 35
 		sta RAM_SELECT		;98F7 85 01
 		cli				;98F9 58
 		lda #$01		;98FA A9 01
@@ -3631,6 +3631,11 @@ L_99F0	= L_99EF + 1
 		sta VIC_BGCOL0		;CD9A 8D 21 D0
 		lda #$CE		;CD9D A9 CE
 .L_CD9F	jmp L_CF49		;CD9F 4C 49 CF
+
+; *****************************************************************************
+; C64 Interrupt Handler
+; *****************************************************************************
+
 .L_CDA2	lda CIA1_CIAICR		;CDA2 AD 0D DC
 		lda CIA2_C2DDRA		;CDA5 AD 0D DD
 .L_CDA8	pla				;CDA8 68
@@ -3641,25 +3646,32 @@ L_99F0	= L_99EF + 1
 		pha				;CDAB 48
 		lda VIC_VICIRQ		;CDAC AD 19 D0
 		bpl L_CDA2		;CDAF 10 F1
+
 		lda #$01		;CDB1 A9 01
 		sta VIC_VICIRQ		;CDB3 8D 19 D0
+
 		lda L_3DF8		;CDB6 AD F8 3D
 		beq L_CDA8		;CDB9 F0 ED
 		bpl L_CD5C		;CDBB 10 9F
+
 		lda VIC_RASTER		;CDBD AD 12 D0
 		bpl L_CDC5		;CDC0 10 03
 		jmp L_CEA1		;CDC2 4C A1 CE
+
 .L_CDC5	lda L_C37A		;CDC5 AD 7A C3
 		beq L_CDD0		;CDC8 F0 06
-		lda L_C35F		;CDCA AD 5F C3
+		lda screen_buffer_current		;CDCA AD 5F C3
 		jmp L_CDD6		;CDCD 4C D6 CD
-.L_CDD0	lda L_C370		;CDD0 AD 70 C3
-		sta L_C35F		;CDD3 8D 5F C3
+
+.L_CDD0	lda screen_buffer_next_vsync		;CDD0 AD 70 C3
+		sta screen_buffer_current		;CDD3 8D 5F C3
+
 .L_CDD6	bpl L_CDE0		;CDD6 10 08
-		lda #$70		;CDD8 A9 70
+		lda #C64_VIC_BITMAP_SCREEN1		;CDD8 A9 70		; BEEB SELECT SCREEN BUFFER
 		sta VIC_VMCSB		;CDDA 8D 18 D0
 		jmp L_CE1B		;CDDD 4C 1B CE
-.L_CDE0	lda #$78		;CDE0 A9 78
+
+.L_CDE0	lda #C64_VIC_BITMAP_SCREEN2		;CDE0 A9 78		; BEEB SELECT SCREEN BUFFER
 		sta VIC_VMCSB		;CDE2 8D 18 D0
 		lda L_C355		;CDE5 AD 55 C3
 		beq L_CE1B		;CDE8 F0 31
@@ -3682,6 +3694,7 @@ L_99F0	= L_99EF + 1
 		sta L_5FF9		;CE13 8D F9 5F
 		lda #$64		;CE16 A9 64
 		jmp L_CF49		;CE18 4C 49 CF
+
 .L_CE1B	lda #$BB		;CE1B A9 BB
 		sta VIC_SP2Y		;CE1D 8D 05 D0
 		sta VIC_SP3Y		;CE20 8D 07 D0
@@ -3719,7 +3732,7 @@ L_99F0	= L_99EF + 1
 		sta VIC_SP0Y		;CE6F 8D 01 D0
 		lda L_CF5C,X	;CE72 BD 5C CF
 		sta VIC_SP1Y		;CE75 8D 03 D0
-		bit L_C35F		;CE78 2C 5F C3
+		bit screen_buffer_current		;CE78 2C 5F C3
 		bpl L_CE81		;CE7B 10 04
 		inx				;CE7D E8
 		inx				;CE7E E8
@@ -3740,7 +3753,7 @@ L_99F0	= L_99EF + 1
 		jmp L_CF49		;CE9E 4C 49 CF
 .L_CEA1	cmp #$D7		;CEA1 C9 D7
 		bcs L_CEB5		;CEA3 B0 10
-		lda #$78		;CEA5 A9 78
+		lda #C64_VIC_BITMAP_SCREEN2		;CEA5 A9 78		; BEEB SELECT SCREEN BUFFER
 		sta VIC_VMCSB		;CEA7 8D 18 D0
 		lda L_C37A		;CEAA AD 7A C3
 		sta L_C37B		;CEAD 8D 7B C3

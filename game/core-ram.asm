@@ -596,10 +596,10 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 .disable_ints_and_page_in_RAM	RTS
 IF _NOT_BEEB
 {
-		lda #$00		;33F1 A9 00
+		lda #C64_VIC_IRQ_DISABLE		;33F1 A9 00
 		sta VIC_IRQMASK		;33F3 8D 1A D0
 		sei				;33F6 78
-		lda #$34		;33F7 A9 34
+		lda #C64_LORAM_HIRAM_IO		;33F7 A9 34
 		sta RAM_SELECT		;33F9 85 01
 		rts				;33FB 60
 }
@@ -608,10 +608,10 @@ ENDIF
 .page_in_IO_and_enable_ints		RTS
 IF _NOT_BEEB
 {
-		lda #$35		;33FC A9 35
+		lda #C64_BASIC_HIRAM_IO		;33FC A9 35
 		sta RAM_SELECT		;33FE 85 01
 		cli				;3400 58
-		lda #$01		;3401 A9 01
+		lda #C64_VIC_IRQ_RASTERCMP		;3401 A9 01
 		sta VIC_IRQMASK		;3403 8D 1A D0
 		rts				;3406 60
 }
@@ -1498,7 +1498,7 @@ ENDIF
 		lda #$20		;3F4D A9 20
 		sta ZP_12		;3F4F 85 12
 		lda #$80		;3F51 A9 80
-		sta L_C370		;3F53 8D 70 C3
+		sta screen_buffer_next_vsync		;3F53 8D 70 C3
 
 		LDA #HI(screen1_address / 8)
 
@@ -1507,7 +1507,7 @@ ENDIF
 		clc				;3F5B 18
 		adc L_A1F2		;3F5C 6D F2 A1
 		sta ZP_12		;3F5F 85 12
-		sta L_C370		;3F61 8D 70 C3
+		sta screen_buffer_next_vsync		;3F61 8D 70 C3
 
 		LDA #HI(screen2_address / 8)
 
@@ -1539,7 +1539,7 @@ IF _NOT_BEEB
 		sta VIC_SCROLY		;3FAC 8D 11 D0
 		lda #$32		;3FAF A9 32
 		sta VIC_RASTER		;3FB1 8D 12 D0
-.L_3FB4	lda #$01		;3FB4 A9 01
+.L_3FB4	lda #C64_VIC_IRQ_RASTERCMP		;3FB4 A9 01
 		sta VIC_IRQMASK		;3FB6 8D 1A D0
 ENDIF
 		rts				;3FB9 60

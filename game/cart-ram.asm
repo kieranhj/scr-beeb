@@ -458,8 +458,8 @@ ENDIF
 
 .sid_process				; only called from Kernel? Fandal says sound effects
 {
-		RTS:NOP
-;		stx ZP_F8		;8655 86 F8
+IF _NOT_BEEB
+		stx ZP_F8		;8655 86 F8
 		sty ZP_F9		;8657 84 F9
 		ldy #$00		;8659 A0 00
 		lda (ZP_F8),Y	;865B B1 F8
@@ -508,6 +508,7 @@ ENDIF
 		ldy #$06		;86BD A0 06
 		lda (ZP_F8),Y	;86BF B1 F8
 		sta L_86C8_sid,X	;86C1 9D C8 86
+ENDIF
 		rts				;86C4 60
 
 .L_86C5	equb $00
@@ -547,8 +548,8 @@ ENDIF
 		ldy L_86DC_sid,X	;8716 BC DC 86
 		lda #$00		;8719 A9 00
 		sta L_86C8_sid,X	;871B 9D C8 86
-;		sta SID_SUREL1,Y	;871E 99 06 D4	; SID
-;		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
+		sta SID_SUREL1,Y	;871E 99 06 D4	; SID
+		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
 }
 \\
 .L_8724	rts				;8724 60
@@ -657,10 +658,10 @@ ENDIF
 
 .sysctl_copy_menu_header_graphic		; in Cart
 {
-		lda #$00		;87C4 A9 00
+		lda #C64_VIC_IRQ_DISABLE		;87C4 A9 00
 		sta VIC_IRQMASK		;87C6 8D 1A D0
 		sei				;87C9 78
-		lda #$34		;87CA A9 34
+		lda #C64_LORAM_HIRAM_IO		;87CA A9 34
 		sta RAM_SELECT		;87CC 85 01
 		lda #LO(L_D440)		;87CE A9 40
 		sta ZP_1E		;87D0 85 1E
@@ -724,10 +725,10 @@ ENDIF
 		ldx #LO(L_4A00)		;8842 A2 00
 		lda #$00		;8844 A9 00
 		jsr fill_64s		;8846 20 21 89
-		lda #$35		;8849 A9 35
+		lda #C64_BASIC_HIRAM_IO		;8849 A9 35
 		sta RAM_SELECT		;884B 85 01
 		cli				;884D 58
-		lda #$01		;884E A9 01
+		lda #C64_VIC_IRQ_RASTERCMP		;884E A9 01
 		sta VIC_IRQMASK		;8850 8D 1A D0
 		ldx #$00		;8853 A2 00
 .L_8855	lda road_section_angle_and_piece,X	;8855 BD 00 04
@@ -804,13 +805,13 @@ ENDIF
 		sta L_DB00,X	;88E3 9D 00 DB		; COLOR RAM
 		dex				;88E6 CA
 		bne L_88CE		;88E7 D0 E5
-		lda #$00		;88E9 A9 00
+		lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00
 		sta VIC_IRQMASK		;88EB 8D 1A D0
 		sei				;88EE 78
-		lda #$34		;88EF A9 34
+		lda #C64_LORAM_HIRAM_IO		;88EF A9 34
 		sta RAM_SELECT		;88F1 85 01
 		ldx #$00		;88F3 A2 00
-.L_88F5	lda VIC_SP0X,X	;88F5 BD 00 D0
+.L_88F5	lda L_D000,X	;88F5 BD 00 D0
 		sta L_7C00,X	;88F8 9D 00 7C
 		lda L_D100,X	;88FB BD 00 D1
 		sta L_7D00,X	;88FE 9D 00 7D
@@ -818,14 +819,14 @@ ENDIF
 		sta L_7E00,X	;8904 9D 00 7E
 		lda L_D300,X	;8907 BD 00 D3
 		sta L_7F00,X	;890A 9D 00 7F
-		lda CIA2_CI2PRA,X	;890D BD 00 DD
+		lda L_DD00,X	;890D BD 00 DD
 		sta L_7B00,X	;8910 9D 00 7B
 		dex				;8913 CA
 		bne L_88F5		;8914 D0 DF
-		lda #$35		;8916 A9 35
+		lda #C64_BASIC_HIRAM_IO		;8916 A9 35
 		sta RAM_SELECT		;8918 85 01
 		cli				;891A 58
-		lda #$01		;891B A9 01
+		lda #C64_VIC_IRQ_RASTERCMP		;891B A9 01
 		sta VIC_IRQMASK		;891D 8D 1A D0
 		rts				;8920 60
 }

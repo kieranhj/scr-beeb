@@ -77,99 +77,10 @@ BEEB_HAZEL_OFFSET = $0
 
 L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
 
-L_D000 = $D000 + BEEB_HAZEL_OFFSET
-L_D001 = $D001 + BEEB_HAZEL_OFFSET
-L_D002 = $D002 + BEEB_HAZEL_OFFSET
-L_D003 = $D003 + BEEB_HAZEL_OFFSET
-L_D004 = $D004 + BEEB_HAZEL_OFFSET
-L_D005 = $D005 + BEEB_HAZEL_OFFSET
-L_D006 = $D006 + BEEB_HAZEL_OFFSET
-L_D007 = $D007 + BEEB_HAZEL_OFFSET
-L_D008 = $D000 + BEEB_HAZEL_OFFSET
-L_D009 = $D009 + BEEB_HAZEL_OFFSET
-L_D00A = $D00A + BEEB_HAZEL_OFFSET
-L_D00B = $D00B + BEEB_HAZEL_OFFSET
-L_D00C = $D00C + BEEB_HAZEL_OFFSET
-L_D00D = $D00D + BEEB_HAZEL_OFFSET
-L_D00E = $D00E + BEEB_HAZEL_OFFSET
-L_D00F = $D00F + BEEB_HAZEL_OFFSET
-L_D010 = $D010 + BEEB_HAZEL_OFFSET
-L_D011 = $D011 + BEEB_HAZEL_OFFSET
-L_D012 = $D012 + BEEB_HAZEL_OFFSET
-L_D013 = $D013 + BEEB_HAZEL_OFFSET
-L_D014 = $D014 + BEEB_HAZEL_OFFSET
-L_D015 = $D015 + BEEB_HAZEL_OFFSET
-L_D016 = $D016 + BEEB_HAZEL_OFFSET
-L_D017 = $D017 + BEEB_HAZEL_OFFSET
-L_D018 = $D018 + BEEB_HAZEL_OFFSET
-L_D019 = $D019 + BEEB_HAZEL_OFFSET
-L_D01A = $D01A + BEEB_HAZEL_OFFSET
-L_D01B = $D01B + BEEB_HAZEL_OFFSET
-L_D01C = $D01C + BEEB_HAZEL_OFFSET
-L_D01D = $D01D + BEEB_HAZEL_OFFSET
-L_D01E = $D01E + BEEB_HAZEL_OFFSET
-L_D01F = $D01F + BEEB_HAZEL_OFFSET
-L_D020 = $D020 + BEEB_HAZEL_OFFSET
-L_D021 = $D021 + BEEB_HAZEL_OFFSET
-L_D022 = $D022 + BEEB_HAZEL_OFFSET
-L_D023 = $D023 + BEEB_HAZEL_OFFSET
-L_D024 = $D024 + BEEB_HAZEL_OFFSET
-L_D025 = $D025 + BEEB_HAZEL_OFFSET
-L_D026 = $D026 + BEEB_HAZEL_OFFSET
-L_D027 = $D027 + BEEB_HAZEL_OFFSET
-L_D028 = $D028 + BEEB_HAZEL_OFFSET
-L_D029 = $D029 + BEEB_HAZEL_OFFSET
-L_D02A = $D02A + BEEB_HAZEL_OFFSET
-L_D02B = $D02B + BEEB_HAZEL_OFFSET
-L_D02C = $D02C + BEEB_HAZEL_OFFSET
-L_D02D = $D02D + BEEB_HAZEL_OFFSET
-L_D02E = $D02E + BEEB_HAZEL_OFFSET
-L_D02F = $D02F + BEEB_HAZEL_OFFSET
-
-L_D100 = $D100 + BEEB_HAZEL_OFFSET		; CHARACTER ROM?
-L_D200 = $D200 + BEEB_HAZEL_OFFSET		; CHARACTER ROM?
-L_D300 = $D300 + BEEB_HAZEL_OFFSET		; CHARACTER ROM?
-
-L_D400 = $D400 + BEEB_HAZEL_OFFSET
 L_D401 = $D401 + BEEB_HAZEL_OFFSET
-L_D402 = $D402 + BEEB_HAZEL_OFFSET
-L_D403 = $D403 + BEEB_HAZEL_OFFSET
-L_D404 = $D404 + BEEB_HAZEL_OFFSET
-L_D405 = $D405 + BEEB_HAZEL_OFFSET
-L_D406 = $D406 + BEEB_HAZEL_OFFSET
-L_D407 = $D407 + BEEB_HAZEL_OFFSET
-L_D408 = $D408 + BEEB_HAZEL_OFFSET
-L_D409 = $D409 + BEEB_HAZEL_OFFSET
-L_D40A = $D40A + BEEB_HAZEL_OFFSET
-L_D40B = $D40B + BEEB_HAZEL_OFFSET
-L_D40C = $D40C + BEEB_HAZEL_OFFSET
-L_D40D = $D40D + BEEB_HAZEL_OFFSET
-L_D40E = $D40E + BEEB_HAZEL_OFFSET
-L_D40F = $D40F + BEEB_HAZEL_OFFSET
-L_D410 = $D410 + BEEB_HAZEL_OFFSET
-L_D411 = $D411 + BEEB_HAZEL_OFFSET
-L_D412 = $D412 + BEEB_HAZEL_OFFSET
-L_D413 = $D413 + BEEB_HAZEL_OFFSET
-L_D414 = $D414 + BEEB_HAZEL_OFFSET
-L_D415 = $D415 + BEEB_HAZEL_OFFSET
-L_D416 = $D416 + BEEB_HAZEL_OFFSET
-L_D417 = $D417 + BEEB_HAZEL_OFFSET
-L_D418 = $D418 + BEEB_HAZEL_OFFSET
-L_D419 = $D419 + BEEB_HAZEL_OFFSET
-L_D41A = $D41A + BEEB_HAZEL_OFFSET
-L_D41B = $D41B + BEEB_HAZEL_OFFSET
-L_D41C = $D41C + BEEB_HAZEL_OFFSET
-L_D41D = $D41D + BEEB_HAZEL_OFFSET
-L_D41E = $D41E + BEEB_HAZEL_OFFSET
-L_D41F = $D41F + BEEB_HAZEL_OFFSET
-
 L_D440 = $D440 + BEEB_HAZEL_OFFSET
 
-L_D800 = $D800 + BEEB_HAZEL_OFFSET		; COLOR RAM
 L_D805 = $D805 + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_D900 = $D900 + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DA00 = $DA00 + BEEB_HAZEL_OFFSET		; COLOR RAM
-L_DB00 = $DB00 + BEEB_HAZEL_OFFSET		; COLOR RAM
 L_DAB6 = $DAB6 + BEEB_HAZEL_OFFSET		; COLOR RAM
 L_DAAC = $DAAC + BEEB_HAZEL_OFFSET		; COLOR RAM
 L_DACB = $DACB + BEEB_HAZEL_OFFSET		; COLOR RAM
@@ -178,42 +89,20 @@ L_DBDB = $DBDB + BEEB_HAZEL_OFFSET		; COLOR RAM
 L_DBCC = $DBCC + BEEB_HAZEL_OFFSET		; COLOR RAM
 L_DBCD = $DBCD + BEEB_HAZEL_OFFSET		; COLOR RAM
 
-L_DC00 = $DC00 + BEEB_HAZEL_OFFSET
-L_DC01 = $DC01 + BEEB_HAZEL_OFFSET
-L_DC02 = $DC02 + BEEB_HAZEL_OFFSET
-L_DC03 = $DC03 + BEEB_HAZEL_OFFSET
-L_DC04 = $DC04 + BEEB_HAZEL_OFFSET
-L_DC05 = $DC05 + BEEB_HAZEL_OFFSET
-L_DC06 = $DC06 + BEEB_HAZEL_OFFSET
-L_DC07 = $DC07 + BEEB_HAZEL_OFFSET
-L_DC08 = $DC08 + BEEB_HAZEL_OFFSET
-L_DC09 = $DC09 + BEEB_HAZEL_OFFSET
-L_DC0A = $DC0A + BEEB_HAZEL_OFFSET
-L_DC0B = $DC0B + BEEB_HAZEL_OFFSET
-L_DC0C = $DC0C + BEEB_HAZEL_OFFSET
-L_DC0D = $DC0D + BEEB_HAZEL_OFFSET
-L_DC0E = $DC0E + BEEB_HAZEL_OFFSET
-L_DC0F = $DC0F + BEEB_HAZEL_OFFSET
+; Believe these are high score tables
+L_DE00 = $DE00 + BEEB_HAZEL_OFFSET
+L_DE01 = $DE01 + BEEB_HAZEL_OFFSET
+L_DE02 = $DE02 + BEEB_HAZEL_OFFSET
+L_DE0C = $DE0C + BEEB_HAZEL_OFFSET
+L_DE0D = $DE0D + BEEB_HAZEL_OFFSET
+L_DE0E = $DE0E + BEEB_HAZEL_OFFSET
 
-L_DCE0 = $DCE0 + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-
-L_DD00 = $DD00 + BEEB_HAZEL_OFFSET
-L_DD02 = $DD02 + BEEB_HAZEL_OFFSET
-L_DD0D = $DD0D + BEEB_HAZEL_OFFSET
-
-L_DE00 = $DE00 + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DE01 = $DE01 + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DE02 = $DE02 + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DE0C = $DE0C + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DE0D = $DE0D + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DE0E = $DE0E + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DF00 = $DF00 + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DF01 = $DF01 + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DF02 = $DF02 + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DF0C = $DF0C + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DF0D = $DF0D + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-L_DF0E = $DF0E + BEEB_HAZEL_OFFSET		; SPARE RAM? CAN'T STAY HERE ON BEEB!
-
+L_DF00 = $DF00 + BEEB_HAZEL_OFFSET
+L_DF01 = $DF01 + BEEB_HAZEL_OFFSET
+L_DF02 = $DF02 + BEEB_HAZEL_OFFSET
+L_DF0C = $DF0C + BEEB_HAZEL_OFFSET
+L_DF0D = $DF0D + BEEB_HAZEL_OFFSET
+L_DF0E = $DF0E + BEEB_HAZEL_OFFSET
 
 ; *****************************************************************************
 ; C64 KERNEL DEFINES
@@ -233,102 +122,118 @@ KERNEL_LOAD		= $FFD5	; Load RAM from a device
 KERNEL_SAVE		= $FFD8	; Save RAM to a device
 KERNEL_GETIN	= $FFE4	; Get One Byte from the Input Device
 
-VIC_SP0X 	= L_D000	; Sprite 0 Horizontal Position
-VIC_SP0Y	= L_D001 	; Sprite 0 Vertical Position
-VIC_SP1X	= L_D002 	; Sprite 1 Horizontal Position
-VIC_SP1Y	= L_D003 	; Sprite 1 Vertical Position
-VIC_SP2X	= L_D004	; Sprite 2 Horizontal Position
-VIC_SP2Y	= L_D005	; Sprite 2 Vertical Position
-VIC_SP3X	= L_D006	; Sprite 3 Horizontal Position
-VIC_SP3Y	= L_D007	; Sprite 3 Vertical Position
-VIC_SP4X	= L_D008	; Sprite 4 Horizontal Position
-VIC_SP4Y	= L_D009	; Sprite 4 Vertical Position
-VIC_SP5X	= L_D00A	; Sprite 5 Horizontal Position
-VIC_SP5Y	= L_D00B	; Sprite 5 Vertical Position
-VIC_SP6X	= L_D00C	; Sprite 6 Horizontal Position
-VIC_SP6Y	= L_D00D	; Sprite 6 Vertical Position
-VIC_SP7X	= L_D00E	; Sprite 7 Horizontal Position
-VIC_SP7Y	= L_D00F	; Sprite 7 Vertical Position
-VIC_MSIGX	= L_D010 	; Most Significant Bits of Sprites 0-7 Horizontal Position
+BEEB_VIC_BASE = $300	; $D000
+BEEB_SID_BASE = $330	; $D400
+BEEB_CIA1_BASE = $350	; $DC00
+BEEB_CIA2_BASE = $360	; $DD00
 
-VIC_SCROLY	= L_D011	; Vertical Fine Scrolling and Control Register
-VIC_RASTER	= L_D012	; Read Current Raster Scan Line/Write Line to Compare for Raster IRQ
-VIC_SPENA	= L_D015	; Sprite Enable Register
-VIC_SCROLX	= L_D016	; Horizontal Fine Scrolling and Control Register
-VIC_YXPAND	= L_D017	; Sprite Vertical Expansion Register
-VIC_VMCSB	= L_D018	; VIC-II Chip Memory Control Register
-VIC_VICIRQ	= L_D019	; VIC Interrupt Flag Register
-VIC_IRQMASK	= L_D01A	; IRQ Mask Register
-VIC_SPBGPR	= L_D01B	; Sprite to Foreground Display Priority Register
-VIC_SPMC	= L_D01C	; Sprite Multicolor Registers
-VIC_XXPAND	= L_D01D	; Sprite Horizontal Expansion Register
-VIC_SPSPCL	= L_D01E	; Sprite to Sprite Collision Register
-VIC_SPBGCL	= L_D01F	; Sprite to Foreground Collision Register
+VIC_SP0X 	= BEEB_VIC_BASE + $00	; Sprite 0 Horizontal Position
+VIC_SP0Y	= BEEB_VIC_BASE + $01 	; Sprite 0 Vertical Position
+VIC_SP1X	= BEEB_VIC_BASE + $02 	; Sprite 1 Horizontal Position
+VIC_SP1Y	= BEEB_VIC_BASE + $03 	; Sprite 1 Vertical Position
+VIC_SP2X	= BEEB_VIC_BASE + $04	; Sprite 2 Horizontal Position
+VIC_SP2Y	= BEEB_VIC_BASE + $05	; Sprite 2 Vertical Position
+VIC_SP3X	= BEEB_VIC_BASE + $06	; Sprite 3 Horizontal Position
+VIC_SP3Y	= BEEB_VIC_BASE + $07	; Sprite 3 Vertical Position
+VIC_SP4X	= BEEB_VIC_BASE + $08	; Sprite 4 Horizontal Position
+VIC_SP4Y	= BEEB_VIC_BASE + $09	; Sprite 4 Vertical Position
+VIC_SP5X	= BEEB_VIC_BASE + $0A	; Sprite 5 Horizontal Position
+VIC_SP5Y	= BEEB_VIC_BASE + $0B	; Sprite 5 Vertical Position
+VIC_SP6X	= BEEB_VIC_BASE + $0C	; Sprite 6 Horizontal Position
+VIC_SP6Y	= BEEB_VIC_BASE + $0D	; Sprite 6 Vertical Position
+VIC_SP7X	= BEEB_VIC_BASE + $0E	; Sprite 7 Horizontal Position
+VIC_SP7Y	= BEEB_VIC_BASE + $0F	; Sprite 7 Vertical Position
+VIC_MSIGX	= BEEB_VIC_BASE + $10 	; Most Significant Bits of Sprites 0-7 Horizontal Position
 
-VIC_EXTCOL	= L_D020	; Border Color Register
-VIC_BGCOL0	= L_D021	; Background Color 0
-VIC_BGCOL1	= L_D022	; Background Color 1
-VIC_BGCOL2	= L_D023	; Background Color 2
-VIC_BGCOL3	= L_D024	; Background Color 3
-VIC_SPMC0	= L_D025	; Sprite Multicolor Register 0
-VIC_SPMC1	= L_D026	; Sprite Multicolor Register 1
-VIC_SP0COL	= L_D027	; Sprite 0 Color Register (the default color value is 1, white)
-VIC_SP1COL	= L_D028	; Sprite 1 Color Register (the default color value is 2, red)
-VIC_SP2COL	= L_D029	; Sprite 2 Color Register (the default color value is 3, cyan)
-VIC_SP3COL	= L_D02A	; Sprite 3 Color Register (the default color value is 4, purple)
-VIC_SP4COL	= L_D02B	; Sprite 4 Color Register (the default color value is 5, green)
-VIC_SP5COL	= L_D02C	; Sprite 5 Color Register (the default color value is 6, blue)
-VIC_SP6COL	= L_D02D	; Sprite 6 Color Register (the default color value is 7, yellow)
-VIC_SP7COL	= L_D02E	; Sprite 7 Color Register (the default color value is 12, medium gray)
+VIC_SCROLY	= BEEB_VIC_BASE + $11	; Vertical Fine Scrolling and Control Register
+VIC_RASTER	= BEEB_VIC_BASE + $12	; Read Current Raster Scan Line/Write Line to Compare for Raster IRQ
+VIC_SPENA	= BEEB_VIC_BASE + $15	; Sprite Enable Register
+VIC_SCROLX	= BEEB_VIC_BASE + $16	; Horizontal Fine Scrolling and Control Register
+VIC_YXPAND	= BEEB_VIC_BASE + $17	; Sprite Vertical Expansion Register
+VIC_VMCSB	= BEEB_VIC_BASE + $18	; VIC-II Chip Memory Control Register
+VIC_VICIRQ	= BEEB_VIC_BASE + $19	; VIC Interrupt Flag Register
+VIC_IRQMASK	= BEEB_VIC_BASE + $1A	; IRQ Mask Register
+VIC_SPBGPR	= BEEB_VIC_BASE + $1B	; Sprite to Foreground Display Priority Register
+VIC_SPMC	= BEEB_VIC_BASE + $1C	; Sprite Multicolor Registers
+VIC_XXPAND	= BEEB_VIC_BASE + $1D	; Sprite Horizontal Expansion Register
+VIC_SPSPCL	= BEEB_VIC_BASE + $1E	; Sprite to Sprite Collision Register
+VIC_SPBGCL	= BEEB_VIC_BASE + $1F	; Sprite to Foreground Collision Register
 
-SID_FRELO1	= L_D400	; Voice 1 Frequency Control (low byte)
-SID_FREHI1	= L_D401	; Voice 1 Frequency Control (high byte)
-SID_PWLO1	= L_D402	; Voice 1 Pulse Waveform Width (low byte)
-SID_PWHI1	= L_D403	; Voice 1 Pulse Waveform Width (high nybble)
-SID_VCREG1	= L_D404	; Voice 1 Control Register
-SID_ATDCY1	= L_D405	; Voice 1 Attack/Decay Register
-SID_SUREL1	= L_D406	; Voice 1 Sustain/Release Control Register
+VIC_EXTCOL	= BEEB_VIC_BASE + $20	; Border Color Register
+VIC_BGCOL0	= BEEB_VIC_BASE + $21	; Background Color 0
+VIC_BGCOL1	= BEEB_VIC_BASE + $22	; Background Color 1
+VIC_BGCOL2	= BEEB_VIC_BASE + $23	; Background Color 2
+VIC_BGCOL3	= BEEB_VIC_BASE + $24	; Background Color 3
+VIC_SPMC0	= BEEB_VIC_BASE + $25	; Sprite Multicolor Register 0
+VIC_SPMC1	= BEEB_VIC_BASE + $26	; Sprite Multicolor Register 1
+VIC_SP0COL	= BEEB_VIC_BASE + $27	; Sprite 0 Color Register (the default color value is 1, white)
+VIC_SP1COL	= BEEB_VIC_BASE + $28	; Sprite 1 Color Register (the default color value is 2, red)
+VIC_SP2COL	= BEEB_VIC_BASE + $29	; Sprite 2 Color Register (the default color value is 3, cyan)
+VIC_SP3COL	= BEEB_VIC_BASE + $2A	; Sprite 3 Color Register (the default color value is 4, purple)
+VIC_SP4COL	= BEEB_VIC_BASE + $2B	; Sprite 4 Color Register (the default color value is 5, green)
+VIC_SP5COL	= BEEB_VIC_BASE + $2C	; Sprite 5 Color Register (the default color value is 6, blue)
+VIC_SP6COL	= BEEB_VIC_BASE + $2D	; Sprite 6 Color Register (the default color value is 7, yellow)
+VIC_SP7COL	= BEEB_VIC_BASE + $2E	; Sprite 7 Color Register (the default color value is 12, medium gray)
 
-SID_FRELO2	= L_D407	; Voice 2 Frequency Control (low byte)
-SID_FREHI2	= L_D408	; Voice 2 Frequency Control (high byte)
-SID_PWLO2	= L_D409	; Voice 2 Pulse Waveform Width (low byte)
-SID_PWHI2	= L_D40A	; Voice 2 Pulse Waveform Width (high nybble)
-SID_VCREG2	= L_D40B	; Voice 2 Control Register
-SID_ATDCY2	= L_D40C	; Voice 2 Attack/Decay Register
-SID_SUREL2	= L_D40D	; Voice 2 Sustain/Release Control Register
+SID_FRELO1	= BEEB_SID_BASE + $00	; Voice 1 Frequency Control (low byte)
+SID_FREHI1	= BEEB_SID_BASE + $01	; Voice 1 Frequency Control (high byte)
+SID_PWLO1	= BEEB_SID_BASE + $02	; Voice 1 Pulse Waveform Width (low byte)
+SID_PWHI1	= BEEB_SID_BASE + $03	; Voice 1 Pulse Waveform Width (high nybble)
+SID_VCREG1	= BEEB_SID_BASE + $04	; Voice 1 Control Register
+SID_ATDCY1	= BEEB_SID_BASE + $05	; Voice 1 Attack/Decay Register
+SID_SUREL1	= BEEB_SID_BASE + $06	; Voice 1 Sustain/Release Control Register
 
-SID_FRELO3	= L_D40E	; Voice 3 Frequency Control (low byte)
-SID_FREHI3	= L_D40F	; Voice 3 Frequency Control (high byte)
-SID_PWLO3	= L_D410	; Voice 3 Pulse Waveform Width (low byte)
-SID_PWHI3	= L_D411	; Voice 3 Pulse Waveform Width (high nybble)
-SID_VCREG3	= L_D412	; Voice 3 Control Register
-SID_ATDCY3	= L_D413	; Voice 3 Attack/Decay Register
-SID_SUREL3	= L_D414	; Voice 3 Sustain/Release Control Register
+SID_FRELO2	= BEEB_SID_BASE + $07	; Voice 2 Frequency Control (low byte)
+SID_FREHI2	= BEEB_SID_BASE + $08	; Voice 2 Frequency Control (high byte)
+SID_PWLO2	= BEEB_SID_BASE + $09	; Voice 2 Pulse Waveform Width (low byte)
+SID_PWHI2	= BEEB_SID_BASE + $0A	; Voice 2 Pulse Waveform Width (high nybble)
+SID_VCREG2	= BEEB_SID_BASE + $0B	; Voice 2 Control Register
+SID_ATDCY2	= BEEB_SID_BASE + $0C	; Voice 2 Attack/Decay Register
+SID_SUREL2	= BEEB_SID_BASE + $0D	; Voice 2 Sustain/Release Control Register
 
-SID_CUTLO	= L_D415	; Bits 0-2:  Low portion of filter cutoff frequency
-SID_CUTHI	= L_D416	; Filter Cutoff Frequency (high byte)
-SID_RESON	= L_D417	; Filter Resonance Control Register
-SID_SIGVOL	= L_D418	; Volume and Filter Select Register
+SID_FRELO3	= BEEB_SID_BASE + $0E	; Voice 3 Frequency Control (low byte)
+SID_FREHI3	= BEEB_SID_BASE + $0F	; Voice 3 Frequency Control (high byte)
+SID_PWLO3	= BEEB_SID_BASE + $10	; Voice 3 Pulse Waveform Width (low byte)
+SID_PWHI3	= BEEB_SID_BASE + $11	; Voice 3 Pulse Waveform Width (high nybble)
+SID_VCREG3	= BEEB_SID_BASE + $12	; Voice 3 Control Register
+SID_ATDCY3	= BEEB_SID_BASE + $13	; Voice 3 Attack/Decay Register
+SID_SUREL3	= BEEB_SID_BASE + $14	; Voice 3 Sustain/Release Control Register
 
-CIA1_CIAPRA	= L_DC00	; Data Port Register A
-CIA1_CIAPRB	= L_DC01	; Data Port Register B
-CIA1_CIDDRA	= L_DC02	; Data Direction Register A
-CIA1_CIDDRB	= L_DC03	; Data Direction Register B
-CIA1_TIMALO	= L_DC04	; Timer A (low byte)
-CIA1_TIMAHI	= L_DC05	; Timer A (high byte)
-CIA1_TIMBLO	= L_DC06	; Timer B (low byte)
-CIA1_TIMBHI	= L_DC07	; Timer B (high byte)
-CIA1_CIAICR	= L_DC0D	; Interrupt Control Register
-CIA1_CIACRA	= L_DC0E	; Control Register A
-CIA1_CIACRB	= L_DC0F	; Control Register B
+SID_CUTLO	= BEEB_SID_BASE + $15	; Bits 0-2:  Low portion of filter cutoff frequency
+SID_CUTHI	= BEEB_SID_BASE + $16	; Filter Cutoff Frequency (high byte)
+SID_RESON	= BEEB_SID_BASE + $17	; Filter Resonance Control Register
+SID_SIGVOL	= BEEB_SID_BASE + $18	; Volume and Filter Select Register
 
-CIA2_CI2PRA = L_DD00
-CIA2_C2DDRA = L_DD02
-CIA2_CIAICR	= L_DD0D	; Interrupt Control Register
+CIA1_CIAPRA	= BEEB_CIA1_BASE + $00	; Data Port Register A
+CIA1_CIAPRB	= BEEB_CIA1_BASE + $01	; Data Port Register B
+CIA1_CIDDRA	= BEEB_CIA1_BASE + $02	; Data Direction Register A
+CIA1_CIDDRB	= BEEB_CIA1_BASE + $03	; Data Direction Register B
+CIA1_TIMALO	= BEEB_CIA1_BASE + $04	; Timer A (low byte)
+CIA1_TIMAHI	= BEEB_CIA1_BASE + $05	; Timer A (high byte)
+CIA1_TIMBLO	= BEEB_CIA1_BASE + $06	; Timer B (low byte)
+CIA1_TIMBHI	= BEEB_CIA1_BASE + $07	; Timer B (high byte)
+CIA1_CIAICR	= BEEB_CIA1_BASE + $0D	; Interrupt Control Register
+CIA1_CIACRA	= BEEB_CIA1_BASE + $0E	; Control Register A
+CIA1_CIACRB	= BEEB_CIA1_BASE + $0F	; Control Register B
+
+CIA2_CI2PRA = BEEB_CIA2_BASE + $00
+CIA2_C2DDRA = BEEB_CIA2_BASE + $02
+CIA2_CIAICR	= BEEB_CIA2_BASE + $0D	; Interrupt Control Register
+
+C64_LORAM_HIRAM_IO = $34
+C64_BASIC_HIRAM_IO = $35
+C64_LORAM_KERNAL_IO = $36
+
+C64_VIC_BITMAP_SCREEN1 = $70
+C64_VIC_BITMAP_SCREEN2 = $78
+
+C64_VIC_IRQ_DISABLE = $00
+C64_VIC_IRQ_RASTERCMP = $01
 
 ; *****************************************************************************
 ; VARIABLES
 ; *****************************************************************************
+
 BEEB_ZP_OFFSET = &800
 BEEB_ZP_REMAP = $E0 - $50		; remap $E0 onwards to $40 onwards
 
@@ -863,12 +768,28 @@ GUARD &8000
 	; BEEB TODO SET VECTORS
 	; BEEB TODO SET INTERRUPTS etc.
 
-	; BEEB SET SCREEN MODE 5
+	; BEEB SET SCREEN MODE 4
 
 	LDA #22
 	JSR oswrch
 	LDA #BEEB_SCREEN_MODE
 	JSR oswrch
+
+	\\ Clear lower RAM
+
+		ldx #0
+		lda #0
+		.clear_loop
+		sta &300, X
+		sta &400, X
+		sta &500, X
+		sta &600, X
+		sta &700, X
+		sta &800, X
+		sta &900, X
+		sta &A00, X
+		inx
+		bne clear_loop
 
 \ Ensure HAZEL RAM is writeable - assume this says writable throughout?
 
@@ -893,13 +814,6 @@ GUARD &8000
 	LDX #LO(kernel_filename)
 	LDY #HI(kernel_filename)
 	LDA #HI(kernel_start)
-	JSR disksys_load_file
-
-	; MISCELLANEOUS DATA
-
-	LDX #LO(data_filename)
-	LDY #HI(data_filename)
-	LDA #HI(boot_data_start)
 	JSR disksys_load_file
 
 	\\ SCR loader copies data from screen RAM to Hazel
@@ -931,18 +845,42 @@ GUARD &8000
 \		dex				;4176 CA
 \		bpl L_415E		;4177 10 E5     ; copy $18*4 = 96 bytes from $75XX to C2XX
 
-	\\ Final copy stage uses fn in SWRAM so has to be after module load
-
-		ldx #$00		;4253 A2 00
-		lda #$34		;4255 A9 34
-		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
-
 	\\ HAZEL must be last as stomping on FS workspace
 
 	LDX #LO(hazel_filename)
 	LDY #HI(hazel_filename)
-	LDA #HI(hazel_start)
+	LDA #HI(disksys_loadto_addr)
+	JSR disksys_load_direct
+
+	; MISCELLANEOUS DATA
+
+	LDX #LO(data_filename)
+	LDY #HI(data_filename)
+	LDA #HI(boot_data_start)
 	JSR disksys_load_file
+
+	\\ Now copy data from screen1 up to Hazel
+
+	LDA #HI(disksys_loadto_addr)
+	LDX #HI(hazel_start)
+	LDY #HI(hazel_end - hazel_start)
+	JSR disksys_copy_block
+
+	\\ FS is now unusable as HAZEL has been trashed
+
+	\\ Copy blank entries for high score tables
+
+		ldx #$00		;4239 A2 00
+		ldy #$00		;423B A0 00
+.L_423D	lda L_410F,Y	;423D B9 0F 41
+		sta L_DE00,X	;4240 9D 00 DE
+		sta L_DF00,X	;4243 9D 00 DF
+		dey				;4246 88
+		bpl L_424B		;4247 10 02     ; copy values from $410F to $DE00 and $DF00 (I/O)
+
+		ldy #$0F		;4249 A0 0F
+.L_424B	dex				;424B CA
+		bne L_423D		;424C D0 EF
 
 	\\ Not sure what this is doing! Copying from C64 COLOR RAM
 	\\ $D800-$DBFF Color RAM
@@ -953,21 +891,11 @@ GUARD &8000
 		dex				;40B8 CA
 		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
 
-	\\ Clear lower RAM
+	\\ Final copy stage uses fn in SWRAM so has to be after module load
 
-		ldx #0
-		lda #0
-		.clear_loop
-		sta &300, X
-		sta &400, X
-		sta &500, X
-		sta &600, X
-		sta &700, X
-		sta &800, X
-		sta &900, X
-		sta &A00, X
-		inx
-		bne clear_loop
+		ldx #$00		;4253 A2 00
+		lda #$34		;4255 A9 34
+		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
 	; BEEB SET SCREEN TO 8K
 
@@ -983,6 +911,8 @@ GUARD &8000
 		jmp game_start		;425A 4C 22 3B
 
         ; ^^^ JUMP TO GAME START
+
+.L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
 }
 
 .core_filename EQUS "Core", 13
@@ -1107,104 +1037,59 @@ L_5FFC	= screen1_address+$1ffc
 L_5FFD	= screen1_address+$1ffd
 L_5FFF	= screen1_address+$1fff
 
-L_6026	= screen2_address+$0026
-L_6027	= screen2_address+$0027
-L_6028	= screen2_address+$0028
-L_6130	= screen2_address+$0130
+;L_6026	= screen2_address+$0026
+;L_6027	= screen2_address+$0027
+;L_6028	= screen2_address+$0028
+;L_6130	= screen2_address+$0130
 
-L_6270	= screen2_address+$0270
-L_62A0	= screen2_address+$02a0
-L_63B0	= screen2_address+$03b0
-L_63E0	= screen2_address+$03e0
-L_64F0	= screen2_address+$04f0
-L_6520	= screen2_address+$0520
-L_6660	= screen2_address+$0660
-L_66E0	= screen2_address+$06e0
-L_67A0	= screen2_address+$07a0
-L_68E0	= screen2_address+$08e0
-L_6920	= screen2_address+$0920
-L_6A20	= screen2_address+$0a20
-L_6B60	= screen2_address+$0b60
-L_6BA0	= screen2_address+$0ba0
-L_6CA0	= screen2_address+$0ca0
-L_6D20	= screen2_address+$0d20
-L_6D6A	= screen2_address+$0d6a
-L_6DE0	= screen2_address+$0de0
-L_6F20	= screen2_address+$0f20
-L_7060	= screen2_address+$1060
-L_71A0	= screen2_address+$11a0
-L_7658  = screen2_address+$1658
-L_76A0	= screen2_address+$16a0 ; the bottom of the left wheel ($7680 is beginning C64 row)
-L_7798	= screen2_address+$1798 ; the bottom of the right wheel
-L_77E0	= screen2_address+$17e0 ; bottom of the left wheel ($77c0 is beginning C64 row)
-L_78D8	= screen2_address+$18d8 ; the bottom of the right wheel
-L_7AA6	= screen2_address+$1aa6 ; left upper corner of the speedometer ($7A40 is beginning C64 row)
-L_7AA7	= screen2_address+$1aa7 ; left upper corner of the speedometer
-L_7B00	= screen2_address+$1b00
-L_7C00	= screen2_address+$1c00
-L_7C53	= screen2_address+$1c53
-L_7C74	= screen2_address+$1c74
-L_7D00	= screen2_address+$1d00
-L_7E00	= screen2_address+$1e00 ; OK
-L_7F00	= screen2_address+$1f00 ; OK
+;L_6270	= screen2_address+$0270
+;L_62A0	= screen2_address+$02a0
+;L_63B0	= screen2_address+$03b0
+;L_63E0	= screen2_address+$03e0
+;L_64F0	= screen2_address+$04f0
+;L_6520	= screen2_address+$0520
+;L_6660	= screen2_address+$0660
+;L_66E0	= screen2_address+$06e0
+;L_67A0	= screen2_address+$07a0
+;L_68E0	= screen2_address+$08e0
+;L_6920	= screen2_address+$0920
+;L_6A20	= screen2_address+$0a20
+;L_6B60	= screen2_address+$0b60
+;L_6BA0	= screen2_address+$0ba0
+;L_6CA0	= screen2_address+$0ca0
+;L_6D20	= screen2_address+$0d20
+;L_6D6A	= screen2_address+$0d6a
+;L_6DE0	= screen2_address+$0de0
+;L_6F20	= screen2_address+$0f20
+;L_7060	= screen2_address+$1060
+;L_71A0	= screen2_address+$11a0
+;L_7658  = screen2_address+$1658
+;L_76A0	= screen2_address+$16a0 ; the bottom of the left wheel ($7680 is beginning C64 row)
+;L_7798	= screen2_address+$1798 ; the bottom of the right wheel
+;L_77E0	= screen2_address+$17e0 ; bottom of the left wheel ($77c0 is beginning C64 row)
+;L_78D8	= screen2_address+$18d8 ; the bottom of the right wheel
+;L_7AA6	= screen2_address+$1aa6 ; left upper corner of the speedometer ($7A40 is beginning C64 row)
+;L_7AA7	= screen2_address+$1aa7 ; left upper corner of the speedometer
+;L_7B00	= screen2_address+$1b00
+;L_7C00	= screen2_address+$1c00
+;L_7C53	= screen2_address+$1c53
+;L_7C74	= screen2_address+$1c74
+;L_7D00	= screen2_address+$1d00
+;L_7E00	= screen2_address+$1e00 ; OK
+;L_7F00	= screen2_address+$1f00 ; OK
 
 		; space behind the screen 2 ($7f40-$7fff) - 192 byte
 
-L_7F80	= screen2_address+$1f80
-L_7F81	= screen2_address+$1f81
-L_7F82	= screen2_address+$1f82
-L_7FC0	= screen2_address+$1fc0
-L_7FC1	= screen2_address+$1fc1
-L_7FC2	= screen2_address+$1fc2
+;L_7F80	= screen2_address+$1f80
+;L_7F81	= screen2_address+$1f81
+;L_7F82	= screen2_address+$1f82
+;L_7FC0	= screen2_address+$1fc0
+;L_7FC1	= screen2_address+$1fc1
+;L_7FC2	= screen2_address+$1fc2
 
-ORG &7200
-.boot_data_start
-		skip &E0
-
-.L_72E0	skip &100
-\ Data moved to Cart RAM manually
-		EQUB $69,$69,$69,$69,$69,$69,$69,$69,$58,$58,$58,$58,$58,$58,$58,$58
-		EQUB $1B,$1B,$1B,$16,$16,$16,$16,$16,$6A,$6A,$5A,$5A,$5A,$56,$D6,$D6
-		EQUB $AB,$AF,$AD,$AD,$BD,$BD,$B5,$F5,$68,$68,$68,$68,$68,$68,$68,$68
-		EQUB $25,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$69,$69,$69,$69,$69,$69,$69,$69
-
-.L_7420 skip &100
-\ Data moved to Cart RAM manually
-		EQUB $69,$69,$69,$69,$69,$69,$69,$69,$58,$5A,$5A,$5A,$5A,$5A,$5A,$5A
-		EQUB $29,$29,$29,$29,$29,$29,$29,$29,$EA,$FA,$7A,$7A,$7E,$7E,$5E,$5F
-		EQUB $A5,$95,$95,$95,$95,$55,$55,$55,$68,$68,$68,$68,$68,$68,$68,$68
-		EQUB $A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$69,$69,$69,$69,$69,$69,$69,$69
-
-.L_7560 skip $18
-\ Data moved to Cart RAM manually
-.L_7578	EQUB $F0,$50,$08,$02,$02,$00,$00,$00,$00,$00,$00,$00,$00,$40,$80,$80
-		EQUB $02,$02,$02,$02,$02,$09,$09,$15,$02,$06,$62,$11,$11,$11,$11,$05
-		EQUB $45,$45,$44,$40,$50,$90,$90,$90
-
-.L_75A0	skip $18
-\ Data moved to Cart RAM manually
-		EQUB $EA,$9A,$98,$50,$58,$6C,$7F,$7F
-		EQUB $00,$AA,$5A,$15,$00,$00,$04,$19,$00,$AA,$A5,$54,$00,$00,$01,$40
-		EQUB $28,$A4,$07,$0F,$10,$5F,$40,$80,$00,$00,$F1,$A1,$01,$F1,$01,$01
-		EQUB $C0,$C0,$C5,$8A,$80,$85,$80,$80,$28,$3A,$5C,$50,$00,$57,$03,$03
-		EQUB $00,$AA,$5A,$05,$00,$00,$40,$40,$00,$AA,$A5,$54,$00,$00,$41,$55
-		EQUB $AA,$A6,$85,$35,$19,$39,$36,$F8
-
-.L_7608	skip $18
-\ Data moved to Cart RAM manually
-		EQUB $81,$81,$91,$51,$51,$11,$11,$41
-		EQUB $80,$90,$99,$94,$94,$94,$84,$44,$80,$80,$80,$80,$A0,$60,$68,$55
-		EQUB $00,$00,$00,$00,$00,$01,$02,$02
-.L_7640	EQUB $0F,$05,$20,$80,$80,$00,$00,$00
-
-.L_7648 skip $18
-\ Data moved to Cart RAM manually
-		EQUB $69,$69,$69,$69,$69,$69,$69,$69
-		EQUB $5A,$5A,$5A,$5A,$5A,$5A,$5A,$5A,$29,$29,$29,$29,$29,$29,$29,$29
-		EQUB $5A,$56,$56,$56,$56,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55,$55
-		EQUB $68,$68,$68,$68,$68,$68,$68,$68,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5
-		EQUB $69,$69,$69,$69,$69,$69,$69,$69
-.boot_data_end
+ORG &6000
+GUARD &8000
+INCLUDE "game/boot-data.asm"
 
 ; *****************************************************************************
 \\ Boot DATA area
