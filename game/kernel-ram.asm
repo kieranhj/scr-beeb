@@ -3691,9 +3691,9 @@
 		sta VIC_SP0COL		;CE06 8D 27 D0
 		sta VIC_SP1COL		;CE09 8D 28 D0
 		lda #$FE		;CE0C A9 FE
-		sta L_5FF8		;CE0E 8D F8 5F
+		sta vic_sprite_ptr0		;CE0E 8D F8 5F
 		lda #$FF		;CE11 A9 FF
-		sta L_5FF9		;CE13 8D F9 5F
+		sta vic_sprite_ptr1		;CE13 8D F9 5F
 		lda #$64		;CE16 A9 64
 		jmp L_CF49		;CE18 4C 49 CF
 
@@ -3709,9 +3709,9 @@
 		lda #$FF		;CE32 A9 FF
 		sta VIC_SPMC		;CE34 8D 1C D0
 		lda #$64		;CE37 A9 64
-		sta L_5FFA		;CE39 8D FA 5F
+		sta vic_sprite_ptr2		;CE39 8D FA 5F
 		lda #$63		;CE3C A9 63
-		sta L_5FFB		;CE3E 8D FB 5F
+		sta vic_sprite_ptr3		;CE3E 8D FB 5F
 		lda #$03		;CE41 A9 03
 		sta VIC_SP2COL		;CE43 8D 29 D0
 		sta VIC_SP3COL		;CE46 8D 2A D0
@@ -3741,9 +3741,9 @@
 		inx				;CE7F E8
 		inx				;CE80 E8
 .L_CE81	lda L_CF5E,X	;CE81 BD 5E CF
-		sta L_5FF8		;CE84 8D F8 5F
+		sta vic_sprite_ptr0		;CE84 8D F8 5F
 		lda L_CF60,X	;CE87 BD 60 CF
-		sta L_5FF9		;CE8A 8D F9 5F
+		sta vic_sprite_ptr1		;CE8A 8D F9 5F
 		lda #$07		;CE8D A9 07
 		sta VIC_SP0COL		;CE8F 8D 27 D0
 		sta VIC_SP1COL		;CE92 8D 28 D0
@@ -3777,13 +3777,13 @@
 		lda #$0C		;CEDB A9 0C
 		sta VIC_MSIGX		;CEDD 8D 10 D0
 		lda #$00		;CEE0 A9 00
-		sta L_5FF8		;CEE2 8D F8 5F
+		sta vic_sprite_ptr0		;CEE2 8D F8 5F
 		lda #$01		;CEE5 A9 01
-		sta L_5FF9		;CEE7 8D F9 5F
+		sta vic_sprite_ptr1		;CEE7 8D F9 5F
 		lda #$02		;CEEA A9 02
-		sta L_5FFA		;CEEC 8D FA 5F
+		sta vic_sprite_ptr2		;CEEC 8D FA 5F
 		lda #$03		;CEEF A9 03
-		sta L_5FFB		;CEF1 8D FB 5F
+		sta vic_sprite_ptr3		;CEF1 8D FB 5F
 		lda #$00		;CEF4 A9 00
 		sta VIC_SP2COL		;CEF6 8D 29 D0
 		sta VIC_SP3COL		;CEF9 8D 2A D0
@@ -8069,8 +8069,8 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 
 .update_tyre_spritesQ
 {
-		ldx L_5FFF		;FFB1 AE FF 5F
-		ldy L_5FFD		;FFB4 AC FD 5F
+		ldx vic_sprite_ptr7		;FFB1 AE FF 5F
+		ldy vic_sprite_ptr5		;FFB4 AC FD 5F
 ;L_FFB7				; KERNEL_READST
 		bit L_0159		;FFB7 2C 59 01
 ;L_FFBA				; KERNEL_SETLFS
@@ -8096,8 +8096,8 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		bcs L_FFDB		;FFD7 B0 02
 ;L_FFD8	= *-1		; KERNEL_SAVE
 		ldy #$67		;FFD9 A0 67
-.L_FFDB	stx L_5FFF		;FFDB 8E FF 5F
-		sty L_5FFD		;FFDE 8C FD 5F
+.L_FFDB	stx vic_sprite_ptr7		;FFDB 8E FF 5F
+		sty vic_sprite_ptr5		;FFDE 8C FD 5F
 		rts				;FFE1 60
 }
 

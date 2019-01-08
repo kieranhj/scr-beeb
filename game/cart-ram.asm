@@ -82,10 +82,10 @@
 .clear_colour_mapQ			; in Cart
 {
 		ldx #$00		;8416 A2 00
-.L_8418	sta L_5C00,X	;8418 9D 00 5C
-		sta L_5D00,X	;841B 9D 00 5D
-		sta L_5E00,X	;841E 9D 00 5E
-		sta L_5F00,X	;8421 9D 00 5F
+.L_8418	sta vic_screen_mem_page0,X	;8418 9D 00 5C
+		sta vic_screen_mem_page1,X	;841B 9D 00 5D
+		sta vic_screen_mem_page2,X	;841E 9D 00 5E
+		sta vic_screen_mem_page3,X	;8421 9D 00 5F
 		dex				;8424 CA
 		bne L_8418		;8425 D0 F1
 		rts				;8427 60
@@ -676,7 +676,7 @@ ENDIF
 .L_87E2	sty ZP_16		;87E2 84 16
 		lda L_D401,X	;87E4 BD 01 D4	; NOT SID
 		sta ZP_20		;87E7 85 20
-		lda L_D401+1,X	;87E9 BD 02 D4	; NOT SID
+		lda L_D402,X	;87E9 BD 02 D4	; NOT SID
 		sta ZP_21		;87EC 85 21
 		ldy #$00		;87EE A0 00
 .L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
@@ -3283,7 +3283,7 @@ ENDIF
 		lda L_14C8,X	;148F BD C8 14
 		sta VIC_SP0Y,Y	;1492 99 01 D0
 		lda L_14B6,X	;1495 BD B6 14
-		sta L_5FF8,X	;1498 9D F8 5F
+		sta vic_sprite_ptr0,X	;1498 9D F8 5F
 		lda L_14BC,X	;149B BD BC 14
 		sta VIC_SP0COL,X	;149E 9D 27 D0
 		dex				;14A1 CA
