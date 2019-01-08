@@ -30,7 +30,7 @@
 
 .L_0800_with_VIC
 {
-	 	jsr $FF90
+	 	jsr L_FF90
 ;L_0803
 		lda #$15		;0803 A9 15
 		sta VIC_VMCSB		;0805 8D 18 D0			; VIC - not bitmap mode?
@@ -1703,7 +1703,7 @@
 		sei				;2B2C 78
 		lda L_A000		;2B2D AD 00 A0
 		pha				;2B30 48
-		lda #C64_LORAM_KERNAL_IO		;2B31 A9 36
+		lda #C64_IO_AND_KERNAL		;2B31 A9 36
 		sta RAM_SELECT		;2B33 85 01
 		jsr L_FF84		;2B35 20 84 FF
 		jsr L_FF87		;2B38 20 87 FF
@@ -1719,7 +1719,7 @@
 		sta VIC_BGCOL0		;2B4E 8D 21 D0		; VIC
 
 		jsr L_0800_with_VIC		;2B51 20 00 08
-		lda #C64_LORAM_KERNAL_IO		;2B54 A9 36
+		lda #C64_IO_AND_KERNAL		;2B54 A9 36
 		sta RAM_SELECT		;2B56 85 01
 		cli				;2B58 58
 ;L_2B59
@@ -1790,7 +1790,7 @@
 		sta L_A000		;2BE4 8D 00 A0
 		ldy #$4B		;2BE7 A0 4B
 		jsr delay_approx_Y_25ths_sec		;2BE9 20 EB 3F
-		lda #C64_BASIC_HIRAM_IO		;2BEC A9 35
+		lda #C64_IO_NO_KERNAL		;2BEC A9 35
 		sta RAM_SELECT		;2BEE 85 01
 		bit L_C301		;2BF0 2C 01 C3
 		bpl L_2BFC		;2BF3 10 07
@@ -2115,7 +2115,7 @@
 .L_3F83	rts				;3F83 60
 
 \\ Unreachable code?	; set up double page display?
-.L_3F84	ldy #$78		;3F84 A0 78
+.L_3F84	ldy #C64_VIC_BITMAP_SCREEN2		;3F84 A0 78
 		ldx #$00		;3F86 A2 00
 		jmp L_3F8F		;3F88 4C 8F 3F
 
@@ -2272,13 +2272,13 @@
 		beq L_98E5		;98E1 F0 02
 		ldy #$FF		;98E3 A0 FF
 .L_98E5	lda L_DE00,Y	;98E5 B9 00 DE
-		sta road_section_angle_and_piece,X	;98E8 9D 00 04
+		sta L_0400,X	;98E8 9D 00 04
 		lda L_DF00,Y	;98EB B9 00 DF
 		sta L_0480,X	;98EE 9D 80 04
 		dey				;98F1 88
 		dex				;98F2 CA
 		bpl L_98E5		;98F3 10 F0
-		lda #C64_BASIC_HIRAM_IO		;98F5 A9 35
+		lda #C64_IO_NO_KERNAL		;98F5 A9 35
 		sta RAM_SELECT		;98F7 85 01
 		cli				;98F9 58
 		lda #$01		;98FA A9 01
@@ -2341,9 +2341,9 @@
 		tax				;9972 AA
 		lda #$01		;9973 A9 01
 		sta L_C3D9		;9975 8D D9 C3
-		lda L_99EF,X	;9978 BD EF 99
+		lda track_initials,X	;9978 BD EF 99
 		jsr cart_write_char		;997B 20 6F 84
-		lda L_99F0,X	;997E BD F0 99
+		lda track_initials+1,X	;997E BD F0 99
 		jsr cart_write_char		;9981 20 6F 84
 		jsr cart_print_space		;9984 20 AF 91
 		lda #$04		;9987 A9 04
@@ -2358,18 +2358,18 @@
 		ora ZP_08		;9996 05 08
 		tax				;9998 AA
 		ldy #$0C		;9999 A0 0C
-.L_999B	lda road_section_angle_and_piece,X	;999B BD 00 04
+.L_999B	lda L_0400,X	;999B BD 00 04
 		jsr cart_write_char		;999E 20 6F 84
 		inx				;99A1 E8
 		dey				;99A2 88
 		bne L_999B		;99A3 D0 F6
 		jsr cart_print_space		;99A5 20 AF 91
 		dec L_C3D9		;99A8 CE D9 C3
-		lda road_section_angle_and_piece,X	;99AB BD 00 04
+		lda L_0400,X	;99AB BD 00 04
 		sta L_8398		;99AE 8D 98 83
-		lda road_section_angle_and_piece + 1,X	;99B1 BD 01 04
+		lda L_0401,X	;99B1 BD 01 04
 		sta L_82B0		;99B4 8D B0 82
-		lda road_section_angle_and_piece + 2,X	;99B7 BD 02 04
+		lda L_0402,X	;99B7 BD 02 04
 		sta L_8298		;99BA 8D 98 82
 		ldx #$00		;99BD A2 00
 		jsr cart_L_99FF		;99BF 20 FF 99
@@ -2392,9 +2392,11 @@
 		jsr enable_screen_and_set_irq50		;99E9 20 A5 3F
 		jmp set_up_screen_for_frontend		;99EC 4C 04 35
 
-.L_99EF	equb $4C,$52,$48
-		equb $42,$53,$53,$42,$52,$48,$4A,$52,$43,$53,$4A,$44,$42
-L_99F0	= L_99EF + 1
+.track_initials
+		equs "LRHBSSBRHJRCSJDB"
+		;equb $4C
+		;equb $52,$48
+		;equb $42,$53,$53,$42,$52,$48,$4A,$52,$43,$53,$4A,$44,$42
 }
 
 ; only called from game update
@@ -8037,8 +8039,10 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		rts				;FF8D 60
 
 .L_FF8E
-{
 		sta ZP_15		;FF8E 85 15
+\\
+.L_FF90
+{
 		lda ZP_14		;FF90 A5 14
 		clc				;FF92 18
 		rts				;FF93 60
@@ -8105,7 +8109,7 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta L_DA00,X	;FFE8 9D 00 DA
 		sta L_DB00,X	;FFEB 9D 00 DB		; COLOR RAM
 		ldy #$20		;FFEE A0 20
-		sty road_section_angle_and_piece		;FFF0 8C 00 04
+		sty L_0400		;FFF0 8C 00 04
 		rts				;FFF3 60
 }
 

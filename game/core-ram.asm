@@ -599,7 +599,7 @@ IF _NOT_BEEB
 		lda #C64_VIC_IRQ_DISABLE		;33F1 A9 00
 		sta VIC_IRQMASK		;33F3 8D 1A D0
 		sei				;33F6 78
-		lda #C64_LORAM_HIRAM_IO		;33F7 A9 34
+		lda #C64_NO_IO_NO_KERNAL		;33F7 A9 34
 		sta RAM_SELECT		;33F9 85 01
 		rts				;33FB 60
 }
@@ -608,7 +608,7 @@ ENDIF
 .page_in_IO_and_enable_ints		RTS
 IF _NOT_BEEB
 {
-		lda #C64_BASIC_HIRAM_IO		;33FC A9 35
+		lda #C64_IO_NO_KERNAL		;33FC A9 35
 		sta RAM_SELECT		;33FE 85 01
 		cli				;3400 58
 		lda #C64_VIC_IRQ_RASTERCMP		;3401 A9 01
@@ -982,7 +982,7 @@ ENDIF
 		jsr disable_ints_and_page_in_RAM		;3B25 20 F1 33
 
 		ldx #$00		;3B28 A2 00
-.L_3B2A	lda L_DC00,X	;3B2A BD 00 DC		; CIA1
+.L_3B2A	lda L_DC00,X	;3B2A BD 00 DC
 		sta L_AE00,X	;3B2D 9D 00 AE
 		inx				;3B30 E8
 		bne L_3B2A		;3B31 D0 F7
@@ -1332,7 +1332,7 @@ ENDIF
 		CPX #$E4
 		BCS L_3E17		; BEEB - skip MOS ZP vars
 
-		sta DATA_6510,X		;3E15 95 00
+		sta $00,X		;3E15 95 00
 .L_3E17	dex				;3E17 CA
 		bne L_3DFB		;3E18 D0 E1
 		ldx L_C71A		;3E1A AE 1A C7

@@ -227,9 +227,9 @@ CIA2_CI2PRA = BEEB_CIA2_BASE + $00
 CIA2_C2DDRA = BEEB_CIA2_BASE + $02
 CIA2_CIAICR	= BEEB_CIA2_BASE + $0D	; Interrupt Control Register
 
-C64_LORAM_HIRAM_IO = $34
-C64_BASIC_HIRAM_IO = $35
-C64_LORAM_KERNAL_IO = $36
+C64_NO_IO_NO_KERNAL = $34
+C64_IO_NO_KERNAL = $35
+C64_IO_AND_KERNAL = $36
 
 C64_VIC_BITMAP_SCREEN1 = $70
 C64_VIC_BITMAP_SCREEN2 = $78
@@ -622,6 +622,10 @@ L_0380	= $0380 + BEEB_LOWER_OFFSET
 ; Some sort of track variables?
 ; MAX ROAD SECTIONS = $4E = 78
 
+L_0400	= $0400
+L_0401	= $0401
+L_0402	= $0402
+
 road_section_angle_and_piece	= $0400
 L_042A	= $042A
 road_section_xz_positions	= $044E
@@ -1005,6 +1009,7 @@ GUARD &8000
 		bpl L_41C2		;41DB 10 E5     ; wipe 4*8 = 32 bytes in $5XXX
 
 	; C64 page in RAM over IO space at $D000
+	; jsr L_33F1 (disable_ints_and_page_in_RAM)
 	; C64 copy 14x pages to $D000 through $DD00
 
 .L_41E0	ldx #$00		;41E0 A2 00

@@ -661,7 +661,7 @@ ENDIF
 		lda #C64_VIC_IRQ_DISABLE		;87C4 A9 00
 		sta VIC_IRQMASK		;87C6 8D 1A D0
 		sei				;87C9 78
-		lda #C64_LORAM_HIRAM_IO		;87CA A9 34
+		lda #C64_NO_IO_NO_KERNAL		;87CA A9 34
 		sta RAM_SELECT		;87CC 85 01
 		lda #LO(L_D440)		;87CE A9 40
 		sta ZP_1E		;87D0 85 1E
@@ -707,7 +707,7 @@ ENDIF
 .L_881C	lda (ZP_1E),Y	;881C B1 1E
 		sta L_7C00,Y	;881E 99 00 7C
 		lda (ZP_20),Y	;8821 B1 20
-		sta road_section_angle_and_piece,Y	;8823 99 00 04
+		sta L_0400,Y	;8823 99 00 04
 		dey				;8826 88
 		bne L_881C		;8827 D0 F3
 		inc ZP_1F		;8829 E6 1F
@@ -725,13 +725,13 @@ ENDIF
 		ldx #LO(L_4A00)		;8842 A2 00
 		lda #$00		;8844 A9 00
 		jsr fill_64s		;8846 20 21 89
-		lda #C64_BASIC_HIRAM_IO		;8849 A9 35
+		lda #C64_IO_NO_KERNAL		;8849 A9 35
 		sta RAM_SELECT		;884B 85 01
 		cli				;884D 58
 		lda #C64_VIC_IRQ_RASTERCMP		;884E A9 01
 		sta VIC_IRQMASK		;8850 8D 1A D0
 		ldx #$00		;8853 A2 00
-.L_8855	lda road_section_angle_and_piece,X	;8855 BD 00 04
+.L_8855	lda L_0400,X	;8855 BD 00 04
 		sta L_D800,X	;8858 9D 00 D8
 		dex				;885B CA
 		bne L_8855		;885C D0 F7
@@ -784,6 +784,7 @@ ENDIF
 .L_88AC	ldx #$00		;88AC A2 00
 		bit ZP_16		;88AE 24 16
 		bmi L_88CE		;88B0 30 1C
+
 .L_88B2	lda L_D800,X	;88B2 BD 00 D8
 		sta L_6DE0,X	;88B5 9D E0 6D
 		lda L_D900,X	;88B8 BD 00 D9
@@ -795,6 +796,7 @@ ENDIF
 		dex				;88CA CA
 		bne L_88B2		;88CB D0 E5
 		rts				;88CD 60
+
 .L_88CE	lda L_6DE0,X	;88CE BD E0 6D
 		sta L_D800,X	;88D1 9D 00 D8
 		lda L_6F20,X	;88D4 BD 20 6F
@@ -805,11 +807,13 @@ ENDIF
 		sta L_DB00,X	;88E3 9D 00 DB
 		dex				;88E6 CA
 		bne L_88CE		;88E7 D0 E5
+
 		lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00
 		sta VIC_IRQMASK		;88EB 8D 1A D0
 		sei				;88EE 78
-		lda #C64_LORAM_HIRAM_IO		;88EF A9 34
+		lda #C64_NO_IO_NO_KERNAL		;88EF A9 34
 		sta RAM_SELECT		;88F1 85 01
+
 		ldx #$00		;88F3 A2 00
 .L_88F5	lda L_D000,X	;88F5 BD 00 D0
 		sta L_7C00,X	;88F8 9D 00 7C
@@ -823,7 +827,8 @@ ENDIF
 		sta L_7B00,X	;8910 9D 00 7B
 		dex				;8913 CA
 		bne L_88F5		;8914 D0 DF
-		lda #C64_BASIC_HIRAM_IO		;8916 A9 35
+
+		lda #C64_IO_NO_KERNAL		;8916 A9 35
 		sta RAM_SELECT		;8918 85 01
 		cli				;891A 58
 		lda #C64_VIC_IRQ_RASTERCMP		;891B A9 01
