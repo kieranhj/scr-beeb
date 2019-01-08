@@ -1124,6 +1124,8 @@ screen2_address = $6000
 
 		; pointing to screen 1
 
+L_3FF6	= screen1_address-$A
+
 L_4000	= screen1_address+$0000
 L_4001	= screen1_address+$0001
 L_4008	= screen1_address+$0008

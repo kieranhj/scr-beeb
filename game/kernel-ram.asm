@@ -1457,6 +1457,24 @@
 		pla				;1324 68
 		tax				;1325 AA
 		rts				;1326 60
+
+.text_sprite_data
+		equb $03,$3C,$57,$52,$43,$45,$43,$4B,$03,$20,$52,$41,$43,$43,$45,$20
+		equb $21,$3C,$20,$57,$61,$4F,$4E,$20,$61,$54,$20,$20,$03,$20,$52,$41
+		equb $43,$43,$45,$20,$21,$20,$4C,$4F,$61,$53,$54,$20,$03,$20,$44,$52
+		equb $43,$4F,$50,$20,$21,$3C,$53,$54,$61,$41,$52,$54,$03,$3C,$50,$52
+		equb $43,$45,$53,$53,$21,$20,$46,$49,$61,$52,$45,$20,$03,$50,$41,$55
+		equb $43,$53,$45,$44,$03,$20,$4C,$41,$43,$50,$53,$20,$21,$20,$4F,$56
+		equb $61,$45,$52,$20,$03,$44,$45,$46,$43,$49,$4E,$45,$21,$20,$4B,$45
+		equb $61,$59,$53,$20,$03,$3C,$53,$54,$43,$45,$45,$52,$21,$20,$4C,$45
+		equb $61,$46,$54,$20,$03,$20,$53,$54,$43,$45,$45,$52,$21,$20,$52,$49
+		equb $61,$47,$48,$54,$03,$3C,$41,$48,$43,$45,$41,$44,$21,$2B,$42,$4F
+		equb $61,$4F,$53,$54,$03,$20,$42,$41,$43,$43,$4B,$20,$21,$2B,$42,$4F
+		equb $61,$4F,$53,$54,$03,$20,$42,$41,$43,$43,$4B,$20,$21,$20,$20,$20
+		equb $61,$20,$20,$20,$03,$56,$45,$52,$43,$49,$46,$59,$21,$20,$4B,$45
+		equb $61,$59,$53,$20,$03,$20,$46,$41,$43,$55,$4C,$54,$21,$20,$46,$4F
+		equb $61,$55,$4E,$44
+
 }
 
 .L_1411				; only called from Kernel?
@@ -2000,6 +2018,9 @@
 		cmp #$1E		;2EF6 C9 1E
 		bcc L_2EB0		;2EF8 90 B6
 		jmp L_2E6C		;2EFA 4C 6C 2E
+
+.L_2EFD	equb $00,$D9,$27
+.L_2F00	equb $00,$00,$FF
 }
 
 .select_track
@@ -3603,13 +3624,14 @@
 }
 
 .L_CD5C			; in kernel
+{
 		lsr A			;CD5C 4A
 		bcc L_CD72		;CD5D 90 13
 		lda VIC_RASTER		;CD5F AD 12 D0
 		cmp #$72		;CD62 C9 72
 		bcs L_CD84		;CD64 B0 1E
 		lda VIC_SCROLX		;CD66 AD 16 D0
-		ora #$10		;CD69 09 10
+		ora #$10		;CD69 09 10			; VIC multicolour_mode
 		sta VIC_SCROLX		;CD6B 8D 16 D0
 		lda #$72		;CD6E A9 72
 		bne L_CD9F		;CD70 D0 2D
@@ -3622,7 +3644,7 @@
 		lda #$D5		;CD80 A9 D5
 		bne L_CD9F		;CD82 D0 1B
 .L_CD84	lda VIC_SCROLX		;CD84 AD 16 D0
-		and #$EF		;CD87 29 EF
+		and #$EF		;CD87 29 EF			; VIC non_multicolour_mode
 		sta VIC_SCROLX		;CD89 8D 16 D0
 		lda #$28		;CD8C A9 28
 		bne L_CD9F		;CD8E D0 0F
@@ -3632,28 +3654,31 @@
 		lda #$00		;CD98 A9 00
 		sta VIC_BGCOL0		;CD9A 8D 21 D0
 		lda #$CE		;CD9D A9 CE
-.L_CD9F	jmp L_CF49		;CD9F 4C 49 CF
+.L_CD9F	jmp set_raster_interrupt_line		;CD9F 4C 49 CF
+}
 
 ; *****************************************************************************
 ; C64 Interrupt Handler
 ; *****************************************************************************
 
-.L_CDA2	lda CIA1_CIAICR		;CDA2 AD 0D DC
+.irq_handler_done
+		lda CIA1_CIAICR		;CDA2 AD 0D DC
 		lda CIA2_C2DDRA		;CDA5 AD 0D DD
-.L_CDA8	pla				;CDA8 68
+.irq_handler_return
+		pla				;CDA8 68
 		rti				;CDA9 40
 
-.L_CDAA		; C64 game init sets IRQ/BRK vector to $CDAA
+.irq_handler		; C64 game init sets IRQ/BRK vector to $CDAA
 		sei				;CDAA 78
 		pha				;CDAB 48
 		lda VIC_VICIRQ		;CDAC AD 19 D0
-		bpl L_CDA2		;CDAF 10 F1
+		bpl irq_handler_done		;CDAF 10 F1
 
 		lda #$01		;CDB1 A9 01
 		sta VIC_VICIRQ		;CDB3 8D 19 D0
 
 		lda L_3DF8		;CDB6 AD F8 3D
-		beq L_CDA8		;CDB9 F0 ED
+		beq irq_handler_return		;CDB9 F0 ED
 		bpl L_CD5C		;CDBB 10 9F
 
 		lda VIC_RASTER		;CDBD AD 12 D0
@@ -3695,7 +3720,7 @@
 		lda #$FF		;CE11 A9 FF
 		sta vic_sprite_ptr1		;CE13 8D F9 5F
 		lda #$64		;CE16 A9 64
-		jmp L_CF49		;CE18 4C 49 CF
+		jmp set_raster_interrupt_line		;CE18 4C 49 CF
 
 .L_CE1B	lda #$BB		;CE1B A9 BB
 		sta VIC_SP2Y		;CE1D 8D 05 D0
@@ -3752,16 +3777,24 @@
 .L_CE97	lda ZP_6E		;CE97 A5 6E
 		sta VIC_SPENA		;CE99 8D 15 D0
 		lda #$C5		;CE9C A9 C5
-		jmp L_CF49		;CE9E 4C 49 CF
+		jmp set_raster_interrupt_line		;CE9E 4C 49 CF
+
 .L_CEA1	cmp #$D7		;CEA1 C9 D7
-		bcs L_CEB5		;CEA3 B0 10
+		bcs place_dashboard_sprites		;CEA3 B0 10
 		lda #C64_VIC_BITMAP_SCREEN2		;CEA5 A9 78		; BEEB SELECT SCREEN BUFFER
 		sta VIC_VMCSB		;CEA7 8D 18 D0
+
+ ; TomS - point display at single copy of dashboard.
+ ; (there is only one copy;	the corresponding region in the	first buffer holds sprites.)
+
 		lda L_C37A		;CEAA AD 7A C3
 		sta L_C37B		;CEAD 8D 7B C3
 		lda #$D7		;CEB0 A9 D7
-		jmp L_CF49		;CEB2 4C 49 CF
-.L_CEB5	lda #$E4		;CEB5 A9 E4
+		jmp set_raster_interrupt_line		;CEB2 4C 49 CF
+
+.place_dashboard_sprites
+{
+		lda #$E4		;CEB5 A9 E4
 		sta VIC_SP2Y		;CEB7 8D 05 D0
 		sta VIC_SP3Y		;CEBA 8D 07 D0
 		sta VIC_SP0Y		;CEBD 8D 01 D0
@@ -3828,13 +3861,24 @@
 		pla				;CF45 68
 		tax				;CF46 AA
 		lda #$3D		;CF47 A9 3D
-.L_CF49	sta VIC_RASTER		;CF49 8D 12 D0
+}
+\\
+.set_raster_interrupt_line
+{
+		sta VIC_RASTER		;CF49 8D 12 D0
 		lda VIC_SCROLY		;CF4C AD 11 D0
 		and #$7F		;CF4F 29 7F
 		sta VIC_SCROLY		;CF51 8D 11 D0
 		pla				;CF54 68
 		rti				;CF55 40
-		
+}
+
+\\ Dashboard sprite positions
+.L_140D	equb $3C
+.L_140E	equb $54
+.L_140F	equb $06
+.L_1410	equb $1A
+
 .L_CF56	equb $46,$12
 .L_CF58	equb $5E,$FA
 .L_CF5A	equb $B4,$B4		

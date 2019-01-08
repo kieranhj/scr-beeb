@@ -801,3 +801,9 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 .L_2099	equb $78
 .L_209A	equb $6E
 .L_209B	equb $05
+
+;.L_083A	equb $00,$00,$00,$00,$00,$00 ; unused?
+.L_0840	equb $01
+
+.L_1327	equb $00
+.L_1328	equb $02

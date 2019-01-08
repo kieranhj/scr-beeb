@@ -65,7 +65,7 @@
 {
 		stx L_8415		;83F7 8E 15 84
 		lda VIC_SCROLX		;83FA AD 16 D0
-		ora #$10		;83FD 09 10
+		ora #$10		;83FD 09 10			; VIC multicolour_mode
 		sta VIC_SCROLX		;83FF 8D 16 D0
 		lda #$F0		;8402 A9 F0
 		jsr vic_memory_setup		;8404 20 D6 83
@@ -2020,15 +2020,11 @@ ENDIF
 		dex				;93D6 CA
 		bne L_93CA		;93D7 D0 F1
 		jsr L_9746		;93D9 20 46 97
-}
-\\
+
 .L_93DC	jsr page_in_IO_and_enable_ints		;93DC 20 FC 33
-\\
 .L_93DF	rts				;93DF 60
 
-.L_93E0			; continuation of fn L_93A8
-{
-		jsr L_974E		;93E0 20 4E 97
+.L_93E0	jsr L_974E		;93E0 20 4E 97
 		bcs L_93DF		;93E3 B0 FA
 		ldx #$00		;93E5 A2 00
 .L_93E7	sed				;93E7 F8
@@ -6049,6 +6045,9 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		lda #$14		;3011 A9 14
 		jsr L_3A66		;3013 20 66 3A
 		rts				;3016 60
+
+.L_3017	equb $D6,$D7,$E8,$E9
+.L_301B	equb $F,$D,$10,$10,$10,$F,$10,$D
 }
 
 .do_initial_screen			; called from game_start
@@ -6178,6 +6177,9 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr L_364F		;316A 20 4F 36
 		bne L_3165		;316D D0 F6
 		rts				;316F 60
+
+.L_3190	equb $0C,$0C,$0C,$0C,$0B,$0B,$0A,$0A
+.L_3198	equb $13,$13,$13,$12,$11,$10,$0F,$0F
 }
 
 .L_3389_from_game_start			; called from game_start
