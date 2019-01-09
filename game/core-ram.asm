@@ -441,12 +441,12 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		rts				;3051 60
 }
 
-.L_3170
+.L_3170		; could be moved to Cart
 {
 		ldx #$06		;3170 A2 06
 		jsr cart_set_text_cursor		;3172 20 6B 10
 		ldx #$93		;3175 A2 93
-		jsr cart_print_msg_3		;3177 20 DC A1
+		jsr cart_print_msg_3		;3177 20 DC A1		; "Track:  The "
 		ldx current_track		;317A AE 7D C7
 		jsr print_track_name		;317D 20 92 38
 		lda L_31A1		;3180 AD A1 31
@@ -454,7 +454,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		lda L_C71A		;3185 AD 1A C7
 		beq L_318F		;3188 F0 05
 		ldx #$63		;318A A2 63
-		jsr cart_print_msg_3		;318C 20 DC A1
+		jsr cart_print_msg_3		;318C 20 DC A1		; " S."
 .L_318F	rts				;318F 60
 }
 
@@ -556,7 +556,7 @@ ENDIF
 		jmp cart_print_single_digit		;3572 4C 8A 10
 \\
 .L_3575	ldx #$A0		;3575 A2 A0
-		jmp cart_print_msg_3		;3577 4C DC A1
+		jmp cart_print_msg_3		;3577 4C DC A1	; "DRIVERS CHAMPIONSHIP"
 .L_357A	lda #$80		;357A A9 80
 		bne L_3580		;357C D0 02
 \\

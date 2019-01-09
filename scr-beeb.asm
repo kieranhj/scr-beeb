@@ -16,7 +16,7 @@ _TODO = FALSE
 _NOT_BEEB = FALSE
 _DEBUG = TRUE
 
-_EXTEND_TRACK_DRAW_DISTANCE = FALSE		; doesn't do hidden surface removal properly
+DEFAULT_TRACK_DRAW_DISTANCE = $02		; $06 for longer draw
 
 BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4

@@ -3707,11 +3707,7 @@ L_14B6 = L_14B8-2
 \\ According to https://www.c64-wiki.com/wiki/Stunt_Car_Racer changing this number to $06 will increase the draw distance...
 
 .L_173D
-IF _EXTEND_TRACK_DRAW_DISTANCE
-		lda #$06		;173D A9 02
-ELSE
-		lda #$02		;173D A9 02
-ENDIF
+		lda #DEFAULT_TRACK_DRAW_DISTANCE		;173D A9 02
 .L_173F	ldy ZP_2F		;173F A4 2F
 		beq L_1745		;1741 F0 02
 		lda #$05		;1743 A9 05
@@ -6772,5 +6768,59 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		bne L_CF77		;CFB4 D0 C1
 		rts				;CFB6 60
 }
+
+PAGE_ALIGN
+.L_A800	equb $01,$01,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$02,$02
+		equb $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
+		equb $03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$03,$04
+		equb $04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$05,$05,$05,$05,$05
+		equb $05,$05,$05,$05,$06,$06,$06,$06,$06,$06,$06,$06,$07,$07,$07,$07
+		equb $07,$07,$08,$08,$08,$08,$08,$08,$09,$09,$09,$09,$09,$0A,$0A,$0A
+		equb $0A,$0A,$0B,$0B,$0B,$0B,$0C,$0C,$0C,$0C,$0D,$0D,$0D,$0D,$0E,$0E
+		equb $0E,$0F,$0F,$0F,$10,$10,$10,$11,$11,$11,$12,$12,$13,$13,$13,$14
+
+.L_A880	equb $14,$15,$15,$15,$15,$15,$16,$16,$16,$16,$17,$17,$17,$17,$18,$18
+		equb $18,$18,$19,$19,$19,$1A,$1A,$1A,$1A,$1B,$1B,$1B,$1C,$1C,$1C,$1C
+		equb $1D,$1D,$1D,$1E,$1E,$1E,$1F,$1F,$1F,$20,$20,$20,$21,$21,$21,$22
+		equb $22,$23,$23,$23,$24,$24,$24,$25,$25,$26,$26,$26,$27,$27,$28,$28
+		equb $29,$29,$29,$2A,$2A,$2B,$2B,$2C,$2C,$2D,$2D,$2E,$2E,$2F,$2F,$30
+		equb $30,$31,$31,$32,$32,$33,$33,$34,$34,$35,$36,$36,$37,$37,$38,$38
+		equb $39,$3A,$3A,$3B,$3C,$3C,$3D,$3D,$3E,$3F,$3F,$40,$41,$41,$42,$43
+		equb $44,$44,$45,$46,$46,$47,$48,$49,$49,$4A,$4B,$4C,$4D,$4D,$4E,$4F
+
+.L_A900	equb $50,$50,$51,$51,$52,$52,$52,$53,$53,$54,$54,$55,$55,$55,$56,$56
+		equb $57,$57,$58,$58,$59,$59,$59,$5A,$5A,$5B,$5B,$5C,$5C,$5D,$5D,$5E
+		equb $5E,$5F,$5F,$60,$60,$61,$61,$62,$62,$63,$63,$64,$64,$65,$65,$66
+		equb $66,$67,$67,$68,$68,$69,$69,$6A,$6A,$6B,$6B,$6C,$6D,$6D,$6E,$6E
+		equb $6F,$6F,$70,$70,$71,$72,$72,$73,$73,$74,$74,$75,$76,$76,$77,$77
+		equb $78,$79,$79,$7A,$7A,$7B,$7C,$7C,$7D,$7D,$7E,$7F,$7F,$80,$80,$81
+		equb $82,$82,$83,$84,$84,$85,$86,$86,$87,$88,$88,$89,$89,$8A,$8B,$8B
+		equb $8C,$8D,$8D,$8E,$8F,$8F,$90,$91,$92,$92,$93,$94,$94,$95,$96,$96
+		equb $97,$98,$99,$99,$9A,$9B,$9B,$9C,$9D,$9E,$9E,$9F,$A0,$A0,$A1,$A2
+		equb $A3,$A3,$A4,$A5,$A6,$A6,$A7,$A8,$A9,$A9,$AA,$AB,$AC,$AD,$AD,$AE
+		equb $AF,$B0,$B0,$B1,$B2,$B3,$B4,$B4,$B5,$B6,$B7,$B8,$B8,$B9,$BA,$BB
+		equb $BC,$BC,$BD,$BE,$BF,$C0,$C0,$C1,$C2,$C3,$C4,$C4,$C5,$C6,$C7,$C8
+		equb $C9,$C9,$CA,$CB,$CC,$CD,$CE,$CE,$CF,$D0,$D1,$D2,$D3,$D4,$D4,$D5
+		equb $D6,$D7,$D8,$D9,$DA,$DA,$DB,$DC,$DD,$DE,$DF,$E0,$E0,$E1,$E2,$E3
+		equb $E4,$E5,$E6,$E7,$E7,$E8,$E9,$EA,$EB,$EC,$ED,$EE,$EE,$EF,$F0,$F1
+		equb $F2,$F3,$F4,$F5,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FC,$FD,$FE,$FF
+
+.L_AC00	equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$91,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$26
+		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$AF,$FF
+		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$49,$FF,$FF,$FF,$FF,$FF
+		equb $FF,$FF,$FF,$8D,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$44,$FF,$FF,$FF,$FF
+		equb $FF,$E0,$FF,$FF,$FF,$FF,$FF,$A8,$FF,$FF,$FF,$FF,$CB,$FF,$FF,$FF
+		equb $FF,$6B,$FF,$FF,$FF,$9E,$FF,$FF,$FF,$79,$FF,$FF,$FF,$07,$FF,$FF
+		equb $55,$FF,$FF,$6A,$FF,$FF,$4E,$FF,$FF,$07,$FF,$99,$FF,$FF,$09,$FF
+
+.L_AC80	equb $B3,$FF,$FF,$FF,$FF,$1C,$FF,$FF,$FF,$52,$FF,$FF,$FF,$59,$FF,$FF
+		equb $FF,$36,$FF,$FF,$EB,$FF,$FF,$FF,$7C,$FF,$FF,$EC,$FF,$FF,$FF,$3C
+		equb $FF,$FF,$6F,$FF,$FF,$88,$FF,$FF,$87,$FF,$FF,$6F,$FF,$FF,$40,$FF
+		equb $FC,$FF,$FF,$A5,$FF,$FF,$3B,$FF,$BF,$FF,$FF,$33,$FF,$97,$FF,$EC
+		equb $FF,$FF,$32,$FF,$6C,$FF,$98,$FF,$B8,$FF,$CC,$FF,$D4,$FF,$D2,$FF
+		equb $C6,$FF,$B0,$FF,$90,$FF,$67,$FF,$35,$FB,$FF,$B9,$FF,$6F,$FF,$1E
+		equb $C5,$FF,$65,$FF,$FF,$92,$FF,$1F,$A5,$FF,$26,$A1,$FF,$16,$87,$F1
+		equb $FF,$57,$B8,$FF,$15,$6C,$C0,$FF,$0F,$59,$A0,$E2,$FF,$21,$5C,$93
 
 .cart_end
