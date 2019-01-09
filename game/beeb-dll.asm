@@ -177,7 +177,7 @@ ENDIF
 .kernel_L_0F2A DLL_CALL_KERNEL L_0F2A, 48
 .kernel_L_0F72 DLL_CALL_KERNEL L_0F72, 49		; not required in DLL
 .kernel_set_text_cursor DLL_CALL_KERNEL set_text_cursor, 50
-.kernel_print_single_digit DLL_CALL_KERNEL print_single_digit, 51
+\\ was kernel_print_single_digit, 51
 .kernel_L_1090 DLL_CALL_KERNEL L_1090, 52
 .kernel_L_10D9 DLL_CALL_KERNEL L_10D9, 53
 .kernel_L_114D_with_color_ram DLL_CALL_KERNEL L_114D_with_color_ram, 54
@@ -269,7 +269,7 @@ ENDIF
 	EQUB LO(L_0F2A)
 	EQUB LO(L_0F72)
 	EQUB LO(set_text_cursor)
-	EQUB LO(print_single_digit)
+	EQUB 0;LO(print_single_digit)
 	EQUB LO(L_1090)
 	EQUB LO(L_10D9)
 	EQUB LO(L_114D_with_color_ram)
@@ -354,7 +354,7 @@ ENDIF
 	EQUB HI(L_0F2A)
 	EQUB HI(L_0F72)
 	EQUB HI(set_text_cursor)
-	EQUB HI(print_single_digit)
+	EQUB 0;HI(print_single_digit)
 	EQUB HI(L_1090)
 	EQUB HI(L_10D9)
 	EQUB HI(L_114D_with_color_ram)
@@ -567,6 +567,7 @@ ENDIF
 .cart_set_up_colour_map_for_track_preview DLL_CALL_CART set_up_colour_map_for_track_preview, 63
 
 .cart_start_of_frame DLL_CALL_CART start_of_frame, 64
+.cart_print_single_digit DLL_CALL_CART print_single_digit, 65
 
 ; *****************************************************************************
 \\ Function addresses
@@ -642,6 +643,7 @@ ENDIF
 	EQUB LO(set_up_colour_map_for_track_preview)
 
 	EQUB LO(start_of_frame)
+	EQUB LO(print_single_digit)
 }
 
 .cart_table_HI
@@ -714,6 +716,7 @@ ENDIF
 	EQUB HI(set_up_colour_map_for_track_preview)
 
 	EQUB HI(start_of_frame)
+	EQUB HI(print_single_digit)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"

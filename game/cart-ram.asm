@@ -130,6 +130,13 @@
 		jmp fill_64s		;846A 4C 21 89
 }
 
+.print_single_digit
+{
+		clc				;108A 18
+		adc #$30		;108B 69 30
+		jmp write_char		;108D 4C 6F 84
+}
+
 ; Print char.
 ; entry: A	= char to print	(also 127=del, 9=space,	VDU31 a	la OSWRCH)
 .write_char			; HAS DLL
@@ -2525,7 +2532,7 @@ ENDIF
 		ora L_82B0,X	;9A06 1D B0 82
 		beq L_9A27		;9A09 F0 1C
 		lda L_8398,X	;9A0B BD 98 83
-		jsr kernel_print_single_digit		;9A0E 20 8A 10
+		jsr print_single_digit		;9A0E 20 8A 10
 		lda #$3A		;9A11 A9 3A
 		jsr write_char		;9A13 20 6F 84
 		lda L_82B0,X	;9A16 BD B0 82

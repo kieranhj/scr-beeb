@@ -481,6 +481,8 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 
 ; FRONTEND STRINGS
 
+;BEEB MOVE ALL CHAR AND STRING FUNCTIONS TO CART
+
 .frontend_strings_3
 		equb $1F,$11,$0B,"SELECT",$FF
 		equb "Single Player League",$FF
@@ -552,11 +554,11 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		lsr A			;3355 4A
 		lsr A			;3356 4A
 		lsr A			;3357 4A
-		jsr kernel_print_single_digit		;3358 20 8A 10
+		jsr cart_print_single_digit		;3358 20 8A 10
 .L_335B
 		pla				;335B 68
 		and #$0F		;335C 29 0F
-.L_335E	jmp kernel_print_single_digit		;335E 4C 8A 10
+.L_335E	jmp cart_print_single_digit		;335E 4C 8A 10
 
 .disable_ints_and_page_in_RAM	RTS
 IF _NOT_BEEB
@@ -669,7 +671,7 @@ ENDIF
 .L_356C	lda #$04		;356C A9 04
 		sec				;356E 38
 		sbc L_C360		;356F ED 60 C3
-		jmp kernel_print_single_digit		;3572 4C 8A 10
+		jmp cart_print_single_digit		;3572 4C 8A 10
 \\
 .L_3575	ldx #$A0		;3575 A2 A0
 		jmp cart_print_msg_3		;3577 4C DC A1

@@ -1090,13 +1090,6 @@
 		rts				;1089 60
 }
 
-.print_single_digit
-{
-		clc				;108A 18
-		adc #$30		;108B 69 30
-		jmp cart_write_char		;108D 4C 6F 84
-}
-
 .L_1090
 {
 		lda #$00		;1090 A9 00
@@ -5768,7 +5761,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda ZP_17		;EE66 A5 17
 		clc				;EE68 18
 		adc #$01		;EE69 69 01
-		jsr print_single_digit		;EE6B 20 8A 10
+		jsr cart_print_single_digit		;EE6B 20 8A 10
 		lda #$2E		;EE6E A9 2E
 		jsr cart_write_char		;EE70 20 6F 84
 		jsr cart_print_space		;EE73 20 AF 91
@@ -5784,7 +5777,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda ZP_17		;EE88 A5 17
 		clc				;EE8A 18
 		adc #$01		;EE8B 69 01
-		jsr print_single_digit		;EE8D 20 8A 10
+		jsr cart_print_single_digit		;EE8D 20 8A 10
 .L_EE90	lda ZP_31		;EE90 A5 31
 		cmp ZP_17		;EE92 C5 17
 		bcc L_EEB2		;EE94 90 1C
