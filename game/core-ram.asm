@@ -1186,7 +1186,7 @@ ENDIF
 		bne L_3DFB		;3E18 D0 E1
 		ldx L_C71A		;3E1A AE 1A C7
 		ldy #$00		;3E1D A0 00
-.L_3E1F	lda L_BFEA,X	;3E1F BD EA BF
+.L_3E1F	lda league_values,X	;3E1F BD EA BF
 		sta L_C382,Y	;3E22 99 82 C3
 		inx				;3E25 E8
 		iny				;3E26 C8

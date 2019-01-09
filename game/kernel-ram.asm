@@ -887,7 +887,7 @@
 		txa				;0F21 8A
 		lsr A			;0F22 4A
 		tax				;0F23 AA
-		lda L_B080,X	;0F24 BD 80 B0
+		lda cosine_conversion_table,X	;0F24 BD 80 B0
 		sta ZP_57		;0F27 85 57
 		rts				;0F29 60
 }
@@ -5971,9 +5971,9 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta ZP_A2		;F032 85 A2
 		asl A			;F034 0A
 		tay				;F035 A8
-		lda L_B120,Y	;F036 B9 20 B1
+		lda y_coordinate_offsets,Y	;F036 B9 20 B1
 		sta ZP_98		;F039 85 98
-		lda L_B120+1,Y	;F03B B9 21 B1
+		lda y_coordinate_offsets+1,Y	;F03B B9 21 B1
 		sta ZP_99		;F03E 85 99
 		lda right_y_coordinate_IDs,X	;F040 BD EA 04
 		asl A			;F043 0A
@@ -5982,9 +5982,9 @@ L_EBDD	= L_EBE7 - $A			;!
 		rol A			;F047 2A
 		asl A			;F048 0A
 		sta ZP_D8		;F049 85 D8
-		lda L_B120,Y	;F04B B9 20 B1
+		lda y_coordinate_offsets,Y	;F04B B9 20 B1
 		sta ZP_CA		;F04E 85 CA
-		lda L_B120+1,Y	;F050 B9 21 B1
+		lda y_coordinate_offsets+1,Y	;F050 B9 21 B1
 		sta ZP_CB		;F053 85 CB
 		lda overall_left_y_shifts_LSBs,X	;F055 BD 38 05
 		sta ZP_3F		;F058 85 3F
@@ -6008,9 +6008,9 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta L_C3CD		;F07F 8D CD C3
 		asl A			;F082 0A
 		tay				;F083 A8
-		lda L_B100,Y	;F084 B9 00 B1
+		lda piece_data_offsets,Y	;F084 B9 00 B1
 		sta ZP_9A		;F087 85 9A
-		lda L_B100+1,Y	;F089 B9 01 B1
+		lda piece_data_offsets+1,Y	;F089 B9 01 B1
 		sta ZP_9B		;F08C 85 9B
 		ldy #$01		;F08E A0 01
 		lda (ZP_9A),Y	;F090 B1 9A
@@ -6563,7 +6563,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda road_section_angle_and_piece,X	;F48D BD 00 04
 		and #$0F		;F490 29 0F
 		tay				;F492 A8
-		lda L_B240,Y	;F493 B9 40 B2
+		lda sections_car_can_be_put_on,Y	;F493 B9 40 B2
 		bmi L_F485		;F496 30 ED
 		ldy L_C779		;F498 AC 79 C7
 		beq L_F4A7		;F49B F0 0A

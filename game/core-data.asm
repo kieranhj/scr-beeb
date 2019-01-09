@@ -139,13 +139,52 @@ PAGE_ALIGN
 		equb " "
 .L_AEB1	equb "             ",$40,$60
 
-\\ This data is unknown so far!
+\\ This looks like workspace data for C64 FS commands and think contents is just garbage
+;			equb $A9
+;.L_AEC1	equb $00,$A4,$18,$4C,$EA,$AE,$4C,$43,$AE,$A9,$00,$F0,$0A,$4C,$0E,$8C
+;			equb $20,$EC,$AD,$D0,$F8,$A5,$36,$A0,$00,$F0,$0E,$A4,$1B,$B1,$19
+.L_AEC0
+{
+		LDA #0
+		LDY ZP_18
+		JMP $AEEA		; not a real fn address
+		JMP $AE43		; not a real fn address
+		LDA #0
+		BEQ L_AED8
+.L_AECE	JMP $8C0E		; not a real fn address
+		JSR $ADEC		; not a real fn address
+		BNE L_AECE
+		LDA ZP_36
+.L_AED8	LDY #0
+		BEQ P%+$10
+		LDY ZP_1B
+		LDA (ZP_19),Y
+}
 
-		equb $A9
-.L_AEC1	equb $00,$A4,$18,$4C,$EA,$AE,$4C,$43,$AE,$A9,$00,$F0,$0A,$4C,$0E,$8C
-		equb $20,$EC,$AD,$D0,$F8,$A5,$36,$A0,$00,$F0,$0E,$A4,$1B,$B1,$19
-.L_AEE0	equb $22,$20,$62,$20,$3E,$04,$30,$14,$4A,$10,$08,$00,$84,$2B,$A9,$00
+L_AEC1 = L_AEC0 + 1
+
+;opponent.attributes
+; OBSTRUCTS_PLAYER	equ	2
+; WHEELIE			equ	4
+; DRIVES_NEAR_EDGE	equ	8
+; PUSH_PLAYER		equ	32
+;	dc.b	PUSH_PLAYER|OBSTRUCTS_PLAYER
+;	dc.b	PUSH_PLAYER
+;	dc.b	%1000000|PUSH_PLAYER|OBSTRUCTS_PLAYER
+;	dc.b	PUSH_PLAYER
+;	dc.b	%0010000|PUSH_PLAYER|DRIVES_NEAR_EDGE|WHEELIE|OBSTRUCTS_PLAYER
+;	dc.b	WHEELIE
+;	dc.b	%0010000|PUSH_PLAYER
+;	dc.b	%0010000|WHEELIE
+;	dc.b	%1000000|DRIVES_NEAR_EDGE|OBSTRUCTS_PLAYER
+;	dc.b	%0010000
+;	dc.b	DRIVES_NEAR_EDGE
+;	dc.b	%0000000			(unused)
+.opponent_attributes
+		equb $22,$20,$62,$20,$3E,$04,$30,$14,$4A,$10,$08,$00,$84,$2B,$A9,$00
 		equb $85,$2C,$85,$2D,$A9,$40,$60,$A5,$1E,$4C,$D8,$AE,$A5,$00,$A4,$01
+
+\\ Think this has to be page aligned
 
 .track_name_data
 		equb "LITTLE RAMP     "
@@ -196,8 +235,9 @@ PAGE_ALIGN
 \*
 \* First 8 values should ideally be 256.
 
-;cosine.conversion.table
-.L_B080	equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
+;L_B080
+.cosine_conversion_table
+		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
 		equb $FE,$FE,$FD,$FD,$FD,$FD,$FC,$FC,$FB,$FB,$FB,$FA,$FA,$F9,$F9,$F8
 		equb $F8,$F7,$F7,$F6,$F6,$F5,$F4,$F4,$F3,$F3,$F2,$F1,$F0,$F0,$EF,$EE
 		equb $ED,$EC,$EC,$EB,$EA,$E9,$E8,$E7,$E6,$E5,$E4,$E3,$E2,$E1,$E0,$DF
@@ -221,12 +261,13 @@ PAGE_ALIGN
 \* bollocks and are not used by the program (for any of the roads).  The only
 \* values used by the program are words 0, 1, 3, 4, 6, 7 and 10.
 
-;piece.data.offsets
-.L_B100	equw L_B250, L_B2A3, $FFA9, L_B2FE, L_B359, $DA20, L_B3D8, L_B43B
+;L_B100
+.piece_data_offsets
+		equw L_B250, L_B2A3, $FFA9, L_B2FE, L_B359, $DA20, L_B3D8, L_B43B
 		equw $460A, $202E, L_B49E, $80A9, $2E85, $A560, $C930, $9081
 
-;y.coordinate.offsets
-.L_B120
+;L_B120
+.y_coordinate_offsets
 	equw L_B50D, L_B51B, L_B524, L_B536, L_B544, L_B552, L_B55C, L_B566
 	equw L_B56F, L_B578, L_B586, L_B594, L_B59D, L_B5A6, L_B5B2, L_B5CA
 	equw L_B5D3, L_B5EB, L_B5F7, L_B601, L_B60A, L_B614, L_B61D, L_B627
@@ -264,8 +305,9 @@ PAGE_ALIGN
 \*
 \* If bit 7 is set then the car cannot be lowered onto this section.
 
-;sections.car.can.be.put.on
-.L_B240	equb $00,$80,$20,$C0,$00,$73,$80,$C0,$A9,$59,$00,$02,$A9,$5E,$85,$4B
+;L_B240
+.sections_car_can_be_put_on
+	equb $00,$80,$20,$C0,$00,$73,$80,$C0,$A9,$59,$00,$02,$A9,$5E,$85,$4B
 
 \* Groups of X and Z co-ordinates follow.  There are two bytes for each
 \* co-ordinate - stored in low byte, high byte order.
@@ -686,9 +728,10 @@ PAGE_ALIGN
 		equb $07,$03,$03,$03,$03,$01,$03,$03
 		equb $61,$55,$53,$56,$58,$5B,$5A,$62
 
-;league.values
+;L_BFEA
+.league_values
 \* Standard league
-.L_BFEA	equb $48,$00
+		equb $48,$00
 		equb $F0,$00	;			engine.power
 		equb $EC,$00	;			opponents.engine.power
 		equb $10		;			boost.unit.value

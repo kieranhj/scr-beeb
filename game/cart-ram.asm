@@ -922,9 +922,9 @@ ENDIF
 		sta ZP_51		;89A7 85 51
 		ldy #$02		;89A9 A0 02
 		ldx #$BE		;89AB A2 BE
-		lda L_B120,X	;89AD BD 20 B1
+		lda y_coordinate_offsets,X	;89AD BD 20 B1
 		sta ZP_1E		;89B0 85 1E
-		lda L_B120+1,X	;89B2 BD 21 B1
+		lda y_coordinate_offsets+1,X	;89B2 BD 21 B1
 		sta ZP_1F		;89B5 85 1F
 		ldx #$0F		;89B7 A2 0F
 .L_89B9	lda ZP_7D		;89B9 A5 7D
@@ -1576,7 +1576,7 @@ ENDIF
 .L_8F45	lda road_section_angle_and_piece,X	;8F45 BD 00 04
 		and #$0F		;8F48 29 0F
 		tay				;8F4A A8
-		lda L_B240,Y	;8F4B B9 40 B2
+		lda sections_car_can_be_put_on,Y	;8F4B B9 40 B2
 		bpl L_8F5E		;8F4E 10 0E
 		lda L_8F80		;8F50 AD 80 8F
 		sec				;8F53 38
@@ -1769,8 +1769,8 @@ ENDIF
 		dex				;90DA CA
 		bpl L_90D4		;90DB 10 F7
 		lda #$0F		;90DD A9 0F
-		ldy #$91		;90DF A0 91
-		ldx #$0B		;90E1 A2 0B
+		ldy #HI(L_910B)		;90DF A0 91
+		ldx #LO(L_910B)		;90E1 A2 0B
 .L_90E3	jsr KERNEL_SETNAM		;90E3 20 BD FF
 		lda #$0F		;90E6 A9 0F
 		ldx #$08		;90E8 A2 08
@@ -4528,7 +4528,7 @@ L_14B6 = L_14B8-2
 		lda ZP_39		;1D80 A5 39
 		cmp #$18		;1D82 C9 18
 		bcs L_1D9E		;1D84 B0 18
-.L_1D86	lda L_AEE0,X	;1D86 BD E0 AE
+.L_1D86	lda opponent_attributes,X	;1D86 BD E0 AE
 		and #$08		;1D89 29 08
 		beq L_1D98		;1D8B F0 0B
 		bit L_C36A		;1D8D 2C 6A C3
@@ -4542,14 +4542,14 @@ L_14B6 = L_14B8-2
 		bmi L_1DC5		;1DA1 30 22
 		cmp #$32		;1DA3 C9 32
 		bcs L_1DB4		;1DA5 B0 0D
-		lda L_AEE0,X	;1DA7 BD E0 AE
+		lda opponent_attributes,X	;1DA7 BD E0 AE
 		and #$02		;1DAA 29 02
 		beq L_1DBF		;1DAC F0 11
 		jsr L_1E5A		;1DAE 20 5A 1E
 		jmp L_1DE1		;1DB1 4C E1 1D
 .L_1DB4	cmp #$C8		;1DB4 C9 C8
 		bcs L_1DCB		;1DB6 B0 13
-		lda L_AEE0,X	;1DB8 BD E0 AE
+		lda opponent_attributes,X	;1DB8 BD E0 AE
 		and #$20		;1DBB 29 20
 		beq L_1DCB		;1DBD F0 0C
 .L_1DBF	jsr L_1E3C		;1DBF 20 3C 1E
@@ -4557,7 +4557,7 @@ L_14B6 = L_14B8-2
 .L_1DC5	jsr L_1E3C		;1DC5 20 3C 1E
 		jmp L_1E00		;1DC8 4C 00 1E
 .L_1DCB	ldy #$40		;1DCB A0 40
-		lda L_AEE0,X	;1DCD BD E0 AE
+		lda opponent_attributes,X	;1DCD BD E0 AE
 		and #$08		;1DD0 29 08
 		beq L_1DD6		;1DD2 F0 02
 		ldy #$6E		;1DD4 A0 6E
@@ -4575,7 +4575,7 @@ L_14B6 = L_14B8-2
 .L_1DEA	lda road_section_angle_and_piece,X	;1DEA BD 00 04
 		and #$0F		;1DED 29 0F
 		tay				;1DEF A8
-		lda L_B240,Y	;1DF0 B9 40 B2
+		lda sections_car_can_be_put_on,Y	;1DF0 B9 40 B2
 		bpl L_1DF9		;1DF3 10 04
 		lda #$80		;1DF5 A9 80
 		sta ZP_2C		;1DF7 85 2C
@@ -5095,7 +5095,7 @@ L_14B6 = L_14B8-2
 		dex				;22B1 CA
 		bpl L_227A		;22B2 10 C6
 		ldx L_C773		;22B4 AE 73 C7
-		lda L_AEE0,X	;22B7 BD E0 AE
+		lda opponent_attributes,X	;22B7 BD E0 AE
 		and #$04		;22BA 29 04
 		beq L_22DA		;22BC F0 1C
 		lda L_07E2		;22BE AD E2 07
@@ -6291,7 +6291,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		adc L_E8E1,Y	;33B6 79 E1 E8
 		tay				;33B9 A8
 		lda L_DCE0,Y	;33BA B9 E0 DC			; CIA1
-		sta L_AEE0,X	;33BD 9D E0 AE
+		sta opponent_attributes,X	;33BD 9D E0 AE
 		txa				;33C0 8A
 		asl A			;33C1 0A
 		asl A			;33C2 0A
