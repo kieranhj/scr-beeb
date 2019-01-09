@@ -761,6 +761,8 @@ PAGE_ALIGN
 \\ Data moved from Kernel RAM to Core
 ; *****************************************************************************
 
+; FRONTEND STRINGS
+
 .frontend_strings_2
 		equb $1F,$11,$0B,"SELECT",$FF
 		equb "Practise ",$FF
@@ -781,6 +783,53 @@ PAGE_ALIGN
 		equb $FF
 		equb "EXCELLENT DRIVING - WELL DONE",$FF
 		equb "Hall of Fame",$FF
+
+.frontend_strings_3
+		equb $1F,$11,$0B,"SELECT",$FF
+		equb "Single Player League",$FF
+		equb "Multiplayer",$FF
+		equb "Enter another driver",$FF
+		equb "Continue",$FF
+		equb "Tracks in DIVISION ",$FF
+		equb $00,$00,$00
+		equb $00,$00,$00," S.",$FF
+		equb "        s",$FF
+		equb $1F,$06
+.L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
+		equb "Track:  The ",$FF
+		equb $1F,$0A,$09
+		equb "DRIVERS CHAMPIONSHIP",$FF
+		equb $1F,$0E,$14,"Track record",$FF
+		equb $00
+.L_3273	equb "------------",$FF
+.L_3280	equb "------------",$FF
+		equb $1F,$0C,$0F
+		equb "New track record",$FF
+
+.frontend_strings_4
+		equb $1F,$0F
+.L_3409	equb $09,"DIVISION ",$FF
+		equb $1F,$0F
+.L_3416	equb $0D,"RACE  ",$FF
+		equb $1F,$06,$0B,"Track:  ",$FF
+		equb "The ",$FF
+		equb " V ",$FF
+		equb $1F,$03,$18
+		equb "steer to rotate view or fire to continue",$FF
+		equb $1F
+.L_3460	equb $0F,$15,"The ",$FF
+		equb $1F,$11,$12,"RESULT",$FF
+		equb "Race Winner: ",$FF
+		equb "Fastest Lap: ",$FF
+		equb $1F,$0E,$0B
+		equb "RESULTS TABLE"
+		equb $1F,$06,$0E
+		equb "DRIVER     RACED WIN LAP  PTS",$FF
+		equb "Promotion for  ",$FF
+		equb "Relegation for ",$FF
+		equb " CHANGES",$FF
+		equb $1F,$12,$0E,"NAME?",$FF
+		equb " 2pts",$FF," 1pt",$FF," of ",$FF
 
 .L_E8E1	equb $09,$06,$03,$00
 

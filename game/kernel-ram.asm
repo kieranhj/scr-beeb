@@ -2375,7 +2375,7 @@
 		lda L_0402,X	;99B7 BD 02 04
 		sta L_8298		;99BA 8D 98 82
 		ldx #$00		;99BD A2 00
-		jsr cart_L_99FF		;99BF 20 FF 99
+		jsr cart_print_lap_time_Q		;99BF 20 FF 99
 		lda ZP_08		;99C2 A5 08
 		eor #$80		;99C4 49 80
 		sta ZP_08		;99C6 85 08

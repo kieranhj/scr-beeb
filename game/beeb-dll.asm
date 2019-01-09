@@ -519,7 +519,7 @@ ENDIF
 .cart_L_95EA DLL_CALL_CART L_95EA, 17
 .cart_maybe_define_keys DLL_CALL_CART maybe_define_keys, 18
 .cart_store_restore_control_keys DLL_CALL_CART store_restore_control_keys, 19
-.cart_L_99FF DLL_CALL_CART L_99FF, 20
+.cart_print_lap_time_Q DLL_CALL_CART print_lap_time_Q, 20
 .cart_L_9A38 DLL_CALL_CART L_9A38, 21
 .cart_L_9C14 DLL_CALL_CART L_9C14, 22			; all in Kernel
 .cart_L_9EBC DLL_CALL_CART L_9EBC, 23			; all in Kernel
@@ -571,6 +571,7 @@ ENDIF
 .cart_print_msg_1 DLL_CALL_CART print_msg_1, 66
 .cart_print_msg_4 DLL_CALL_CART print_msg_4, 67
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
+.cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
 
 ; *****************************************************************************
 \\ Function addresses
@@ -598,7 +599,7 @@ ENDIF
 	EQUB LO(L_95EA)
 	EQUB LO(maybe_define_keys)
 	EQUB LO(store_restore_control_keys)
-	EQUB LO(L_99FF)
+	EQUB LO(print_lap_time_Q)
 	EQUB LO(L_9A38)
 	EQUB LO(L_9C14)
 	EQUB LO(L_9EBC)
@@ -650,6 +651,7 @@ ENDIF
 	EQUB LO(print_msg_1)
 	EQUB LO(print_msg_4)
 	EQUB LO(set_text_cursor)
+	EQUB LO(print_number_unpadded)
 }
 
 .cart_table_HI
@@ -674,7 +676,7 @@ ENDIF
 	EQUB HI(L_95EA)
 	EQUB HI(maybe_define_keys)
 	EQUB HI(store_restore_control_keys)
-	EQUB HI(L_99FF)
+	EQUB HI(print_lap_time_Q)
 	EQUB HI(L_9A38)
 	EQUB HI(L_9C14)
 	EQUB HI(L_9EBC)
@@ -726,6 +728,7 @@ ENDIF
 	EQUB HI(print_msg_1)
 	EQUB HI(print_msg_4)
 	EQUB HI(set_text_cursor)
+	EQUB HI(print_number_unpadded)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"

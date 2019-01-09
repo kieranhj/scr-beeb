@@ -1922,7 +1922,7 @@ ENDIF
 		jsr print_msg_3		;9277 20 DC A1
 		jsr print_space		;927A 20 AF 91
 		ldx #$0F		;927D A2 0F
-		jsr L_99FF		;927F 20 FF 99
+		jsr print_lap_time_Q		;927F 20 FF 99
 .L_9282	bit L_C305		;9282 2C 05 C3
 		bvc L_92A1		;9285 50 1A
 		ldx #$05		;9287 A2 05
@@ -1935,7 +1935,7 @@ ENDIF
 		jsr print_msg_3		;9296 20 DC A1
 		jsr print_space		;9299 20 AF 91
 		ldx #$0E		;929C A2 0E
-		jmp L_99FF		;929E 4C FF 99
+		jmp print_lap_time_Q		;929E 4C FF 99
 .L_92A1	rts				;92A1 60
 }
 
@@ -2524,7 +2524,7 @@ ENDIF
 		equb $2E,$27,$29,$12,$08
 }
 
-.L_99FF				; HAS DLL
+.print_lap_time_Q				; HAS DLL
 {
 		lda L_8398,X	;99FF BD 98 83
 		cmp #$09		;9A02 C9 09
@@ -3234,6 +3234,18 @@ ENDIF
 		cmp #$FF		;32A8 C9 FF
 		bne L_32A1		;32AA D0 F5
 		rts				;32AC 60
+
+.frontend_strings_1
+		equb "TRACK BONUS POINTS",$FF
+		equb $1F,$0E,$0C,"FINAL SEASON",$FF
+		equb "Race Time: ",$FF
+		equb "Best Lap : ",$FF
+		equb $1F,$10,$01
+		equb "HALL of FAME",$FF
+		equb $1F,$10,$03
+		equb "SUPER LEAGUE",$FF
+		equb $1F,$00,$06
+		equb "TRACK  DRIVER   LAP-TIME    DRIVER  RACE-TIME",$FF
 }
 
 .L_A1C7	jsr write_char		;A1C7 20 6F 84
@@ -3278,6 +3290,39 @@ ENDIF
 		bne L_3023		;302C D0 F5
 		rts				;302E 60
 }
+
+.print_number_pad4
+{
+		pha				;3339 48
+		jsr print_2space		;333A 20 AA 91
+		pla				;333D 68
+		jmp print_number_pad2		;333E 4C 45 33
+}
+
+.print_number_unpadded
+		cmp #$0A		;3341 C9 0A
+		bcc L_335E		;3343 90 19
+
+.print_number_pad2
+		cmp #$0A		;3345 C9 0A
+		bcs L_3350		;3347 B0 07
+		pha				;3349 48
+		jsr print_space		;334A 20 AF 91
+		jmp L_335B		;334D 4C 5B 33
+
+.L_3350	jsr convert_X_to_BCD		;3350 20 15 92
+
+.print_BCD_double_digits
+		pha				;3353 48
+		lsr A			;3354 4A
+		lsr A			;3355 4A
+		lsr A			;3356 4A
+		lsr A			;3357 4A
+		jsr print_single_digit		;3358 20 8A 10
+.L_335B
+		pla				;335B 68
+		and #$0F		;335C 29 0F
+.L_335E	jmp print_single_digit		;335E 4C 8A 10
 
 ; *****************************************************************************
 ; Fns moved from Core RAM so data can reside there
@@ -6313,13 +6358,13 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldx ZP_C6		;365C A6 C6
 		lda L_C39C		;365E AD 9C C3
 		bpl L_3674		;3661 10 11
-		jsr L_99FF		;3663 20 FF 99
+		jsr print_lap_time_Q		;3663 20 FF 99
 		jsr print_2space		;3666 20 AA 91
 		txa				;3669 8A
 		clc				;366A 18
 		adc #$0C		;366B 69 0C
 		tax				;366D AA
-		jsr L_99FF		;366E 20 FF 99
+		jsr print_lap_time_Q		;366E 20 FF 99
 		jmp L_368F		;3671 4C 8F 36
 .L_3674	lda L_C740,X	;3674 BD 40 C7
 		jsr print_number_pad2		;3677 20 45 33

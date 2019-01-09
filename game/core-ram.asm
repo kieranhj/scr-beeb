@@ -469,77 +469,6 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 .L_31A8	equb $00
 .L_31A9	equb $00
 
-; FRONTEND STRINGS
-
-;BEEB MOVE ALL CHAR AND STRING FUNCTIONS TO CART
-
-.frontend_strings_3
-		equb $1F,$11,$0B,"SELECT",$FF
-		equb "Single Player League",$FF
-		equb "Multiplayer",$FF
-		equb "Enter another driver",$FF
-		equb "Continue",$FF
-		equb "Tracks in DIVISION ",$FF
-		equb $00,$00,$00
-		equb $00,$00,$00," S.",$FF
-		equb "        s",$FF
-		equb $1F,$06
-.L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
-		equb "Track:  The ",$FF
-		equb $1F,$0A,$09
-		equb "DRIVERS CHAMPIONSHIP",$FF
-		equb $1F,$0E,$14,"Track record",$FF
-		equb $00
-.L_3273	equb "------------",$FF
-.L_3280	equb "------------",$FF
-		equb $1F,$0C,$0F
-		equb "New track record",$FF
-
-; FRONTEND STRINGS
-
-.frontend_strings_1
-		equb "TRACK BONUS POINTS",$FF
-		equb $1F,$0E,$0C,"FINAL SEASON",$FF
-		equb "Race Time: ",$FF
-		equb "Best Lap : ",$FF
-		equb $1F,$10,$01
-		equb "HALL of FAME",$FF
-		equb $1F,$10,$03
-		equb "SUPER LEAGUE",$FF
-		equb $1F,$00,$06
-		equb "TRACK  DRIVER   LAP-TIME    DRIVER  RACE-TIME",$FF
-
-.print_number_pad4
-		pha				;3339 48
-		jsr cart_print_2space		;333A 20 AA 91
-		pla				;333D 68
-		jmp print_number_pad2		;333E 4C 45 33
-
-.print_number_unpadded
-		cmp #$0A		;3341 C9 0A
-		bcc L_335E		;3343 90 19
-
-.print_number_pad2
-		cmp #$0A		;3345 C9 0A
-		bcs L_3350		;3347 B0 07
-		pha				;3349 48
-		jsr cart_print_space		;334A 20 AF 91
-		jmp L_335B		;334D 4C 5B 33
-
-.L_3350	jsr cart_convert_X_to_BCD		;3350 20 15 92
-
-.print_BCD_double_digits
-		pha				;3353 48
-		lsr A			;3354 4A
-		lsr A			;3355 4A
-		lsr A			;3356 4A
-		lsr A			;3357 4A
-		jsr cart_print_single_digit		;3358 20 8A 10
-.L_335B
-		pla				;335B 68
-		and #$0F		;335C 29 0F
-.L_335E	jmp cart_print_single_digit		;335E 4C 8A 10
-
 .disable_ints_and_page_in_RAM	RTS
 IF _NOT_BEEB
 {
@@ -564,33 +493,6 @@ IF _NOT_BEEB
 }
 ENDIF
 
-; FRONTEND STRINGS
-
-.frontend_strings_4
-		equb $1F,$0F
-.L_3409	equb $09,"DIVISION ",$FF
-		equb $1F,$0F
-.L_3416	equb $0D,"RACE  ",$FF
-		equb $1F,$06,$0B,"Track:  ",$FF
-		equb "The ",$FF
-		equb " V ",$FF
-		equb $1F,$03,$18
-		equb "steer to rotate view or fire to continue",$FF
-		equb $1F
-.L_3460	equb $0F,$15,"The ",$FF
-		equb $1F,$11,$12,"RESULT",$FF
-		equb "Race Winner: ",$FF
-		equb "Fastest Lap: ",$FF
-		equb $1F,$0E,$0B
-		equb "RESULTS TABLE"
-		equb $1F,$06,$0E
-		equb "DRIVER     RACED WIN LAP  PTS",$FF
-		equb "Promotion for  ",$FF
-		equb "Relegation for ",$FF
-		equb " CHANGES",$FF
-		equb $1F,$12,$0E,"NAME?",$FF
-		equb " 2pts",$FF," 1pt",$FF," of ",$FF
-		
 .L_3500_with_VIC
 {
 		jsr L_3FBE_with_VIC		;3500 20 BE 3F	; does VIC stuff
@@ -689,14 +591,14 @@ ENDIF
 		lda L_31A6		;35BD AD A6 31
 		clc				;35C0 18
 		adc #$01		;35C1 69 01
-		jsr print_number_unpadded		;35C3 20 41 33
+		jsr cart_print_number_unpadded		;35C3 20 41 33
 		ldx #$F4		;35C6 A2 F4
 		jsr cart_print_msg_4		;35C8 20 27 30
 		lda L_31A3		;35CB AD A3 31
 		ldx L_31A1		;35CE AE A1 31
 		beq L_35D4		;35D1 F0 01
 		asl A			;35D3 0A
-.L_35D4	jsr print_number_unpadded		;35D4 20 41 33
+.L_35D4	jsr cart_print_number_unpadded		;35D4 20 41 33
 		bit L_C372		;35D7 2C 72 C3
 		bmi L_35EC		;35DA 30 10
 		lda #$06		;35DC A9 06
