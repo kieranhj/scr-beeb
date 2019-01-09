@@ -176,7 +176,7 @@ ENDIF
 .kernel_game_update DLL_CALL_KERNEL game_update, 47
 .kernel_L_0F2A DLL_CALL_KERNEL L_0F2A, 48
 .kernel_L_0F72 DLL_CALL_KERNEL L_0F72, 49		; not required in DLL
-.kernel_set_text_cursor DLL_CALL_KERNEL set_text_cursor, 50
+\\ was set_text_cursor, 50
 \\ was kernel_print_single_digit, 51
 .kernel_L_1090 DLL_CALL_KERNEL L_1090, 52
 .kernel_L_10D9 DLL_CALL_KERNEL L_10D9, 53
@@ -268,7 +268,7 @@ ENDIF
 	EQUB LO(game_update)
 	EQUB LO(L_0F2A)
 	EQUB LO(L_0F72)
-	EQUB LO(set_text_cursor)
+	EQUB 0;LO(set_text_cursor)
 	EQUB 0;LO(print_single_digit)
 	EQUB LO(L_1090)
 	EQUB LO(L_10D9)
@@ -353,7 +353,7 @@ ENDIF
 	EQUB HI(game_update)
 	EQUB HI(L_0F2A)
 	EQUB HI(L_0F72)
-	EQUB HI(set_text_cursor)
+	EQUB 0;HI(set_text_cursor)
 	EQUB 0;HI(print_single_digit)
 	EQUB HI(L_1090)
 	EQUB HI(L_10D9)
@@ -570,6 +570,7 @@ ENDIF
 .cart_print_single_digit DLL_CALL_CART print_single_digit, 65
 .cart_print_msg_1 DLL_CALL_CART print_msg_1, 66
 .cart_print_msg_4 DLL_CALL_CART print_msg_4, 67
+.cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 
 ; *****************************************************************************
 \\ Function addresses
@@ -648,6 +649,7 @@ ENDIF
 	EQUB LO(print_single_digit)
 	EQUB LO(print_msg_1)
 	EQUB LO(print_msg_4)
+	EQUB LO(set_text_cursor)
 }
 
 .cart_table_HI
@@ -723,6 +725,7 @@ ENDIF
 	EQUB HI(print_single_digit)
 	EQUB HI(print_msg_1)
 	EQUB HI(print_msg_4)
+	EQUB HI(set_text_cursor)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"

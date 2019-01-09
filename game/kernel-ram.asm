@@ -1064,17 +1064,6 @@
 		rts				;106A 60
 }
 
-; Issues equivalent to VDU 31,x,y
-.set_text_cursor
-{
-		lda #$1F		;106B A9 1F
-		jsr cart_write_char		;106D 20 6F 84
-		txa				;1070 8A
-		jsr cart_write_char		;1071 20 6F 84
-		tya				;1074 98
-		jmp cart_write_char		;1075 4C 6F 84
-}
-
 .L_1078			; in kernel
 {
 		txa				;1078 8A
@@ -2083,7 +2072,7 @@
 .L_36E1	tya				;36E1 98
 		tax				;36E2 AA
 		ldy ZP_1A		;36E3 A4 1A
-		jsr set_text_cursor		;36E5 20 6B 10
+		jsr cart_set_text_cursor		;36E5 20 6B 10
 		lda ZP_08		;36E8 A5 08
 		cmp #$02		;36EA C9 02
 		beq L_3703		;36EC F0 15
@@ -2349,7 +2338,7 @@
 		adc #$08		;9967 69 08
 		tay				;9969 A8
 		ldx #$00		;996A A2 00
-		jsr set_text_cursor		;996C 20 6B 10
+		jsr cart_set_text_cursor		;996C 20 6B 10
 		lda ZP_19		;996F A5 19
 		asl A			;9971 0A
 		tax				;9972 AA
@@ -5646,7 +5635,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr L_3858		;ED8E 20 58 38
 		ldx #$0E		;ED91 A2 0E
 		ldy #$10		;ED93 A0 10
-		jsr set_text_cursor		;ED95 20 6B 10
+		jsr cart_set_text_cursor		;ED95 20 6B 10
 		lda #$3E		;ED98 A9 3E
 		jsr cart_write_char		;ED9A 20 6F 84
 		ldx #$64		;ED9D A2 64

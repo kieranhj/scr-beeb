@@ -1855,7 +1855,7 @@ ENDIF
 .L_91F5	ldx #$05		;91F5 A2 05
 		ldy ZP_7A		;91F7 A4 7A
 		iny				;91F9 C8
-		jsr kernel_set_text_cursor		;91FA 20 6B 10
+		jsr set_text_cursor		;91FA 20 6B 10
 		ldx #$2F		;91FD A2 2F
 		jsr print_msg_1		;91FF 20 A5 32
 		ldx L_C76D		;9202 AE 6D C7
@@ -1928,7 +1928,7 @@ ENDIF
 		ldx #$05		;9287 A2 05
 		ldy ZP_7A		;9289 A4 7A
 		iny				;928B C8
-		jsr kernel_set_text_cursor		;928C 20 6B 10
+		jsr set_text_cursor		;928C 20 6B 10
 		ldx #$2F		;928F A2 2F
 		jsr print_msg_1		;9291 20 A5 32
 		ldx #$C9		;9294 A2 C9
@@ -2130,7 +2130,7 @@ ENDIF
 .L_949F	jsr L_3884		;949F 20 84 38
 		ldx #$06		;94A2 A2 06
 		ldy #$16		;94A4 A0 16
-		jsr kernel_set_text_cursor		;94A6 20 6B 10
+		jsr set_text_cursor		;94A6 20 6B 10
 		ldx #$57		;94A9 A2 57
 		jsr write_file_string		;94AB 20 E2 95
 		jsr getch		;94AE 20 03 86
@@ -2141,7 +2141,7 @@ ENDIF
 		bne L_94B3		;94B9 D0 F8
 		ldx #$14		;94BB A2 14
 		ldy #$13		;94BD A0 13
-		jsr kernel_set_text_cursor		;94BF 20 6B 10
+		jsr set_text_cursor		;94BF 20 6B 10
 		ldx #$0C		;94C2 A2 0C
 .L_94C4	jsr print_space		;94C4 20 AF 91
 		dex				;94C7 CA
@@ -3214,6 +3214,17 @@ ENDIF
 ; *****************************************************************************
 ; Message and text functions
 ; *****************************************************************************
+
+; Issues equivalent to VDU 31,x,y
+.set_text_cursor
+{
+		lda #$1F		;106B A9 1F
+		jsr write_char		;106D 20 6F 84
+		txa				;1070 8A
+		jsr write_char		;1071 20 6F 84
+		tya				;1074 98
+		jmp write_char		;1075 4C 6F 84
+}
 
 .L_32A1	jsr write_char		;32A1 20 6F 84
 		inx				;32A4 E8
@@ -6133,7 +6144,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldy #$09		;30BB A0 09
 		ldx #$0B		;30BD A2 0B
 		ldy #$09		;30BF A0 09
-		jsr kernel_set_text_cursor		;30C1 20 6B 10
+		jsr set_text_cursor		;30C1 20 6B 10
 		ldx #$00		;30C4 A2 00
 		jsr print_msg_1		;30C6 20 A5 32
 		lda L_31A1		;30C9 AD A1 31
@@ -6353,7 +6364,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr kernel_L_E8C2		;3768 20 C2 E8
 		ldx #$0F		;376B A2 0F
 		ldy #$0C		;376D A0 0C
-		jsr kernel_set_text_cursor		;376F 20 6B 10
+		jsr set_text_cursor		;376F 20 6B 10
 		ldx #$D7		;3772 A2 D7
 		jsr print_msg_4		;3774 20 27 30
 		lda #$01		;3777 A9 01

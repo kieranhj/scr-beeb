@@ -444,7 +444,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 .L_3170
 {
 		ldx #$06		;3170 A2 06
-		jsr kernel_set_text_cursor		;3172 20 6B 10
+		jsr cart_set_text_cursor		;3172 20 6B 10
 		ldx #$93		;3175 A2 93
 		jsr cart_print_msg_3		;3177 20 DC A1
 		ldx current_track		;317A AE 7D C7
@@ -783,7 +783,7 @@ ENDIF
 \\ Fall through
 .L_387B	ldx #$05		;387B A2 05
 		ldy ZP_7A		;387D A4 7A
-		jsr kernel_set_text_cursor		;387F 20 6B 10
+		jsr cart_set_text_cursor		;387F 20 6B 10
 		inc ZP_19		;3882 E6 19
 \\ Fall through
 .L_3884	ldx #$80		;3884 A2 80
