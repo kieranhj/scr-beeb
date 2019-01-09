@@ -3211,6 +3211,20 @@ ENDIF
 		rts				;A0B5 60
 }
 
+; *****************************************************************************
+; Message and text functions
+; *****************************************************************************
+
+.L_32A1	jsr write_char		;32A1 20 6F 84
+		inx				;32A4 E8
+.print_msg_1
+{
+		lda frontend_strings_1,X	;32A5 BD AD 32
+		cmp #$FF		;32A8 C9 FF
+		bne L_32A1		;32AA D0 F5
+		rts				;32AC 60
+}
+
 .L_A1C7	jsr write_char		;A1C7 20 6F 84
 		inx				;A1CA E8
 .print_msg_2		; HAS DLL
@@ -3242,6 +3256,16 @@ ENDIF
 		adc #$08		;A1EE 69 08
 		tay				;A1F0 A8
 		rts				;A1F1 60
+}
+
+.L_3023	jsr write_char		;3023 20 6F 84
+		inx				;3026 E8
+.print_msg_4
+{
+		lda frontend_strings_4,X	;3027 BD 07 34
+		cmp #$FF		;302A C9 FF
+		bne L_3023		;302C D0 F5
+		rts				;302E 60
 }
 
 ; *****************************************************************************

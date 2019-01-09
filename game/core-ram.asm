@@ -431,16 +431,6 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		jmp cart_sysctl		;2C32 4C 25 87
 }
 
-.L_3023	jsr cart_write_char		;3023 20 6F 84
-		inx				;3026 E8
-.print_msg_4
-{
-		lda frontend_strings_4,X	;3027 BD 07 34
-		cmp #$FF		;302A C9 FF
-		bne L_3023		;302C D0 F5
-		rts				;302E 60
-}
-
 .L_3046_from_main_loop
 {
 		ldx #$0B		;3046 A2 0B
@@ -504,16 +494,6 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 .L_3280	equb "------------",$FF
 		equb $1F,$0C,$0F
 		equb "New track record",$FF
-
-.L_32A1	jsr cart_write_char		;32A1 20 6F 84
-		inx				;32A4 E8
-.print_msg_1
-{
-		lda frontend_strings_1,X	;32A5 BD AD 32
-		cmp #$FF		;32A8 C9 FF
-		bne L_32A1		;32AA D0 F5
-		rts				;32AC 60
-}
 
 ; FRONTEND STRINGS
 
@@ -667,7 +647,7 @@ ENDIF
 		jmp L_356C		;3561 4C 6C 35
 .L_3564	sty L_3409		;3564 8C 09 34
 		ldx #$00		;3567 A2 00
-		jsr print_msg_4		;3569 20 27 30
+		jsr cart_print_msg_4		;3569 20 27 30
 .L_356C	lda #$04		;356C A9 04
 		sec				;356E 38
 		sbc L_C360		;356F ED 60 C3
@@ -705,13 +685,13 @@ ENDIF
 		dex				;35B4 CA
 .L_35B5	stx L_3416		;35B5 8E 16 34
 		ldx #$0D		;35B8 A2 0D
-		jsr print_msg_4		;35BA 20 27 30
+		jsr cart_print_msg_4		;35BA 20 27 30
 		lda L_31A6		;35BD AD A6 31
 		clc				;35C0 18
 		adc #$01		;35C1 69 01
 		jsr print_number_unpadded		;35C3 20 41 33
 		ldx #$F4		;35C6 A2 F4
-		jsr print_msg_4		;35C8 20 27 30
+		jsr cart_print_msg_4		;35C8 20 27 30
 		lda L_31A3		;35CB AD A3 31
 		ldx L_31A1		;35CE AE A1 31
 		beq L_35D4		;35D1 F0 01
@@ -728,21 +708,21 @@ ENDIF
 .L_35EC	lda #$07		;35EC A9 07
 		jsr cart_L_3738		;35EE 20 38 37
 		ldx #$60		;35F1 A2 60
-		jsr print_msg_4		;35F3 20 27 30
+		jsr cart_print_msg_4		;35F3 20 27 30
 		jsr L_3858		;35F6 20 58 38
 		ldx #$6A		;35F9 A2 6A
-		jsr print_msg_4		;35FB 20 27 30
+		jsr cart_print_msg_4		;35FB 20 27 30
 		ldx L_C76F		;35FE AE 6F C7
 		jsr print_driver_name		;3601 20 8B 38
 		ldx #$E9		;3604 A2 E9
-		jsr print_msg_4		;3606 20 27 30
+		jsr cart_print_msg_4		;3606 20 27 30
 		jsr L_3858		;3609 20 58 38
 		ldx #$78		;360C A2 78
-		jsr print_msg_4		;360E 20 27 30
+		jsr cart_print_msg_4		;360E 20 27 30
 		ldx L_C770		;3611 AE 70 C7
 		jsr print_driver_name		;3614 20 8B 38
 		ldx #$EF		;3617 A2 EF
-		jsr print_msg_4		;3619 20 27 30
+		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
 \\
 .L_361F
@@ -1106,7 +1086,7 @@ ENDIF
 		bpl L_3C78		;3C7C 10 FA
 		
 		ldx #$2C		;3C7E A2 2C
-		jsr print_msg_4		;3C80 20 27 30
+		jsr cart_print_msg_4		;3C80 20 27 30
 		jsr kernel_track_preview_check_keys		;3C83 20 DE CF
 		bcc L_3C8E		;3C86 90 06
 		jsr kernel_update_track_preview		;3C88 20 86 F3

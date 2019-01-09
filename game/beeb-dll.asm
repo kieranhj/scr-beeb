@@ -568,6 +568,8 @@ ENDIF
 
 .cart_start_of_frame DLL_CALL_CART start_of_frame, 64
 .cart_print_single_digit DLL_CALL_CART print_single_digit, 65
+.cart_print_msg_1 DLL_CALL_CART print_msg_1, 66
+.cart_print_msg_4 DLL_CALL_CART print_msg_4, 67
 
 ; *****************************************************************************
 \\ Function addresses
@@ -644,6 +646,8 @@ ENDIF
 
 	EQUB LO(start_of_frame)
 	EQUB LO(print_single_digit)
+	EQUB LO(print_msg_1)
+	EQUB LO(print_msg_4)
 }
 
 .cart_table_HI
@@ -717,6 +721,8 @@ ENDIF
 
 	EQUB HI(start_of_frame)
 	EQUB HI(print_single_digit)
+	EQUB HI(print_msg_1)
+	EQUB HI(print_msg_4)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"

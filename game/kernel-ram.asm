@@ -2332,13 +2332,13 @@
 		lda #$02		;9943 A9 02
 		sta L_C3D9		;9945 8D D9 C3
 		ldx #$3B		;9948 A2 3B
-		jsr print_msg_1		;994A 20 A5 32
+		jsr cart_print_msg_1		;994A 20 A5 32
 		lda L_C71A		;994D AD 1A C7
 		beq L_9957		;9950 F0 05
 		ldx #$4B		;9952 A2 4B
-		jsr print_msg_1		;9954 20 A5 32
+		jsr cart_print_msg_1		;9954 20 A5 32
 .L_9957	ldx #$5B		;9957 A2 5B
-		jsr print_msg_1		;9959 20 A5 32
+		jsr cart_print_msg_1		;9959 20 A5 32
 		lda #$07		;995C A9 07
 		sta ZP_19		;995E 85 19
 .L_9960	lda #$07		;9960 A9 07
@@ -5640,7 +5640,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr cart_clear_menu_area		;ED7F 20 23 1C
 		jsr cart_menu_colour_map_stuff		;ED82 20 C4 38
 		ldx #$E0		;ED85 A2 E0
-		jsr print_msg_4		;ED87 20 27 30
+		jsr cart_print_msg_4		;ED87 20 27 30
 		lda #$01		;ED8A A9 01
 		sta ZP_19		;ED8C 85 19
 		jsr L_3858		;ED8E 20 58 38
@@ -5785,7 +5785,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		cmp #$1C		;EE98 C9 1C
 		bne L_EE4B		;EE9A D0 AF
 		ldx #$23		;EE9C A2 23
-		jsr print_msg_4		;EE9E 20 27 30
+		jsr cart_print_msg_4		;EE9E 20 27 30
 		lda L_31A7		;EEA1 AD A7 31
 		asl A			;EEA4 0A
 		clc				;EEA5 18
