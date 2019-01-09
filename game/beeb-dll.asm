@@ -286,11 +286,11 @@ ENDIF
 	EQUB LO(mul_8_16_16bit_2)
 	EQUB LO(negate_if_N_set)
 	EQUB LO(negate_16bit)
-	EQUB 0       ; only called from Cart?
-	EQUB 0    	 ; only called from Cart?
+	EQUB 0	; only called from Cart?
+	EQUB 0  ; only called from Cart?
 	EQUB LO(shift_16bit)
 	EQUB LO(L_CF68)
-	EQUB 0             ; only called from Cart?
+	EQUB 0  ; only called from Cart?
 	EQUB LO(L_CFB7)
 	EQUB LO(L_CFC5)
 	EQUB LO(L_CFD2)
@@ -353,8 +353,8 @@ ENDIF
 	EQUB HI(game_update)
 	EQUB HI(L_0F2A)
 	EQUB HI(L_0F72)
-	EQUB 0;HI(set_text_cursor)
-	EQUB 0;HI(print_single_digit)
+	EQUB 0	;HI(set_text_cursor)
+	EQUB 0	;HI(print_single_digit)
 	EQUB HI(L_1090)
 	EQUB HI(L_10D9)
 	EQUB HI(L_114D_with_color_ram)
@@ -371,11 +371,11 @@ ENDIF
 	EQUB HI(mul_8_16_16bit_2)
 	EQUB HI(negate_if_N_set)
 	EQUB HI(negate_16bit)
-	EQUB 0       ; only called from Cart?
-	EQUB 0	     ; only called from Cart?
+	EQUB 0	; only called from Cart?
+	EQUB 0	; only called from Cart?
 	EQUB HI(shift_16bit)
 	EQUB HI(L_CF68)
-	EQUB 0             ; only called from Cart?
+	EQUB 0  ; only called from Cart?
 	EQUB HI(L_CFB7)
 	EQUB HI(L_CFC5)
 	EQUB HI(L_CFD2)
@@ -572,6 +572,7 @@ ENDIF
 .cart_print_msg_4 DLL_CALL_CART print_msg_4, 67
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 .cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
+.cart_print_track_title DLL_CALL_CART print_track_title, 70
 
 ; *****************************************************************************
 \\ Function addresses
@@ -652,6 +653,7 @@ ENDIF
 	EQUB LO(print_msg_4)
 	EQUB LO(set_text_cursor)
 	EQUB LO(print_number_unpadded)
+	EQUB LO(print_track_title)
 }
 
 .cart_table_HI
@@ -729,6 +731,7 @@ ENDIF
 	EQUB HI(print_msg_4)
 	EQUB HI(set_text_cursor)
 	EQUB HI(print_number_unpadded)
+	EQUB HI(print_track_title)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"

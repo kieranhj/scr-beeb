@@ -472,12 +472,16 @@ L_A36F	= L_A200 + $16F
 
 ; LO pointers to C64 COLOR RAM?
 
-.L_A400	equb $00,$00,$00,$00,$00,$00,$04,$2C,$54,$7C,$A4,$CC,$F4,$1C,$44,$6C
+;L_A400
+.color_ram_ptrs_LO
+		equb $00,$00,$00,$00,$00,$00,$04,$2C,$54,$7C,$A4,$CC,$F4,$1C,$44,$6C
 		equb $94,$BC,$E4,$0C,$34,$5C,$84,$AC
 
 ; HI pointers to C64 COLOR RAM?
 
-.L_A418	equb $D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D9,$D9,$D9
+;L_A418
+.color_ram_ptrs_HI
+		equb $D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D8,$D9,$D9,$D9
 		equb $D9,$D9,$D9,$DA,$DA,$DA,$DA,$DA
 
 		equb $85,$33,$A5,$31,$85,$32,$A9,$00

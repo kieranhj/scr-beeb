@@ -331,6 +331,8 @@
 .L_85CB	equb $00
 .L_85CC	equb $00
 .L_85CD	equb $00
+
+.L_85D1	equb $00
 }
 
 \\ Temporary storage for registers A,X,Y
@@ -339,7 +341,6 @@
 .L_85C9	equb $00
 
 .L_85D0	equb $00
-.L_85D1	equb $00
 
 ; poll for	key.
 ; entry: X=key number (column in bits 0-3,	row in bits 3-6).
@@ -1714,9 +1715,9 @@ ENDIF
 		tya				;9078 98
 		tax				;9079 AA
 		lda ZP_16		;907A A5 16
-.L_907C	ldy L_A418,X	;907C BC 18 A4
+.L_907C	ldy color_ram_ptrs_HI,X	;907C BC 18 A4
 		sty ZP_21		;907F 84 21
-		ldy L_A400,X	;9081 BC 00 A4
+		ldy color_ram_ptrs_LO,X	;9081 BC 00 A4
 		sta (ZP_20),Y	;9084 91 20
 		dex				;9086 CA
 		cpx ZP_15		;9087 E4 15
@@ -1733,9 +1734,9 @@ ENDIF
 		tax				;909C AA
 		lda #$0E		;909D A9 0E
 		inx				;909F E8
-.L_90A0	ldy L_A418,X	;90A0 BC 18 A4
+.L_90A0	ldy color_ram_ptrs_HI,X	;90A0 BC 18 A4
 		sty ZP_21		;90A3 84 21
-		ldy L_A400,X	;90A5 BC 00 A4
+		ldy color_ram_ptrs_LO,X	;90A5 BC 00 A4
 		sta (ZP_20),Y	;90A8 91 20
 		inx				;90AA E8
 		cpx ZP_15		;90AB E4 15
@@ -3323,6 +3324,23 @@ ENDIF
 		pla				;335B 68
 		and #$0F		;335C 29 0F
 .L_335E	jmp print_single_digit		;335E 4C 8A 10
+
+.print_track_title		; could be moved to Cart
+{
+		ldx #$06		;3170 A2 06
+		jsr set_text_cursor		;3172 20 6B 10
+		ldx #$93		;3175 A2 93
+		jsr print_msg_3		;3177 20 DC A1		; "Track:  The "
+		ldx current_track		;317A AE 7D C7
+		jsr print_track_name		;317D 20 92 38
+		lda L_31A1		;3180 AD A1 31
+		beq L_318F		;3183 F0 0A
+		lda L_C71A		;3185 AD 1A C7
+		beq L_318F		;3188 F0 05
+		ldx #$63		;318A A2 63
+		jsr print_msg_3		;318C 20 DC A1		; " S."
+.L_318F	rts				;318F 60
+}
 
 ; *****************************************************************************
 ; Fns moved from Core RAM so data can reside there
@@ -6198,7 +6216,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		clc				;30DA 18
 		adc #$02		;30DB 69 02
 		sta L_3845		;30DD 8D 45 38
-		jsr L_3170		;30E0 20 70 31
+		jsr print_track_title		;30E0 20 70 31
 		jsr L_91CF		;30E3 20 CF 91
 		lda L_31A1		;30E6 AD A1 31
 		cmp #$06		;30E9 C9 06
@@ -6246,7 +6264,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr L_361F		;3148 20 1F 36
 		jmp L_3158		;314B 4C 58 31
 .L_314E	ldy #$0B		;314E A0 0B
-		jsr L_3170		;3150 20 70 31
+		jsr print_track_title		;3150 20 70 31
 .L_3153	ldx #$71		;3153 A2 71
 		jsr print_msg_3		;3155 20 DC A1
 .L_3158	lda #$0E		;3158 A9 0E

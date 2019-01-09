@@ -422,9 +422,6 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		rts				;29E2 60
 }
 
-
-.L_2C21	equb $01,$08	;2C21 01 08
-
 .update_colour_map_with_sysctl	;'G'
 {
 		lda #$46		;2C30 A9 46
@@ -439,23 +436,6 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 		dex				;304E CA
 		bpl L_3048		;304F 10 F7
 		rts				;3051 60
-}
-
-.L_3170		; could be moved to Cart
-{
-		ldx #$06		;3170 A2 06
-		jsr cart_set_text_cursor		;3172 20 6B 10
-		ldx #$93		;3175 A2 93
-		jsr cart_print_msg_3		;3177 20 DC A1		; "Track:  The "
-		ldx current_track		;317A AE 7D C7
-		jsr print_track_name		;317D 20 92 38
-		lda L_31A1		;3180 AD A1 31
-		beq L_318F		;3183 F0 0A
-		lda L_C71A		;3185 AD 1A C7
-		beq L_318F		;3188 F0 05
-		ldx #$63		;318A A2 63
-		jsr cart_print_msg_3		;318C 20 DC A1		; " S."
-.L_318F	rts				;318F 60
 }
 
 .L_31A0	equb $00
@@ -577,7 +557,7 @@ ENDIF
 		adc ZP_14		;359C 65 14
 		jsr kernel_select_track		;359E 20 2F 30
 		ldy #$0B		;35A1 A0 0B
-		jsr L_3170		;35A3 20 70 31
+		jsr cart_print_track_title		;35A3 20 70 31
 		lda L_C305		;35A6 AD 05 C3
 		and #$01		;35A9 29 01
 		bne L_35E6		;35AB D0 39
