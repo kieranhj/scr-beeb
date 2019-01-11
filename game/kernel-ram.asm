@@ -4090,7 +4090,7 @@ ENDIF
 .L_E1EE	dex				;E1EE CA
 		dex				;E1EF CA
 		bpl L_E1DA		;E1F0 10 E8
-		lda L_C3AB		;E1F2 AD AB C3
+		lda line_colour		;E1F2 AD AB C3
 		pha				;E1F5 48
 		ldx #$3C		;E1F6 A2 3C
 		jsr L_E409_in_kernel		;E1F8 20 09 E4
@@ -7582,7 +7582,7 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 
 .set_linedraw_colour
 {
-		stx L_C3AB		;FC01 8E AB C3
+		stx line_colour		;FC01 8E AB C3
 		lda L_FC14,X	;FC04 BD 14 FC
 		sta L_F8DF		;FC07 8D DF F8	_SELF_MOD
 		sta L_F9E6		;FC0A 8D E6 F9	_SELF_MOD
@@ -7642,12 +7642,15 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 
 \\ Code ($11 bytes) pasted into L_F8CB, L_F9D2, L_FADA, L_FBC1
 .L_FC67	cmp L_C600,X	;FC67 DD 00 C6
-		bcs L_FC80		;FC6A B0 14
+		;bcs L_FC80		;FC6A B0 14
+		EQUB $B0,$14
 		sta L_C600,X	;FC6C 9D 00 C6
 		cmp L_0240,X	;FC6F DD 40 02
-		bcs L_FC79		;FC72 B0 05
+		;bcs L_FC79		;FC72 B0 05
+		EQUB $B0,$05
 		cmp L_C500,X	;FC74 DD 00 C5
-		bcs L_FC80		;FC77 B0 07
+		;bcs L_FC80		;FC77 B0 07
+		EQUB $B0,$07
 
 .L_FC79	nop				;FC79 EA
 		nop				;FC7A EA
@@ -7676,7 +7679,7 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		lda #$E2		;FC9C A9 E2
 		ldx #$0B		;FC9E A2 0B
 		bne L_FCA6		;FCA0 D0 04
-.L_FCA2_in_kernel	lda #$C5		;FCA2 A9 C5
+.L_FCA2_in_kernel	lda #$C5		;FCA2 A9 C5		; CMP zp
 		ldx #$09		;FCA4 A2 09
 .L_FCA6	sta L_F8CB,X	;FCA6 9D CB F8
 		sta L_F9D2,X	;FCA9 9D D2 F9
@@ -8140,11 +8143,13 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 
 .L_FFE2
 {
-		sta L_D800,X	;FFE2 9D 00 D8
+\\ WRITING TO COLOUR RAM IN IO
+
+;		sta L_D800,X	;FFE2 9D 00 D8
 ;L_FFE4	= *-1		; KERNEL_GETIN
-		sta L_D900,X	;FFE5 9D 00 D9
-		sta L_DA00,X	;FFE8 9D 00 DA
-		sta L_DB00,X	;FFEB 9D 00 DB		; COLOR RAM
+;		sta L_D900,X	;FFE5 9D 00 D9
+;		sta L_DA00,X	;FFE8 9D 00 DA
+;		sta L_DB00,X	;FFEB 9D 00 DB		; COLOR RAM
 		ldy #$20		;FFEE A0 20
 		sty L_0400		;FFF0 8C 00 04
 		rts				;FFF3 60

@@ -658,7 +658,7 @@ ENDIF
 .L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
 .L_87A0	jmp move_draw_bridgeQ		;87A0 4C 4A 89
 .L_87A3	jmp draw_horizonQ		;87A3 4C 2F 8A
-.L_87A6	jmp L_8AA5_from_sysctl		;87A6 4C A5 8A
+.L_87A6	jmp update_horizon_chars		;87A6 4C A5 8A
 .L_87A9	jmp draw_crane		;87A9 4C 51 8B
 .L_87AC	jmp L_8C0D_from_sysctl		;87AC 4C 0D 8C
 .L_87AF	jmp L_8CD0_from_sysctl		;87AF 4C D0 8C
@@ -746,12 +746,16 @@ ENDIF
 		sta VIC_IRQMASK		;8850 8D 1A D0
 		ldx #$00		;8853 A2 00
 .L_8855	lda L_0400,X	;8855 BD 00 04
-		sta L_D800,X	;8858 9D 00 D8
+
+\\ WRITING TO COLOUR RAM IN IO
+;		sta L_D800,X	;8858 9D 00 D8
 		dex				;885B CA
 		bne L_8855		;885C D0 F7
 		ldx #$3F		;885E A2 3F
 .L_8860	lda L_0500,X	;8860 BD 00 05
-		sta L_D900,X	;8863 9D 00 D9
+
+\\ WRITING TO COLOUR RAM IN IO
+;		sta L_D900,X	;8863 9D 00 D9
 		dex				;8866 CA
 		bpl L_8860		;8867 10 F7
 		rts				;8869 60
@@ -799,6 +803,8 @@ ENDIF
 		bit ZP_16		;88AE 24 16
 		bmi L_88CE		;88B0 30 1C
 
+\\ READING FROM COLOUR RAM IN IO
+
 .L_88B2	lda L_D800,X	;88B2 BD 00 D8
 		sta L_6DE0,X	;88B5 9D E0 6D
 		lda L_D900,X	;88B8 BD 00 D9
@@ -811,14 +817,16 @@ ENDIF
 		bne L_88B2		;88CB D0 E5
 		rts				;88CD 60
 
+\\ WRITING TO COLOUR RAM IN IO
+
 .L_88CE	lda L_6DE0,X	;88CE BD E0 6D
-		sta L_D800,X	;88D1 9D 00 D8
+;		sta L_D800,X	;88D1 9D 00 D8
 		lda L_6F20,X	;88D4 BD 20 6F
-		sta L_D900,X	;88D7 9D 00 D9
+;		sta L_D900,X	;88D7 9D 00 D9
 		lda L_7060,X	;88DA BD 60 70
-		sta L_DA00,X	;88DD 9D 00 DA
+;		sta L_DA00,X	;88DD 9D 00 DA
 		lda L_71A0,X	;88E0 BD A0 71
-		sta L_DB00,X	;88E3 9D 00 DB
+;		sta L_DB00,X	;88E3 9D 00 DB
 		dex				;88E6 CA
 		bne L_88CE		;88E7 D0 E5
 
@@ -1049,7 +1057,7 @@ ENDIF
 		rts				;8AA4 60
 }
 
-.L_8AA5_from_sysctl			; in Cart
+.update_horizon_chars			; in Cart
 {
 		ldx #$40		;8AA5 A2 40
 .L_8AA7	lda L_C600,X	;8AA7 BD 00 C6
@@ -1143,7 +1151,7 @@ ENDIF
 		sta L_01C1,X	;8B4C 9D C1 01
 		bne L_8B25		;8B4F D0 D4
 }
-\\
+
 .draw_crane			; in Cart
 {
 		lda ZP_2F		;8B51 A5 2F
@@ -1724,7 +1732,9 @@ ENDIF
 .L_907C	ldy color_ram_ptrs_HI,X	;907C BC 18 A4
 		sty ZP_21		;907F 84 21
 		ldy color_ram_ptrs_LO,X	;9081 BC 00 A4
-		sta (ZP_20),Y	;9084 91 20
+
+\\ WRITING COLOUR RAM IN IO
+;		sta (ZP_20),Y	;9084 91 20
 		dex				;9086 CA
 		cpx ZP_15		;9087 E4 15
 		bne L_907C		;9089 D0 F1
@@ -1743,7 +1753,9 @@ ENDIF
 .L_90A0	ldy color_ram_ptrs_HI,X	;90A0 BC 18 A4
 		sty ZP_21		;90A3 84 21
 		ldy color_ram_ptrs_LO,X	;90A5 BC 00 A4
-		sta (ZP_20),Y	;90A8 91 20
+
+\\ WRITING COLOUR RAM IN IO
+;		sta (ZP_20),Y	;90A8 91 20
 		inx				;90AA E8
 		cpx ZP_15		;90AB E4 15
 		bcc L_90A0		;90AD 90 F1
@@ -3756,7 +3768,7 @@ L_14B6 = L_14B8-2
 .L_1773	cpx ZP_61		;1773 E4 61
 		bcc L_1767		;1775 90 F0
 		beq L_1767		;1777 F0 EE
-.L_1779	jsr L_2C2B_with_sysctl		;1779 20 2B 2C
+.L_1779	jsr update_horizon_chars_with_sysctl		;1779 20 2B 2C
 		rts				;177C 60
 }
 
@@ -4183,7 +4195,7 @@ L_14B6 = L_14B8-2
 		tay				;1AC9 A8
 		lda L_8080,Y	;1ACA B9 80 80
 		bmi L_1AE6		;1ACD 30 17
-		and #$03		;1ACF 29 03
+		and #$03		;1ACF 29 03			; is this a bug? should be #$01?
 		tax				;1AD1 AA
 		lda #$80		;1AD2 A9 80
 		sta L_8080,Y	;1AD4 99 80 80
@@ -4483,12 +4495,12 @@ L_14B6 = L_14B8-2
 		dex				;1CFE CA
 		cpx #$02		;1CFF E0 02
 		bcs L_1CE9		;1D01 B0 E6
-		lda #$2C		;1D03 A9 2C
+		lda #$2C		;1D03 A9 2C		; BIT absolute
 		jsr kernel_set_linedraw_op		;1D05 20 16 FC
 		ldx #$02		;1D08 A2 02
 		ldy #$03		;1D0A A0 03
 		jsr kernel_L_FE91_with_draw_line		;1D0C 20 91 FE
-		lda #$3D		;1D0F A9 3D
+		lda #$3D		;1D0F A9 3D		; AND absolute,X
 		jsr kernel_set_linedraw_op		;1D11 20 16 FC
 		asl L_C365		;1D14 0E 65 C3
 		rts				;1D17 60
@@ -5823,7 +5835,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp sysctl		;2C28 4C 25 87
 }
 
-.L_2C2B_with_sysctl		;'>'
+.update_horizon_chars_with_sysctl		;'>'
 {
 		lda #$3E		;2C2B A9 3E
 		jmp sysctl		;2C2D 4C 25 87
@@ -6000,11 +6012,11 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp L_2D71		;2D5C 4C 71 2D
 .L_2D5F	tax				;2D5F AA
 		jsr L_2D76		;2D60 20 76 2D
-		and L_A4C0,X	;2D63 3D C0 A4
+		and pixel_masks_2,X	;2D63 3D C0 A4
 		sta (ZP_1E),Y	;2D66 91 1E
 		dey				;2D68 88
 		jsr L_2D76		;2D69 20 76 2D
-		and L_A4C0,X	;2D6C 3D C0 A4
+		and pixel_masks_2,X	;2D6C 3D C0 A4
 		sta (ZP_1E),Y	;2D6F 91 1E
 .L_2D71	ldx ZP_C6		;2D71 A6 C6
 		lda #$00		;2D73 A9 00
