@@ -473,18 +473,18 @@ IF _NOT_BEEB
 }
 ENDIF
 
-.L_3500_with_VIC
+.reset_border_colour
 {
-		jsr L_3FBE_with_VIC		;3500 20 BE 3F	; does VIC stuff
+		jsr vic_reset_border_colour		;3500 20 BE 3F	; does VIC stuff
 		rts				;3503 60
 }
 
 .set_up_screen_for_frontend
 {
 		lda #$00		;3504 A9 00
-		jsr L_3FBB_with_VIC		;3506 20 BB 3F
+		jsr vic_set_border_colour		;3506 20 BB 3F
 		jsr cart_draw_menu_header		;3509 20 49 1C
-		lda #$01		;350C A9 01
+		lda #$01		;350C A9 01		; 'MODE 1'
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
 		sta L_3DF8		;3513 8D F8 3D
@@ -829,7 +829,7 @@ ENDIF
 		bmi L_3B69		;3B4E 30 19	     ; taken if	racing
 
 		jsr do_track_preview		;3B50 20 36 3C
-		jsr L_3500_with_VIC		;3B53 20 00 35
+		jsr reset_border_colour		;3B53 20 00 35
 		jsr game_main_loop		;3B56 20 99 3C
 		jsr set_up_screen_for_frontend		;3B59 20 04 35
 		jmp L_3B45		;3B5C 4C 45 3B
@@ -880,7 +880,7 @@ ENDIF
 		jsr poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
 		jsr do_track_preview		;3BBF 20 36 3C
-		jsr L_3500_with_VIC		;3BC2 20 00 35
+		jsr reset_border_colour		;3BC2 20 00 35
 		lda #$80		;3BC5 A9 80
 		jsr cart_store_restore_control_keys		;3BC7 20 46 98
 		jsr game_main_loop		;3BCA 20 99 3C
@@ -931,10 +931,10 @@ ENDIF
 		bcc L_3C1C		;3C34 90 E6
 }
 
-.do_track_preview
+.do_track_preview			; could be moved to Cart
 {
 		lda #$0B		;3C36 A9 0B
-		jsr L_3FBB_with_VIC		;3C38 20 BB 3F
+		jsr vic_set_border_colour		;3C38 20 BB 3F
 		jsr L_3DF9		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
 		sta L_3DF8		;3C40 8D F8 3D
@@ -950,7 +950,7 @@ ENDIF
 
 		jsr update_colour_map_with_sysctl		;3C51 20 30 2C
 		ldx L_C76B		;3C54 AE 6B C7
-		lda #$03		;3C57 A9 03
+		lda #$03		;3C57 A9 03			; 'MODE 3'
 		jsr cart_sysctl		;3C59 20 25 87
 		jsr cart_set_up_colour_map_for_track_preview		;3C5C 20 77 3A
 		jsr cart_draw_track_preview_border		;3C5F 20 03 2F
@@ -975,7 +975,7 @@ ENDIF
 		jmp L_3C74		;3C8B 4C 74 3C
 
 .L_3C8E	lda #$00		;3C8E A9 00
-		jsr L_3FBB_with_VIC		;3C90 20 BB 3F
+		jsr vic_set_border_colour		;3C90 20 BB 3F
 		lda #$00		;3C93 A9 00
 		sta L_3DF8		;3C95 8D F8 3D
 		rts				;3C98 60
@@ -988,13 +988,13 @@ ENDIF
 .game_main_loop			; aka L_3C99
 {
 		ldx #$80		;3C99 A2 80
-		lda #$34		;3C9B A9 34
+		lda #$34		;3C9B A9 34		; 'copy stuff'
 		jsr cart_sysctl		;3C9D 20 25 87
 		jsr L_3DF9		;3CA0 20 F9 3D
 		ldx #$80		;3CA3 A2 80
-		lda #$10		;3CA5 A9 10
+		lda #$10		;3CA5 A9 10		; 
 		jsr cart_sysctl		;3CA7 20 25 87
-		lda #$02		;3CAA A9 02
+		lda #$02		;3CAA A9 02		; 'MODE 2'
 		jsr cart_sysctl		;3CAC 20 25 87
 		jsr L_3EB6_from_main_loop		;3CAF 20 B6 3E
 		ldx players_start_section		;3CB2 AE 65 C7
@@ -1109,7 +1109,7 @@ ENDIF
 		lda #$C0		;3DB0 A9 C0
 		sta L_C362		;3DB2 8D 62 C3
 .L_3DB5	lda #$00		;3DB5 A9 00
-		jsr L_3FBB_with_VIC		;3DB7 20 BB 3F
+		jsr vic_set_border_colour		;3DB7 20 BB 3F
 		lda #$00		;3DBA A9 00
 		sta L_3DF8		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
@@ -1240,7 +1240,7 @@ ENDIF
 }
 
 ; only called from game_main_loop
-.L_3EB6_from_main_loop
+.L_3EB6_from_main_loop		; can be moved to Cart
 {
 		ldx #$80		;3EB6 A2 80
 .L_3EB8	ldy #$00		;3EB8 A0 00
@@ -1263,7 +1263,7 @@ ENDIF
 .L_3EDD	jmp kernel_L_F6A6		;3EDD 4C A6 F6
 }
 
-.update_pause_status
+.update_pause_status		; can be moved to Kernel
 {
 		lda L_C306		;3EE0 AD 06 C3
 		bpl L_3EEC		;3EE3 10 07
@@ -1355,7 +1355,7 @@ ENDIF
 IF _NOT_BEEB
 {
 		lda VIC_SCROLY		;3F9E AD 11 D0
-		and #$10		;3FA1 29 10
+		and #$10		;3FA1 29 10			; 1=enable screen
 		bne L_3FB4		;3FA3 D0 0F
 }
 ENDIF
@@ -1363,8 +1363,8 @@ ENDIF
 .enable_screen_and_set_irq50
 IF _NOT_BEEB
 		lda VIC_SCROLY		;3FA5 AD 11 D0
-		ora #$10		;3FA8 09 10
-		and #$7F		;3FAA 29 7F
+		ora #$10		;3FA8 09 10			; 1=enable screen
+		and #$7F		;3FAA 29 7F			; 0=raster compare HI
 		sta VIC_SCROLY		;3FAC 8D 11 D0
 		lda #$32		;3FAF A9 32
 		sta VIC_RASTER		;3FB1 8D 12 D0
@@ -1373,32 +1373,32 @@ IF _NOT_BEEB
 ENDIF
 		rts				;3FB9 60
 		
-.L_3FBA	equb $00
+.vic_border_colour	equb $00
 
-.L_3FBB_with_VIC
+.vic_set_border_colour
 {
-		sta L_3FBA		;3FBB 8D BA 3F
+		sta vic_border_colour		;3FBB 8D BA 3F
 }
 \\
-.L_3FBE_with_VIC
+.vic_reset_border_colour
 {
 		nop				;3FBE EA
 		ldy #$05		;3FBF A0 05
 		sty ZP_14		;3FC1 84 14
-.L_3FC3	lda VIC_RASTER		;3FC3 AD 12 D0		; VIC
+.L_3FC3	lda VIC_RASTER		;3FC3 AD 12 D0
 		cmp #$0A		;3FC6 C9 0A
 		bcs L_3FCF		;3FC8 B0 05
-		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC
+		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
 		bpl L_3FD6		;3FCD 10 07
 .L_3FCF	dec ZP_14		;3FCF C6 14
 		bne L_3FC3		;3FD1 D0 F0
 		dey				;3FD3 88
 		bne L_3FC3		;3FD4 D0 ED
-.L_3FD6	lda L_3FBA		;3FD6 AD BA 3F
-		sta VIC_EXTCOL		;3FD9 8D 20 D0		; VIC
-		lda VIC_SCROLY		;3FDC AD 11 D0		; VIC
-		and #$EF		;3FDF 29 EF
-		sta VIC_SCROLY		;3FE1 8D 11 D0		; VIC
+.L_3FD6	lda vic_border_colour		;3FD6 AD BA 3F
+		sta VIC_EXTCOL		;3FD9 8D 20 D0
+		lda VIC_SCROLY		;3FDC AD 11 D0
+		and #$EF		;3FDF 29 EF				; 0=blank screen
+		sta VIC_SCROLY		;3FE1 8D 11 D0
 		ldy #$01		;3FE4 A0 01
 		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
 }

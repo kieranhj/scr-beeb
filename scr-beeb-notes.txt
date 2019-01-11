@@ -261,3 +261,44 @@ To do:
 - Add vsync somewhere?!
 - Remove all writes to VIC registers etc.
 - Locate rendering glitch on right-side of screen
+
+Double-buffering
+~~~
+IRQ handler
+
+Vsync: not required
+
+Timer 1:
+Part A
+- Set CRTC regs for no vsync, total rows = 1, visible rows = 1
+- Set R12/R13 address to latch next double buffer (Part B) ($4000/$6000 + $140)
+- Set Timer 1 for second visible character row (Part B)
+
+Or return to normal cycle:
+- Set CRTC regs as per standard vsync, total rows, visible rows = 25
+- Set R12/R13 to screen1 ($4000)
+- Set Timer 1 to trigger same place following frame
+
+Part B
+- Set CRTC regs for total rows = 18, visible rows = 18
+- Set R12/R13 address to latch bottom HUD ($6000 + 19 * $140) (Part C)
+- Set Timer 1 for any time in bottom 6 character rows (Part C)
+
+Part C
+- Set CRTC regs for total rows = 20, visible rows = 6, vsync at row 16
+- Set R12/R13 address to latch top row of screen2 ($6000)
+- Set Timer 1 for first visible character row (Part A)
+
+To start need to wait for vsync then set Timer 1 to first visible character row
+
+Also need to be able to turn it off again and reset screen to standard one cycle configuration (best done at Part A)
+
+Screen memory map
+~~~
+$4000 - $413F = other stuff
+$4140 - $57BF = screen 1
+$57C0 - $5BFF = sprite data?
+$5C00 - $5FF6 = screen RAM?
+$5FF8 - $5FFF = sprite pointers
+$6000 - $7F3F = screen 2
+$7F40 - $7FFF = other stuff (sprite data?)

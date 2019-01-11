@@ -28,18 +28,20 @@
 \\ Code moved from Core RAM so data can reside there
 ; *****************************************************************************
 
-.L_0800_with_VIC
+.set_character_mode
 {
 	 	jsr L_FF90
 ;L_0803
 		lda #$15		;0803 A9 15
-		sta VIC_VMCSB		;0805 8D 18 D0			; VIC - not bitmap mode?
+		; $15=screen at +1K (+$400), chardef at 5K (+$1400)
+		sta VIC_VMCSB		;0805 8D 18 D0	; Video Matrix=+$400
 		lda #$80		;0808 A9 80
 		sta L_0291		;080A 8D 91 02
 		lda #$00		;080D A9 00
 		sta ZP_9D		;080F 85 9D
 		lda #$1B		;0811 A9 1B
-		sta VIC_SCROLY		;0813 8D 11 D0			; VIC
+		; $1B=enable screen,25 rows,chracter mode (not bitmap)
+		sta VIC_SCROLY		;0813 8D 11 D0
 		rts				;0816 60
 }
 
@@ -1644,7 +1646,7 @@
 .L_21DD	rts				;21DD 60
 }
 
-.L_2AAE_with_load_save
+.do_load_save_game
 {
 		lda #$00		;2AAE A9 00
 		sta L_C39A		;2AB0 8D 9A C3
@@ -1684,12 +1686,12 @@
 		jsr L_361F		;2B02 20 1F 36
 		jsr cart_save_rndQ_stateQ		;2B05 20 2C 16
 		lda #$00		;2B08 A9 00
-		jsr L_3FBB_with_VIC		;2B0A 20 BB 3F
+		jsr vic_set_border_colour		;2B0A 20 BB 3F
 		lda #$01		;2B0D A9 01
 		jsr cart_L_93A8		;2B0F 20 A8 93
 		ldx #$00		;2B12 A2 00
 		lda #$20		;2B14 A9 20
-.L_2B16	sta road_section_angle_and_piece,X	;2B16 9D 00 04
+.L_2B16	sta L_0400,X	;2B16 9D 00 04
 		sta L_04FA,X	;2B19 9D FA 04
 		sta L_05F4,X	;2B1C 9D F4 05
 		sta L_06EE,X	;2B1F 9D EE 06
@@ -1718,7 +1720,7 @@
 		sta VIC_EXTCOL		;2B4B 8D 20 D0		; VIC
 		sta VIC_BGCOL0		;2B4E 8D 21 D0		; VIC
 
-		jsr L_0800_with_VIC		;2B51 20 00 08
+		jsr set_character_mode		;2B51 20 00 08
 		lda #C64_IO_AND_KERNAL		;2B54 A9 36
 		sta RAM_SELECT		;2B56 85 01
 		cli				;2B58 58
@@ -1800,9 +1802,9 @@
 .L_2BFC	lda L_C367		;2BFC AD 67 C3
 		bpl L_2C04		;2BFF 10 03
 		jsr cart_L_95EA		;2C01 20 EA 95
-.L_2C04	jsr L_3FBE_with_VIC		;2C04 20 BE 3F
+.L_2C04	jsr vic_reset_border_colour		;2C04 20 BE 3F
 		sei				;2C07 78
-		lda #$2B		;2C08 A9 2B
+		lda #$2B		;2C08 A9 2B			; $2B=disable screen, 25 rows, bitmap graphics mode
 		sta VIC_SCROLY		;2C0A 8D 11 D0		; VIC
 		jsr set_up_single_page_display		;2C0D 20 8B 3F
 		cli				;2C10 58
@@ -2119,13 +2121,15 @@
 		sta L_C37B		;3F80 8D 7B C3
 .L_3F83	rts				;3F83 60
 
-\\ Unreachable code?	; set up double page display?
+\\ Unreachable code?	; set up second page for display
 .L_3F84	ldy #C64_VIC_BITMAP_SCREEN2		;3F84 A0 78
+		; $78screen at +7K (+$1C00), bitmap at 8K (+$2000)
 		ldx #$00		;3F86 A2 00
 		jmp L_3F8F		;3F88 4C 8F 3F
 
 .set_up_single_page_display
 		ldy #C64_VIC_BITMAP_SCREEN1		;3F8B A0 70
+		; $70=screen at +7K (+$1C00), bitmap at 0K (+$0000)
 		ldx #$80		;3F8D A2 80
 .L_3F8F	sty ZP_14		;3F8F 84 14
 		php				;3F91 08
@@ -2211,7 +2215,7 @@
 		bmi L_94E1		;94DA 30 05
 		lda L_C367		;94DC AD 67 C3
 		bmi L_9526		;94DF 30 45
-.L_94E1	jsr L_3500_with_VIC		;94E1 20 00 35
+.L_94E1	jsr reset_border_colour		;94E1 20 00 35
 		jsr set_up_screen_for_frontend		;94E4 20 04 35
 		lda #$01		;94E7 A9 01
 		sta ZP_19		;94E9 85 19
@@ -2269,7 +2273,7 @@
 .do_hall_of_fame_screen		; only called from Kernel?
 {
 		lda #$06		;98D2 A9 06
-		jsr L_3FBB_with_VIC		;98D4 20 BB 3F
+		jsr vic_set_border_colour		;98D4 20 BB 3F
 		jsr disable_ints_and_page_in_RAM		;98D7 20 F1 33
 		ldx #$7F		;98DA A2 7F
 		ldy #$7F		;98DC A0 7F
@@ -2286,7 +2290,7 @@
 		lda #C64_IO_NO_KERNAL		;98F5 A9 35
 		sta RAM_SELECT		;98F7 85 01
 		cli				;98F9 58
-		lda #$01		;98FA A9 01
+		lda #$01		;98FA A9 01		; 'MODE 1'
 		jsr cart_sysctl		;98FC 20 25 87
 		lda #$06		;98FF A9 06
 		sta VIC_EXTCOL		;9901 8D 20 D0
@@ -2391,7 +2395,7 @@
 		lda #$00		;99D9 A9 00
 		sta L_C3D9		;99DB 8D D9 C3
 		lda VIC_SCROLY		;99DE AD 11 D0
-		ora #$10		;99E1 09 10
+		ora #$10		;99E1 09 10			; 1=enable screen
 		sta VIC_SCROLY		;99E3 8D 11 D0
 		jsr debounce_fire_and_wait_for_fire		;99E6 20 96 36
 		jsr enable_screen_and_set_irq50		;99E9 20 A5 3F
@@ -3679,10 +3683,12 @@
 
 .L_CDD6	bpl L_CDE0		;CDD6 10 08
 		lda #C64_VIC_BITMAP_SCREEN1		;CDD8 A9 70		; BEEB SELECT SCREEN BUFFER
+		; $70=screen at +7K (+$1C00), bitmap at 0K (+$0000)
 		sta VIC_VMCSB		;CDDA 8D 18 D0
 		jmp L_CE1B		;CDDD 4C 1B CE
 
 .L_CDE0	lda #C64_VIC_BITMAP_SCREEN2		;CDE0 A9 78		; BEEB SELECT SCREEN BUFFER
+		; $78=screen at +7K (+$1C00), bitmap at 8K (+$2000)
 		sta VIC_VMCSB		;CDE2 8D 18 D0
 		lda L_C355		;CDE5 AD 55 C3
 		beq L_CE1B		;CDE8 F0 31
@@ -3766,6 +3772,7 @@
 .L_CEA1	cmp #$D7		;CEA1 C9 D7
 		bcs place_dashboard_sprites		;CEA3 B0 10
 		lda #C64_VIC_BITMAP_SCREEN2		;CEA5 A9 78		; BEEB SELECT SCREEN BUFFER
+		; $78=screen at +7K (+$1C00), bitmap at 8K (+$2000)
 		sta VIC_VMCSB		;CEA7 8D 18 D0
 
  ; TomS - point display at single copy of dashboard.
@@ -3851,7 +3858,7 @@
 {
 		sta VIC_RASTER		;CF49 8D 12 D0
 		lda VIC_SCROLY		;CF4C AD 11 D0
-		and #$7F		;CF4F 29 7F
+		and #$7F		;CF4F 29 7F		; clear raster compare HI
 		sta VIC_SCROLY		;CF51 8D 11 D0
 		pla				;CF54 68
 		rti				;CF55 40
@@ -5881,11 +5888,11 @@ L_EBDD	= L_EBE7 - $A			;!
 		ldx #KEY_DEF_REDEFINE		;EF6A A2 20
 		jsr poll_key_with_sysctl		;EF6C 20 C9 C7
 		bne L_EF77		;EF6F D0 06
-		jsr L_3500_with_VIC		;EF71 20 00 35
+		jsr reset_border_colour		;EF71 20 00 35
 		jmp game_start		;EF74 4C 22 3B
 .L_EF77	lda L_31A1		;EF77 AD A1 31
 		bne L_EF86		;EF7A D0 0A
-		jsr L_3FBE_with_VIC		;EF7C 20 BE 3F
+		jsr vic_reset_border_colour		;EF7C 20 BE 3F
 		lda #$80		;EF7F A9 80
 		jsr L_F6D7_in_kernel		;EF81 20 D7 F6
 		bcc L_EFF4		;EF84 90 6E
@@ -5913,7 +5920,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta L_0840		;EFB5 8D 40 08
 		lda #$00		;EFB8 A9 00
 		jsr L_F6D7_in_kernel		;EFBA 20 D7 F6
-		jsr L_2AAE_with_load_save		;EFBD 20 AE 2A
+		jsr do_load_save_game		;EFBD 20 AE 2A
 		bit L_EE35		;EFC0 2C 35 EE
 		bmi L_EFFD		;EFC3 30 38
 		lda L_C367		;EFC5 AD 67 C3
@@ -5935,7 +5942,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		dey				;EFEE 88
 		bne L_EFE8		;EFEF D0 F7
 .L_EFF1	jsr L_94D7		;EFF1 20 D7 94
-.L_EFF4	jsr L_3500_with_VIC		;EFF4 20 00 35
+.L_EFF4	jsr reset_border_colour		;EFF4 20 00 35
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
 		jsr L_36AD_from_game_start		;EFFA 20 AD 36
 .L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF

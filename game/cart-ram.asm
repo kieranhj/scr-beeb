@@ -25,21 +25,25 @@
 
 .cart_start
 
-.multicolour_mode			; in Cart
+\\ 'MODE 2' = low-res bitmap w/ 4x colours per char (game)
+.set_multicolour_mode			; in Cart
 {
 		lda VIC_SCROLX		;83C0 AD 16 D0
-		ora #$10		;83C3 09 10
+		ora #$10		;83C3 09 10			; 1=multicolour on
 		sta VIC_SCROLX		;83C5 8D 16 D0
 		lda #$78		;83C8 A9 78
+		; $78=screen at +7K (+$1C00), bitmap at +8K (+$2000)
 		bne vic_memory_setup		;83CA D0 0A
 }
-\\
-.non_multicolour_mode		; in Cart
+
+\\ 'MODE 1' = high-res bitmap w/ 2x colours per char (frontend)
+.non_set_multicolour_mode		; in Cart
 {
 		lda VIC_SCROLX		;83CC AD 16 D0
-		and #$EF		;83CF 29 EF
+		and #$EF		;83CF 29 EF			; 0=multicolour off
 		sta VIC_SCROLX		;83D1 8D 16 D0
-		lda #$F0		;83D4 A9 F0
+		lda #$F0		;83D4 A9 F0			; $F0=screen @ 15K,
+		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)
 }
 \\
 .vic_memory_setup			; in Cart
@@ -51,7 +55,7 @@
 		sta CIA2_C2DDRA		;83DE 8D 02 DD
 		lda CIA2_CI2PRA		;83E1 AD 00 DD
 		and #$FC		;83E4 29 FC
-		ora #$02		;83E6 09 02
+		ora #$02		;83E6 09 02			; $02=VIC Bank 1 $4000-$7FFF
 		sta CIA2_CI2PRA		;83E8 8D 00 DD
 		lda ZP_FA		;83EB A5 FA
 		sta VIC_VMCSB		;83ED 8D 18 D0
@@ -61,13 +65,15 @@
 		rts				;83F6 60
 }
 
-.L_83F7_with_vic			; in Cart
+\\ 'MODE 3' = low res bitmap w/ 4x colours per char but configured like frontend
+.set_track_preview_mode			; in Cart
 {
 		stx L_8415		;83F7 8E 15 84
 		lda VIC_SCROLX		;83FA AD 16 D0
-		ora #$10		;83FD 09 10			; VIC multicolour_mode
+		ora #$10		;83FD 09 10			; 1=set_multicolour_mode
 		sta VIC_SCROLX		;83FF 8D 16 D0
-		lda #$F0		;8402 A9 F0
+		lda #$F0		;8402 A9 F0			; $F0=
+		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)
 		jsr vic_memory_setup		;8404 20 D6 83
 		lda L_8415		;8407 AD 15 84
 		ora #$0E		;840A 09 0E
@@ -633,10 +639,10 @@ ENDIF
 .L_877E	jmp poll_key		;877E 4C D2 85
 
 .L_8781	sta ZP_FE			;8781 85 FE
-		jmp non_multicolour_mode			;8783 4C CC 83
+		jmp non_set_multicolour_mode			;8783 4C CC 83
 
 .L_8786	sta ZP_FE			;8786 85 FE
-		jmp multicolour_mode			;8788 4C C0 83
+		jmp set_multicolour_mode			;8788 4C C0 83
 
 .L_878B	txa					;878B 8A
 		jmp L_8428_in_cart			;878C 4C 28 84
@@ -646,7 +652,7 @@ ENDIF
 
 .L_8793	lda #$02			;8793 A9 02
 		sta ZP_FE			;8795 85 FE
-		jmp L_83F7_with_vic			;8797 4C F7 83
+		jmp set_track_preview_mode			;8797 4C F7 83
 
 .L_879A	jmp fill_64s		;879A 4C 21 89
 .L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
@@ -6324,7 +6330,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		tay				;33CB A8
 		lda #$10		;33CC A9 10
 		sta ZP_14		;33CE 85 14
-.L_33D0	lda CIA1_CIAPRA,Y	;33D0 B9 00 DC			; CIA1
+.L_33D0	lda L_DC00,Y	;33D0 B9 00 DC			; CIA1
 		sta L_AE00,X	;33D3 9D 00 AE
 		inx				;33D6 E8
 		iny				;33D7 C8

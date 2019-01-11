@@ -123,6 +123,8 @@ PAGE_ALIGN
 		equb $41,$6D,$90,$B4,$D8,$FB,$FF,$22,$46,$69,$8D,$A8,$D4,$F7,$FB,$1E
 		equb $3A,$5D,$79,$A4,$C7,$E3,$FE,$0A,$2D,$49,$6C
 
+\\ Page $AE00 is copied to $DC00 at boot
+
 .driver_name_data
 .L_AE00	equb $20
 .L_AE01	equb "Hot Rod      ",$B1,$8B

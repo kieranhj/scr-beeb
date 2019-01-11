@@ -966,6 +966,8 @@ GUARD &8000
 		dex				;4176 CA
 		bpl L_415E		;4177 10 E5     ; copy $18*4 = 96 bytes from $75XX to C2XX
 
+\\ Think this is sprite data
+
 		ldx #$00		;4179 A2 00
 .L_417B	lda L_63E0,X	;417B BD E0 63
 		sta L_5800,X	;417E 9D 00 58
@@ -973,6 +975,8 @@ GUARD &8000
 		sta L_5900,X	;4184 9D 00 59
 		dex				;4187 CA
 		bne L_417B		;4188 D0 F1     ; copy 2x pages from $63E0 to $5800
+
+\\ Think this is sprite data
 
 		ldx #$3F		;418A A2 3F
 .L_418C	lda L_66E0,X	;418C BD E0 66
@@ -986,6 +990,8 @@ GUARD &8000
 		dex				;41A4 CA
 		bpl L_418C		;41A5 10 E5     ; copy $40*4 = 256 bytes from $6XX0 to $5XX0
 
+\\ Think this is sprite data
+
 		ldx #$7F		;41A7 A2 7F
 .L_41A9	lda L_6D20,X	;41A9 BD 20 6D
 		sta L_5A80,X	;41AC 9D 80 5A
@@ -995,6 +1001,8 @@ GUARD &8000
 		sta L_5B80,X	;41B8 9D 80 5B
 		dex				;41BB CA
 		bpl L_41A9		;41BC 10 EB     ; copy $80*3 = 384 bytes from $6DX0 to $5XX0
+
+\\ Think this is screen RAM area
 
 		lda #$00		;41BE A9 00
 		ldx #$03		;41C0 A2 03
