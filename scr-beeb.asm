@@ -740,7 +740,7 @@ L_07F2	= $07F2
 ; *****************************************************************************
 
 ORG &E00
-GUARD &4000
+GUARD &3FFB		; C64 has spare bytes behind the screen - may be used as workspace!
 
 \\ Core Code
 
@@ -1157,7 +1157,9 @@ screen2_address = $6000
 
 		; pointing to screen 1
 
+L_3FF1	= screen1_address-$F
 L_3FF6	= screen1_address-$A
+L_3FFA	= screen1_address-$6
 
 L_4000	= screen1_address+$0000
 L_4001	= screen1_address+$0001

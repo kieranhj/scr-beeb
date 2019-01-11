@@ -1403,17 +1403,19 @@ ENDIF
 
 .delay_approx_4_5ths_sec
 		ldy #$14		;3FE9 A0 14
-
+\\
 .delay_approx_Y_25ths_sec
+{
 		lda #$14		;3FEB A9 14
 		sta ZP_15		;3FED 85 15
 .L_3FEF	dec ZP_14		;3FEF C6 14
-.L_3FF1	bne L_3FEF		;3FF1 D0 FC
+		bne L_3FEF		;3FF1 D0 FC
 		dec ZP_15		;3FF3 C6 15
 		bne L_3FEF		;3FF5 D0 F8
 		dey				;3FF7 88
 		bne delay_approx_Y_25ths_sec		;3FF8 D0 F1
-.L_3FFA	rts				;3FFA 60
+		rts				;3FFA 60
+}
 
 \\ Moved from Cart RAM
 
