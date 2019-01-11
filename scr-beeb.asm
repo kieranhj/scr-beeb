@@ -722,7 +722,7 @@ L_07EC	= $07EC
 L_07ED	= $07ED
 L_07EE	= $07EE
 L_07F0	= $07F0
-L_07F1	= $07F1
+L_07F1	= $07F1\
 L_07F2	= $07F2
 
 ; *****************************************************************************
@@ -742,11 +742,15 @@ L_07F2	= $07F2
 ORG &E00
 GUARD &4000
 
+\\ Core Code
+
 INCLUDE "game/core-ram.asm"
 INCLUDE "game/beeb-dll.asm"
-.core_data_start
+INCLUDE "game/beeb-code.asm"
+
+\\ Core Data
+
 INCLUDE "game/core-data.asm"
-.core_data_end
 
 ; *****************************************************************************
 \\ Core RAM area
@@ -777,8 +781,7 @@ GUARD &8000
 
 .scr_entry
 {
-	; BEEB TODO SET VECTORS
-	; BEEB TODO SET INTERRUPTS etc.
+	; BEEB EARLY INIT
 
 	; BEEB SET SCREEN MODE 4
 
@@ -1072,6 +1075,28 @@ GUARD &8000
 		ldx #$00		;4253 A2 00
 		lda #$34		;4255 A9 34
 		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
+
+	; BEEB LATE INIT
+
+	; BEEB SET INTERRUPT HANDLER
+
+    SEI
+	LDA #&7F		; A=01111111
+	STA &FE4E		; R14=Interrupt Enable (disable all interrupts)
+
+	LDA #0			; A=00000000
+	STA &FE4B		; R11=Auxillary Control Register (timer 1 one shot mode)
+
+	LDA #&C2		; A=11000010
+	STA &FE4E		; R14=Interrupt Enable (enable main_vsync and timer interrupt)
+
+	LDA IRQ1V:STA old_irqv
+	LDA IRQ1V+1:STA old_irqv+1      ; remember old interrupt handler
+	
+	LDA #LO(irq_handler):STA IRQ1V
+	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
+
+    CLI
 
 		jmp game_start		;425A 4C 22 3B
 

@@ -487,7 +487,7 @@ ENDIF
 		lda #$01		;350C A9 01		; 'MODE 1'
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
-		sta L_3DF8		;3513 8D F8 3D
+		sta irq_mode		;3513 8D F8 3D
 		jsr cart_L_39F1		;3516 20 F1 39
 		jsr set_up_screen_for_menu		;3519 20 1F 35
 		jmp ensure_screen_enabled		;351C 4C 9E 3F
@@ -937,7 +937,7 @@ ENDIF
 		jsr vic_set_border_colour		;3C38 20 BB 3F
 		jsr L_3DF9		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
-		sta L_3DF8		;3C40 8D F8 3D
+		sta irq_mode		;3C40 8D F8 3D
 
 		ldx #$7C		;3C43 A2 7C
 .L_3C45	lda #$08		;3C45 A9 08
@@ -977,7 +977,7 @@ ENDIF
 .L_3C8E	lda #$00		;3C8E A9 00
 		jsr vic_set_border_colour		;3C90 20 BB 3F
 		lda #$00		;3C93 A9 00
-		sta L_3DF8		;3C95 8D F8 3D
+		sta irq_mode		;3C95 8D F8 3D
 		rts				;3C98 60
 }
 
@@ -1008,7 +1008,7 @@ ENDIF
 .L_3CC6
 		jsr kernel_L_F488		;3CC6 20 88 F4
 		jsr cart_L_2C64		;3CC9 20 64 2C
-		bit L_3DF8		;3CCC 2C F8 3D
+		bit irq_mode		;3CCC 2C F8 3D
 		bmi L_3CDD		;3CCF 30 0C
 		jsr cart_reset_sprites		;3CD1 20 84 14
 		jsr cart_draw_trackQ		;3CD4 20 7A 16
@@ -1023,7 +1023,7 @@ ENDIF
 		jsr kernel_game_update		;3CEC 20 41 08
 		lda #$80		;3CEF A9 80
 		sta L_C307		;3CF1 8D 07 C3
-		sta L_3DF8		;3CF4 8D F8 3D
+		sta irq_mode		;3CF4 8D F8 3D
 		ldy #$03		;3CF7 A0 03
 		jsr delay_approx_Y_25ths_sec		;3CF9 20 EB 3F
 		jsr ensure_screen_enabled		;3CFC 20 9E 3F
@@ -1111,7 +1111,7 @@ ENDIF
 .L_3DB5	lda #$00		;3DB5 A9 00
 		jsr vic_set_border_colour		;3DB7 20 BB 3F
 		lda #$00		;3DBA A9 00
-		sta L_3DF8		;3DBC 8D F8 3D
+		sta irq_mode		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
 		jsr kernel_L_E0F9_with_sysctl		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7
@@ -1140,8 +1140,6 @@ ENDIF
 
 ; *****************************************************************************
 ; *****************************************************************************
-
-.L_3DF8	equb $00		; first frame flag?
 
 .L_3DF9
 {
@@ -1329,7 +1327,7 @@ ENDIF
 		lda #$80		;3F51 A9 80
 		sta screen_buffer_next_vsync		;3F53 8D 70 C3
 
-		LDA #HI(screen1_address / 8)
+;		LDA #HI(screen1_address / 8)
 
 		jmp L_3F64		;3F56 4C 64 3F
 .L_3F59	lda #$18		;3F59 A9 18
@@ -1338,12 +1336,12 @@ ENDIF
 		sta ZP_12		;3F5F 85 12
 		sta screen_buffer_next_vsync		;3F61 8D 70 C3
 
-		LDA #HI(screen2_address / 8)
+;		LDA #HI(screen2_address / 8)
 
 .L_3F64	
-		PHA
-		LDA #12:STA &FE00
-		PLA:STA &FE01
+;		PHA
+;		LDA #12:STA &FE00
+;		PLA:STA &FE01
 
 		lda #$80		;3F64 A9 80
 		sta L_C37A		;3F66 8D 7A C3

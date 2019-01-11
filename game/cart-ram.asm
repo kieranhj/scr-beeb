@@ -5818,7 +5818,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 
 .clear_screen_with_sysctl	;'F'
 {
-		ldx L_3DF8		;2C23 AE F8 3D
+		ldx irq_mode		;2C23 AE F8 3D
 		lda #$45		;2C26 A9 45
 		jmp sysctl		;2C28 4C 25 87
 }

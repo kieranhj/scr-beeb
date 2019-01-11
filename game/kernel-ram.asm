@@ -3637,7 +3637,7 @@
 		lda #$28		;CD8C A9 28
 		bne L_CD9F		;CD8E D0 0F
 .L_CD90	lda VIC_SCROLX		;CD90 AD 16 D0
-		ora #$10		;CD93 09 10
+		ora #$10		;CD93 09 10			; VIC multicolour_mode
 		sta VIC_SCROLX		;CD95 8D 16 D0
 		lda #$00		;CD98 A9 00
 		sta VIC_BGCOL0		;CD9A 8D 21 D0
@@ -3649,6 +3649,7 @@
 ; C64 Interrupt Handler
 ; *****************************************************************************
 
+IF _NOT_BEEB
 .irq_handler_done
 		lda CIA1_CIAICR		;CDA2 AD 0D DC
 		lda CIA2_C2DDRA		;CDA5 AD 0D DD
@@ -3665,7 +3666,7 @@
 		lda #$01		;CDB1 A9 01
 		sta VIC_VICIRQ		;CDB3 8D 19 D0
 
-		lda L_3DF8		;CDB6 AD F8 3D
+		lda irq_mode		;CDB6 AD F8 3D
 		beq irq_handler_return		;CDB9 F0 ED
 		bpl L_CD5C		;CDBB 10 9F
 
@@ -3782,6 +3783,7 @@
 		sta L_C37B		;CEAD 8D 7B C3
 		lda #$D7		;CEB0 A9 D7
 		jmp set_raster_interrupt_line		;CEB2 4C 49 CF
+ENDIF
 
 .place_dashboard_sprites
 {
@@ -4968,7 +4970,7 @@
 		ldx #$7F		;E85E A2 7F
 .L_E860	lda #$00		;E860 A9 00
 		sta L_C700,X	;E862 9D 00 C7
-		sta L_3DF8		;E865 8D F8 3D
+		sta irq_mode		;E865 8D F8 3D
 		jsr rndQ		;E868 20 B9 29
 		cpx #$0C		;E86B E0 0C
 		bcs L_E873		;E86D B0 04
@@ -7017,7 +7019,7 @@ IF _NOT_BEEB
 		lda CIA1_CIAPRA		;F7E9 AD 00 DC			; CIA1
 		eor #$FF		;F7EC 49 FF
 		bne L_F802		;F7EE D0 12
-		ldy L_3DF8		;F7F0 AC F8 3D
+		ldy irq_mode		;F7F0 AC F8 3D
 		bmi L_F802		;F7F3 30 0D
 ENDIF
 
