@@ -204,8 +204,8 @@ ENDIF
 .kernel_L_CF68 DLL_CALL_KERNEL L_CF68, 70
 .kernel_L_CF73 BRK      ; only called from Cart?
 .kernel_L_CFB7 DLL_CALL_KERNEL L_CFB7, 72
-.kernel_L_CFC5 DLL_CALL_KERNEL L_CFC5, 73
-.kernel_L_CFD2 DLL_CALL_KERNEL L_CFD2, 74
+.kernel_to_next_road_section DLL_CALL_KERNEL to_next_road_section, 73
+.kernel_to_previous_road_section DLL_CALL_KERNEL to_previous_road_section, 74
 .kernel_track_preview_check_keys DLL_CALL_KERNEL track_preview_check_keys, 75
 
 .kernel_select_track DLL_CALL_KERNEL select_track, 76
@@ -292,8 +292,8 @@ ENDIF
 	EQUB LO(L_CF68)
 	EQUB 0  ; only called from Cart?
 	EQUB LO(L_CFB7)
-	EQUB LO(L_CFC5)
-	EQUB LO(L_CFD2)
+	EQUB LO(to_next_road_section)
+	EQUB LO(to_previous_road_section)
 	EQUB LO(track_preview_check_keys)
 
 	EQUB LO(select_track)
@@ -377,8 +377,8 @@ ENDIF
 	EQUB HI(L_CF68)
 	EQUB 0  ; only called from Cart?
 	EQUB HI(L_CFB7)
-	EQUB HI(L_CFC5)
-	EQUB HI(L_CFD2)
+	EQUB HI(to_next_road_section)
+	EQUB HI(to_previous_road_section)
 	EQUB HI(track_preview_check_keys)
 
 	EQUB HI(select_track)

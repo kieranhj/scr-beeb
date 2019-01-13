@@ -1899,7 +1899,7 @@
 		sbc ZP_C3		;2E15 E5 C3
 		cmp #$02		;2E17 C9 02
 		bcs L_2E21		;2E19 B0 06
-		jsr L_CFC5		;2E1B 20 C5 CF
+		jsr to_next_road_section		;2E1B 20 C5 CF
 		jsr fetch_near_section_stuff		;2E1E 20 2F F0
 .L_2E21	lda ZP_9D		;2E21 A5 9D
 		eor ZP_A4		;2E23 45 A4
@@ -2595,12 +2595,12 @@
 		lda ZP_BF		;9E74 A5 BF
 		eor ZP_A4		;9E76 45 A4
 		bpl L_9E86		;9E78 10 0C
-		jsr L_CFD2		;9E7A 20 D2 CF
+		jsr to_previous_road_section		;9E7A 20 D2 CF
 		jsr fetch_near_section_stuff		;9E7D 20 2F F0
 		lda ZP_A4		;9E80 A5 A4
 		bpl L_9E9A		;9E82 10 16
 		bmi L_9E90		;9E84 30 0A
-.L_9E86	jsr L_CFC5		;9E86 20 C5 CF
+.L_9E86	jsr to_next_road_section		;9E86 20 C5 CF
 		jsr fetch_near_section_stuff		;9E89 20 2F F0
 		lda ZP_A4		;9E8C A5 A4
 		bmi L_9E9A		;9E8E 30 0A
@@ -3903,7 +3903,7 @@ ENDIF
 		rts				;CFC4 60
 }
 
-.L_CFC5
+.to_next_road_section
 {
 		ldx ZP_2E		;CFC5 A6 2E
 		inx				;CFC7 E8
@@ -3914,7 +3914,7 @@ ENDIF
 		rts				;CFD1 60
 }
 
-.L_CFD2
+.to_previous_road_section
 {
 		ldx ZP_2E		;CFD2 A6 2E
 		dex				;CFD4 CA
@@ -4541,11 +4541,11 @@ ENDIF
 		inx				;E51F E8
 		cpx ZP_9E		;E520 E4 9E
 		bcc L_E538		;E522 90 14
-		jsr L_CFC5		;E524 20 C5 CF
+		jsr to_next_road_section		;E524 20 C5 CF
 		jsr fetch_near_section_stuff		;E527 20 2F F0
 		ldx #$02		;E52A A2 02
 		jsr L_E5C7_in_kernel		;E52C 20 C7 E5
-		jsr L_CFD2		;E52F 20 D2 CF
+		jsr to_previous_road_section		;E52F 20 D2 CF
 		jsr fetch_near_section_stuff		;E532 20 2F F0
 		jmp L_E53B		;E535 4C 3B E5
 }
@@ -4617,7 +4617,7 @@ ENDIF
 		lda ZP_C4		;E5AF A5 C4
 		sbc #$00		;E5B1 E9 00
 		bpl L_E5C0		;E5B3 10 0B
-		jsr L_CFD2		;E5B5 20 D2 CF
+		jsr to_previous_road_section		;E5B5 20 D2 CF
 		jsr fetch_near_section_stuff		;E5B8 20 2F F0
 		lda ZP_BE		;E5BB A5 BE
 		sec				;E5BD 38
@@ -6573,7 +6573,7 @@ L_EBDD	= L_EBE7 - $A			;!
 }
 
 .L_F485
-		jsr L_CFD2		;F485 20 D2 CF
+		jsr to_previous_road_section		;F485 20 D2 CF
 \\
 .L_F488
 {

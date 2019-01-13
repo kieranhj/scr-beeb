@@ -2740,9 +2740,9 @@ ENDIF
 		sta ZP_16		;9B7B 85 16
 		lda ZP_A4		;9B7D A5 A4
 		beq L_9B87		;9B7F F0 06
-		jsr kernel_L_CFD2		;9B81 20 D2 CF
+		jsr kernel_to_previous_road_section		;9B81 20 D2 CF
 		jmp L_9B8A		;9B84 4C 8A 9B
-.L_9B87	jsr kernel_L_CFC5		;9B87 20 C5 CF
+.L_9B87	jsr kernel_to_next_road_section		;9B87 20 C5 CF
 .L_9B8A	lda road_section_angle_and_piece,X	;9B8A BD 00 04
 		and #$0F		;9B8D 29 0F
 		cmp #$04		;9B8F C9 04
@@ -3706,16 +3706,16 @@ L_14B6 = L_14B8-2
 		sta ZP_D0		;16E9 85 D0
 		lda ZP_8E		;16EB A5 8E
 		bpl L_16F6		;16ED 10 07
-		jsr kernel_L_CFC5		;16EF 20 C5 CF
+		jsr kernel_to_next_road_section		;16EF 20 C5 CF
 		lda #$00		;16F2 A9 00
 		sta ZP_8E		;16F4 85 8E
 .L_16F6	lda ZP_8E		;16F6 A5 8E
 		bne L_1707		;16F8 D0 0D
-		jsr kernel_L_CFD2		;16FA 20 D2 CF
+		jsr kernel_to_previous_road_section		;16FA 20 D2 CF
 		cpx ZP_A6		;16FD E4 A6
 		bne L_1704		;16FF D0 03
 		jsr kernel_L_E195		;1701 20 95 E1
-.L_1704	jsr kernel_L_CFC5		;1704 20 C5 CF
+.L_1704	jsr kernel_to_next_road_section		;1704 20 C5 CF
 .L_1707	jsr make_near_road_coords		;1707 20 7D 17
 		jsr L_1B0B		;170A 20 0B 1B
 		jsr L_1A3B		;170D 20 3B 1A
@@ -3724,7 +3724,7 @@ L_14B6 = L_14B8-2
 		lda #$02		;1714 A9 02
 		sta ZP_D0		;1716 85 D0
 		jsr L_1909		;1718 20 09 19
-		jsr kernel_L_CFC5		;171B 20 C5 CF
+		jsr kernel_to_next_road_section		;171B 20 C5 CF
 		jsr make_near_road_coords		;171E 20 7D 17
 		jsr L_1A3B		;1721 20 3B 1A
 		jsr L_1909		;1724 20 09 19
@@ -3748,7 +3748,7 @@ L_14B6 = L_14B8-2
 		beq L_1745		;1741 F0 02
 		lda #$05		;1743 A9 05
 .L_1745	sta ZP_28		;1745 85 28
-.L_1747	jsr kernel_L_CFC5		;1747 20 C5 CF
+.L_1747	jsr kernel_to_next_road_section		;1747 20 C5 CF
 		jsr make_near_road_coords		;174A 20 7D 17
 		jsr L_1A3B		;174D 20 3B 1A
 		jsr L_1909		;1750 20 09 19
@@ -4615,7 +4615,7 @@ L_14B6 = L_14B8-2
 		bpl L_1DF9		;1DF3 10 04
 		lda #$80		;1DF5 A9 80
 		sta ZP_2C		;1DF7 85 2C
-.L_1DF9	jsr kernel_L_CFC5		;1DF9 20 C5 CF
+.L_1DF9	jsr kernel_to_next_road_section		;1DF9 20 C5 CF
 		dec ZP_16		;1DFC C6 16
 		bne L_1DEA		;1DFE D0 EA
 .L_1E00	lda L_C357		;1E00 AD 57 C3
@@ -5916,7 +5916,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		bne L_2CAB		;2CA7 D0 02
 		lda #$03		;2CA9 A9 03
 }
-
+\\
 .L_2CAB
 {
 		clc				;2CAB 18

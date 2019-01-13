@@ -238,6 +238,8 @@
 .L_C680	skip &40
 .L_C6C0	skip &40	; stash $B bytes from $DAB6
 
+.hazel_start
+
 .L_C700	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .L_C70B	equb $00
 .L_C70C	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -248,13 +250,22 @@
 
 ; Player times?
 
+; Fandal says "number of races won for multiplayer (12 byte)"
 .L_C728	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+; Fandal says "number of laps won for multiplayer (12 byte)"
 .L_C734	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+; Fandal says "number of races for multiplayer (12 byte)"
 .L_C740	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .L_C74B	equb $00
+
+; Fandal says "automatically updated by speed and laps"?
 .L_C74C	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
 .L_C758	equb $00
 .L_C759	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
 .L_C763	equb $00
 .number_of_road_sections	equb $00
 .players_start_section	equb $00
@@ -284,18 +295,15 @@
 .L_C77F	equb $00
 .L_C780	equb $00,$40
 
+skip &7C
+.L_A1FE	equb $42
+.L_A1FF	equb $49
+
 ; *****************************************************************************
 \\ Data moved from Cart RAM to Hazel
 ; *****************************************************************************
 
-PAGE_ALIGN
-
-.hazel_start
-
-PAGE_ALIGN
-
 \\ Suspect these are transformed vertices somehow?
-
 .L_A200	skip &180
 L_A202	= L_A200 + $02
 L_A203	= L_A200 + $03

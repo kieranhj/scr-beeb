@@ -85,6 +85,7 @@ L_80A0	= L_8000 + $A0
 .L_83A6	equb $81
 .L_83A7	equb $81,$81,$00,$00,$00,$00,$00,$00,$81
 
+; Fandal says "table of car damage for multiplayer (12 byte)"
 .L_83B0	equb $FF,$00,$00,$00,$00,$00,$00,$FF,$30,$18,$0C,$06,$0C,$18,$30,$00
 
 \\
@@ -92,8 +93,6 @@ L_80A0	= L_8000 + $A0
 
 \\
 .L_A1F2	equb $E8,$46,$4B,$53,$52,$46,$55,$48,$42,$45,$52,$44
-.L_A1FE	equb $42
-.L_A1FF	equb $49
 
 PAGE_ALIGN
 .L_AD00	equb $FF,$8F,$FF,$EF,$FF
