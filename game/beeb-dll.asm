@@ -209,7 +209,7 @@ ENDIF
 .kernel_track_preview_check_keys DLL_CALL_KERNEL track_preview_check_keys, 75
 
 .kernel_select_track DLL_CALL_KERNEL select_track, 76
-.kernel_L_36AD_from_game_start DLL_CALL_KERNEL L_36AD_from_game_start, 77
+.kernel_print_division_table DLL_CALL_KERNEL print_division_table, 77
 
 ; *****************************************************************************
 \\ Function addresses
@@ -297,7 +297,7 @@ ENDIF
 	EQUB LO(track_preview_check_keys)
 
 	EQUB LO(select_track)
-	EQUB LO(L_36AD_from_game_start)
+	EQUB LO(print_division_table)
 }
 
 .kernel_table_HI
@@ -382,7 +382,7 @@ ENDIF
 	EQUB HI(track_preview_check_keys)
 
 	EQUB HI(select_track)
-	EQUB HI(L_36AD_from_game_start)
+	EQUB HI(print_division_table)
 }
 
 PRINT "KERNEL Jump Table Entries =", kernel_table_HI-kernel_table_LO, "(", P%-kernel_table_HI, ")"
@@ -559,7 +559,7 @@ ENDIF
 .cart_L_3092_from_game_start DLL_CALL_CART L_3092_from_game_start, 55	; not required in DLL
 .cart_L_3389_from_game_start DLL_CALL_CART L_3389_from_game_start, 56
 .cart_L_3626_from_game_start DLL_CALL_CART L_3626_from_game_start, 57
-.cart_L_3738 DLL_CALL_CART L_3738, 58
+.cart_print_driver_v_driver DLL_CALL_CART print_driver_v_driver, 58
 .cart_L_3754_from_game_start DLL_CALL_CART L_3754_from_game_start, 59
 .cart_menu_colour_map_stuff DLL_CALL_CART menu_colour_map_stuff, 60
 .cart_L_39D1 DLL_CALL_CART L_39D1, 61
@@ -640,7 +640,7 @@ ENDIF
 	EQUB LO(L_3092_from_game_start)
 	EQUB LO(L_3389_from_game_start)
 	EQUB LO(L_3626_from_game_start)
-	EQUB LO(L_3738)
+	EQUB LO(print_driver_v_driver)
 	EQUB LO(L_3754_from_game_start)
 	EQUB LO(menu_colour_map_stuff)
 	EQUB LO(L_39D1)
@@ -718,7 +718,7 @@ ENDIF
 	EQUB HI(L_3092_from_game_start)
 	EQUB HI(L_3389_from_game_start)
 	EQUB HI(L_3626_from_game_start)
-	EQUB HI(L_3738)
+	EQUB HI(print_driver_v_driver)
 	EQUB HI(L_3754_from_game_start)
 	EQUB HI(menu_colour_map_stuff)
 	EQUB HI(L_39D1)

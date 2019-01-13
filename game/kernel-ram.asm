@@ -1672,7 +1672,7 @@
 		jsr debounce_fire_and_wait_for_fire		;2AE1 20 96 36
 		ldx #$99		;2AE4 A2 99
 		jsr cart_write_file_string		;2AE6 20 E2 95
-.L_2AE9	ldx #$94		;2AE9 A2 94
+.L_2AE9	ldx #$94		;2AE9 A2 94		; "   Filename?  >"
 		jsr cart_print_msg_2		;2AEB 20 CB A1
 		ldx #$78		;2AEE A2 78
 		ldy #$D5		;2AF0 A0 D5
@@ -2048,7 +2048,7 @@
 
 .L_36AA	jmp cart_L_3626_from_game_start		;36AA 4C 26 36
 
-.L_36AD_from_game_start
+.print_division_table
 {
 		lda L_31A1		;36AD AD A1 31
 		bne L_36AA		;36B0 D0 F8
@@ -2326,13 +2326,13 @@
 		sta L_C3D9		;9940 8D D9 C3
 		lda #$02		;9943 A9 02
 		sta L_C3D9		;9945 8D D9 C3
-		ldx #$3B		;9948 A2 3B
+		ldx #$3B		;9948 A2 3B		; "HALL of FAME"
 		jsr cart_print_msg_1		;994A 20 A5 32
 		lda L_C71A		;994D AD 1A C7
 		beq L_9957		;9950 F0 05
-		ldx #$4B		;9952 A2 4B
+		ldx #$4B		;9952 A2 4B		; "SUPER LEAGUE"
 		jsr cart_print_msg_1		;9954 20 A5 32
-.L_9957	ldx #$5B		;9957 A2 5B
+.L_9957	ldx #$5B		;9957 A2 5B		; "TRACK  DRIVER   LAP-TIME    DRIVER  RACE-TIME"
 		jsr cart_print_msg_1		;9959 20 A5 32
 		lda #$07		;995C A9 07
 		sta ZP_19		;995E 85 19
@@ -4137,6 +4137,13 @@ ENDIF
 		jmp set_linedraw_colour		;E25A 4C 01 FC
 }
 
+\\ Copied from Cart
+.do_ai_depth_stuff		;'A'
+{
+		lda #$41		;2C35 A9 41
+		jmp cart_sysctl		;2C37 4C 25 87
+}
+
 .L_E25D_in_kernel	\\ only called from Kernel fns
 {
 		ldx #$03		;E25D A2 03
@@ -5639,7 +5646,7 @@ L_EBDD	= L_EBE7 - $A			;!
 {
 		jsr cart_clear_menu_area		;ED7F 20 23 1C
 		jsr cart_menu_colour_map_stuff		;ED82 20 C4 38
-		ldx #$E0		;ED85 A2 E0
+		ldx #$E0		;ED85 A2 E0		; "NAME?"
 		jsr cart_print_msg_4		;ED87 20 27 30
 		lda #$01		;ED8A A9 01
 		sta ZP_19		;ED8C 85 19
@@ -5741,7 +5748,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		stx ZP_30		;EE39 86 30
 		sta ZP_0C		;EE3B 85 0C
 		jsr set_up_screen_for_menu		;EE3D 20 1F 35
-		ldx #$00		;EE40 A2 00
+		ldx #$00		;EE40 A2 00		; "SELECT"
 		stx ZP_0F		;EE42 86 0F
 		jsr cart_print_msg_2		;EE44 20 CB A1
 .L_EE47	lda #$00		;EE47 A9 00
@@ -5784,7 +5791,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda ZP_30		;EE96 A5 30
 		cmp #$1C		;EE98 C9 1C
 		bne L_EE4B		;EE9A D0 AF
-		ldx #$23		;EE9C A2 23
+		ldx #$23		;EE9C A2 23		; "The "
 		jsr cart_print_msg_4		;EE9E 20 27 30
 		lda L_31A7		;EEA1 AD A7 31
 		asl A			;EEA4 0A
@@ -5946,7 +5953,7 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_EFF1	jsr L_94D7		;EFF1 20 D7 94
 .L_EFF4	jsr reset_border_colour		;EFF4 20 00 35
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
-		jsr L_36AD_from_game_start		;EFFA 20 AD 36
+		jsr print_division_table		;EFFA 20 AD 36
 .L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF
 
 .L_F000	equb $00

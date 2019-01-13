@@ -1863,25 +1863,25 @@ ENDIF
 		jsr L_3854		;91D8 20 54 38
 		lda #$0F		;91DB A9 0F
 		sta L_3953		;91DD 8D 53 39
-		ldx #$23		;91E0 A2 23
+		ldx #$23		;91E0 A2 23		; "Race Time: "
 		jsr print_msg_1		;91E2 20 A5 32
 		ldx L_C76E		;91E5 AE 6E C7
 		beq L_91F5		;91E8 F0 0B
 		inc L_C728,X	;91EA FE 28 C7
 		jsr print_driver_name		;91ED 20 8B 38
-		ldx #$E9		;91F0 A2 E9
+		ldx #$E9		;91F0 A2 E9		; " 2pts"
 		jsr print_msg_4		;91F2 20 27 30
 .L_91F5	ldx #$05		;91F5 A2 05
 		ldy ZP_7A		;91F7 A4 7A
 		iny				;91F9 C8
 		jsr set_text_cursor		;91FA 20 6B 10
-		ldx #$2F		;91FD A2 2F
+		ldx #$2F		;91FD A2 2F		; "Best Lap : "
 		jsr print_msg_1		;91FF 20 A5 32
 		ldx L_C76D		;9202 AE 6D C7
 		beq L_9212		;9205 F0 0B
 		inc L_C734,X	;9207 FE 34 C7
 		jsr print_driver_name		;920A 20 8B 38
-		ldx #$EF		;920D A2 EF
+		ldx #$EF		;920D A2 EF		; " 1pt"
 		jsr print_msg_4		;920F 20 27 30
 .L_9212	jmp kernel_L_E9A3		;9212 4C A3 E9
 }
@@ -1918,7 +1918,7 @@ ENDIF
 		lda L_C305		;9240 AD 05 C3
 		and #$01		;9243 29 01
 		beq L_924F		;9245 F0 08
-		ldx #$E3		;9247 A2 E3
+		ldx #$E3		;9247 A2 E3		; "New track record"
 		ldy #$07		;9249 A0 07
 		lda #$10		;924B A9 10
 		sta ZP_19		;924D 85 19
@@ -1928,16 +1928,16 @@ ENDIF
 		and #$C0		;9258 29 C0
 		cmp #$C0		;925A C9 C0
 		bne L_9263		;925C D0 05
-		ldx #$6F		;925E A2 6F
+		ldx #$6F		;925E A2 6F		; "Tracks in DIVISION "
 		jsr print_msg_3		;9260 20 DC A1
 .L_9263	jsr L_3854		;9263 20 54 38
 		lda #$0F		;9266 A9 0F
 		sta L_3953		;9268 8D 53 39
 		bit L_C305		;926B 2C 05 C3
 		bpl L_9282		;926E 10 12
-		ldx #$23		;9270 A2 23
+		ldx #$23		;9270 A2 23			; "Race Time: "
 		jsr print_msg_1		;9272 20 A5 32
-		ldx #$D6		;9275 A2 D6
+		ldx #$D6		;9275 A2 D6			; "------------"
 		jsr print_msg_3		;9277 20 DC A1
 		jsr print_space		;927A 20 AF 91
 		ldx #$0F		;927D A2 0F
@@ -1948,9 +1948,9 @@ ENDIF
 		ldy ZP_7A		;9289 A4 7A
 		iny				;928B C8
 		jsr set_text_cursor		;928C 20 6B 10
-		ldx #$2F		;928F A2 2F
+		ldx #$2F		;928F A2 2F			; "Best Lap : "
 		jsr print_msg_1		;9291 20 A5 32
-		ldx #$C9		;9294 A2 C9
+		ldx #$C9		;9294 A2 C9			; "------------"
 		jsr print_msg_3		;9296 20 DC A1
 		jsr print_space		;9299 20 AF 91
 		ldx #$0E		;929C A2 0E
@@ -5841,12 +5841,6 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp sysctl		;2C2D 4C 25 87
 }
 
-.do_ai_depth_stuff		;'A'
-{
-		lda #$41		;2C35 A9 41
-		jmp sysctl		;2C37 4C 25 87
-}
-
 .L_2C3A_with_sysctl		; 'B'
 {
 		bit ZP_6D		;2C3A 24 6D
@@ -6137,7 +6131,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldx current_track		;2FD1 AE 7D C7
 		lda L_301B,X	;2FD4 BD 1B 30
 		sta L_3460		;2FD7 8D 60 34
-		ldx #$58		;2FDA A2 58
+		ldx #$58		;2FDA A2 58		; "The "
 		jsr print_msg_4		;2FDC 20 27 30
 		ldx current_track		;2FDF AE 7D C7
 		jsr print_track_name		;2FE2 20 92 38
@@ -6222,7 +6216,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldx #$0B		;30BD A2 0B
 		ldy #$09		;30BF A0 09
 		jsr set_text_cursor		;30C1 20 6B 10
-		ldx #$00		;30C4 A2 00
+		ldx #$00		;30C4 A2 00		; "TRACK BONUS POINTS"
 		jsr print_msg_1		;30C6 20 A5 32
 		lda L_31A1		;30C9 AD A1 31
 		cmp #$05		;30CC C9 05
@@ -6259,7 +6253,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr set_up_screen_for_menu		;3110 20 1F 35
 		bit L_C39C		;3113 2C 9C C3
 		bmi L_314E		;3116 30 36
-		ldx #$86		;3118 A2 86
+		ldx #$86		;3118 A2 86		; "RESULTS TABLE"
 		jsr print_msg_4		;311A 20 27 30
 		lda L_C74B		;311D AD 4B C7
 		cmp #$07		;3120 C9 07
@@ -6277,13 +6271,13 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		lda #$01		;313B A9 01
 		jsr fill_colourmap_solid		;313D 20 16 39
 		jsr L_3884		;3140 20 84 38
-		ldx #$13		;3143 A2 13
+		ldx #$13		;3143 A2 13		; "FINAL SEASON"
 		jsr print_msg_1		;3145 20 A5 32
 		jsr L_361F		;3148 20 1F 36
 		jmp L_3158		;314B 4C 58 31
 .L_314E	ldy #$0B		;314E A0 0B
 		jsr print_track_title		;3150 20 70 31
-.L_3153	ldx #$71		;3153 A2 71
+.L_3153	ldx #$71		;3153 A2 71		; "DRIVER      BEST-LAP RACE-TIME"
 		jsr print_msg_3		;3155 20 DC A1
 .L_3158	lda #$0E		;3158 A9 0E
 		sta ZP_19		;315A 85 19
@@ -6370,7 +6364,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr L_3092_from_game_start		;3632 20 92 30
 		jmp L_361C		;3635 4C 1C 36
 .L_3638	jsr set_up_screen_for_menu		;3638 20 1F 35
-		ldx #$86		;363B A2 86
+		ldx #$86		;363B A2 86		; "RESULTS TABLE"
 		jsr print_msg_4		;363D 20 27 30
 		lda #$01		;3640 A9 01
 		sta ZP_19		;3642 85 19
@@ -6413,14 +6407,14 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		rts				;3695 60
 }
 
-.L_3738
+.print_driver_v_driver
 {
 		sta ZP_19		;3738 85 19
 		jsr kernel_L_E8E5		;373A 20 E5 E8
 		jsr L_3858		;373D 20 58 38
 		ldx L_C771		;3740 AE 71 C7
 		jsr print_driver_name		;3743 20 8B 38
-		ldx #$28		;3746 A2 28
+		ldx #$28		;3746 A2 28	; " V "
 		jsr print_msg_4		;3748 20 27 30
 		ldx L_C772		;374B AE 72 C7
 		jsr print_driver_name		;374E 20 8B 38
@@ -6442,7 +6436,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldx #$0F		;376B A2 0F
 		ldy #$0C		;376D A0 0C
 		jsr set_text_cursor		;376F 20 6B 10
-		ldx #$D7		;3772 A2 D7
+		ldx #$D7		;3772 A2 D7		; " CHANGES"
 		jsr print_msg_4		;3774 20 27 30
 		lda #$01		;3777 A9 01
 		sta ZP_19		;3779 85 19
@@ -6454,11 +6448,11 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		lda L_C71A		;3787 AD 1A C7
 		beq L_3797		;378A F0 0B
 		jsr L_3858		;378C 20 58 38
-		ldx #$CE		;378F A2 CE
+		ldx #$CE		;378F A2 CE		; "EXCELLENT DRIVING - WELL DONE"
 		jsr print_msg_2		;3791 20 CB A1
 		jmp L_37CE		;3794 4C CE 37
 .L_3797	jsr L_3858		;3797 20 58 38
-		ldx #$B7		;379A A2 B7
+		ldx #$B7		;379A A2 B7		; "Promotion for  "
 		jsr print_msg_4		;379C 20 27 30
 		ldy ZP_50		;379F A4 50
 		ldx L_C758,Y	;37A1 BE 58 C7
@@ -6466,7 +6460,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldy ZP_50		;37A7 A4 50
 		bne L_37B6		;37A9 D0 0B
 		jsr L_3858		;37AB 20 58 38
-		ldx #$A7		;37AE A2 A7
+		ldx #$A7		;37AE A2 A7		; "to the SUPER LEAGUE"
 		jsr print_msg_2		;37B0 20 CB A1
 		jmp L_37CE		;37B3 4C CE 37
 .L_37B6	ldy ZP_8A		;37B6 A4 8A
@@ -6474,7 +6468,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		cpy #$0B		;37B9 C0 0B
 		beq L_37CE		;37BB F0 11
 		jsr L_3858		;37BD 20 58 38
-		ldx #$C7		;37C0 A2 C7
+		ldx #$C7		;37C0 A2 C7		; "Relegation for "
 		jsr print_msg_4		;37C2 20 27 30
 		ldy ZP_8A		;37C5 A4 8A
 		dey				;37C7 88

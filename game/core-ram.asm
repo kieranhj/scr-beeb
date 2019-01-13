@@ -524,19 +524,19 @@ ENDIF
 		lda L_C71A		;3554 AD 1A C7
 		beq L_3564		;3557 F0 0B
 		sty L_E0BD		;3559 8C BD E0
-		ldx #$BB		;355C A2 BB
+		ldx #$BB		;355C A2 BB		; "SUPER DIVISION "
 		jsr cart_print_msg_2		;355E 20 CB A1
 		jmp L_356C		;3561 4C 6C 35
 .L_3564	sty L_3409		;3564 8C 09 34
-		ldx #$00		;3567 A2 00
+		ldx #$00		;3567 A2 00		; "DIVISION "
 		jsr cart_print_msg_4		;3569 20 27 30
 .L_356C	lda #$04		;356C A9 04
 		sec				;356E 38
 		sbc L_C360		;356F ED 60 C3
 		jmp cart_print_single_digit		;3572 4C 8A 10
 \\
-.L_3575	ldx #$A0		;3575 A2 A0
-		jmp cart_print_msg_3		;3577 4C DC A1	; "DRIVERS CHAMPIONSHIP"
+.L_3575	ldx #$A0		;3575 A2 A0		; "DRIVERS CHAMPIONSHIP"
+		jmp cart_print_msg_3		;3577 4C DC A1
 .L_357A	lda #$80		;357A A9 80
 		bne L_3580		;357C D0 02
 \\
@@ -566,13 +566,13 @@ ENDIF
 		bpl L_35B5		;35B2 10 01
 		dex				;35B4 CA
 .L_35B5	stx L_3416		;35B5 8E 16 34
-		ldx #$0D		;35B8 A2 0D
+		ldx #$0D		;35B8 A2 0D		; "RACE  "
 		jsr cart_print_msg_4		;35BA 20 27 30
 		lda L_31A6		;35BD AD A6 31
 		clc				;35C0 18
 		adc #$01		;35C1 69 01
 		jsr cart_print_number_unpadded		;35C3 20 41 33
-		ldx #$F4		;35C6 A2 F4
+		ldx #$F4		;35C6 A2 F4		; " of "
 		jsr cart_print_msg_4		;35C8 20 27 30
 		lda L_31A3		;35CB AD A3 31
 		ldx L_31A1		;35CE AE A1 31
@@ -582,28 +582,28 @@ ENDIF
 		bit L_C372		;35D7 2C 72 C3
 		bmi L_35EC		;35DA 30 10
 		lda #$06		;35DC A9 06
-		jsr cart_L_3738		;35DE 20 38 37
+		jsr cart_print_driver_v_driver		;35DE 20 38 37
 		lda #$80		;35E1 A9 80
 		jsr cart_L_9319		;35E3 20 19 93
 .L_35E6	jsr cart_L_9225		;35E6 20 25 92
 		jmp L_361C		;35E9 4C 1C 36
 .L_35EC	lda #$07		;35EC A9 07
-		jsr cart_L_3738		;35EE 20 38 37
-		ldx #$60		;35F1 A2 60
+		jsr cart_print_driver_v_driver		;35EE 20 38 37
+		ldx #$60		;35F1 A2 60		; "RESULT"
 		jsr cart_print_msg_4		;35F3 20 27 30
 		jsr L_3858		;35F6 20 58 38
-		ldx #$6A		;35F9 A2 6A
+		ldx #$6A		;35F9 A2 6A		; "Race Winner: "
 		jsr cart_print_msg_4		;35FB 20 27 30
 		ldx L_C76F		;35FE AE 6F C7
 		jsr print_driver_name		;3601 20 8B 38
-		ldx #$E9		;3604 A2 E9
+		ldx #$E9		;3604 A2 E9		; " 2pts"
 		jsr cart_print_msg_4		;3606 20 27 30
 		jsr L_3858		;3609 20 58 38
-		ldx #$78		;360C A2 78
+		ldx #$78		;360C A2 78		; "Fastest Lap: "
 		jsr cart_print_msg_4		;360E 20 27 30
 		ldx L_C770		;3611 AE 70 C7
 		jsr print_driver_name		;3614 20 8B 38
-		ldx #$EF		;3617 A2 EF
+		ldx #$EF		;3617 A2 EF		; " 1pt"
 		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
 \\
@@ -820,7 +820,7 @@ ENDIF
 		jsr kernel_L_E85B		;3B36 20 5B E8
 		jsr set_up_screen_for_frontend		;3B39 20 04 35
 		jsr cart_do_initial_screen		;3B3C 20 52 30
-		jsr kernel_L_36AD_from_game_start		;3B3F 20 AD 36
+		jsr kernel_print_division_table		;3B3F 20 AD 36
 		jsr cart_save_rndQ_stateQ		;3B42 20 2C 16
 
 .L_3B45	lsr L_C304		;3B45 4E 04 C3
@@ -914,7 +914,7 @@ ENDIF
 		lda L_31A1		;3C0E AD A1 31
 		bne L_3C1F		;3C11 D0 0C
 		jsr cart_L_3754_from_game_start		;3C13 20 54 37
-		jsr kernel_L_36AD_from_game_start		;3C16 20 AD 36
+		jsr kernel_print_division_table		;3C16 20 AD 36
 
 .L_3C19	jsr cart_L_1611		;3C19 20 11 16
 .L_3C1C	jmp L_3B45		;3C1C 4C 45 3B
@@ -967,7 +967,7 @@ ENDIF
 		dex				;3C7B CA
 		bpl L_3C78		;3C7C 10 FA
 		
-		ldx #$2C		;3C7E A2 2C
+		ldx #$2C		;3C7E A2 2C	; "steer to rotate view or fire to continue"
 		jsr cart_print_msg_4		;3C80 20 27 30
 		jsr kernel_track_preview_check_keys		;3C83 20 DE CF
 		bcc L_3C8E		;3C86 90 06
