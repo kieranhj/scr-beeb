@@ -1683,7 +1683,7 @@
 		rts				;2AFC 60
 .L_2AFD	jsr cart_L_9448		;2AFD 20 48 94
 		bcs L_2AE9		;2B00 B0 E7
-		jsr L_361F		;2B02 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;2B02 20 1F 36
 		jsr cart_save_rndQ_stateQ		;2B05 20 2C 16
 		lda #$00		;2B08 A9 00
 		jsr vic_set_border_colour		;2B0A 20 BB 3F
@@ -2088,7 +2088,7 @@
 		jsr L_3884		;36F7 20 84 38
 		ldx track_order,Y	;36FA BE 28 37
 		jsr print_track_name		;36FD 20 92 38
-		jsr L_361F		;3700 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;3700 20 1F 36
 .L_3703	ldy ZP_17		;3703 A4 17
 		ldx L_C70C,Y	;3705 BE 0C C7
 		jsr print_driver_name		;3708 20 8B 38
@@ -2099,7 +2099,7 @@
 		cmp #$03		;3713 C9 03
 		bne L_36D9		;3715 D0 C2
 		jsr L_3854		;3717 20 54 38
-		jsr L_361F		;371A 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;371A 20 1F 36
 		dec L_C360		;371D CE 60 C3
 		bpl L_36CE		;3720 10 AC
 		asl L_C356		;3722 0E 56 C3
@@ -2241,7 +2241,7 @@
 		jsr cart_write_file_string		;951A 20 E2 95
 .L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
 		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
-		jsr L_361F		;9523 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;9523 20 1F 36
 .L_9526	lda L_C39A		;9526 AD 9A C3
 		rts				;9529 60
 }
@@ -5735,7 +5735,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		inx				;EE2D E8
 .L_EE2E	cpx #$0C		;EE2E E0 0C
 		bne L_EE23		;EE30 D0 F1
-.L_EE32	jmp L_361F		;EE32 4C 1F 36
+.L_EE32	jmp store_X_in_L_85D0_with_sysctl		;EE32 4C 1F 36
 }
 
 ; Moved to Hazel
@@ -5803,7 +5803,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		jmp L_EE4B		;EEAF 4C 4B EE
 .L_EEB2	lda ZP_0F		;EEB2 A5 0F
 		beq L_EEC1		;EEB4 F0 0B
-		jsr L_361F		;EEB6 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;EEB6 20 1F 36
 		ldy #$07		;EEB9 A0 07
 		jsr delay_approx_Y_25ths_sec		;EEBB 20 EB 3F
 		lda ZP_0C		;EEBE A5 0C
@@ -5843,6 +5843,7 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_EF03	jmp L_EE47		;EF03 4C 47 EE
 
 \\ Moved from further up RAM as only used in this function
+\\ Looks like menu string offsets?
 
 .L_F001	equb $EC,$0A,$14,$2C,$44,$49,$4E,$55,$5C,$6B,$55,$00,$7A,$87,$55,$00
 		equb $0A,$1F,$00,$00,$2B,$40,$00,$00,$49,$49,$49,$49,$0A,$0A,$55,$00

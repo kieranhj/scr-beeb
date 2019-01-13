@@ -1854,7 +1854,7 @@ ENDIF
 		rts				;91CE 60
 }
 
-.L_91CF				; HAS DLL
+.print_race_times				; HAS DLL
 {
 		lda #$0E		;91CF A9 0E
 		sta ZP_19		;91D1 85 19
@@ -1901,7 +1901,7 @@ ENDIF
 		rts				;9224 60
 }
 
-.L_9225				; HAS DLL
+.print_track_records				; HAS DLL
 {
 		lda L_C305		;9225 AD 05 C3
 		beq L_92A1		;9228 F0 77
@@ -1918,7 +1918,7 @@ ENDIF
 		lda L_C305		;9240 AD 05 C3
 		and #$01		;9243 29 01
 		beq L_924F		;9245 F0 08
-		ldx #$E3		;9247 A2 E3		; "New track record"
+		ldx #$E3		;9247 A2 E3			; "New track record"
 		ldy #$07		;9249 A0 07
 		lda #$10		;924B A9 10
 		sta ZP_19		;924D 85 19
@@ -1928,7 +1928,7 @@ ENDIF
 		and #$C0		;9258 29 C0
 		cmp #$C0		;925A C9 C0
 		bne L_9263		;925C D0 05
-		ldx #$6F		;925E A2 6F		; "Tracks in DIVISION "
+		ldx #$6F		;925E A2 6F			; "s"
 		jsr print_msg_3		;9260 20 DC A1
 .L_9263	jsr L_3854		;9263 20 54 38
 		lda #$0F		;9266 A9 0F
@@ -1937,7 +1937,7 @@ ENDIF
 		bpl L_9282		;926E 10 12
 		ldx #$23		;9270 A2 23			; "Race Time: "
 		jsr print_msg_1		;9272 20 A5 32
-		ldx #$D6		;9275 A2 D6			; "------------"
+		ldx #$D6		;9275 A2 D6			; "------------" (driver 1)
 		jsr print_msg_3		;9277 20 DC A1
 		jsr print_space		;927A 20 AF 91
 		ldx #$0F		;927D A2 0F
@@ -1950,7 +1950,7 @@ ENDIF
 		jsr set_text_cursor		;928C 20 6B 10
 		ldx #$2F		;928F A2 2F			; "Best Lap : "
 		jsr print_msg_1		;9291 20 A5 32
-		ldx #$C9		;9294 A2 C9			; "------------"
+		ldx #$C9		;9294 A2 C9			; "------------" (driver 2)
 		jsr print_msg_3		;9296 20 DC A1
 		jsr print_space		;9299 20 AF 91
 		ldx #$0E		;929C A2 0E
@@ -1958,7 +1958,7 @@ ENDIF
 .L_92A1	rts				;92A1 60
 }
 
-.L_9319				; HAS DLL
+.copy_track_records_Q				; HAS DLL
 {
 		sta ZP_14		;9319 85 14
 		jsr disable_ints_and_page_in_RAM		;931B 20 F1 33
@@ -1977,45 +1977,45 @@ ENDIF
 		bit ZP_14		;9333 24 14
 		bmi L_936E		;9335 30 37
 .L_9337	lda L_3273,Y	;9337 B9 73 32
-		sta L_DE00,X	;933A 9D 00 DE		; I/O 1
+		sta L_DE00,X	;933A 9D 00 DE
 		lda L_3280,Y	;933D B9 80 32
-		sta L_DF00,X	;9340 9D 00 DF		; I/O 2
+		sta L_DF00,X	;9340 9D 00 DF
 		inx				;9343 E8
 		iny				;9344 C8
 		cpy #$0C		;9345 C0 0C
 		bne L_9337		;9347 D0 EE
 		lda L_83A6		;9349 AD A6 83
-		sta L_DE00,X	;934C 9D 00 DE		; I/O 1
+		sta L_DE00,X	;934C 9D 00 DE
 		lda L_82BE		;934F AD BE 82
-		sta L_DE01,X	;9352 9D 01 DE		; I/O 1
+		sta L_DE01,X	;9352 9D 01 DE
 		lda L_82A6		;9355 AD A6 82
-		sta L_DE02,X	;9358 9D 02 DE		; I/O 1
+		sta L_DE02,X	;9358 9D 02 DE
 		lda L_83A7		;935B AD A7 83
-		sta L_DF00,X	;935E 9D 00 DF		; I/O 2
+		sta L_DF00,X	;935E 9D 00 DF
 		lda L_82BF		;9361 AD BF 82
-		sta L_DF01,X	;9364 9D 01 DF		; I/O 2
+		sta L_DF01,X	;9364 9D 01 DF
 		lda L_82A7		;9367 AD A7 82
-		sta L_DF02,X	;936A 9D 02 DF		; I/O 2
+		sta L_DF02,X	;936A 9D 02 DF
 		rts				;936D 60
 
 .L_936E
-		lda L_DE00,X	;936E BD 00 DE		; I/O 1
+		lda L_DE00,X	;936E BD 00 DE
 		sta L_3273,Y	;9371 99 73 32
-		lda L_DF00,X	;9374 BD 00 DF		; I/O 2
+		lda L_DF00,X	;9374 BD 00 DF
 		sta L_3280,Y	;9377 99 80 32
 		inx				;937A E8
 		iny				;937B C8
 		cpy #$0C		;937C C0 0C
 		bne L_936E		;937E D0 EE
-		lda L_DE00,X	;9380 BD 00 DE		; I/O 1
+		lda L_DE00,X	;9380 BD 00 DE
 		sta L_83A6		;9383 8D A6 83
-		lda L_DE01,X	;9386 BD 01 DE		; I/O 1
+		lda L_DE01,X	;9386 BD 01 DE
 		sta L_82BE		;9389 8D BE 82
-		lda L_DE02,X	;938C BD 02 DE		; I/O 1
+		lda L_DE02,X	;938C BD 02 DE
 		sta L_82A6		;938F 8D A6 82
-		lda L_DF00,X	;9392 BD 00 DF		; I/O 2
+		lda L_DF00,X	;9392 BD 00 DF
 		sta L_83A7		;9395 8D A7 83
-		lda L_DF01,X	;9398 BD 01 DF		; I/O 2
+		lda L_DF01,X	;9398 BD 01 DF
 		sta L_82BF		;939B 8D BF 82
 		lda L_DF02,X	;939E BD 02 DF		; I/O 2
 		sta L_82A7		;93A1 8D A7 82
@@ -6135,7 +6135,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr print_msg_4		;2FDC 20 27 30
 		ldx current_track		;2FDF AE 7D C7
 		jsr print_track_name		;2FE2 20 92 38
-		jsr L_361F		;2FE5 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;2FE5 20 1F 36
 		lda #$03		;2FE8 A9 03
 		sta ZP_17		;2FEA 85 17
 .L_2FEC	ldx ZP_17		;2FEC A6 17
@@ -6194,7 +6194,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		rts				;3091 60
 }
 
-.L_3092_from_game_start
+.do_end_of_race_screen
 {
 		jsr kernel_L_E9A3		;3092 20 A3 E9
 		lda #$10		;3095 A9 10
@@ -6203,7 +6203,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		sta L_321D		;309C 8D 1D 32
 		lda L_C39C		;309F AD 9C C3
 		and L_31A5		;30A2 2D A5 31
-		bpl L_3110		;30A5 10 69
+		bpl print_results_table		;30A5 10 69
 		jsr clear_menu_area		;30A7 20 23 1C
 		jsr menu_colour_map_stuff		;30AA 20 C4 38
 		ldx #$04		;30AD A2 04
@@ -6229,13 +6229,13 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		adc #$02		;30DB 69 02
 		sta L_3845		;30DD 8D 45 38
 		jsr print_track_title		;30E0 20 70 31
-		jsr L_91CF		;30E3 20 CF 91
+		jsr print_race_times		;30E3 20 CF 91
 		lda L_31A1		;30E6 AD A1 31
 		cmp #$06		;30E9 C9 06
 		beq L_30F4		;30EB F0 07
 		cmp #$05		;30ED C9 05
 		beq L_30F4		;30EF F0 03
-		jsr L_361F		;30F1 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;30F1 20 1F 36
 .L_30F4	ldx L_31A1		;30F4 AE A1 31
 		lda L_3198,X	;30F7 BD 98 31
 		sta L_321D		;30FA 8D 1D 32
@@ -6249,7 +6249,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 .L_310A	sta L_3845		;310A 8D 45 38
 		jmp L_3153		;310D 4C 53 31
 
-.L_3110
+.print_results_table
 		jsr set_up_screen_for_menu		;3110 20 1F 35
 		bit L_C39C		;3113 2C 9C C3
 		bmi L_314E		;3116 30 36
@@ -6273,7 +6273,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr L_3884		;3140 20 84 38
 		ldx #$13		;3143 A2 13		; "FINAL SEASON"
 		jsr print_msg_1		;3145 20 A5 32
-		jsr L_361F		;3148 20 1F 36
+		jsr store_X_in_L_85D0_with_sysctl		;3148 20 1F 36
 		jmp L_3158		;314B 4C 58 31
 .L_314E	ldy #$0B		;314E A0 0B
 		jsr print_track_title		;3150 20 70 31
@@ -6287,7 +6287,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr highlight_current_menu_item		;3162 20 5A 38
 .L_3165	jsr L_387B		;3165 20 7B 38
 		inc ZP_7A		;3168 E6 7A
-		jsr L_364F		;316A 20 4F 36
+		jsr print_driver_stats		;316A 20 4F 36
 		bne L_3165		;316D D0 F6
 		rts				;316F 60
 
@@ -6361,7 +6361,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		sta ZP_C7		;362B 85 C7
 		lda L_31A1		;362D AD A1 31
 		beq L_3638		;3630 F0 06
-		jsr L_3092_from_game_start		;3632 20 92 30
+		jsr do_end_of_race_screen		;3632 20 92 30
 		jmp L_361C		;3635 4C 1C 36
 .L_3638	jsr set_up_screen_for_menu		;3638 20 1F 35
 		ldx #$86		;363B A2 86		; "RESULTS TABLE"
@@ -6369,12 +6369,12 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		lda #$01		;3640 A9 01
 		sta ZP_19		;3642 85 19
 .L_3644	jsr L_3858		;3644 20 58 38
-		jsr L_364F		;3647 20 4F 36
+		jsr print_driver_stats		;3647 20 4F 36
 		bne L_3644		;364A D0 F8
 		jmp L_361C		;364C 4C 1C 36
 }
 
-.L_364F			; in Cart
+.print_driver_stats			; in Cart
 {
 		ldy ZP_C7		;364F A4 C7
 		ldx L_C758,Y	;3651 BE 58 C7
@@ -6418,10 +6418,10 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr print_msg_4		;3748 20 27 30
 		ldx L_C772		;374B AE 72 C7
 		jsr print_driver_name		;374E 20 8B 38
-		jmp L_361F		;3751 4C 1F 36
+		jmp store_X_in_L_85D0_with_sysctl		;3751 4C 1F 36
 }
 
-.L_3754_from_game_start
+.do_driver_league_changes
 {
 		jsr set_up_screen_for_menu		;3754 20 1F 35
 		jsr L_375D		;3757 20 5D 37

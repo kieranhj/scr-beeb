@@ -521,6 +521,7 @@ ENDIF
 		ldy #$09		;3552 A0 09
 \\
 .print_division_type
+{
 		lda L_C71A		;3554 AD 1A C7
 		beq L_3564		;3557 F0 0B
 		sty L_E0BD		;3559 8C BD E0
@@ -534,6 +535,7 @@ ENDIF
 		sec				;356E 38
 		sbc L_C360		;356F ED 60 C3
 		jmp cart_print_single_digit		;3572 4C 8A 10
+}
 \\
 .L_3575	ldx #$A0		;3575 A2 A0		; "DRIVERS CHAMPIONSHIP"
 		jmp cart_print_msg_3		;3577 4C DC A1
@@ -584,8 +586,8 @@ ENDIF
 		lda #$06		;35DC A9 06
 		jsr cart_print_driver_v_driver		;35DE 20 38 37
 		lda #$80		;35E1 A9 80
-		jsr cart_L_9319		;35E3 20 19 93
-.L_35E6	jsr cart_L_9225		;35E6 20 25 92
+		jsr cart_copy_track_records_Q		;35E3 20 19 93
+.L_35E6	jsr cart_print_track_records		;35E6 20 25 92
 		jmp L_361C		;35E9 4C 1C 36
 .L_35EC	lda #$07		;35EC A9 07
 		jsr cart_print_driver_v_driver		;35EE 20 38 37
@@ -607,7 +609,7 @@ ENDIF
 		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
 \\
-.L_361F
+.store_X_in_L_85D0_with_sysctl
 {
 		ldx #$00		;361F A2 00
 		lda #$20		;3621 A9 20
@@ -887,7 +889,7 @@ ENDIF
 		lda #$00		;3BCD A9 00
 		jsr cart_store_restore_control_keys		;3BCF 20 46 98
 		lda #$00		;3BD2 A9 00
-		jsr cart_L_9319		;3BD4 20 19 93
+		jsr cart_copy_track_records_Q		;3BD4 20 19 93
 		jsr kernel_L_E87F		;3BD7 20 7F E8
 		jsr set_up_screen_for_frontend		;3BDA 20 04 35
 		lda L_C305		;3BDD AD 05 C3
@@ -913,7 +915,7 @@ ENDIF
 		sta L_C77F		;3C0B 8D 7F C7
 		lda L_31A1		;3C0E AD A1 31
 		bne L_3C1F		;3C11 D0 0C
-		jsr cart_L_3754_from_game_start		;3C13 20 54 37
+		jsr cart_do_driver_league_changes		;3C13 20 54 37
 		jsr kernel_print_division_table		;3C16 20 AD 36
 
 .L_3C19	jsr cart_L_1611		;3C19 20 11 16

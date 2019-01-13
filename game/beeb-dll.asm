@@ -509,10 +509,10 @@ ENDIF
 .cart_print_space DLL_CALL_CART print_space, 7
 .cart_L_91B4 DLL_CALL_CART L_91B4, 8			; small fn - move to Core?
 .cart_L_91C3 DLL_CALL_CART L_91C3, 9			; small fn - move to Core?
-.cart_L_91CF DLL_CALL_CART L_91CF, 10				; not required in DLL
+.cart_print_race_times DLL_CALL_CART print_race_times, 10				; not required in DLL
 .cart_convert_X_to_BCD DLL_CALL_CART convert_X_to_BCD, 11
-.cart_L_9225 DLL_CALL_CART L_9225, 12
-.cart_L_9319 DLL_CALL_CART L_9319, 13
+.cart_print_track_records DLL_CALL_CART print_track_records, 12
+.cart_copy_track_records_Q DLL_CALL_CART copy_track_records_Q, 13
 .cart_L_93A8 DLL_CALL_CART L_93A8, 14
 .cart_L_9448 DLL_CALL_CART L_9448, 15
 .cart_write_file_string DLL_CALL_CART write_file_string, 16
@@ -556,11 +556,11 @@ ENDIF
 .cart_draw_track_preview_border DLL_CALL_CART draw_track_preview_border, 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
-.cart_L_3092_from_game_start DLL_CALL_CART L_3092_from_game_start, 55	; not required in DLL
+.cart_do_end_of_race_screen DLL_CALL_CART do_end_of_race_screen, 55	; not required in DLL
 .cart_L_3389_from_game_start DLL_CALL_CART L_3389_from_game_start, 56
 .cart_L_3626_from_game_start DLL_CALL_CART L_3626_from_game_start, 57
 .cart_print_driver_v_driver DLL_CALL_CART print_driver_v_driver, 58
-.cart_L_3754_from_game_start DLL_CALL_CART L_3754_from_game_start, 59
+.cart_do_driver_league_changes DLL_CALL_CART do_driver_league_changes, 59
 .cart_menu_colour_map_stuff DLL_CALL_CART menu_colour_map_stuff, 60
 .cart_L_39D1 DLL_CALL_CART L_39D1, 61
 .cart_L_39F1 DLL_CALL_CART L_39F1, 62
@@ -590,10 +590,10 @@ ENDIF
 	EQUB LO(print_space)
 	EQUB LO(L_91B4)
 	EQUB LO(L_91C3)
-	EQUB LO(L_91CF)
+	EQUB LO(print_race_times)
 	EQUB LO(convert_X_to_BCD)
-	EQUB LO(L_9225)
-	EQUB LO(L_9319)
+	EQUB LO(print_track_records)
+	EQUB LO(copy_track_records_Q)
 	EQUB LO(L_93A8)
 	EQUB LO(L_9448)
 	EQUB LO(write_file_string)
@@ -637,11 +637,11 @@ ENDIF
 	EQUB LO(draw_track_preview_border)
 	EQUB LO(draw_track_preview_track_name)
 	EQUB LO(do_initial_screen)
-	EQUB LO(L_3092_from_game_start)
+	EQUB LO(do_end_of_race_screen)
 	EQUB LO(L_3389_from_game_start)
 	EQUB LO(L_3626_from_game_start)
 	EQUB LO(print_driver_v_driver)
-	EQUB LO(L_3754_from_game_start)
+	EQUB LO(do_driver_league_changes)
 	EQUB LO(menu_colour_map_stuff)
 	EQUB LO(L_39D1)
 	EQUB LO(L_39F1)
@@ -668,10 +668,10 @@ ENDIF
 	EQUB HI(print_space)
 	EQUB HI(L_91B4)
 	EQUB HI(L_91C3)
-	EQUB HI(L_91CF)
+	EQUB HI(print_race_times)
 	EQUB HI(convert_X_to_BCD)
-	EQUB HI(L_9225)
-	EQUB HI(L_9319)
+	EQUB HI(print_track_records)
+	EQUB HI(copy_track_records_Q)
 	EQUB HI(L_93A8)
 	EQUB HI(L_9448)
 	EQUB HI(write_file_string)
@@ -715,11 +715,11 @@ ENDIF
 	EQUB HI(draw_track_preview_border)
 	EQUB HI(draw_track_preview_track_name)
 	EQUB HI(do_initial_screen)
-	EQUB HI(L_3092_from_game_start)
+	EQUB HI(do_end_of_race_screen)
 	EQUB HI(L_3389_from_game_start)
 	EQUB HI(L_3626_from_game_start)
 	EQUB HI(print_driver_v_driver)
-	EQUB HI(L_3754_from_game_start)
+	EQUB HI(do_driver_league_changes)
 	EQUB HI(menu_colour_map_stuff)
 	EQUB HI(L_39D1)
 	EQUB HI(L_39F1)
