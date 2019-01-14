@@ -783,6 +783,10 @@ GUARD &8000
 {
 	; BEEB EARLY INIT
 
+	LDA #200
+	LDX #2
+	JSR osbyte
+
 	; BEEB SET SCREEN MODE 4
 
 	LDA #22
@@ -1203,13 +1207,13 @@ L_5740	= screen1_address+$1740
 ;L_6026	= screen2_address+$0026
 ;L_6027	= screen2_address+$0027
 ;L_6028	= screen2_address+$0028
-;L_6130	= screen2_address+$0130
+;track_preview_border_0	= screen2_address+$0130
 
-;L_6270	= screen2_address+$0270
+;track_preview_border_1	= screen2_address+$0270
 ;L_62A0	= screen2_address+$02a0
-;L_63B0	= screen2_address+$03b0
+;track_preview_border_2	= screen2_address+$03b0
 ;L_63E0	= screen2_address+$03e0
-;L_64F0	= screen2_address+$04f0
+;track_preview_border_3	= screen2_address+$04f0
 ;L_6520	= screen2_address+$0520
 ;L_6660	= screen2_address+$0660
 ;L_66E0	= screen2_address+$06e0

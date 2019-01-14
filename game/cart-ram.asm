@@ -2553,7 +2553,7 @@ ENDIF
 		ldx #$04		;985E A2 04
 		bit ZP_14		;9860 24 14
 		bpl L_986F		;9862 10 0B
-.L_9864	lda L_987A,Y	;9864 B9 7A 98
+.L_9864	lda multiplayer_key_defs,Y	;9864 B9 7A 98
 		sta control_keys,X	;9867 9D 07 F8
 		dey				;986A 88
 		dex				;986B CA
@@ -2562,20 +2562,21 @@ ENDIF
 
 .L_986F
 		lda control_keys,X	;986F BD 07 F8
-		sta L_987A,Y	;9872 99 7A 98
+		sta multiplayer_key_defs,Y	;9872 99 7A 98
 		dey				;9875 88
 		dex				;9876 CA
 		bpl L_986F		;9877 10 F6
 		rts				;9879 60
 
-.L_987A	equb $2E,$27,$29,$12,$08
-		equb $2E,$27,$29,$12,$08
-		equb $2E,$27,$29,$12,$08
-		equb $2E,$27,$29,$12,$08
-		equb $2E,$27,$29,$12,$08
-		equb $2E,$27,$29,$12,$08
-		equb $2E,$27,$29,$12,$08
-		equb $2E,$27,$29,$12,$08
+.multiplayer_key_defs
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+		equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
 }
 
 .print_lap_time_Q				; HAS DLL
@@ -6066,16 +6067,16 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 {
 		ldy #$00		;2F03 A0 00
 		ldx #$00		;2F05 A2 00
-.L_2F07	lda L_6130,X	;2F07 BD 30 61
+.L_2F07	lda track_preview_border_0,X	;2F07 BD 30 61
 		sta L_4010,Y	;2F0A 99 10 40
 		sta L_40A0,Y	;2F0D 99 A0 40
-		lda L_6270,X	;2F10 BD 70 62
+		lda track_preview_border_1,X	;2F10 BD 70 62
 		sta L_4150,Y	;2F13 99 50 41
 		sta L_41E0,Y	;2F16 99 E0 41
-		lda L_63B0,X	;2F19 BD B0 63
+		lda track_preview_border_2,X	;2F19 BD B0 63
 		sta L_5690,Y	;2F1C 99 90 56
 		sta L_5720,Y	;2F1F 99 20 57
-		lda L_64F0,X	;2F22 BD F0 64
+		lda track_preview_border_3,X	;2F22 BD F0 64
 		sta L_57D0,Y	;2F25 99 D0 57
 		sta L_5860,Y	;2F28 99 60 58
 		inx				;2F2B E8
