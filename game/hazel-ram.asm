@@ -136,7 +136,7 @@
 .L_C365	skip 1
 .L_C366	skip 1
 .L_C367	skip 1
-.L_C368	skip 1
+.L_C368	skip 1		; Crash Timer
 .L_C369	skip 1
 .L_C36A	skip 1
 .L_C36B	skip 1

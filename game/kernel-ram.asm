@@ -4973,7 +4973,7 @@ ENDIF
 
 .L_E85B
 {
-		jsr L_3DF9		;E85B 20 F9 3D
+		jsr initialise_game_vars		;E85B 20 F9 3D
 		ldx #$7F		;E85E A2 7F
 .L_E860	lda #$00		;E860 A9 00
 		sta L_C700,X	;E862 9D 00 C7
@@ -6349,7 +6349,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		rts				;F2B6 60
 }
 
-.L_F2B7
+.L_F2B7		; TEST IF ON TRACK?
 {
 		lda ZP_B7		;F2B7 A5 B7
 		sec				;F2B9 38
@@ -6373,8 +6373,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda ZP_B6		;F2DE A5 B6
 		sta L_C36F		;F2E0 8D 6F C3
 		lda #$0F		;F2E3 A9 0F
-;L_F2E4	= *-1			;! _SELF_MOD
-		sta L_C368		;F2E5 8D 68 C3
+		sta L_C368		;F2E5 8D 68 C3		; Crash Timer
 		jsr cart_L_2C64		;F2E8 20 64 2C
 .L_F2EB	rts				;F2EB 60
 .L_F2EC	bit ZP_6B		;F2EC 24 6B
@@ -6575,7 +6574,7 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_F485
 		jsr to_previous_road_section		;F485 20 D2 CF
 \\
-.L_F488
+.setup_car_on_trackQ
 {
 		stx ZP_2E		;F488 86 2E
 		stx L_C374		;F48A 8E 74 C3

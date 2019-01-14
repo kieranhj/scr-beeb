@@ -937,7 +937,7 @@ ENDIF
 {
 		lda #$0B		;3C36 A9 0B
 		jsr vic_set_border_colour		;3C38 20 BB 3F
-		jsr L_3DF9		;3C3B 20 F9 3D
+		jsr initialise_game_vars		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
 		sta irq_mode		;3C40 8D F8 3D
 
@@ -992,7 +992,7 @@ ENDIF
 		ldx #$80		;3C99 A2 80
 		lda #$34		;3C9B A9 34		; 'copy stuff'
 		jsr cart_sysctl		;3C9D 20 25 87
-		jsr L_3DF9		;3CA0 20 F9 3D
+		jsr initialise_game_vars		;3CA0 20 F9 3D
 		ldx #$80		;3CA3 A2 80
 		lda #$10		;3CA5 A9 10		; 
 		jsr cart_sysctl		;3CA7 20 25 87
@@ -1007,8 +1007,8 @@ ENDIF
 		sta ZP_B0		;3CBE 85 B0
 		jsr cart_L_1EE2_from_main_loop		;3CC0 20 E2 1E
 		ldx players_start_section		;3CC3 AE 65 C7
-.L_3CC6
-		jsr kernel_L_F488		;3CC6 20 88 F4
+.setup_car
+		jsr kernel_setup_car_on_trackQ		;3CC6 20 88 F4
 		jsr cart_L_2C64		;3CC9 20 64 2C
 		bit irq_mode		;3CCC 2C F8 3D
 		bmi L_3CDD		;3CCF 30 0C
@@ -1038,7 +1038,7 @@ ENDIF
 		jsr kernel_game_update		;3D0B 20 41 08
 		jsr kernel_L_E104		;3D0E 20 04 E1
 		jsr cart_draw_trackQ		;3D11 20 7A 16
-		jsr cart_L_2C6F		;3D14 20 6F 2C
+		jsr cart_L_2C6F_from_main_loop		;3D14 20 6F 2C
 		jsr cart_L_14D0_from_main_loop		;3D17 20 D0 14
 		jsr cart_draw_crane_with_sysctl		;3D1A 20 1E 1C
 		jsr cart_update_per_track_stuff		;3D1D 20 18 1D
@@ -1086,15 +1086,18 @@ ENDIF
 		cmp #$02		;3D79 C9 02
 		bcs L_3D80		;3D7B B0 03
 
+\\ Reset car after crash
+
 .L_3D7D	sty L_C373		;3D7D 8C 73 C3
-.L_3D80	dec L_C368		;3D80 CE 68 C3
+.L_3D80	dec L_C368		;3D80 CE 68 C3		; Crash Timer
 		bpl L_3D95		;3D83 10 10
 		inc L_C368		;3D85 EE 68 C3
-		lda ZP_6C		;3D88 A5 6C
+		lda ZP_6C		;3D88 A5 6C			; End of game Timer
 		bne L_3D95		;3D8A D0 09
 		jsr kernel_L_E0F9_with_sysctl		;3D8C 20 F9 E0
 		ldx L_C309		;3D8F AE 09 C3
-		jmp L_3CC6		;3D92 4C C6 3C
+		jmp setup_car		;3D92 4C C6 3C
+
 .L_3D95	lda ZP_2F		;3D95 A5 2F
 		bne L_3DA1		;3D97 D0 08
 		lda ZP_6B		;3D99 A5 6B
@@ -1143,11 +1146,14 @@ ENDIF
 ; *****************************************************************************
 ; *****************************************************************************
 
-.L_3DF9
+.initialise_game_vars
 {
 		ldx #$00		;3DF9 A2 00
 .L_3DFB	lda #$00		;3DFB A9 00
 		sta L_C300,X	;3DFD 9D 00 C3
+
+		STA BEEB_ZP_OFFSET, X		; BEEB - need to clear our non-ZP ZP vars as well!
+
 		cpx #$74		;3E00 E0 74
 		bcc L_3E07		;3E02 90 03
 		sta L_0700,X	;3E04 9D 00 07
@@ -1158,8 +1164,8 @@ ENDIF
 .L_3E11	cpx #$02		;3E11 E0 02
 		bcc L_3E17		;3E13 90 02
 
-		CPX #$E4
-		BCS L_3E17		; BEEB - skip MOS ZP vars
+		CPX #$E0
+		BCS L_3E17		; BEEB - skip MOS ZP vars from $E0 - $FF
 
 		sta $00,X		;3E15 95 00
 .L_3E17	dex				;3E17 CA

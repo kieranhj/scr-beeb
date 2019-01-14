@@ -2,7 +2,7 @@
 ; Jump tables
 ; *****************************************************************************
 
-_STORE_STATUS = TRUE
+_STORE_STATUS = FALSE
 
 MACRO DLL_CALL_KERNEL fn, id
 IF BEEB_KERNEL_SLOT = 0
@@ -149,7 +149,7 @@ ENDIF
 .kernel_L_F2B7 DLL_CALL_KERNEL L_F2B7, 25
 .kernel_update_track_preview DLL_CALL_KERNEL update_track_preview, 26
 .kernel_L_F440 DLL_CALL_KERNEL L_F440, 27
-.kernel_L_F488 DLL_CALL_KERNEL L_F488, 28
+.kernel_setup_car_on_trackQ DLL_CALL_KERNEL setup_car_on_trackQ, 28
 .kernel_L_F585 DLL_CALL_KERNEL L_F585, 29
 .kernel_L_F5E9 DLL_CALL_KERNEL L_F5E9, 30		; not required in DLL
 .kernel_update_boosting DLL_CALL_KERNEL update_boosting, 31	; only in Cart
@@ -245,7 +245,7 @@ ENDIF
 	EQUB LO(L_F2B7)
 	EQUB LO(update_track_preview)
 	EQUB LO(L_F440)
-	EQUB LO(L_F488)
+	EQUB LO(setup_car_on_trackQ)
 	EQUB LO(L_F585)
 	EQUB LO(L_F5E9)
 	EQUB LO(update_boosting)
@@ -330,7 +330,7 @@ ENDIF
 	EQUB HI(L_F2B7)
 	EQUB HI(update_track_preview)
 	EQUB HI(L_F440)
-	EQUB HI(L_F488)
+	EQUB HI(setup_car_on_trackQ)
 	EQUB HI(L_F585)
 	EQUB HI(L_F5E9)
 	EQUB HI(update_boosting)
@@ -548,11 +548,11 @@ ENDIF
 .cart_pow36Q DLL_CALL_CART pow36Q, 45
 .cart_update_camera_roll_tables DLL_CALL_CART update_camera_roll_tables, 46
 .cart_L_2809 DLL_CALL_CART L_2809, 47
-.cart_draw_crash_smokeQ DLL_CALL_CART draw_crash_smokeQ, 48	; not required in DLL
+.cart_draw_crash_smoke DLL_CALL_CART draw_crash_smoke, 48	; not required in DLL
 .cart_L_2A5C DLL_CALL_CART L_2A5C, 49			; not required in DLL
 
 .cart_L_2C64 DLL_CALL_CART L_2C64, 50
-.cart_L_2C6F DLL_CALL_CART L_2C6F, 51
+.cart_L_2C6F_from_main_loop DLL_CALL_CART L_2C6F_from_main_loop, 51
 .cart_draw_track_preview_border DLL_CALL_CART draw_track_preview_border, 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
@@ -629,11 +629,11 @@ ENDIF
 	EQUB LO(pow36Q)
 	EQUB LO(update_camera_roll_tables)
 	EQUB LO(L_2809)
-	EQUB LO(draw_crash_smokeQ)
+	EQUB LO(draw_crash_smoke)
 	EQUB LO(L_2A5C)
 
 	EQUB LO(L_2C64)
-	EQUB LO(L_2C6F)
+	EQUB LO(L_2C6F_from_main_loop)
 	EQUB LO(draw_track_preview_border)
 	EQUB LO(draw_track_preview_track_name)
 	EQUB LO(do_initial_screen)
@@ -707,11 +707,11 @@ ENDIF
 	EQUB HI(pow36Q)
 	EQUB HI(update_camera_roll_tables)
 	EQUB HI(L_2809)
-	EQUB HI(draw_crash_smokeQ)
+	EQUB HI(draw_crash_smoke)
 	EQUB HI(L_2A5C)
 
 	EQUB HI(L_2C64)
-	EQUB HI(L_2C6F)
+	EQUB HI(L_2C6F_from_main_loop)
 	EQUB HI(draw_track_preview_border)
 	EQUB HI(draw_track_preview_track_name)
 	EQUB HI(do_initial_screen)

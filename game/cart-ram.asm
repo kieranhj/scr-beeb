@@ -3697,7 +3697,7 @@ L_14B6 = L_14B8-2
 		bne L_1688		;167F D0 07
 		bit ZP_6B		;1681 24 6B
 		bpl L_1688		;1683 10 03
-		jsr L_2C51		;1685 20 51 2C
+		jsr start_crash_effectQ		;1685 20 51 2C
 .L_1688	lda #$00		;1688 A9 00
 		sta ZP_0B		;168A 85 0B
 		sta ZP_0C		;168C 85 0C
@@ -5768,7 +5768,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		rts				;29B8 60
 }
 
-.draw_crash_smokeQ		; HAS DLL
+.draw_crash_smoke		; HAS DLL
 {
 		ldy #$00		;29E3 A0 00
 		txa				;29E5 8A
@@ -5897,7 +5897,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp sysctl		;2C4E 4C 25 87
 }
 
-.L_2C51				; Cart only?
+.start_crash_effectQ				; Cart only?
 {
 		lda L_0188		;2C51 AD 88 01
 		cmp #$10		;2C54 C9 10
@@ -5906,7 +5906,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 .L_2C5A	sta L_C350		;2C5A 8D 50 C3
 		ldx #$0F		;2C5D A2 0F
 		lda #$08		;2C5F A9 08
-		bne L_2CAB		;2C61 D0 48
+		bne do_crash_effect		;2C61 D0 48
 }
 .L_2C63	rts				;2C63 60
 
@@ -5920,7 +5920,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		rts				;2C6E 60
 }
 
-.L_2C6F				; HAS DLL called from main_loop
+.L_2C6F_from_main_loop				; HAS DLL called from main_loop
 {
 		lda L_C30A		;2C6F AD 0A C3
 		bne L_2C78		;2C72 D0 04
@@ -5943,16 +5943,16 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		cmp #$08		;2C97 C9 08
 		bcs L_2C9F		;2C99 B0 04
 		lda #$08		;2C9B A9 08
-		bne L_2CAB		;2C9D D0 0C
+		bne do_crash_effect		;2C9D D0 0C
 .L_2C9F	cpy #$06		;2C9F C0 06
-		bcc L_2CAB		;2CA1 90 08
+		bcc do_crash_effect		;2CA1 90 08
 		lda #$0D		;2CA3 A9 0D
 		cpy #$07		;2CA5 C0 07
-		bne L_2CAB		;2CA7 D0 02
+		bne do_crash_effect		;2CA7 D0 02
 		lda #$03		;2CA9 A9 03
 }
 \\
-.L_2CAB
+.do_crash_effect
 {
 		clc				;2CAB 18
 		adc #$02		;2CAC 69 02
@@ -6037,7 +6037,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		rts				;2D54 60
 .L_2D55	bit ZP_6B		;2D55 24 6B
 		bpl L_2D5F		;2D57 10 06
-		jsr draw_crash_smokeQ		;2D59 20 E3 29
+		jsr draw_crash_smoke		;2D59 20 E3 29
 		jmp L_2D71		;2D5C 4C 71 2D
 .L_2D5F	tax				;2D5F AA
 		jsr L_2D76		;2D60 20 76 2D
