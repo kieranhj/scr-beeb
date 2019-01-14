@@ -400,7 +400,7 @@ ENDIF
 {
 		stx L_85C8		;8603 8E C8 85
 		sty L_85C9		;8606 8C C9 85
-
+IF 0
 .L_8609	ldx L_85CF		;8609 AE CF 85
 		jsr poll_key		;860C 20 D2 85
 		bmi L_8609		;860F 30 F8
@@ -426,11 +426,46 @@ ENDIF
 		dex				;863C CA
 		bpl L_862B		;863D 10 EC
 		bmi L_8611		;863F 30 D0
+ELSE
+	\\ Or just use OSRDCH?!
+
+	.wait_for_key_up
+		LDA #&79
+		LDX #&10
+		JSR osbyte
+		CPX #&FF
+		BNE wait_for_key_up
+
+	.wait_for_key_press
+		LDA #&79
+		LDX #&10
+		JSR osbyte
+		CPX #&FF
+		BEQ wait_for_key_press
+		STX ZP_FA
+
+	\\ Test SHIFT
+
+		LDA #&79
+		LDX #KEY_LEFT_SHIFT EOR &80
+		JSR osbyte
+	
+	\\ NB. CAPS and SHIFT LOCK ignored...
+
+		LDA #0
+		CPX #&80
+		BCC shift_not_pressed
+		LDA #$20
+
+		.shift_not_pressed
+		sta L_85CE		;8626 8D CE 85
+
+ENDIF
 .L_8641	lda ZP_FA		;8641 A5 FA
 		sta L_85CF		;8643 8D CF 85
-		ora L_85CE		;8646 0D CE 85
 		tax				;8649 AA
 		lda ikn_to_ascii,X	;864A BD 25 91
+		ora L_85CE		;8646 0D CE 85
 
 		ldx L_85C8		;864D AE C8 85
 		ldy L_85C9		;8650 AC C9 85
@@ -458,8 +493,8 @@ ENDIF
 \\ Starting at &10
 		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00, $00,$00,$00,$00,$00,$00
 		equb 'Q','3','4','5',$00,'8',$00,'-','^',$00, $00,$00,$00,$00,$00,$00
-		equb $00,'W','E','T','7','9','I','0','_',$00, $00,$00,$00,$00,$00,$00
-		equb '1','2','D',$00,'6','U','O','P','[',$00, $00,$00,$00,$00,$00,$00
+		equb $00,'W','E','T','7','I','9','0','_',$00, $00,$00,$00,$00,$00,$00
+		equb '1','2','D','R','6','U','O','P','[',$00, $00,$00,$00,$00,$00,$00
 		equb $00,'A','X','F','Y','J','K','@',':',$0D, $00,$00,$00,$00,$00,$00
 		equb $00,'S','C','G','H','N','L',';',']',$7F, $00,$00,$00,$00,$00,$00
 		equb $00,'Z',$00,'V','B','M',$00,'.','/',$00, $00,$00,$00,$00,$00,$00
