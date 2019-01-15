@@ -1350,11 +1350,76 @@ ENDIF
 		cpy #$40		;8BC8 C0 40
 		bcs L_8B80		;8BCA B0 B4
 		rts				;8BCC 60
-		
-.L_8BCD	equb $F3,$F3,$C0,$00,$00,$33,$3F,$3F,$3F,$3F,$33,$00,$00,$C0,$F3,$F3
-.L_8BDD	equb $FF,$FF,$FF,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$FF,$FF,$FF
-.L_8BED	equb $00,$00,$01,$40,$00,$00,$00,$00,$00,$00,$04,$15,$04,$04,$04,$04
-.L_8BFD	equb $00,$00,$00,$40,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+.L_8BCD
+    equb $dd ; was $f3 - 3 3 0 3
+    equb $dd ; was $f3 - 3 3 0 3
+    equb $88 ; was $c0 - 3 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $55 ; was $33 - 0 3 0 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $55 ; was $33 - 0 3 0 3
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $88 ; was $c0 - 3 0 0 0
+    equb $dd ; was $f3 - 3 3 0 3
+    equb $dd ; was $f3 - 3 3 0 3
+.L_8BDD
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+.L_8BED
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $01 ; was $01 - 0 0 0 1
+    equb $08 ; was $40 - 1 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $02 ; was $04 - 0 0 1 0
+    equb $07 ; was $15 - 0 1 1 1
+    equb $02 ; was $04 - 0 0 1 0
+    equb $02 ; was $04 - 0 0 1 0
+    equb $02 ; was $04 - 0 0 1 0
+    equb $02 ; was $04 - 0 0 1 0
+.L_8BFD
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $08 ; was $40 - 1 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+
 }
 
 .L_8C0D_from_sysctl			; in Cart
