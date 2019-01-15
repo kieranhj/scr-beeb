@@ -6856,7 +6856,8 @@ L_EBDD	= L_EBE7 - $A			;!
 {
 		ldx #$1D		;F6A6 A2 1D
 .L_F6A8	lda #$0A		;F6A8 A9 0A
-		sta L_D805,X	;F6AA 9D 05 D8
+; COLOR RAM
+;		sta L_D805,X	;F6AA 9D 05 D8
 		dex				;F6AD CA
 		bpl L_F6A8		;F6AE 10 F8
 		ldy #$00		;F6B0 A0 00
