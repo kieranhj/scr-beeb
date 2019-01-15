@@ -7159,7 +7159,7 @@ L_F8CB	= *-2			;! _SELF_MOD
 		cmp L_C500,X	;F8D7 DD 00 C5
 		bcs L_F8E3		;F8DA B0 07
 .L_F8DC	lda (ZP_1E),Y	;F8DC B1 1E
-.L_F8DE	and color_ram_ptrs_LO,X	;F8DE 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+.L_F8DE	and pixel_masks_1-64,X	;F8DE 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
 L_F8DF	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;F8E1 91 1E
 .L_F8E3	dey				;F8E3 88
@@ -7301,7 +7301,7 @@ L_F9D2	= *-2			;! _SELF_MOD
 		cmp L_C500,X	;F9DE DD 00 C5
 		bcs L_F9EA		;F9E1 B0 07
 .L_F9E3	lda (ZP_1E),Y	;F9E3 B1 1E
-.L_F9E5	and color_ram_ptrs_LO,X	;F9E5 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+.L_F9E5	and pixel_masks_1-64,X	;F9E5 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
 L_F9E6	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;F9E8 91 1E
 .L_F9EA	dey				;F9EA 88
@@ -7441,7 +7441,7 @@ L_FADA	= *-2			;! _SELF_MOD
 		cmp L_C500,X	;FAE6 DD 00 C5
 		bcs L_FAF2		;FAE9 B0 07
 .L_FAEB	lda (ZP_1E),Y	;FAEB B1 1E
-.L_FAED	and color_ram_ptrs_LO,X	;FAED 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+.L_FAED	and pixel_masks_1-64,X	;FAED 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
 L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;FAF0 91 1E
 .L_FAF2	dex				;FAF2 CA
@@ -7562,7 +7562,7 @@ L_FBC1	= *-2			;! _SELF_MOD
 		cmp L_C500,X	;FBCD DD 00 C5
 		bcs L_FBD9		;FBD0 B0 07
 .L_FBD2	lda (ZP_1E),Y	;FBD2 B1 1E
-.L_FBD4	and color_ram_ptrs_LO,X	;FBD4 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
+.L_FBD4	and pixel_masks_1-64,X	;FBD4 3D 00 A4 ;! _SELF_MOD from set_linedraw_op
 L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta (ZP_1E),Y	;FBD7 91 1E
 .L_FBD9	cpx ZP_07		;FBD9 E4 07
