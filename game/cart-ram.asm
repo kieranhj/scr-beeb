@@ -1646,7 +1646,7 @@ ENDIF
 .L_8EA0	cmp #$04		;8EA0 C9 04
 		bcc L_8EBA		;8EA2 90 16
 		tax				;8EA4 AA
-		lda L_8F0C		;8EA5 AD 0C 8F
+		lda bar_values+3		;8EA5 AD 0C 8F
 		sta L_7AA6,Y	;8EA8 99 A6 7A
 		sta L_7AA7,Y	;8EAB 99 A7 7A
 		tya				;8EAE 98
@@ -1658,7 +1658,7 @@ ENDIF
 		sbc #$04		;8EB5 E9 04
 		jmp L_8EA0		;8EB7 4C A0 8E
 .L_8EBA	tax				;8EBA AA
-		lda L_8F09,X	;8EBB BD 09 8F
+		lda bar_values,X	;8EBB BD 09 8F
 		sta L_7AA6,Y	;8EBE 99 A6 7A
 		sta L_7AA7,Y	;8EC1 99 A7 7A
 		jmp L_8F02		;8EC4 4C 02 8F
@@ -1673,7 +1673,7 @@ ENDIF
 		and #$FC		;8ED7 29 FC
 		asl A			;8ED9 0A
 		tay				;8EDA A8
-		lda L_8F09,X	;8EDB BD 09 8F
+		lda bar_values,X	;8EDB BD 09 8F
 		sta L_7AA6,Y	;8EDE 99 A6 7A
 		sta L_7AA7,Y	;8EE1 99 A7 7A
 		txa				;8EE4 8A
@@ -1697,9 +1697,17 @@ ENDIF
 		sta L_C34F		;8F05 8D 4F C3
 		rts				;8F08 60
 		
-.L_8F09	equb $C0,$F0,$FC
-.L_8F0C	equb $FF,$00,$00,$00
-.L_8F10	equb $00
+.bar_values
+		equb %10001000	; 3,0,0,0
+		equb %11001100	; 3,3,0,0
+		equb %11101110	; 3,3,3,0
+		equb %11111111	; 3,3,3,3
+		equb $00
+		equb $00
+		equb $00
+		
+.L_8F10
+		equb $00
 }
 
 .L_8F11_from_sysctl			; in Cart
