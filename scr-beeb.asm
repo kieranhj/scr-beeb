@@ -22,6 +22,8 @@ BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
 
+BEEB_PIXELS_COLOUR2 = &F0		; C64=$AA
+
 ; C64 controls
 ; Left/Right = S/D
 ; Boost = Return

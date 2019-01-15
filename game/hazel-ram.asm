@@ -393,7 +393,16 @@ L_A36F	= L_A200 + $16F
 ;L_A440 = color_ram_ptrs_LO + $40
 
 	\\ Pixel masks %00 11 11 11, %11 00 11 11, %11 11 00 11, %11 11 11 00
-
+IF 1
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
+ELSE
 		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
 		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
 		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
@@ -402,11 +411,23 @@ L_A36F	= L_A200 + $16F
 		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
 		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
 		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-
+ENDIF
 	\\ Pixel masks %01 11 11 11, %11 01 11 11, %11 11 01 11, %11 11 11 01
 
 ; L_A4C0
 .pixel_masks_2
+IF 1
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+
+.Q_pointers_LO
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+ELSE
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
@@ -419,7 +440,7 @@ L_A36F	= L_A200 + $16F
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
 		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-
+ENDIF
 		equb $60,$60,$60,$60,$60,$60,$60,$60,$98,$98,$98,$98,$98,$98,$98,$98
 		equb $D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$08,$08,$08,$08,$08,$08,$08,$08
 		equb $40,$40,$40,$40,$40,$40,$40,$40,$78,$78,$78,$78,$78,$78,$78,$78

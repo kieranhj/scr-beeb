@@ -761,7 +761,7 @@ ENDIF
 
 .L_3A3C
 		sta ZP_14		;3A3C 85 14
-		lda #$AA		;3A3E A9 AA
+		lda #$AA		;3A3E A9 AA		; BEEB_PIXELS_COLOUR2?
 		bne L_3A53		;3A40 D0 11
 \\
 .L_3A42	lda ZP_74		;3A42 A5 74

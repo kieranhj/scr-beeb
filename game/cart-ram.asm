@@ -28,6 +28,17 @@
 \\ 'MODE 2' = low-res bitmap w/ 4x colours per char (game)
 .set_multicolour_mode			; in Cart
 {
+		\\ BEEB ULA SET MODE 5
+		LDA #&C4			; 20 chars per line = 2bpp
+		STA &FE20
+
+		\\ BEEB ULA SET PALETTE
+		LDX #LO(beeb_mode5_palette)
+		LDY #HI(beeb_mode5_palette)
+		JSR beeb_set_palette
+
+		\\ Set Palette
+
 		lda VIC_SCROLX		;83C0 AD 16 D0
 		ora #$10		;83C3 09 10			; 1=multicolour on
 		sta VIC_SCROLX		;83C5 8D 16 D0
@@ -36,9 +47,73 @@
 		bne vic_memory_setup		;83CA D0 0A
 }
 
-\\ 'MODE 1' = high-res bitmap w/ 2x colours per char (frontend)
-.non_set_multicolour_mode		; in Cart
+.beeb_mode5_palette
 {
+	EQUB &00 + PAL_black
+	EQUB &10 + PAL_black
+	EQUB &20 + PAL_red
+	EQUB &30 + PAL_red
+	EQUB &40 + PAL_black
+	EQUB &50 + PAL_black
+	EQUB &60 + PAL_red
+	EQUB &70 + PAL_red
+	EQUB &80 + PAL_yellow
+	EQUB &90 + PAL_yellow
+	EQUB &A0 + PAL_white
+	EQUB &B0 + PAL_white
+	EQUB &C0 + PAL_yellow
+	EQUB &D0 + PAL_yellow
+	EQUB &E0 + PAL_white
+	EQUB &F0 + PAL_white
+}
+
+.beeb_set_palette
+{
+	STX pal_read+1
+	STY pal_read+2
+
+	LDX #15
+	.pal_read
+	LDA &FFFF, X
+	STA &FE21
+	DEX
+	BPL pal_read
+
+	RTS
+}
+
+.beeb_mode4_palette
+{
+	EQUB &00 + PAL_black
+	EQUB &10 + PAL_black
+	EQUB &20 + PAL_black
+	EQUB &30 + PAL_black
+	EQUB &40 + PAL_black
+	EQUB &50 + PAL_black
+	EQUB &60 + PAL_black
+	EQUB &70 + PAL_black
+	EQUB &80 + PAL_white
+	EQUB &90 + PAL_white
+	EQUB &A0 + PAL_white
+	EQUB &B0 + PAL_white
+	EQUB &C0 + PAL_white
+	EQUB &D0 + PAL_white
+	EQUB &E0 + PAL_white
+	EQUB &F0 + PAL_white
+}
+
+\\ 'MODE 1' = high-res bitmap w/ 2x colours per char (frontend)
+.set_non_multicolour_mode		; in Cart
+{
+		\\ BEEB ULA SET MODE 4
+		LDA #&88			; 40 chars per line = 1bpp
+		STA &FE20
+
+		\\ BEEB ULA SET PALETTE
+		LDX #LO(beeb_mode4_palette)
+		LDY #HI(beeb_mode4_palette)
+		JSR beeb_set_palette
+
 		lda VIC_SCROLX		;83CC AD 16 D0
 		and #$EF		;83CF 29 EF			; 0=multicolour off
 		sta VIC_SCROLX		;83D1 8D 16 D0
@@ -72,6 +147,16 @@
 		lda VIC_SCROLX		;83FA AD 16 D0
 		ora #$10		;83FD 09 10			; 1=set_multicolour_mode
 		sta VIC_SCROLX		;83FF 8D 16 D0
+
+		\\ BEEB ULA SET MODE 5
+		LDA #&C4			; 20 chars per line = 2bpp
+		STA &FE20
+
+		\\ BEEB ULA SET PALETTE
+		LDX #LO(beeb_mode5_palette)
+		LDY #HI(beeb_mode5_palette)
+		JSR beeb_set_palette
+
 		lda #$F0		;8402 A9 F0			; $F0=
 		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)
 		jsr vic_memory_setup		;8404 20 D6 83
@@ -126,7 +211,10 @@
 		sta ZP_52		;8455 85 52
 		ldx #LO(L_4000)		;8457 A2 00
 		ldy #HI(L_4000)		;8459 A0 40
-		lda #$AA		;845B A9 AA
+
+\\ Changing this from #$AA to #&F0 results in entire sky being filled...
+
+		lda #$AA		;845B A9 AA			; BEEB_PIXELS_COLOUR2?
 		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
 		sta ZP_52		;8462 85 52
@@ -674,7 +762,7 @@ ENDIF
 .L_877E	jmp poll_key		;877E 4C D2 85
 
 .L_8781	sta ZP_FE			;8781 85 FE
-		jmp non_set_multicolour_mode			;8783 4C CC 83
+		jmp set_non_multicolour_mode			;8783 4C CC 83
 
 .L_8786	sta ZP_FE			;8786 85 FE
 		jmp set_multicolour_mode			;8788 4C C0 83
@@ -1132,17 +1220,17 @@ ENDIF
 .L_8AE9	lda #$FF		;8AE9 A9 FF
 		cpy ZP_13		;8AEB C4 13
 		bcs L_8AF1		;8AED B0 02
-		and #$BF		;8AEF 29 BF
+		and #%11110111	; was $BF=%10111111		;8AEF 29 BF	
 .L_8AF1	cpy ZP_14		;8AF1 C4 14
 		bcs L_8AF7		;8AF3 B0 02
-		and #$EF		;8AF5 29 EF
+		and #%11111011	; was $EF=%11101111		;8AF5 29 EF
 .L_8AF7	cpy ZP_15		;8AF7 C4 15
 		bcs L_8AFD		;8AF9 B0 02
-		and #$FB		;8AFB 29 FB
+		and #%11111101	; was $FB=%11111011		;8AFB 29 FB
 .L_8AFD	cpy ZP_16		;8AFD C4 16
 		bcs L_8B03		;8AFF B0 02
-		and #$FE		;8B01 29 FE
-.L_8B03	cmp #$AA		;8B03 C9 AA
+		and #%11111110	; was $FE=%11111110		;8B01 29 FE
+.L_8B03	cmp #BEEB_PIXELS_COLOUR2		;8B03 C9 AA
 		beq L_8B34		;8B05 F0 2D
 		and (ZP_1E),Y	;8B07 31 1E
 		sta (ZP_1E),Y	;8B09 91 1E
@@ -1168,7 +1256,7 @@ ENDIF
 		bcs L_8B31		;8B2C B0 03
 		jmp L_8AA7		;8B2E 4C A7 8A
 .L_8B31	rts				;8B31 60
-.L_8B32	lda #$AA		;8B32 A9 AA
+.L_8B32	lda #BEEB_PIXELS_COLOUR2		;8B32 A9 AA
 .L_8B34	sta (ZP_1E),Y	;8B34 91 1E
 		tya				;8B36 98
 		dey				;8B37 88
@@ -1407,7 +1495,7 @@ ENDIF
 		lda L_8E67,X	;8D83 BD 67 8E
 		sta ZP_2A		;8D86 85 2A
 		jmp L_8DC5		;8D88 4C C5 8D
-.L_8D8B	lda #$AA		;8D8B A9 AA
+.L_8D8B	lda #$AA		;8D8B A9 AA			; BEEB_PIXELS_COLOUR2?
 .L_8D8D	sta (ZP_1E),Y	;8D8D 91 1E
 		dey				;8D8F 88
 		ldx L_C400,Y	;8D90 BE 00 C4
@@ -1510,7 +1598,11 @@ ENDIF
 		sta L_C400,Y	;8E63 99 00 C4
 .L_8E66	rts				;8E66 60
 
+IF 0
+.L_8E67	equb $FF,$FE,$FD,$FC,$FB,$FA,$F9,$F8,$F7,$F6,$F5,$F4,$F3,$F2,$F1,$F0
+ELSE
 .L_8E67	equb $FF,$FE,$FB,$FA,$EF,$EE,$EB,$EA,$BF,$BE,$BB,$BA,$AF,$AE,$AB,$AA
+ENDIF
 }
 
 .draw_tachometer			; in Cart
@@ -6135,7 +6227,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp L_2F64		;2F91 4C 64 2F
 .L_2F94	ldx #$05		;2F94 A2 05
 		ldy #$02		;2F96 A0 02
-.L_2F98	lda #$AA		;2F98 A9 AA
+.L_2F98	lda #$AA		;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
 		sta L_4008,X	;2F9A 9D 08 40
 		sta L_4130,X	;2F9D 9D 30 41
 		sta L_57C8,Y	;2FA0 99 C8 57
