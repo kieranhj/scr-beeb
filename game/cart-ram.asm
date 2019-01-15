@@ -28,16 +28,7 @@
 \\ 'MODE 2' = low-res bitmap w/ 4x colours per char (game)
 .set_multicolour_mode			; in Cart
 {
-		\\ BEEB ULA SET MODE 5
-		LDA #&C4			; 20 chars per line = 2bpp
-		STA &FE20
-
-		\\ BEEB ULA SET PALETTE
-		LDX #LO(beeb_mode5_palette)
-		LDY #HI(beeb_mode5_palette)
-		JSR beeb_set_palette
-
-		\\ Set Palette
+		JSR beeb_set_mode_5
 
 		lda VIC_SCROLX		;83C0 AD 16 D0
 		ora #$10		;83C3 09 10			; 1=multicolour on
@@ -47,72 +38,10 @@
 		bne vic_memory_setup		;83CA D0 0A
 }
 
-.beeb_mode5_palette
-{
-	EQUB &00 + PAL_black
-	EQUB &10 + PAL_black
-	EQUB &20 + PAL_red
-	EQUB &30 + PAL_red
-	EQUB &40 + PAL_black
-	EQUB &50 + PAL_black
-	EQUB &60 + PAL_red
-	EQUB &70 + PAL_red
-	EQUB &80 + PAL_blue
-	EQUB &90 + PAL_blue
-	EQUB &A0 + PAL_white
-	EQUB &B0 + PAL_white
-	EQUB &C0 + PAL_blue
-	EQUB &D0 + PAL_blue
-	EQUB &E0 + PAL_white
-	EQUB &F0 + PAL_white
-}
-
-.beeb_set_palette
-{
-	STX pal_read+1
-	STY pal_read+2
-
-	LDX #15
-	.pal_read
-	LDA &FFFF, X
-	STA &FE21
-	DEX
-	BPL pal_read
-
-	RTS
-}
-
-.beeb_mode4_palette
-{
-	EQUB &00 + PAL_black
-	EQUB &10 + PAL_black
-	EQUB &20 + PAL_black
-	EQUB &30 + PAL_black
-	EQUB &40 + PAL_black
-	EQUB &50 + PAL_black
-	EQUB &60 + PAL_black
-	EQUB &70 + PAL_black
-	EQUB &80 + PAL_white
-	EQUB &90 + PAL_white
-	EQUB &A0 + PAL_white
-	EQUB &B0 + PAL_white
-	EQUB &C0 + PAL_white
-	EQUB &D0 + PAL_white
-	EQUB &E0 + PAL_white
-	EQUB &F0 + PAL_white
-}
-
 \\ 'MODE 1' = high-res bitmap w/ 2x colours per char (frontend)
 .set_non_multicolour_mode		; in Cart
 {
-		\\ BEEB ULA SET MODE 4
-		LDA #&88			; 40 chars per line = 1bpp
-		STA &FE20
-
-		\\ BEEB ULA SET PALETTE
-		LDX #LO(beeb_mode4_palette)
-		LDY #HI(beeb_mode4_palette)
-		JSR beeb_set_palette
+		JSR beeb_set_mode_4
 
 		lda VIC_SCROLX		;83CC AD 16 D0
 		and #$EF		;83CF 29 EF			; 0=multicolour off
@@ -148,14 +77,7 @@
 		ora #$10		;83FD 09 10			; 1=set_multicolour_mode
 		sta VIC_SCROLX		;83FF 8D 16 D0
 
-		\\ BEEB ULA SET MODE 5
-		LDA #&C4			; 20 chars per line = 2bpp
-		STA &FE20
-
-		\\ BEEB ULA SET PALETTE
-		LDX #LO(beeb_mode5_palette)
-		LDY #HI(beeb_mode5_palette)
-		JSR beeb_set_palette
+		JSR beeb_set_mode_5	; BEEB multicolour mode
 
 		lda #$F0		;8402 A9 F0			; $F0=
 		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)

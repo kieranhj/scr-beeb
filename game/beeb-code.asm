@@ -6,7 +6,10 @@
 
 TIMER_PartA = 32*64 - 2*64 + 1*64 -2    ; character row 0, scanline 1
 TIMER_PartB = 8*64 -2                   ; character row 1, scanline 1
-TIMER_PartC = 18*8*64 -2                  ; character row 19, scanline 1
+TIMER_PartC = 18*8*64 -2                ; character row 19, scanline 1
+
+TIMER_Preview = 8*21*64 - 1*64 -2              ; character row 20, scanline 1
+TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 
 .irq_handler
 {
@@ -33,10 +36,44 @@ TIMER_PartC = 18*8*64 -2                  ; character row 19, scanline 1
     STA &FE4D
 
     LDA irq_mode
-    BMI in_game
+    BEQ enter_frontend
+
+    BPL in_frontend
+    JMP in_game
+
+    .in_frontend
+    CMP #&40
+    BEQ track_preview
+
+    \\ Menus
+
+    LDA irq_part
+    BNE menu_options
+
+    \\ Header
+    LDA irq_part
+    BNE menu_options
+
+	LDA #LO(TIMER_Menu):STA &FE44		; R4=T1 Low-Order Latches (write)
+	LDA #HI(TIMER_Menu):STA &FE45		; R5=T1 High-Order Counter
+    
+    TXA:PHA:TYA:PHA
+    JSR beeb_set_mode_5
+    PLA:TAY:PLA:TAX
+    INC irq_part
+    JMP also_return
+
+    .menu_options
+    TXA:PHA:TYA:PHA
+    JSR beeb_set_mode_4
+    PLA:TAY:PLA:TAX
+    JMP also_return
+
+    .not_header
 
     \\ Front end
 
+    .enter_frontend
     LDA #4:STA &FE00        ; R4 = vertical total
     LDA #39:STA &FE01       ; 39 rows standard
 
@@ -59,6 +96,25 @@ TIMER_PartC = 18*8*64 -2                  ; character row 19, scanline 1
     .also_return
     LDA &FC
     RTI
+
+    .track_preview
+    LDA irq_part
+    BNE preview_bottom
+
+	LDA #LO(TIMER_Preview):STA &FE44		; R4=T1 Low-Order Latches (write)
+	LDA #HI(TIMER_Preview):STA &FE45		; R5=T1 High-Order Counter
+    
+    TXA:PHA:TYA:PHA
+    JSR beeb_set_mode_5
+    PLA:TAY:PLA:TAX
+    INC irq_part
+    JMP also_return
+
+    .preview_bottom
+    TXA:PHA:TYA:PHA
+    JSR beeb_set_mode_4
+    PLA:TAY:PLA:TAX
+    JMP also_return
 
     .in_game
 
@@ -181,5 +237,86 @@ EQUB 0
 
 .old_irqv
 EQUW 0
+
+.beeb_set_mode_4
+{
+    \\ BEEB ULA SET PALETTE
+    LDX #LO(beeb_mode4_palette)
+    LDY #HI(beeb_mode4_palette)
+    JSR beeb_set_palette
+
+    \\ BEEB ULA SET MODE 4
+    LDA #ULA_MODE_4			; 40 chars per line = 1bpp
+    STA &FE20
+
+    RTS
+}
+
+.beeb_set_mode_5
+{
+    \\ BEEB ULA SET MODE 5
+    LDA #ULA_MODE_5			; 20 chars per line = 2bpp
+    STA &FE20
+
+    \\ BEEB ULA SET PALETTE
+    LDX #LO(beeb_mode5_palette)
+    LDY #HI(beeb_mode5_palette)
+    JMP beeb_set_palette
+}
+
+.beeb_mode5_palette
+{
+	EQUB &00 + PAL_black
+	EQUB &10 + PAL_black
+	EQUB &20 + PAL_red
+	EQUB &30 + PAL_red
+	EQUB &40 + PAL_black
+	EQUB &50 + PAL_black
+	EQUB &60 + PAL_red
+	EQUB &70 + PAL_red
+	EQUB &80 + PAL_blue
+	EQUB &90 + PAL_blue
+	EQUB &A0 + PAL_white
+	EQUB &B0 + PAL_white
+	EQUB &C0 + PAL_blue
+	EQUB &D0 + PAL_blue
+	EQUB &E0 + PAL_white
+	EQUB &F0 + PAL_white
+}
+
+.beeb_set_palette
+{
+	STX pal_read+1
+	STY pal_read+2
+
+	LDX #15
+	.pal_read
+	LDA &FFFF, X
+	STA &FE21
+	DEX
+	BPL pal_read
+
+	RTS
+}
+
+.beeb_mode4_palette
+{
+	EQUB &F0 + PAL_white
+	EQUB &E0 + PAL_white
+	EQUB &D0 + PAL_white
+	EQUB &C0 + PAL_white
+	EQUB &B0 + PAL_white
+	EQUB &A0 + PAL_white
+	EQUB &90 + PAL_white
+	EQUB &80 + PAL_white
+	EQUB &70 + PAL_black
+	EQUB &60 + PAL_black
+	EQUB &50 + PAL_black
+	EQUB &40 + PAL_black
+	EQUB &30 + PAL_black
+	EQUB &20 + PAL_black
+	EQUB &10 + PAL_black
+	EQUB &00 + PAL_black
+}
 
 .beeb_code_end
