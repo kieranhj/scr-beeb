@@ -943,7 +943,7 @@ ENDIF
 
 		ldx #$7C		;3C43 A2 7C
 .L_3C45	lda #$08		;3C45 A9 08
-		sta L_0201,X	;3C47 9D 01 02
+		sta L_0200+1,X	;3C47 9D 01 02
 		txa				;3C4A 8A
 		sec				;3C4B 38
 		sbc #$04		;3C4C E9 04
@@ -1182,7 +1182,7 @@ ENDIF
 .L_3E2D	lda #$07		;3E2D A9 07
 		sta L_0200,X	;3E2F 9D 00 02
 		lda #$17		;3E32 A9 17
-		sta L_0201,X	;3E34 9D 01 02
+		sta L_0200+1,X	;3E34 9D 01 02
 		txa				;3E37 8A
 		sec				;3E38 38
 		sbc #$04		;3E39 E9 04

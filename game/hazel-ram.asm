@@ -392,6 +392,7 @@ L_A36F	= L_A200 + $16F
 
 ;L_A440 = color_ram_ptrs_LO + $40
 
+.pixel_masks_1
 	\\ Pixel masks %00 11 11 11, %11 00 11 11, %11 11 00 11, %11 11 11 00
 IF 1
 		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE

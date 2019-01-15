@@ -1,0 +1,32 @@
+tables=[
+    ("L_8BCD",[0xF3,0xF3,0xC0,0x00,0x00,0x33,0x3F,0x3F,0x3F,0x3F,0x33,0x00,0x00,0xC0,0xF3,0xF3]),
+    ("L_8BDD",[0xFF,0xFF,0xFF,0x3F,0x3F,0x3F,0x3F,0x3F,0x3F,0x3F,0x3F,0x3F,0x3F,0xFF,0xFF,0xFF]),
+    ("L_8BED",[0x00,0x00,0x01,0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x04,0x15,0x04,0x04,0x04,0x04]),
+    ("L_8BFD",[0x00,0x00,0x00,0x40,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00]),
+]
+
+def unpack_c64(x): return [x>>6&3,x>>4&3,x>>2&3,x>>0&3]
+
+def pack_beeb(p):
+    return ((p[0]>>1&1)<<7|
+            (p[1]>>1&1)<<6|
+            (p[2]>>1&1)<<5|
+            (p[3]>>1&1)<<4|
+            (p[0]&1)<<3|
+            (p[1]&1)<<2|
+            (p[2]&1)<<1|
+            (p[3]&1)<<0)
+
+print
+for name,values in tables:
+    print '.%s'%name
+    for index in range(len(values)):
+        pixels=unpack_c64(values[index])
+        value=pack_beeb(pixels)
+        print '    equb $%02x ; was $%02x - %d %d %d %d'%(value&0xff,
+                                                          values[index],
+                                                          pixels[0],
+                                                          pixels[1],
+                                                          pixels[2],
+                                                          pixels[3])
+print

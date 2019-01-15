@@ -57,12 +57,12 @@
 	EQUB &50 + PAL_black
 	EQUB &60 + PAL_red
 	EQUB &70 + PAL_red
-	EQUB &80 + PAL_yellow
-	EQUB &90 + PAL_yellow
+	EQUB &80 + PAL_blue
+	EQUB &90 + PAL_blue
 	EQUB &A0 + PAL_white
 	EQUB &B0 + PAL_white
-	EQUB &C0 + PAL_yellow
-	EQUB &D0 + PAL_yellow
+	EQUB &C0 + PAL_blue
+	EQUB &D0 + PAL_blue
 	EQUB &E0 + PAL_white
 	EQUB &F0 + PAL_white
 }
@@ -699,15 +699,25 @@ ENDIF
 ; 
 ; A=1 -> B&W mode,	screenmem +$3C00, bmp +$0000
 ; A=2 -> multicolour mode,	screenmem +$1C00, bmp +$2000
+; A=$03
+; A=$10
 ; A=$15 ->	silence	SID channel X
 ; A=$20 ->	store X	in byte_85D0
 ; A=$32 ->	draw menu header graphic
 ; A=$34 ->	copy stuff (one	way if X&$80, other way	if not)
 ; A=$3C ->	update draw bridge
 ; A=$3D ->	draw horizon
+; A=$3e
+; A=$3f
+; A=$40
+; A=$41
+; A=$42
+; A=$43
 ; A=$43 ->	draw tachometer
 ; A=$45 ->	clear screen
 ; A=$46 ->	update colour map
+; A=$47
+; A=$48 ->      fill in-game sky
 ; A=$55 ->	fill scanlines (A=value, YX=ptr, byte_52=count)
 ; A=$81 ->	poll for key X (like OSBYTE $81)
 
@@ -757,6 +767,8 @@ ENDIF
 		beq L_879A		;8777 F0 21
 		cmp #$34		;8779 C9 34
 		beq L_879D		;877B F0 20
+		cmp #$48
+		beq fill_in_game_sky_thunk
 		rts				;877D 60
 
 .L_877E	jmp poll_key		;877E 4C D2 85
@@ -791,6 +803,7 @@ ENDIF
 .L_87BB	jmp clear_screen		;87BB 4C 82 8F
 .L_87BE	jmp update_colour_map		;87BE 4C 57 90
 .L_87C1	jmp sysctl_47		;87C1 4C BB 90
+.fill_in_game_sky_thunk jmp fill_in_game_sky
 }
 
 .sysctl_copy_menu_header_graphic		; in Cart
@@ -1337,11 +1350,76 @@ ENDIF
 		cpy #$40		;8BC8 C0 40
 		bcs L_8B80		;8BCA B0 B4
 		rts				;8BCC 60
-		
-.L_8BCD	equb $F3,$F3,$C0,$00,$00,$33,$3F,$3F,$3F,$3F,$33,$00,$00,$C0,$F3,$F3
-.L_8BDD	equb $FF,$FF,$FF,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$FF,$FF,$FF
-.L_8BED	equb $00,$00,$01,$40,$00,$00,$00,$00,$00,$00,$04,$15,$04,$04,$04,$04
-.L_8BFD	equb $00,$00,$00,$40,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+.L_8BCD
+    equb $dd ; was $f3 - 3 3 0 3
+    equb $dd ; was $f3 - 3 3 0 3
+    equb $88 ; was $c0 - 3 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $55 ; was $33 - 0 3 0 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $55 ; was $33 - 0 3 0 3
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $88 ; was $c0 - 3 0 0 0
+    equb $dd ; was $f3 - 3 3 0 3
+    equb $dd ; was $f3 - 3 3 0 3
+.L_8BDD
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $77 ; was $3f - 0 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+    equb $ff ; was $ff - 3 3 3 3
+.L_8BED
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $01 ; was $01 - 0 0 0 1
+    equb $08 ; was $40 - 1 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $02 ; was $04 - 0 0 1 0
+    equb $07 ; was $15 - 0 1 1 1
+    equb $02 ; was $04 - 0 0 1 0
+    equb $02 ; was $04 - 0 0 1 0
+    equb $02 ; was $04 - 0 0 1 0
+    equb $02 ; was $04 - 0 0 1 0
+.L_8BFD
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $08 ; was $40 - 1 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+    equb $00 ; was $00 - 0 0 0 0
+
 }
 
 .L_8C0D_from_sysctl			; in Cart
@@ -1633,7 +1711,7 @@ ENDIF
 .L_8EA0	cmp #$04		;8EA0 C9 04
 		bcc L_8EBA		;8EA2 90 16
 		tax				;8EA4 AA
-		lda L_8F0C		;8EA5 AD 0C 8F
+		lda bar_values+3		;8EA5 AD 0C 8F
 		sta L_7AA6,Y	;8EA8 99 A6 7A
 		sta L_7AA7,Y	;8EAB 99 A7 7A
 		tya				;8EAE 98
@@ -1645,7 +1723,7 @@ ENDIF
 		sbc #$04		;8EB5 E9 04
 		jmp L_8EA0		;8EB7 4C A0 8E
 .L_8EBA	tax				;8EBA AA
-		lda L_8F09,X	;8EBB BD 09 8F
+		lda bar_values,X	;8EBB BD 09 8F
 		sta L_7AA6,Y	;8EBE 99 A6 7A
 		sta L_7AA7,Y	;8EC1 99 A7 7A
 		jmp L_8F02		;8EC4 4C 02 8F
@@ -1660,7 +1738,7 @@ ENDIF
 		and #$FC		;8ED7 29 FC
 		asl A			;8ED9 0A
 		tay				;8EDA A8
-		lda L_8F09,X	;8EDB BD 09 8F
+		lda bar_values,X	;8EDB BD 09 8F
 		sta L_7AA6,Y	;8EDE 99 A6 7A
 		sta L_7AA7,Y	;8EE1 99 A7 7A
 		txa				;8EE4 8A
@@ -1684,9 +1762,17 @@ ENDIF
 		sta L_C34F		;8F05 8D 4F C3
 		rts				;8F08 60
 		
-.L_8F09	equb $C0,$F0,$FC
-.L_8F0C	equb $FF,$00,$00,$00
-.L_8F10	equb $00
+.bar_values
+		equb %10001000	; 3,0,0,0
+		equb %11001100	; 3,3,0,0
+		equb %11101110	; 3,3,3,0
+		equb %11111111	; 3,3,3,3
+		equb $00
+		equb $00
+		equb $00
+		
+.L_8F10
+		equb $00
 }
 
 .L_8F11_from_sysctl			; in Cart
@@ -1835,64 +1921,111 @@ ENDIF
 .L_8F81	equb $00
 }
 
+.fill_in_game_sky
+{
+lda #0:sta ZP_16		; ZP_16 = X coordinate
+.loop
+
+ldy ZP_16			; Y = X coordinate
+lda L_0200+1,y			; minimum
+cmp #8
+bcc next_column
+
+sbc #7				; 7 = top of screen
+tax				; X = # rows to fill
+
+tya:and #%01111100:asl A	; A=X/4*8, C=0
+adc #$A0:sta ZP_20		; +lsb $xxa0 (top left of display)
+lda #$42:ora ZP_12:adc #$00:sta ZP_21 ; +$4200 or $6200
+
+.fill_column
+
+lda #%11110000			; sky
+
+ldy #0
+sta (ZP_20),y:iny
+sta (ZP_20),y:iny
+sta (ZP_20),y:iny
+sta (ZP_20),y:iny
+sta (ZP_20),y:iny
+sta (ZP_20),y:iny
+sta (ZP_20),y:iny
+sta (ZP_20),y
+
+lda ZP_20:adc #$40:sta ZP_20
+lda ZP_21:adc #$01:sta ZP_21
+
+dex
+bne fill_column
+
+.next_column
+; C=0
+lda ZP_16:adc #4:sta ZP_16
+bpl loop
+}
+
 .update_colour_map			; in Cart
 {
-		lda L_C76B		;9057 AD 6B C7
-		sta ZP_16		;905A 85 16
-		lda #$00		;905C A9 00
-		sta ZP_14		;905E 85 14
-.L_9060	tax				;9060 AA
-		lda L_0201,X	;9061 BD 01 02
-		cmp L_0200,X	;9064 DD 00 02
-		beq L_90B1		;9067 F0 48
-		bcs L_908E		;9069 B0 23
-		sta ZP_15		;906B 85 15
-		ldy L_0200,X	;906D BC 00 02
-		sta L_0200,X	;9070 9D 00 02
-		txa				;9073 8A
-		lsr A			;9074 4A
-		lsr A			;9075 4A
-		sta ZP_20		;9076 85 20
-		tya				;9078 98
-		tax				;9079 AA
-		lda ZP_16		;907A A5 16
-.L_907C	ldy color_ram_ptrs_HI,X	;907C BC 18 A4
-		sty ZP_21		;907F 84 21
-		ldy color_ram_ptrs_LO,X	;9081 BC 00 A4
 
-\\ WRITING COLOUR RAM IN IO
-;		sta (ZP_20),Y	;9084 91 20
-		dex				;9086 CA
-		cpx ZP_15		;9087 E4 15
-		bne L_907C		;9089 D0 F1
-		jmp L_90B1		;908B 4C B1 90
-.L_908E	sta ZP_15		;908E 85 15
-		ldy L_0200,X	;9090 BC 00 02
-		sta L_0200,X	;9093 9D 00 02
-		txa				;9096 8A
-		lsr A			;9097 4A
-		lsr A			;9098 4A
-		sta ZP_20		;9099 85 20
-		tya				;909B 98
-		tax				;909C AA
-		lda #$0E		;909D A9 0E
-		inx				;909F E8
-.L_90A0	ldy color_ram_ptrs_HI,X	;90A0 BC 18 A4
-		sty ZP_21		;90A3 84 21
-		ldy color_ram_ptrs_LO,X	;90A5 BC 00 A4
+; I don't think this routine is needed any more...?
+rts
+		
+; 		lda L_C76B		;9057 AD 6B C7
+; 		sta ZP_16		;905A 85 16
+; 		lda #$00		;905C A9 00
+; 		sta ZP_14		;905E 85 14
+; .L_9060	tax				;9060 AA
+; 		lda L_0200+1,X	;9061 BD 01 02
+; 		cmp L_0200,X	;9064 DD 00 02
+; 		beq L_90B1		;9067 F0 48
+; 		bcs L_908E		;9069 B0 23
+; 		sta ZP_15		;906B 85 15
+; 		ldy L_0200,X	;906D BC 00 02
+; 		sta L_0200,X	;9070 9D 00 02
+; 		txa				;9073 8A
+; 		lsr A			;9074 4A
+; 		lsr A			;9075 4A
+; 		sta ZP_20		;9076 85 20
+; 		tya				;9078 98
+; 		tax				;9079 AA
+; 		lda ZP_16		;907A A5 16
+; .L_907C	ldy color_ram_ptrs_HI,X	;907C BC 18 A4
+; 		sty ZP_21		;907F 84 21
+; 		ldy color_ram_ptrs_LO,X	;9081 BC 00 A4
 
-\\ WRITING COLOUR RAM IN IO
-;		sta (ZP_20),Y	;90A8 91 20
-		inx				;90AA E8
-		cpx ZP_15		;90AB E4 15
-		bcc L_90A0		;90AD 90 F1
-		beq L_90A0		;90AF F0 EF
-.L_90B1	lda ZP_14		;90B1 A5 14
-		clc				;90B3 18
-		adc #$04		;90B4 69 04
-		sta ZP_14		;90B6 85 14
-		bpl L_9060		;90B8 10 A6
-		rts				;90BA 60
+; \\ WRITING COLOUR RAM IN IO
+; ;		sta (ZP_20),Y	;9084 91 20
+; 		dex				;9086 CA
+; 		cpx ZP_15		;9087 E4 15
+; 		bne L_907C		;9089 D0 F1
+; 		jmp L_90B1		;908B 4C B1 90
+; .L_908E	sta ZP_15		;908E 85 15
+; 		ldy L_0200,X	;9090 BC 00 02
+; 		sta L_0200,X	;9093 9D 00 02
+; 		txa				;9096 8A
+; 		lsr A			;9097 4A
+; 		lsr A			;9098 4A
+; 		sta ZP_20		;9099 85 20
+; 		tya				;909B 98
+; 		tax				;909C AA
+; 		lda #$0E		;909D A9 0E
+; 		inx				;909F E8
+; .L_90A0	ldy color_ram_ptrs_HI,X	;90A0 BC 18 A4
+; 		sty ZP_21		;90A3 84 21
+; 		ldy color_ram_ptrs_LO,X	;90A5 BC 00 A4
+
+; \\ WRITING COLOUR RAM IN IO
+; ;		sta (ZP_20),Y	;90A8 91 20
+; 		inx				;90AA E8
+; 		cpx ZP_15		;90AB E4 15
+; 		bcc L_90A0		;90AD 90 F1
+; 		beq L_90A0		;90AF F0 EF
+; .L_90B1	lda ZP_14		;90B1 A5 14
+; 		clc				;90B3 18
+; 		adc #$04		;90B4 69 04
+; 		sta ZP_14		;90B6 85 14
+; 		bpl L_9060		;90B8 10 A6
+; 		rts				;90BA 60
 }
 
 .sysctl_47			; in Cart
@@ -3897,6 +4030,7 @@ L_14B6 = L_14B8-2
 		bcc L_1767		;1775 90 F0
 		beq L_1767		;1777 F0 EE
 .L_1779	jsr update_horizon_chars_with_sysctl		;1779 20 2B 2C
+		lda #$48:jsr cart_sysctl
 		rts				;177C 60
 }
 
