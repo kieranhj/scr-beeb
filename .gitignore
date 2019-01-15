@@ -18,7 +18,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Emacs
+.dir-locals.el
+
 # =========================
 # Operating System Files
 # =========================
 compile.txt
+log.txt
