@@ -1850,18 +1850,19 @@ ENDIF
 
 .fill_in_game_sky
 {
-ldx #0
+lda #0:sta ZP_16		; ZP_16 = X coordinate
 .loop
 
-lda L_0200+1,X			; minimum
+ldy ZP_16			; Y = X coordinate
+lda L_0200+1,y			; minimum
 cmp #8
 bcc next_column
 
 sbc #7				; 7 = top of screen
-sta ZP_16			; row counter
+tax				; X = # rows to fill
 
-txa:and #%01111100:asl A	; X/4*8
-adc #$A0:sta ZP_20		; +lsb $xxa0
+tya:and #%01111100:asl A	; A=X/4*8, C=0
+adc #$A0:sta ZP_20		; +lsb $xxa0 (top left of display)
 lda #$42:ora ZP_12:adc #$00:sta ZP_21 ; +$4200 or $6200
 
 .fill_column
@@ -1881,14 +1882,12 @@ sta (ZP_20),y
 lda ZP_20:adc #$40:sta ZP_20
 lda ZP_21:adc #$01:sta ZP_21
 
-dec ZP_16
+dex
 bne fill_column
 
 .next_column
-inx
-inx
-inx
-inx
+; C=0
+lda ZP_16:adc #4:sta ZP_16
 bpl loop
 }
 
