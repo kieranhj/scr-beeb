@@ -265,7 +265,7 @@ ZP_0E	= $0E
 ZP_0F	= $0F
 ZP_10	= $10
 ZP_11	= $11
-ZP_12	= $12			; display buffer page?
+ZP_12	= $12			; display buffer page
 ZP_13	= $13
 ZP_14	= $14
 ZP_15	= $15
@@ -748,6 +748,7 @@ GUARD &3FFB		; C64 has spare bytes behind the screen - may be used as workspace!
 INCLUDE "game/core-ram.asm"
 INCLUDE "game/beeb-dll.asm"
 INCLUDE "game/beeb-code.asm"
+INCLUDE "lib/beeb-plot-font.asm"
 
 \\ Core Data
 
@@ -1082,6 +1083,8 @@ GUARD &8000
 		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
 	; BEEB LATE INIT
+
+	JSR BEEB_FONT_INIT
 
 	; BEEB SET INTERRUPT HANDLER
 

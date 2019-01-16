@@ -1014,14 +1014,14 @@ ENDIF
 		bmi L_3CDD		;3CCF 30 0C
 		jsr cart_reset_sprites		;3CD1 20 84 14
 		jsr cart_draw_trackQ		;3CD4 20 7A 16
-		jsr toggle_display_pageQ		;3CD7 20 42 3F
+		jsr flip_display_page		;3CD7 20 42 3F
 		jsr kernel_game_update		;3CDA 20 41 08
 
 .L_3CDD	jsr cart_draw_trackQ		;3CDD 20 7A 16
 		jsr kernel_draw_tachometer_in_game		;3CE0 20 06 12
 		jsr cart_draw_crane_with_sysctl		;3CE3 20 1E 1C
 		jsr cart_L_14D0_from_main_loop		;3CE6 20 D0 14	; update scratches and scrapes?
-		jsr toggle_display_pageQ		;3CE9 20 42 3F
+		jsr flip_display_page		;3CE9 20 42 3F
 		jsr kernel_game_update		;3CEC 20 41 08
 		lda #$80		;3CEF A9 80
 		sta L_C307		;3CF1 8D 07 C3
@@ -1032,7 +1032,7 @@ ENDIF
 		jsr L_3F27_with_SID		;3CFF 20 27 3F
 		jsr L_3046_from_main_loop		;3D02 20 46 30
 
-.L_3D05
+.inner_loop
 		dec L_C30C		;3D05 CE 0C C3
 		jsr cart_L_1C64_with_keys		;3D08 20 64 1C
 		jsr kernel_game_update		;3D0B 20 41 08
@@ -1046,7 +1046,12 @@ ENDIF
 		jsr L_10D9		;3D23 20 D9 10
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
-		jsr toggle_display_pageQ		;3D2C 20 42 3F
+
+		IF _DEBUG
+		JSR beeb_debug_framerate
+		ENDIF
+		
+		jsr flip_display_page		;3D2C 20 42 3F
 		jsr update_pause_status		;3D2F 20 E0 3E
 		lda L_C351		;3D32 AD 51 C3
 		and L_C306		;3D35 2D 06 C3
@@ -1107,7 +1112,7 @@ ENDIF
 .L_3DA1	ldx #KEY_DEF_QUIT		;3DA1 A2 2F
 		jsr poll_key_with_sysctl		;3DA3 20 C9 C7
 		beq L_3DAB		;3DA6 F0 03
-.L_3DA8	jmp L_3D05		;3DA8 4C 05 3D
+.L_3DA8	jmp inner_loop		;3DA8 4C 05 3D
 
 .L_3DAB	lda L_C364		;3DAB AD 64 C3
 		bne L_3DB5		;3DAE D0 05
@@ -1323,7 +1328,7 @@ ENDIF
 		rts				;3F41 60
 }
 
-.toggle_display_pageQ
+.flip_display_page
 {
 		sei				;3F42 78
 		lda L_C306		;3F43 AD 06 C3
