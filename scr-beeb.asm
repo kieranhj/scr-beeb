@@ -27,7 +27,8 @@ BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
 
-BEEB_PIXELS_COLOUR2 = &F0		; C64=$AA
+BEEB_PIXELS_COLOUR1 = &0F	; C64=$55
+BEEB_PIXELS_COLOUR2 = &F0	; C64=$AA
 
 ; C64 controls
 ; Left/Right = S/D
@@ -892,6 +893,10 @@ GUARD .disksys_loadto_addr
 	LDY #HI(hazel_end - hazel_start + &FF)
 	JSR disksys_copy_block
 
+	\\ Convert graphics 
+
+	jsr convert_c64_pixels
+
 	\\ FS is now unusable as HAZEL has been trashed
 
 	; C64 init at L_400F
@@ -1123,6 +1128,67 @@ GUARD .disksys_loadto_addr
     	EQUB $00
 .L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
 }
+
+.convert_c64_pixels
+{
+lda ZP_20+0:pha
+lda ZP_20+1:pha
+
+ldx #0
+
+.convert_table_entry
+
+ldy #0
+
+lda table+0,x:sta ZP_20+0
+lda table+1,x:sta ZP_20+1
+
+.convert_byte
+
+sty hbits:sty lbits
+
+lda (ZP_20),y
+
+asl a:rol hbits:asl a:rol lbits
+asl a:rol hbits:asl a:rol lbits
+asl a:rol hbits:asl a:rol lbits
+asl a:rol hbits:asl a:rol lbits
+
+lda hbits:asl a:asl a:asl a:asl a:ora lbits
+
+sta (ZP_20),y
+
+{inc ZP_20+0:bne noc:inc ZP_20+1:.noc}
+
+lda ZP_20+0:cmp table+2,x:bne convert_byte
+lda ZP_20+1:cmp table+3,x:bne convert_byte
+
+inx:inx:inx:inx
+cpx #endtable-table:bne convert_table_entry
+
+pla:sta ZP_20+1
+pla:sta ZP_20+0
+
+rts
+
+.hbits equb 0
+.lbits equb 0
+
+.table
+; In-game stuff.
+equw L_6000,boot_data_end
+
+; HUD damage stuff mixed in with the font data. See L_F668.
+equw L_80C8+0,L_80C8+48
+
+; Front end header graphic.
+;
+; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
+equw L_4F00+64,L_4F00+64+$4e8
+
+.endtable
+}
+
 
 .core_filename EQUS "Core", 13
 .kernel_filename EQUS "Kernel", 13

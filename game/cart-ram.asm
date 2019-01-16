@@ -686,7 +686,7 @@ ENDIF
 		cmp #$32		;8771 C9 32
 		beq sysctl_copy_menu_header_graphic		;8773 F0 4F
 		cmp #$55		;8775 C9 55
-		beq L_879A		;8777 F0 21
+		beq sysctl_fill_55_thunk;8777 F0 21
 		cmp #$34		;8779 C9 34
 		beq L_879D		;877B F0 20
 		cmp #$48
@@ -711,7 +711,7 @@ ENDIF
 		sta ZP_FE			;8795 85 FE
 		jmp set_track_preview_mode			;8797 4C F7 83
 
-.L_879A	jmp fill_64s		;879A 4C 21 89
+.sysctl_fill_55_thunk lda #BEEB_PIXELS_COLOUR1:jmp fill_64s
 .L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
 .L_87A0	jmp move_draw_bridgeQ		;87A0 4C 4A 89
 .L_87A3	jmp draw_horizonQ		;87A3 4C 2F 8A
@@ -751,7 +751,8 @@ ENDIF
 		lda L_D402,X	;87E9 BD 02 D4	; NOT SID
 		sta ZP_21		;87EC 85 21
 		ldy #$00		;87EE A0 00
-.L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
+.L_87F0
+		lda (ZP_1E),Y	;87F0 B1 1E
 		sta (ZP_20),Y	;87F2 91 20
 		iny				;87F4 C8
 		cpy ZP_08		;87F5 C4 08
@@ -776,7 +777,8 @@ ENDIF
 		adc #$01		;8816 69 01
 		sta ZP_21		;8818 85 21
 		ldy #$00		;881A A0 00
-.L_881C	lda (ZP_1E),Y	;881C B1 1E
+.L_881C
+		lda (ZP_1E),Y	;881C B1 1E
 		sta L_7C00,Y	;881E 99 00 7C
 		lda (ZP_20),Y	;8821 B1 20
 		sta L_0400,Y	;8823 99 00 04
@@ -785,7 +787,8 @@ ENDIF
 		inc ZP_1F		;8829 E6 1F
 		inc ZP_21		;882B E6 21
 		ldy #$3F		;882D A0 3F
-.L_882F	lda (ZP_1E),Y	;882F B1 1E
+.L_882F
+		lda (ZP_1E),Y	;882F B1 1E
 		sta L_7D00,Y	;8831 99 00 7D
 		lda (ZP_20),Y	;8834 B1 20
 		sta L_0500,Y	;8836 99 00 05
@@ -1495,7 +1498,9 @@ ENDIF
 		lda L_8E67,X	;8D83 BD 67 8E
 		sta ZP_2A		;8D86 85 2A
 		jmp L_8DC5		;8D88 4C C5 8D
-.L_8D8B	lda #$AA		;8D8B A9 AA			; BEEB_PIXELS_COLOUR2?
+.L_8D8B
+; fill pattern for columns underneath AI car
+		lda #BEEB_PIXELS_COLOUR2		;8D8B A9 AA			; BEEB_PIXELS_COLOUR2?
 .L_8D8D	sta (ZP_1E),Y	;8D8D 91 1E
 		dey				;8D8F 88
 		ldx L_C400,Y	;8D90 BE 00 C4
@@ -1598,11 +1603,23 @@ ENDIF
 		sta L_C400,Y	;8E63 99 00 C4
 .L_8E66	rts				;8E66 60
 
-IF 0
-.L_8E67	equb $FF,$FE,$FD,$FC,$FB,$FA,$F9,$F8,$F7,$F6,$F5,$F4,$F3,$F2,$F1,$F0
-ELSE
-.L_8E67	equb $FF,$FE,$FB,$FA,$EF,$EE,$EB,$EA,$BF,$BE,$BB,$BA,$AF,$AE,$AB,$AA
-ENDIF
+.L_8E67
+equb %11111111 ; %11111111 ; $FF - 3 3 3 3
+equb %11111110 ; %11111110 ; $FE - 3 3 3 2
+equb %11111101 ; %11111011 ; $FB - 3 3 2 3
+equb %11111100 ; %11111010 ; $FA - 3 3 2 2
+equb %11111011 ; %11101111 ; $EF - 3 2 3 3
+equb %11111010 ; %11101110 ; $EE - 3 2 3 2
+equb %11111001 ; %11101011 ; $EB - 3 2 2 3
+equb %11111000 ; %11101010 ; $EA - 3 2 2 2
+equb %11110111 ; %10111111 ; $BF - 2 3 3 3
+equb %11110110 ; %10111110 ; $BE - 2 3 3 2
+equb %11110101 ; %10111011 ; $BB - 2 3 2 3
+equb %11110100 ; %10111010 ; $BA - 2 3 2 2
+equb %11110011 ; %10101111 ; $AF - 2 2 3 3
+equb %11110010 ; %10101110 ; $AE - 2 2 3 2
+equb %11110001 ; %10101011 ; $AB - 2 2 2 3
+equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 }
 
 .draw_tachometer			; in Cart
@@ -4550,9 +4567,18 @@ L_14B6 = L_14B8-2
 		bpl L_1C0A		;1C12 10 F6
 		rts				;1C14 60
 
-.L_1C15	equb $04
-.L_1C16	equb $3F,$CF,$F3,$FC
-.L_1C1A	equb $C0,$30,$0C,$03
+.L_1C15
+	equb $04
+.L_1C16
+	equb %01110111 ; %00111111 ; $3F
+	equb %10111011 ; %11001111 ; $CF
+	equb %11011101 ; %11110011 ; $F3
+	equb %11101110 ; %11111100 ; $FC
+.L_1C1A
+	equb %10001000 ; %11000000 ; $C0
+	equb %01000100 ; %00110000 ; $30
+	equb %00100010 ; %00001100 ; $0C
+	equb %00010001 ; %00000011 ; $03
 }
 
 .draw_crane_with_sysctl		; HAS DLL
