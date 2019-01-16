@@ -755,7 +755,6 @@ GUARD .boot_start
 INCLUDE "game/core-ram.asm"
 INCLUDE "game/beeb-dll.asm"
 INCLUDE "game/beeb-code.asm"
-INCLUDE "lib/beeb-plot-font.asm"
 
 \\ Core Data
 
@@ -1095,7 +1094,7 @@ GUARD .disksys_loadto_addr
 
 	; BEEB LATE INIT
 
-	JSR BEEB_FONT_INIT
+	JSR beeb_plot_font_init
 
 	; BEEB SET INTERRUPT HANDLER
 

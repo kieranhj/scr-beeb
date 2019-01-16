@@ -573,6 +573,10 @@ ENDIF
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 .cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
 .cart_print_track_title DLL_CALL_CART print_track_title, 70
+.beeb_plot_font_init DLL_CALL_CART BEEB_PLOT_FONT_INIT, 71
+.beeb_plot_font_glyph DLL_CALL_CART BEEB_PLOT_FONT_GLYPH, 72
+.beeb_plot_font_string DLL_CALL_CART BEEB_PLOT_FONT_STRING, 73
+.beeb_plot_font_bcd DLL_CALL_CART BEEB_PLOT_FONT_BCD, 74
 
 ; *****************************************************************************
 \\ Function addresses
@@ -654,6 +658,10 @@ ENDIF
 	EQUB LO(set_text_cursor)
 	EQUB LO(print_number_unpadded)
 	EQUB LO(print_track_title)
+	EQUB LO(BEEB_PLOT_FONT_INIT)
+	EQUB LO(BEEB_PLOT_FONT_GLYPH)
+	EQUB LO(BEEB_PLOT_FONT_STRING)
+	EQUB LO(BEEB_PLOT_FONT_BCD)
 }
 
 .cart_table_HI
@@ -732,6 +740,10 @@ ENDIF
 	EQUB HI(set_text_cursor)
 	EQUB HI(print_number_unpadded)
 	EQUB HI(print_track_title)
+	EQUB HI(BEEB_PLOT_FONT_INIT)
+	EQUB HI(BEEB_PLOT_FONT_GLYPH)
+	EQUB HI(BEEB_PLOT_FONT_STRING)
+	EQUB HI(BEEB_PLOT_FONT_BCD)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
