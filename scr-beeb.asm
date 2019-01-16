@@ -1131,6 +1131,7 @@ GUARD .disksys_loadto_addr
 
 .convert_c64_pixels
 {
+lda $f4:pha
 lda ZP_20+0:pha
 lda ZP_20+1:pha
 
@@ -1142,6 +1143,7 @@ ldy #0
 
 lda table+0,x:sta ZP_20+0
 lda table+1,x:sta ZP_20+1
+lda table+4,x:sta $f4:sta $fe30
 
 .convert_byte
 
@@ -1163,11 +1165,12 @@ sta (ZP_20),y
 lda ZP_20+0:cmp table+2,x:bne convert_byte
 lda ZP_20+1:cmp table+3,x:bne convert_byte
 
-inx:inx:inx:inx
+inx:inx:inx:inx:inx
 cpx #endtable-table:bne convert_table_entry
 
 pla:sta ZP_20+1
 pla:sta ZP_20+0
+pla:sta $f4:sta $fe30
 
 rts
 
@@ -1175,16 +1178,24 @@ rts
 .lbits equb 0
 
 .table
-; In-game stuff.
+; boot-data.asm - In-game stuff
 equw L_6000,boot_data_end
+equb BEEB_CART_SLOT
 
-; HUD damage stuff mixed in with the font data. See L_F668.
+; core-data.asm - HUD damage stuff mixed in with the font data. See
+; L_F668.
 equw L_80C8+0,L_80C8+48
+equb BEEB_CART_SLOT
 
 ; Front end header graphic.
 ;
 ; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
 equw L_4F00+64,L_4F00+64+$4e8
+equb BEEB_CART_SLOT
+
+; cart-ram.asm - track preview border.
+equw track_preview_border_start,track_preview_border_end
+equb BEEB_CART_SLOT
 
 .endtable
 }
