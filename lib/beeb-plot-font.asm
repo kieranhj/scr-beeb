@@ -4,6 +4,29 @@
 
 _UNROLL_FONT = FALSE         ; unroll 1x 2x 3x byte versions of font plot
 
+; FONT GLYPHS
+
+GLYPH_0=1
+GLYPH_A=11
+HEART_GLYPH=40
+EMPTY_GLYPH=41
+BLANK_GLYPH=42
+GLYPH_DOT=39
+
+MACRO SMALL_FONT_MAPCHAR
+    MAPCHAR '0','9',GLYPH_0
+    MAPCHAR 'A','Z',GLYPH_A
+    MAPCHAR 'a','z',GLYPH_A
+    MAPCHAR '!',37
+    MAPCHAR '?',38
+    MAPCHAR '.',GLYPH_DOT
+    MAPCHAR ',',GLYPH_DOT       ; removed
+    MAPCHAR ' ',0
+    MAPCHAR '~',BLANK_GLYPH
+    MAPCHAR ':',43
+    MAPCHAR '/',44
+ENDMACRO
+
 .small_font
 INCBIN "lib/small_font.bin"
 
@@ -14,36 +37,7 @@ IMAGE           = ZP_F0             ; glyph ptr
 
 .beeb_plot_font_start
 
-;.beeb_plot_font_prep jmp BEEB_PLOT_FONT_PREP
-.beeb_plot_font_glyph jmp BEEB_PLOT_FONT_GLYPH
-.beeb_plot_font_string jmp BEEB_PLOT_FONT_STRING
-.beeb_plot_font_bcd jmp BEEB_PLOT_FONT_BCD
-
-IF 0
-.BEEB_PLOT_FONT_PREP
-{
-    LDA #LO(small_font+1)
-    STA TABLE
-    LDA #HI(small_font+1)
-    STA TABLE+1
-
-    LDA small_font
-    STA HEIGHT
-
-IF _UNROLL_FONT
-IF _DEBUG
-    CMP #SMALL_FONT_HEIGHT
-    BEQ height_ok
-    BRK
-    .height_ok
-ENDIF
-ENDIF
-
-    RTS
-}
-ENDIF
-
-.BEEB_FONT_INIT
+.BEEB_PLOT_FONT_INIT
 {
     LDA #LO(small_font)
     STA beeb_readptr
@@ -192,16 +186,6 @@ ENDIF
     RTS
 }
 
-.YLO
-FOR y,0,24,1
-EQUB LO(screen1_address + y * $140)
-NEXT
-
-.YHI
-FOR y,0,24,1
-EQUB HI(screen1_address + y * $140)
-NEXT
-
 \ X,Y = column, row on screen
 \ beeb_readptr = string terminated with -1
 \ A=PALETTE
@@ -257,7 +241,7 @@ IF _DEBUG
     .glyph_ok
 ENDIF
 
-    JSR beeb_plot_font_glyph
+    JSR BEEB_PLOT_FONT_GLYPH
 
     .next_char
     INC beeb_readptr
@@ -271,6 +255,16 @@ ENDIF
     INC beeb_readptr+1
     .return
     RTS
+
+    .YLO
+    FOR y,0,24,1
+    EQUB LO(screen1_address + y * $140)
+    NEXT
+
+    .YHI
+    FOR y,0,24,1
+    EQUB HI(screen1_address + y * $140)
+    NEXT
 }
 
 .BEEB_PLOT_FONT_BCD
@@ -279,16 +273,14 @@ ENDIF
   LSR A:LSR A:LSR A:LSR A
   CLC
   ADC #1
-  JSR beeb_plot_font_glyph
+  JSR BEEB_PLOT_FONT_GLYPH
 
   PLA
   AND #&F
   CLC
   ADC #1
-  JMP beeb_plot_font_glyph
+  JMP BEEB_PLOT_FONT_GLYPH
 }
-
-
 
 IF 0
 SMALL_FONT_MAPCHAR
