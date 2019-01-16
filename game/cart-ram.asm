@@ -136,7 +136,7 @@
 
 \\ Changing this from #$AA to #&F0 results in entire sky being filled...
 
-		lda #$AA		;845B A9 AA			; BEEB_PIXELS_COLOUR2?
+		lda #BEEB_PIXELS_COLOUR2;845B A9 AA
 		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
 		sta ZP_52		;8462 85 52
@@ -6260,14 +6260,14 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldx #$00		;2F31 A2 00
 .L_2F33	cpy #$90		;2F33 C0 90
 		bne L_2F07		;2F35 D0 D0
-		ldx #$30		;2F37 A2 30
-		ldy #$66		;2F39 A0 66
+		ldx #LO(L_6630)		;2F37 A2 30
+		ldy #HI(L_6630)		;2F39 A0 66
 		lda #LO(L_4148)		;2F3B A9 48
 		sta ZP_1E		;2F3D 85 1E
 		lda #HI(L_4148)		;2F3F A9 41
 		jsr L_2F4E		;2F41 20 4E 2F
-		ldx #$40		;2F44 A2 40
-		ldy #$66		;2F46 A0 66
+		ldx #LO(L_6640)		;2F44 A2 40
+		ldy #HI(L_6640)		;2F46 A0 66
 		lda #LO(L_4268)		;2F48 A9 68
 		sta ZP_1E		;2F4A 85 1E
 		lda #HI(L_4268)		;2F4C A9 42
@@ -6309,27 +6309,33 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp L_2F64		;2F91 4C 64 2F
 .L_2F94	ldx #$05		;2F94 A2 05
 		ldy #$02		;2F96 A0 02
-.L_2F98	lda #$AA		;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
+.L_2F98
+		lda #BEEB_PIXELS_COLOUR2;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
 		sta L_4008,X	;2F9A 9D 08 40
 		sta L_4130,X	;2F9D 9D 30 41
 		sta L_57C8,Y	;2FA0 99 C8 57
 		sta L_58F0,Y	;2FA3 99 F0 58
-		lda #$80		;2FA6 A9 80
+		lda #%10000000	;2FA6 A9 80 - 2 0 0 0
 		sta L_4268,X	;2FA8 9D 68 42
-		lda #$02		;2FAB A9 02
+		lda #%00010000	;2FAB A9 02 - 0 0 0 2
 		sta L_5690,Y	;2FAD 99 90 56
 		iny				;2FB0 C8
 		dex				;2FB1 CA
 		bpl L_2F98		;2FB2 10 E4
 		ldx #$01		;2FB4 A2 01
-.L_2FB6	lda #$A9		;2FB6 A9 A9
+.L_2FB6
+		lda #%11100001	;2FB6 A9 A9 - 2 2 2 1
 		sta L_400E,X	;2FB8 9D 0E 40
-		lda #$2A		;2FBB A9 2A
+		
+		lda #%01110000	;2FBB A9 2A - 0 2 2 2
 		sta L_4136,X	;2FBD 9D 36 41
-		lda #$A8		;2FC0 A9 A8
+		
+		lda #%11100000	;2FC0 A9 A8 - 2 2 2 0
 		sta L_57C8,X	;2FC2 9D C8 57
-		lda #$6A		;2FC5 A9 6A
+		
+		lda #%01111000	;2FC5 A9 6A - 1 2 2 2
 		sta L_58F0,X	;2FC7 9D F0 58
+		
 		dex				;2FCA CA
 		bpl L_2FB6		;2FCB 10 E9
 		rts				;2FCD 60
