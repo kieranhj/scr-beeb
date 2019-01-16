@@ -12,6 +12,11 @@ INCLUDE "lib/bbc.h.asm"
 ; GLOBAL DEFINES
 ; *****************************************************************************
 
+disksys_loadto_addr = $4300     ; SCR only (TEMP)
+
+MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
+print ~MAX_LOADABLE_ROM_SIZE
+
 _TODO = FALSE
 _NOT_BEEB = FALSE
 _DEBUG = TRUE
@@ -741,7 +746,8 @@ L_07F2	= $07F2
 ; *****************************************************************************
 
 ORG &E00
-GUARD &3FFB		; C64 has spare bytes behind the screen - may be used as workspace!
+; GUARD &3FFB		; C64 has spare bytes behind the screen - may be used as workspace!
+GUARD .boot_start
 
 \\ Core Code
 
@@ -771,9 +777,9 @@ PRINT "--------"
 SAVE "Core", core_start, P%, 0
 PRINT "--------"
 
-CLEAR &4000, &8000
-ORG $4000
-GUARD &8000
+CLEAR &3f00, &8000
+ORG $3f00
+GUARD .disksys_loadto_addr
 
 .boot_start
 
@@ -1299,7 +1305,7 @@ PRINT "--------"
 
 CLEAR &8000, &C000
 ORG &8000
-GUARD &C000
+GUARD &8000 + MAX_LOADABLE_ROM_SIZE
 
 INCLUDE "game/cart-ram.asm"
 
@@ -1346,9 +1352,17 @@ PRINT "Start =", ~hazel_start
 PRINT "End =", ~hazel_end
 PRINT "Size =", ~(hazel_end - hazel_start)
 PRINT "Free =", ~(&E000 - hazel_end)
+; print "data_start =",~boot_data_start
+; print "end of HAZEL data when loaded =", ~(disksys_loadto_addr+(hazel_end-hazel_start))
 PRINT "--------"
 SAVE "Hazel", hazel_start, hazel_end, 0
 PRINT "--------"
+
+; Manual guard, as hazel_end and hazel_start are forward references
+; above.
+IF disksys_loadto_addr+(hazel_end-hazel_start)>boot_data_start
+ERROR "Hazel data too large"
+ENDIF
 
 ; *****************************************************************************
 ; KERNEL RAM: $E000 - $FFFF
@@ -1367,7 +1381,7 @@ PRINT "--------"
 
 CLEAR &8000,&C000
 ORG &8000
-GUARD &C000
+GUARD &8000 + MAX_LOADABLE_ROM_SIZE
 
 INCLUDE "game/kernel-ram.asm"
 
