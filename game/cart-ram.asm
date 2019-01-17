@@ -633,7 +633,7 @@ ENDIF
 ; A=$3D ->	draw horizon
 ; A=$3e
 ; A=$3f
-; A=$40
+; A=$40 ->	draw wheel sprite placeholders
 ; A=$41
 ; A=$42
 ; A=$43
@@ -1349,55 +1349,66 @@ ENDIF
 
 }
 
+; C64 sprites can't be clipped. When the wheel is low enough that the
+; lower wheel sprite would need clipping, it's hidden, and this
+; routine draws an approximation of it instead.
+
 .L_8C0D_from_sysctl			; in Cart
 {
-		lda #$D9		;8C0D A9 D9
-		sec				;8C0F 38
+		lda #217		;8C0D A9 D9
+		sec			;8C0F 38
 		sbc ZP_14		;8C10 E5 14
 		ldy #$07		;8C12 A0 07
 		cpx #$01		;8C14 E0 01
 		beq L_8C44		;8C16 F0 2C
-		tax				;8C18 AA
-.L_8C19	cpy #$04		;8C19 C0 04
+		tax			;8C18 AA
+.L_8C19		cpy #$04		;8C19 C0 04
 		bcc L_8C26		;8C1B 90 09
-		lda L_8C70,X	;8C1D BD 70 8C
-		sta L_7560,Y	;8C20 99 60 75
-		sta L_5560,Y	;8C23 99 60 55
-.L_8C26	lda L_8C78,X	;8C26 BD 78 8C
-		sta L_76A0,Y	;8C29 99 A0 76
-		sta L_56A0,Y	;8C2C 99 A0 56
-		lda L_8C80,X	;8C2F BD 80 8C
+
+; Left wheel
+
+		lda L_8C70,X		;8C1D BD 70 8C
+		sta L_7560,Y		;8C20 99 60 75
+		sta L_5560,Y		;8C23 99 60 55
+.L_8C26		lda L_8C78,X		;8C26 BD 78 8C
+		sta L_76A0,Y		;8C29 99 A0 76
+		sta L_56A0,Y		;8C2C 99 A0 56
+		lda L_8C80,X		;8C2F BD 80 8C
 		cpy #$06		;8C32 C0 06
 		bcc L_8C3A		;8C34 90 04
 		bne L_8C3D		;8C36 D0 05
 		ora #$01		;8C38 09 01
-.L_8C3A	sta L_77E0,Y	;8C3A 99 E0 77
-.L_8C3D	dex				;8C3D CA
-		dey				;8C3E 88
+.L_8C3A		sta L_77E0,Y		;8C3A 99 E0 77
+.L_8C3D		dex			;8C3D CA
+		dey			;8C3E 88
 		bpl L_8C19		;8C3F 10 D8
 		ldx #$00		;8C41 A2 00
-		rts				;8C43 60
-.L_8C44	tax				;8C44 AA
-.L_8C45	cpy #$04		;8C45 C0 04
+		rts			;8C43 60
+.L_8C44		tax			;8C44 AA
+.L_8C45		cpy #$04		;8C45 C0 04
 		bcc L_8C52		;8C47 90 09
-		lda L_8C94,X	;8C49 BD 94 8C
-		sta L_7658,Y	;8C4C 99 58 76
-		sta L_5658,Y	;8C4F 99 58 56
-.L_8C52	lda L_8C9C,X	;8C52 BD 9C 8C
-		sta L_7798,Y	;8C55 99 98 77
-		sta L_5798,Y	;8C58 99 98 57
-		lda L_8CA4,X	;8C5B BD A4 8C
+
+; Right wheel
+
+		lda L_8C94,X		;8C49 BD 94 8C
+		sta L_7658,Y		;8C4C 99 58 76
+		sta L_5658,Y		;8C4F 99 58 56
+.L_8C52		lda L_8C9C,X		;8C52 BD 9C 8C
+		sta L_7798,Y		;8C55 99 98 77
+		sta L_5798,Y		;8C58 99 98 57
+		lda L_8CA4,X		;8C5B BD A4 8C
 		cpy #$06		;8C5E C0 06
 		bcc L_8C66		;8C60 90 04
 		bne L_8C69		;8C62 D0 05
 		ora #$40		;8C64 09 40
-.L_8C66	sta L_78D8,Y	;8C66 99 D8 78
-.L_8C69	dex				;8C69 CA
-		dey				;8C6A 88
+.L_8C66		sta L_78D8,Y		;8C66 99 D8 78
+.L_8C69		dex			;8C69 CA
+		dey			;8C6A 88
 		bpl L_8C45		;8C6B 10 D8
 		ldx #$01		;8C6D A2 01
-		rts				;8C6F 60
-		
+		rts			;8C6F 60
+
+.*wheel_data_begin
 .L_8C70	equb $00,$00,$00,$00,$00,$00,$00,$00
 .L_8C78	equb $00,$00,$00,$00,$00,$00,$00,$00
 .L_8C80	equb $00,$00,$00,$00,$00,$00,$00,$00,$AC,$AC,$B0,$B0,$B0,$B0,$B0,$C0
@@ -1407,6 +1418,7 @@ ENDIF
 .L_8CA4	equb $00,$00,$00,$00,$00,$00,$00,$00,$1A,$1A,$0E,$0E,$0E,$0E,$0E,$03
 		equb $03,$03,$03,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+.*wheel_data_end
 }
 
 .L_8CD0_from_sysctl			; in Cart
