@@ -1177,9 +1177,9 @@ rts
 .lbits equb 0
 
 .table
-; boot-data.asm - In-game stuff
-equw L_6000,L_6000+25*320
-equb BEEB_CART_SLOT
+; ; boot-data.asm - In-game stuff
+; equw L_6000,L_6000+25*320
+; equb BEEB_CART_SLOT
 
 ; core-data.asm - HUD damage stuff mixed in with the font data. See
 ; L_F668.

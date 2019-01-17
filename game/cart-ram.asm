@@ -1825,9 +1825,9 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		dex				;8FDD CA
 		bpl L_8FC5		;8FDE 10 E5
 		lda #$F0		;8FE0 A9 F0
-		sta L_7578		;8FE2 8D 78 75
+		; sta L_7578		;8FE2 8D 78 75
 		lda #$0F		;8FE5 A9 0F
-		sta L_7640		;8FE7 8D 40 76
+		; sta L_7640		;8FE7 8D 40 76
 		rts				;8FEA 60
 .L_8FEB	ldx #$00		;8FEB A2 00
 .L_8FED	lda #$FF		;8FED A9 FF
@@ -1866,9 +1866,9 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		dex				;9049 CA
 		bpl L_9031		;904A 10 E5
 		lda #$F0		;904C A9 F0
-		sta L_5578		;904E 8D 78 55
+		; sta L_5578		;904E 8D 78 55
 		lda #$0F		;9051 A9 0F
-		sta L_5640		;9053 8D 40 56
+		; sta L_5640		;9053 8D 40 56
 .L_9056	rts				;9056 60
 
 .L_8F81	equb $00
