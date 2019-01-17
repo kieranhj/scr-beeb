@@ -5,8 +5,6 @@
 
 .beeb_disksys_start
 
-disksys_loadto_addr = $4300     ; SCR only (TEMP)
-
 \*-------------------------------
 \*  DISKSYS OSFILE PARAMS
 \*-------------------------------

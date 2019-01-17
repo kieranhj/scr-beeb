@@ -2,6 +2,9 @@
 ; BEEB specific routines (not boot)
 ; *****************************************************************************
 
+beeb_writeptr   = ZP_1E             ; write ptr
+beeb_readptr    = ZP_20             ; read ptr
+
 .beeb_code_start
 
 TIMER_PartA = 32*64 - 2*64 + 1*64 -2    ; character row 0, scanline 1
@@ -235,6 +238,9 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 .vsync_counter
 EQUB 0
 
+.prev_vsync
+EQUB 0
+
 .old_irqv
 EQUW 0
 
@@ -318,5 +324,34 @@ EQUW 0
 	EQUB &10 + PAL_black
 	EQUB &00 + PAL_black
 }
+
+IF _DEBUG
+.beeb_debug_framerate
+{
+    LDA #0
+    STA beeb_writeptr
+    CLC
+    LDA ZP_12
+    ADC #HI(screen1_address)
+    STA beeb_writeptr+1
+
+    SEC
+    LDA vsync_counter
+    TAX
+    SBC prev_vsync
+    CMP #10
+    BCC ok
+
+    LDA #9
+    .ok
+    STX prev_vsync
+
+    CLC
+    ADC #1  ; glyph 1 = '0'
+    JSR beeb_plot_font_glyph
+
+    RTS
+}
+ENDIF
 
 .beeb_code_end

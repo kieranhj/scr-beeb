@@ -12,6 +12,11 @@ INCLUDE "lib/bbc.h.asm"
 ; GLOBAL DEFINES
 ; *****************************************************************************
 
+disksys_loadto_addr = $4300     ; SCR only (TEMP)
+
+MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
+print ~MAX_LOADABLE_ROM_SIZE
+
 _TODO = FALSE
 _NOT_BEEB = FALSE
 _DEBUG = TRUE
@@ -22,7 +27,8 @@ BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
 
-BEEB_PIXELS_COLOUR2 = &F0		; C64=$AA
+BEEB_PIXELS_COLOUR1 = &0F	; C64=$55
+BEEB_PIXELS_COLOUR2 = &F0	; C64=$AA
 
 ; C64 controls
 ; Left/Right = S/D
@@ -265,7 +271,7 @@ ZP_0E	= $0E
 ZP_0F	= $0F
 ZP_10	= $10
 ZP_11	= $11
-ZP_12	= $12			; display buffer page?
+ZP_12	= $12			; display buffer page
 ZP_13	= $13
 ZP_14	= $14
 ZP_15	= $15
@@ -741,7 +747,8 @@ L_07F2	= $07F2
 ; *****************************************************************************
 
 ORG &E00
-GUARD &3FFB		; C64 has spare bytes behind the screen - may be used as workspace!
+; GUARD &3FFB		; C64 has spare bytes behind the screen - may be used as workspace!
+GUARD .boot_start
 
 \\ Core Code
 
@@ -770,9 +777,9 @@ PRINT "--------"
 SAVE "Core", core_start, P%, 0
 PRINT "--------"
 
-CLEAR &4000, &8000
-ORG $4000
-GUARD &8000
+CLEAR &3f00, &8000
+ORG $3f00
+GUARD .disksys_loadto_addr
 
 .boot_start
 
@@ -884,6 +891,10 @@ GUARD &8000
 	LDX #HI(hazel_start)
 	LDY #HI(hazel_end - hazel_start + &FF)
 	JSR disksys_copy_block
+
+	\\ Convert graphics 
+
+	jsr convert_c64_pixels
 
 	\\ FS is now unusable as HAZEL has been trashed
 
@@ -1083,6 +1094,8 @@ GUARD &8000
 
 	; BEEB LATE INIT
 
+	JSR beeb_plot_font_init
+
 	; BEEB SET INTERRUPT HANDLER
 
     SEI
@@ -1114,6 +1127,78 @@ GUARD &8000
     	EQUB $00
 .L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
 }
+
+.convert_c64_pixels
+{
+lda $f4:pha
+lda ZP_20+0:pha
+lda ZP_20+1:pha
+
+ldx #0
+
+.convert_table_entry
+
+ldy #0
+
+lda table+0,x:sta ZP_20+0
+lda table+1,x:sta ZP_20+1
+lda table+4,x:sta $f4:sta $fe30
+
+.convert_byte
+
+sty hbits:sty lbits
+
+lda (ZP_20),y
+
+asl a:rol hbits:asl a:rol lbits
+asl a:rol hbits:asl a:rol lbits
+asl a:rol hbits:asl a:rol lbits
+asl a:rol hbits:asl a:rol lbits
+
+lda hbits:asl a:asl a:asl a:asl a:ora lbits
+
+sta (ZP_20),y
+
+{inc ZP_20+0:bne noc:inc ZP_20+1:.noc}
+
+lda ZP_20+0:cmp table+2,x:bne convert_byte
+lda ZP_20+1:cmp table+3,x:bne convert_byte
+
+inx:inx:inx:inx:inx
+cpx #endtable-table:bne convert_table_entry
+
+pla:sta ZP_20+1
+pla:sta ZP_20+0
+pla:sta $f4:sta $fe30
+
+rts
+
+.hbits equb 0
+.lbits equb 0
+
+.table
+; boot-data.asm - In-game stuff
+equw L_6000,boot_data_end
+equb BEEB_CART_SLOT
+
+; core-data.asm - HUD damage stuff mixed in with the font data. See
+; L_F668.
+equw L_80C8+0,L_80C8+48
+equb BEEB_CART_SLOT
+
+; Front end header graphic.
+;
+; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
+equw L_4F00+64,L_4F00+64+$4e8
+equb BEEB_CART_SLOT
+
+; cart-ram.asm - track preview border.
+equw track_preview_border_start,track_preview_border_end
+equb BEEB_CART_SLOT
+
+.endtable
+}
+
 
 .core_filename EQUS "Core", 13
 .kernel_filename EQUS "Kernel", 13
@@ -1296,7 +1381,7 @@ PRINT "--------"
 
 CLEAR &8000, &C000
 ORG &8000
-GUARD &C000
+GUARD &8000 + MAX_LOADABLE_ROM_SIZE
 
 INCLUDE "game/cart-ram.asm"
 
@@ -1343,9 +1428,17 @@ PRINT "Start =", ~hazel_start
 PRINT "End =", ~hazel_end
 PRINT "Size =", ~(hazel_end - hazel_start)
 PRINT "Free =", ~(&E000 - hazel_end)
+; print "data_start =",~boot_data_start
+; print "end of HAZEL data when loaded =", ~(disksys_loadto_addr+(hazel_end-hazel_start))
 PRINT "--------"
 SAVE "Hazel", hazel_start, hazel_end, 0
 PRINT "--------"
+
+; Manual guard, as hazel_end and hazel_start are forward references
+; above.
+IF disksys_loadto_addr+(hazel_end-hazel_start)>boot_data_start
+ERROR "Hazel data too large"
+ENDIF
 
 ; *****************************************************************************
 ; KERNEL RAM: $E000 - $FFFF
@@ -1364,7 +1457,7 @@ PRINT "--------"
 
 CLEAR &8000,&C000
 ORG &8000
-GUARD &C000
+GUARD &8000 + MAX_LOADABLE_ROM_SIZE
 
 INCLUDE "game/kernel-ram.asm"
 

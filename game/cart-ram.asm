@@ -116,7 +116,8 @@
 		lda #HI(L_5740)		;8436 A9 57
 		sta ZP_F7		;8438 85 F7
 		ldy #$7F		;843A A0 7F
-.L_843C	lda (ZP_F4),Y	;843C B1 F4
+.L_843C
+		lda (ZP_F4),Y	;843C B1 F4
 		sta (ZP_F6),Y	;843E 91 F6
 		dey				;8440 88
 		bne L_843C		;8441 D0 F9
@@ -129,14 +130,15 @@
 		cmp #HI(L_4100)		;844E C9 41
 		bcs L_843C		;8450 B0 EA
 		rts				;8452 60
-.L_8453	lda #$14		;8453 A9 14
+.L_8453
+		lda #$14		;8453 A9 14
 		sta ZP_52		;8455 85 52
 		ldx #LO(L_4000)		;8457 A2 00
 		ldy #HI(L_4000)		;8459 A0 40
 
 \\ Changing this from #$AA to #&F0 results in entire sky being filled...
 
-		lda #$AA		;845B A9 AA			; BEEB_PIXELS_COLOUR2?
+		lda #BEEB_PIXELS_COLOUR2;845B A9 AA
 		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
 		sta ZP_52		;8462 85 52
@@ -686,7 +688,7 @@ ENDIF
 		cmp #$32		;8771 C9 32
 		beq sysctl_copy_menu_header_graphic		;8773 F0 4F
 		cmp #$55		;8775 C9 55
-		beq L_879A		;8777 F0 21
+		beq sysctl_fill_55_thunk;8777 F0 21
 		cmp #$34		;8779 C9 34
 		beq L_879D		;877B F0 20
 		cmp #$48
@@ -711,7 +713,7 @@ ENDIF
 		sta ZP_FE			;8795 85 FE
 		jmp set_track_preview_mode			;8797 4C F7 83
 
-.L_879A	jmp fill_64s		;879A 4C 21 89
+.sysctl_fill_55_thunk lda #BEEB_PIXELS_COLOUR1:jmp fill_64s
 .L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
 .L_87A0	jmp move_draw_bridgeQ		;87A0 4C 4A 89
 .L_87A3	jmp draw_horizonQ		;87A3 4C 2F 8A
@@ -751,7 +753,8 @@ ENDIF
 		lda L_D402,X	;87E9 BD 02 D4	; NOT SID
 		sta ZP_21		;87EC 85 21
 		ldy #$00		;87EE A0 00
-.L_87F0	lda (ZP_1E),Y	;87F0 B1 1E
+.L_87F0
+		lda (ZP_1E),Y	;87F0 B1 1E
 		sta (ZP_20),Y	;87F2 91 20
 		iny				;87F4 C8
 		cpy ZP_08		;87F5 C4 08
@@ -776,7 +779,8 @@ ENDIF
 		adc #$01		;8816 69 01
 		sta ZP_21		;8818 85 21
 		ldy #$00		;881A A0 00
-.L_881C	lda (ZP_1E),Y	;881C B1 1E
+.L_881C
+		lda (ZP_1E),Y	;881C B1 1E
 		sta L_7C00,Y	;881E 99 00 7C
 		lda (ZP_20),Y	;8821 B1 20
 		sta L_0400,Y	;8823 99 00 04
@@ -785,7 +789,8 @@ ENDIF
 		inc ZP_1F		;8829 E6 1F
 		inc ZP_21		;882B E6 21
 		ldy #$3F		;882D A0 3F
-.L_882F	lda (ZP_1E),Y	;882F B1 1E
+.L_882F
+		lda (ZP_1E),Y	;882F B1 1E
 		sta L_7D00,Y	;8831 99 00 7D
 		lda (ZP_20),Y	;8834 B1 20
 		sta L_0500,Y	;8836 99 00 05
@@ -1495,7 +1500,9 @@ ENDIF
 		lda L_8E67,X	;8D83 BD 67 8E
 		sta ZP_2A		;8D86 85 2A
 		jmp L_8DC5		;8D88 4C C5 8D
-.L_8D8B	lda #$AA		;8D8B A9 AA			; BEEB_PIXELS_COLOUR2?
+.L_8D8B
+; fill pattern for columns underneath AI car
+		lda #BEEB_PIXELS_COLOUR2		;8D8B A9 AA			; BEEB_PIXELS_COLOUR2?
 .L_8D8D	sta (ZP_1E),Y	;8D8D 91 1E
 		dey				;8D8F 88
 		ldx L_C400,Y	;8D90 BE 00 C4
@@ -1598,11 +1605,23 @@ ENDIF
 		sta L_C400,Y	;8E63 99 00 C4
 .L_8E66	rts				;8E66 60
 
-IF 0
-.L_8E67	equb $FF,$FE,$FD,$FC,$FB,$FA,$F9,$F8,$F7,$F6,$F5,$F4,$F3,$F2,$F1,$F0
-ELSE
-.L_8E67	equb $FF,$FE,$FB,$FA,$EF,$EE,$EB,$EA,$BF,$BE,$BB,$BA,$AF,$AE,$AB,$AA
-ENDIF
+.L_8E67
+equb %11111111 ; %11111111 ; $FF - 3 3 3 3
+equb %11111110 ; %11111110 ; $FE - 3 3 3 2
+equb %11111101 ; %11111011 ; $FB - 3 3 2 3
+equb %11111100 ; %11111010 ; $FA - 3 3 2 2
+equb %11111011 ; %11101111 ; $EF - 3 2 3 3
+equb %11111010 ; %11101110 ; $EE - 3 2 3 2
+equb %11111001 ; %11101011 ; $EB - 3 2 2 3
+equb %11111000 ; %11101010 ; $EA - 3 2 2 2
+equb %11110111 ; %10111111 ; $BF - 2 3 3 3
+equb %11110110 ; %10111110 ; $BE - 2 3 3 2
+equb %11110101 ; %10111011 ; $BB - 2 3 2 3
+equb %11110100 ; %10111010 ; $BA - 2 3 2 2
+equb %11110011 ; %10101111 ; $AF - 2 2 3 3
+equb %11110010 ; %10101110 ; $AE - 2 2 3 2
+equb %11110001 ; %10101011 ; $AB - 2 2 2 3
+equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 }
 
 .draw_tachometer			; in Cart
@@ -4550,9 +4569,18 @@ L_14B6 = L_14B8-2
 		bpl L_1C0A		;1C12 10 F6
 		rts				;1C14 60
 
-.L_1C15	equb $04
-.L_1C16	equb $3F,$CF,$F3,$FC
-.L_1C1A	equb $C0,$30,$0C,$03
+.L_1C15
+	equb $04
+.L_1C16
+	equb %01110111 ; %00111111 ; $3F
+	equb %10111011 ; %11001111 ; $CF
+	equb %11011101 ; %11110011 ; $F3
+	equb %11101110 ; %11111100 ; $FC
+.L_1C1A
+	equb %10001000 ; %11000000 ; $C0
+	equb %01000100 ; %00110000 ; $30
+	equb %00100010 ; %00001100 ; $0C
+	equb %00010001 ; %00000011 ; $03
 }
 
 .draw_crane_with_sysctl		; HAS DLL
@@ -6215,7 +6243,8 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 {
 		ldy #$00		;2F03 A0 00
 		ldx #$00		;2F05 A2 00
-.L_2F07	lda track_preview_border_0,X	;2F07 BD 30 61
+.L_2F07
+		lda track_preview_border_0,X	;2F07 BD 30 61
 		sta L_4010,Y	;2F0A 99 10 40
 		sta L_40A0,Y	;2F0D 99 A0 40
 		lda track_preview_border_1,X	;2F10 BD 70 62
@@ -6234,38 +6263,43 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldx #$00		;2F31 A2 00
 .L_2F33	cpy #$90		;2F33 C0 90
 		bne L_2F07		;2F35 D0 D0
-		ldx #$30		;2F37 A2 30
-		ldy #$66		;2F39 A0 66
+		ldx #LO(L_6630)		;2F37 A2 30
+		ldy #HI(L_6630)		;2F39 A0 66
 		lda #LO(L_4148)		;2F3B A9 48
 		sta ZP_1E		;2F3D 85 1E
 		lda #HI(L_4148)		;2F3F A9 41
 		jsr L_2F4E		;2F41 20 4E 2F
-		ldx #$40		;2F44 A2 40
-		ldy #$66		;2F46 A0 66
+		
+		ldx #LO(L_6640)		;2F44 A2 40
+		ldy #HI(L_6640)		;2F46 A0 66
 		lda #LO(L_4268)		;2F48 A9 68
 		sta ZP_1E		;2F4A 85 1E
 		lda #HI(L_4268)		;2F4C A9 42
-.L_2F4E	sta ZP_1F		;2F4E 85 1F
+.L_2F4E
+		sta ZP_1F		;2F4E 85 1F
 		stx ZP_16		;2F50 86 16
 		sty ZP_17		;2F52 84 17
 		lda #$12		;2F54 A9 12
 		sta ZP_14		;2F56 85 14
-.L_2F58	lda ZP_17		;2F58 A5 17
+.L_2F58
+		lda ZP_17		;2F58 A5 17
 		sta ZP_99		;2F5A 85 99
 		lda ZP_16		;2F5C A5 16
 		sta ZP_98		;2F5E 85 98
 		lda #$03		;2F60 A9 03
 		sta ZP_15		;2F62 85 15
-.L_2F64	ldy #$00		;2F64 A0 00
-.L_2F66	lda (ZP_98),Y	;2F66 B1 98
-		sta (ZP_1E),Y	;2F68 91 1E
-		iny				;2F6A C8
+.L_2F64
+		ldy #$00		;2F64 A0 00
+.L_2F66
+		lda (ZP_98),Y		;2F66 B1 98
+		sta (ZP_1E),Y		;2F68 91 1E
+		iny			;2F6A C8
 		cpy #$10		;2F6B C0 10
 		bne L_2F66		;2F6D D0 F7
 		dec ZP_14		;2F6F C6 14
 		beq L_2F94		;2F71 F0 21
 		lda ZP_1E		;2F73 A5 1E
-		clc				;2F75 18
+		clc			;2F75 18
 		adc #$40		;2F76 69 40
 		sta ZP_1E		;2F78 85 1E
 		lda ZP_1F		;2F7A A5 1F
@@ -6274,40 +6308,77 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		dec ZP_15		;2F80 C6 15
 		beq L_2F58		;2F82 F0 D4
 		lda ZP_98		;2F84 A5 98
-		clc				;2F86 18
-		adc #$40		;2F87 69 40
+		clc			;2F86 18
+		adc #$10		;2F87 69 40
 		sta ZP_98		;2F89 85 98
 		lda ZP_99		;2F8B A5 99
-		adc #$01		;2F8D 69 01
+		adc #$00		;2F8D 69 01
 		sta ZP_99		;2F8F 85 99
 		jmp L_2F64		;2F91 4C 64 2F
-.L_2F94	ldx #$05		;2F94 A2 05
+.L_2F94
+		ldx #$05		;2F94 A2 05
 		ldy #$02		;2F96 A0 02
-.L_2F98	lda #$AA		;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
+.L_2F98
+		lda #BEEB_PIXELS_COLOUR2;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
 		sta L_4008,X	;2F9A 9D 08 40
 		sta L_4130,X	;2F9D 9D 30 41
 		sta L_57C8,Y	;2FA0 99 C8 57
 		sta L_58F0,Y	;2FA3 99 F0 58
-		lda #$80		;2FA6 A9 80
+		lda #%10000000	;2FA6 A9 80 - 2 0 0 0
 		sta L_4268,X	;2FA8 9D 68 42
-		lda #$02		;2FAB A9 02
+		lda #%00010000	;2FAB A9 02 - 0 0 0 2
 		sta L_5690,Y	;2FAD 99 90 56
 		iny				;2FB0 C8
 		dex				;2FB1 CA
 		bpl L_2F98		;2FB2 10 E4
 		ldx #$01		;2FB4 A2 01
-.L_2FB6	lda #$A9		;2FB6 A9 A9
+.L_2FB6
+		lda #%11100001	;2FB6 A9 A9 - 2 2 2 1
 		sta L_400E,X	;2FB8 9D 0E 40
-		lda #$2A		;2FBB A9 2A
+		
+		lda #%01110000	;2FBB A9 2A - 0 2 2 2
 		sta L_4136,X	;2FBD 9D 36 41
-		lda #$A8		;2FC0 A9 A8
+		
+		lda #%11100000	;2FC0 A9 A8 - 2 2 2 0
 		sta L_57C8,X	;2FC2 9D C8 57
-		lda #$6A		;2FC5 A9 6A
+		
+		lda #%01111000	;2FC5 A9 6A - 1 2 2 2
 		sta L_58F0,X	;2FC7 9D F0 58
+		
 		dex				;2FCA CA
 		bpl L_2FB6		;2FCB 10 E9
 		rts				;2FCD 60
+
 }
+
+; moved from boot data.
+.track_preview_border_start
+.track_preview_border_0
+EQUB $AA,$AA,$AA,$AA,$AA,$AA,$01,$01,$AA,$AA,$AA,$AA,$AA,$AA,$50,$50
+EQUB $AA,$AA,$AA,$AA,$AA,$AA,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
+
+.track_preview_border_1	
+EQUB $A8,$A8,$A8,$A8,$A8,$A8,$01,$01,$0A,$0A,$0A,$0A,$0A,$0A,$50,$50
+EQUB $80,$80,$80,$80,$80,$80,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
+
+.track_preview_border_2
+EQUB $54,$54,$02,$02,$02,$02,$02,$02,$05,$05,$A0,$A0,$A0,$A0,$A0,$A0
+EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$00,$00,$00,$00,$00,$00,$00,$00
+
+.track_preview_border_3
+EQUB $54,$54,$AA,$AA,$AA,$AA,$AA,$AA,$05,$05,$AA,$AA,$AA,$AA,$AA,$AA
+EQUB $40,$40,$AA,$AA,$AA,$AA,$AA,$AA,$00,$00,$00,$00,$00,$00,$00,$00
+
+.L_6630
+EQUB $A8,$A8,$A8,$A8,$A8,$A8,$A9,$A9,$A8,$A8,$A8,$A8,$A8,$A8,$01,$01 ; 6630
+EQUB $A9,$A9,$A9,$A9,$A8,$A8,$A8,$A8,$01,$01,$01,$01,$A8,$A8,$A8,$A8 ; 6770
+EQUB $A8,$A8,$A9,$A9,$A9,$A9,$A9,$A9,$A8,$A8,$01,$01,$01,$01,$01,$01 ; 68b0
+
+.L_6640
+EQUB $40,$40,$40,$40,$40,$40,$2A,$2A,$6A,$6A,$6A,$6A,$6A,$6A,$2A,$2A ; 6640
+EQUB $2A,$2A,$2A,$2A,$40,$40,$40,$40,$2A,$2A,$2A,$2A,$6A,$6A,$6A,$6A ; 6780
+EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
+.track_preview_border_end
 
 .draw_track_preview_track_name			; called from game_start
 {
@@ -7036,5 +7107,10 @@ PAGE_ALIGN
 		equb $C6,$FF,$B0,$FF,$90,$FF,$67,$FF,$35,$FB,$FF,$B9,$FF,$6F,$FF,$1E
 		equb $C5,$FF,$65,$FF,$FF,$92,$FF,$1F,$A5,$FF,$26,$A1,$FF,$16,$87,$F1
 		equb $FF,$57,$B8,$FF,$15,$6C,$C0,$FF,$0F,$59,$A0,$E2,$FF,$21,$5C,$93
+
+; *****************************************************************************
+; *****************************************************************************
+
+INCLUDE "lib/beeb-plot-font.asm"
 
 .cart_end
