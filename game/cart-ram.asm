@@ -116,7 +116,8 @@
 		lda #HI(L_5740)		;8436 A9 57
 		sta ZP_F7		;8438 85 F7
 		ldy #$7F		;843A A0 7F
-.L_843C	lda (ZP_F4),Y	;843C B1 F4
+.L_843C
+		lda (ZP_F4),Y	;843C B1 F4
 		sta (ZP_F6),Y	;843E 91 F6
 		dey				;8440 88
 		bne L_843C		;8441 D0 F9
@@ -129,7 +130,8 @@
 		cmp #HI(L_4100)		;844E C9 41
 		bcs L_843C		;8450 B0 EA
 		rts				;8452 60
-.L_8453	lda #$14		;8453 A9 14
+.L_8453
+		lda #$14		;8453 A9 14
 		sta ZP_52		;8455 85 52
 		ldx #LO(L_4000)		;8457 A2 00
 		ldy #HI(L_4000)		;8459 A0 40
@@ -6241,7 +6243,8 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 {
 		ldy #$00		;2F03 A0 00
 		ldx #$00		;2F05 A2 00
-.L_2F07	lda track_preview_border_0,X	;2F07 BD 30 61
+.L_2F07
+		lda track_preview_border_0,X	;2F07 BD 30 61
 		sta L_4010,Y	;2F0A 99 10 40
 		sta L_40A0,Y	;2F0D 99 A0 40
 		lda track_preview_border_1,X	;2F10 BD 70 62
@@ -6266,32 +6269,37 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		sta ZP_1E		;2F3D 85 1E
 		lda #HI(L_4148)		;2F3F A9 41
 		jsr L_2F4E		;2F41 20 4E 2F
+		
 		ldx #LO(L_6640)		;2F44 A2 40
 		ldy #HI(L_6640)		;2F46 A0 66
 		lda #LO(L_4268)		;2F48 A9 68
 		sta ZP_1E		;2F4A 85 1E
 		lda #HI(L_4268)		;2F4C A9 42
-.L_2F4E	sta ZP_1F		;2F4E 85 1F
+.L_2F4E
+		sta ZP_1F		;2F4E 85 1F
 		stx ZP_16		;2F50 86 16
 		sty ZP_17		;2F52 84 17
 		lda #$12		;2F54 A9 12
 		sta ZP_14		;2F56 85 14
-.L_2F58	lda ZP_17		;2F58 A5 17
+.L_2F58
+		lda ZP_17		;2F58 A5 17
 		sta ZP_99		;2F5A 85 99
 		lda ZP_16		;2F5C A5 16
 		sta ZP_98		;2F5E 85 98
 		lda #$03		;2F60 A9 03
 		sta ZP_15		;2F62 85 15
-.L_2F64	ldy #$00		;2F64 A0 00
-.L_2F66	lda (ZP_98),Y	;2F66 B1 98
-		sta (ZP_1E),Y	;2F68 91 1E
-		iny				;2F6A C8
+.L_2F64
+		ldy #$00		;2F64 A0 00
+.L_2F66
+		lda (ZP_98),Y		;2F66 B1 98
+		sta (ZP_1E),Y		;2F68 91 1E
+		iny			;2F6A C8
 		cpy #$10		;2F6B C0 10
 		bne L_2F66		;2F6D D0 F7
 		dec ZP_14		;2F6F C6 14
 		beq L_2F94		;2F71 F0 21
 		lda ZP_1E		;2F73 A5 1E
-		clc				;2F75 18
+		clc			;2F75 18
 		adc #$40		;2F76 69 40
 		sta ZP_1E		;2F78 85 1E
 		lda ZP_1F		;2F7A A5 1F
@@ -6300,14 +6308,15 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		dec ZP_15		;2F80 C6 15
 		beq L_2F58		;2F82 F0 D4
 		lda ZP_98		;2F84 A5 98
-		clc				;2F86 18
-		adc #$40		;2F87 69 40
+		clc			;2F86 18
+		adc #$10		;2F87 69 40
 		sta ZP_98		;2F89 85 98
 		lda ZP_99		;2F8B A5 99
-		adc #$01		;2F8D 69 01
+		adc #$00		;2F8D 69 01
 		sta ZP_99		;2F8F 85 99
 		jmp L_2F64		;2F91 4C 64 2F
-.L_2F94	ldx #$05		;2F94 A2 05
+.L_2F94
+		ldx #$05		;2F94 A2 05
 		ldy #$02		;2F96 A0 02
 .L_2F98
 		lda #BEEB_PIXELS_COLOUR2;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
@@ -6339,7 +6348,37 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		dex				;2FCA CA
 		bpl L_2FB6		;2FCB 10 E9
 		rts				;2FCD 60
+
 }
+
+; moved from boot data.
+.track_preview_border_start
+.track_preview_border_0
+EQUB $AA,$AA,$AA,$AA,$AA,$AA,$01,$01,$AA,$AA,$AA,$AA,$AA,$AA,$50,$50
+EQUB $AA,$AA,$AA,$AA,$AA,$AA,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
+
+.track_preview_border_1	
+EQUB $A8,$A8,$A8,$A8,$A8,$A8,$01,$01,$0A,$0A,$0A,$0A,$0A,$0A,$50,$50
+EQUB $80,$80,$80,$80,$80,$80,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
+
+.track_preview_border_2
+EQUB $54,$54,$02,$02,$02,$02,$02,$02,$05,$05,$A0,$A0,$A0,$A0,$A0,$A0
+EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$00,$00,$00,$00,$00,$00,$00,$00
+
+.track_preview_border_3
+EQUB $54,$54,$AA,$AA,$AA,$AA,$AA,$AA,$05,$05,$AA,$AA,$AA,$AA,$AA,$AA
+EQUB $40,$40,$AA,$AA,$AA,$AA,$AA,$AA,$00,$00,$00,$00,$00,$00,$00,$00
+
+.L_6630
+EQUB $A8,$A8,$A8,$A8,$A8,$A8,$A9,$A9,$A8,$A8,$A8,$A8,$A8,$A8,$01,$01 ; 6630
+EQUB $A9,$A9,$A9,$A9,$A8,$A8,$A8,$A8,$01,$01,$01,$01,$A8,$A8,$A8,$A8 ; 6770
+EQUB $A8,$A8,$A9,$A9,$A9,$A9,$A9,$A9,$A8,$A8,$01,$01,$01,$01,$01,$01 ; 68b0
+
+.L_6640
+EQUB $40,$40,$40,$40,$40,$40,$2A,$2A,$6A,$6A,$6A,$6A,$6A,$6A,$2A,$2A ; 6640
+EQUB $2A,$2A,$2A,$2A,$40,$40,$40,$40,$2A,$2A,$2A,$2A,$6A,$6A,$6A,$6A ; 6780
+EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
+.track_preview_border_end
 
 .draw_track_preview_track_name			; called from game_start
 {

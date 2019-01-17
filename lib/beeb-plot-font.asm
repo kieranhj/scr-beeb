@@ -4,8 +4,6 @@
 
 _UNROLL_FONT = FALSE         ; unroll 1x 2x 3x byte versions of font plot
 
-
-
 .small_font
 INCBIN "lib/small_font.bin"
 
