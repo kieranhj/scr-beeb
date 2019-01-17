@@ -282,12 +282,12 @@ EQUW 0
 	EQUB &70 + PAL_red
 	EQUB &80 + PAL_blue
 	EQUB &90 + PAL_blue
-	EQUB &A0 + PAL_white
-	EQUB &B0 + PAL_white
+	EQUB &A0 + PAL_yellow
+	EQUB &B0 + PAL_yellow
 	EQUB &C0 + PAL_blue
 	EQUB &D0 + PAL_blue
-	EQUB &E0 + PAL_white
-	EQUB &F0 + PAL_white
+	EQUB &E0 + PAL_yellow
+	EQUB &F0 + PAL_yellow
 }
 
 .beeb_set_palette
