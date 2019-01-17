@@ -4,28 +4,7 @@
 
 _UNROLL_FONT = FALSE         ; unroll 1x 2x 3x byte versions of font plot
 
-; FONT GLYPHS
 
-GLYPH_0=1
-GLYPH_A=11
-HEART_GLYPH=40
-EMPTY_GLYPH=41
-BLANK_GLYPH=42
-GLYPH_DOT=39
-
-MACRO SMALL_FONT_MAPCHAR
-    MAPCHAR '0','9',GLYPH_0
-    MAPCHAR 'A','Z',GLYPH_A
-    MAPCHAR 'a','z',GLYPH_A
-    MAPCHAR '!',37
-    MAPCHAR '?',38
-    MAPCHAR '.',GLYPH_DOT
-    MAPCHAR ',',GLYPH_DOT       ; removed
-    MAPCHAR ' ',0
-    MAPCHAR '~',BLANK_GLYPH
-    MAPCHAR ':',43
-    MAPCHAR '/',44
-ENDMACRO
 
 .small_font
 INCBIN "lib/small_font.bin"
@@ -188,7 +167,6 @@ ENDIF
 
 \ X,Y = column, row on screen
 \ beeb_readptr = string terminated with -1
-\ A=PALETTE
 .BEEB_PLOT_FONT_STRING
 {
     STX beeb_writeptr

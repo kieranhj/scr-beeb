@@ -2695,7 +2695,7 @@ rts
 .L_983A	equb $00
 .L_983B	equb $00
 .L_983C	equb $00,$01,$04,$03,$02
-.L_9841	equb $B4,$A4,$94,$84,$74
+.L_9841	equb $B4,$A4,$94,$84,$74		; text_sprite_data indices
 }
 
 .store_restore_control_keys			; HAS DLL

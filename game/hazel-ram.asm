@@ -120,7 +120,7 @@
 .L_C352	skip 1
 .L_C353	skip 1
 .L_C354	skip 1
-.L_C355	skip 1
+.L_C355	skip 1		; text sprite enable?
 .L_C356	skip 1
 .L_C357	skip 1
 .L_C358	skip 1
