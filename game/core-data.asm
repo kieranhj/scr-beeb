@@ -888,9 +888,4 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 ; $80=main game,$00=exiting,$40=track preview,$41=frontend
 .irq_mode	equb $00
 
-	SMALL_FONT_MAPCHAR
-	.text_test
-	equb "Press Start",$FF
-	ASCII_MAPCHAR
-
 .core_data_end

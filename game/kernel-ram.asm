@@ -1050,11 +1050,11 @@
 		ldy #$54		;1045 A0 54
 		bit L_C76C		;1047 2C 6C C7
 		bpl L_1057		;104A 10 0B
-		ldy #$08		;104C A0 08
+		ldy #$08		;104C A0 08		; TEXT SPRITE
 		bne L_1057		;104E D0 07
 .L_1050	lda #$80		;1050 A9 80
 		sta L_C362		;1052 8D 62 C3
-		ldy #$1C		;1055 A0 1C
+		ldy #$1C		;1055 A0 1C		; TEXT SPRITE
 .L_1057	lda #$04		;1057 A9 04
 		jsr set_up_text_sprite		;1059 20 A9 12
 .L_105C	lda L_C362		;105C AD 62 C3
@@ -1438,20 +1438,6 @@ IF 0
 		inx				;131A E8
 		dec ZP_08		;131B C6 08
 		bne L_1301		;131D D0 E2
-ELSE
-		CPY #$3c
-		BNE quit_test
-
-		LDX #LO(text_test)
-		STX beeb_readptr
-		LDY #HI(text_test)
-		STY beeb_readptr+1
-
-		LDX #20
-		LDY #12
-		JSR beeb_plot_font_string
-
-		.quit_test
 ENDIF
 
 .L_131F	lda #$80		;131F A9 80
@@ -1462,20 +1448,24 @@ ENDIF
 
 .text_sprite_data
 	; $00
-		equb $03,$3C,$57,$52,$43,$45,$43,$4B,$03,$20,$52,$41,$43,$43,$45,$20
+		equb $03,$3C,$57,$52,$43,$45,$43,$4B
+	; $08
+		equb $03,$20,$52,$41,$43,$43,$45,$20
 		equb $21,$3C,$20,$57,$61,$4F,$4E,$20,$61,$54,$20,$20
 	; $1c
 		equb $03,$20,$52,$41
 		equb $43,$43,$45,$20,$21,$20,$4C,$4F,$61,$53,$54,$20
-	; $2c
+	; $2c	; 'DROP START'
 		equb $03,$20,$44,$52
 		equb $43,$4F,$50,$20,$21,$3C,$53,$54,$61,$41,$52,$54
-	; $3c
+	; $3c	; 'PRESS FIRE'
 		equb $03,$3C,$50,$52
 		equb $43,$45,$53,$53,$21,$20,$46,$49,$61,$52,$45,$20
-	; $4C
+	; $4C	; PAUSED'?
 		equb $03,$50,$41,$55
-		equb $43,$53,$45,$44,$03,$20,$4C,$41,$43,$50,$53,$20,$21,$20,$4F,$56
+		equb $43,$53,$45,$44
+	; $54	; 'LAPS OVER'
+		equb $03,$20,$4C,$41,$43,$50,$53,$20,$21,$20,$4F,$56
 		equb $61,$45,$52,$20
 	; $64 - define keys?
 		equb $03,$44,$45,$46,$43,$49,$4E,$45,$21,$20,$4B,$45
@@ -1563,6 +1553,8 @@ ENDIF
 		bne L_1435		;1466 D0 CD
 		rts				;1468 60
 }
+
+\\ Something to do with calculating sprite data addresses
 
 .L_1469				; only called from Kernel?
 {
@@ -5534,10 +5526,10 @@ L_EBDD	= L_EBE7 - $A			;!
 		and #$1F		;EC50 29 1F
 		clc				;EC52 18
 		adc #$A0		;EC53 69 A0
-		ldy #$2C		;EC55 A0 2C
+		ldy #$2C		;EC55 A0 2C		'DROP START'
 		bit L_C37C		;EC57 2C 7C C3
 		bpl L_EC5E		;EC5A 10 02
-		ldy #$3C		;EC5C A0 3C
+		ldy #$3C		;EC5C A0 3C		'PRESS FIRE'
 .L_EC5E	bit L_C76C		;EC5E 2C 6C C7
 		bmi L_EC65		;EC61 30 02
 		lda #$8C		;EC63 A9 8C

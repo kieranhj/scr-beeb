@@ -1047,6 +1047,8 @@ ENDIF
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
 
+		jsr beeb_draw_text_sprite
+
 		IF _DEBUG
 		JSR beeb_debug_framerate
 		ENDIF
@@ -1068,7 +1070,7 @@ ENDIF
 		ldy #$0B		;3D4B A0 0B
 		jsr kernel_L_114D_with_color_ram		;3D4D 20 4D 11
 
-.L_3D50	ldy #$3C		;3D50 A0 3C
+.L_3D50	ldy #$3C		;3D50 A0 3C			; 'PRESS FIRE'
 		lda #$04		;3D52 A9 04
 		jsr kernel_set_up_text_sprite		;3D54 20 A9 12
 		lda #$FF		;3D57 A9 FF
@@ -1293,7 +1295,7 @@ ENDIF
 		pha				;3EFD 48
 		lda L_1328		;3EFE AD 28 13
 		pha				;3F01 48
-		ldy #$4C		;3F02 A0 4C
+		ldy #$4C		;3F02 A0 4C		'PAUSED'
 		lda #$02		;3F04 A9 02
 		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97

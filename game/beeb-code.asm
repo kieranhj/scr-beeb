@@ -354,4 +354,60 @@ IF _DEBUG
 }
 ENDIF
 
+.beeb_draw_text_sprite
+{
+    LDA L_C355
+    BEQ return
+
+    LDA L_1327
+    CLC
+    ADC #LO(text_sprite_text)
+    STA beeb_readptr
+    LDA #HI(text_sprite_text)
+    ADC #0
+    STA beeb_readptr+1
+
+    LDX #15
+    LDY #4
+    JSR beeb_plot_font_string
+
+    .return
+    RTS
+}
+
+SMALL_FONT_MAPCHAR
+.text_sprite_text
+; $00
+    equb "TEXT 00",&FF
+; $08
+    equb "UNKNOWN 08",&FF,&FF,&FF,&FF,&FF,&FF,&FF,&FF,&FF,&FF
+; $1C
+    equb "UNKNOWN 1C",&FF,&FF,&FF,&FF,&FF,&FF
+; $2C
+    equb "DROP START",&FF,&FF,&FF,&FF,&FF,&FF
+; $3C
+    equb "PRESS FIRE",&FF,&FF,&FF,&FF,&FF,&FF
+; $4C
+    equb "PAUSED",&FF,&FF
+; $54
+    equb "LAPS OVER",&FF,&FF,&FF,&FF,&FF,&FF,&FF
+; $64
+    equb "KEY DEF 64",&FF,&FF,&FF,&FF,&FF,&FF
+; $74
+    equb "KEY DEF 74",&FF,&FF,&FF,&FF,&FF,&FF
+; $84
+    equb "KEY DEF 84",&FF,&FF,&FF,&FF,&FF,&FF
+; $94
+    equb "KEY DEF 94",&FF,&FF,&FF,&FF,&FF,&FF
+; $A4
+    equb "KEY DEF A4",&FF,&FF,&FF,&FF,&FF,&FF
+; $B4
+    equb "KEY DEF B4",&FF,&FF,&FF,&FF,&FF,&FF
+; $C4
+    equb "KEY DEF C4",&FF,&FF,&FF,&FF,&FF,&FF
+; $D4
+    equb "KEY DEF D4",&FF,&FF,&FF,&FF,&FF,&FF
+
+ASCII_MAPCHAR
+
 .beeb_code_end

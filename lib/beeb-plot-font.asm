@@ -99,7 +99,13 @@ ENDIF
     LDA (IMAGE), Y
 ;    STA WIDTH          ; get WIDTH but don't store it
 
+    CLC
+    ADC #1              ; temp fix for odd byte glyphs
+
     ASL A:ASL A         ; just x4 as POP sprites stored as #MODE2 bytes for <reasons>
+
+    AND #&F8              ; temp fix for odd byte glyphs
+
     STA smYMAX1+1
     STA smYMAX3+1
     
@@ -257,51 +263,5 @@ ENDIF
   ADC #1
   JMP BEEB_PLOT_FONT_GLYPH
 }
-
-IF 0
-SMALL_FONT_MAPCHAR
-.string1
-EQUB "This is a call", &FF
-.string2
-EQUB "TO ALL MY PAST", &FF
-.string3
-EQUB "RESIGNATIONS!!", &FF
-.string4
-EQUB "..HELLO WORLD..", &FF
-ASCII_MAPCHAR
-
-.test_font
-{
-  LDA #LO(string1):STA beeb_readptr
-  LDA #HI(string1):STA beeb_readptr+1;
-  LDX #0
-  LDY #0
-  LDA #PAL_BRW
-  JSR beeb_plot_font_string
-
-  LDA #LO(string2):STA beeb_readptr
-  LDA #HI(string2):STA beeb_readptr+1
-  LDX #10
-  LDY #2
-  LDA #PAL_BMW
-  JSR beeb_plot_font_string
-
-  LDA #LO(string3):STA beeb_readptr
-  LDA #HI(string3):STA beeb_readptr+1
-  LDX #40
-  LDY #4
-  LDA #PAL_RYW
-  JSR beeb_plot_font_string
-
-  LDA #LO(string4):STA beeb_readptr
-  LDA #HI(string4):STA beeb_readptr+1
-  LDX #15
-  LDY #24
-  LDA #PAL_RCW
-  JSR beeb_plot_font_string
- 
-  RTS
-}
-ENDIF
 
 .beeb_plot_font_end
