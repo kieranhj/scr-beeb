@@ -1,77 +1,5 @@
 #!/usr/bin/python
-import png,argparse,sys,math
-
-##########################################################################
-##########################################################################
-
-gamma=2.2
-
-bbc_colours=[(255 if (i&1)!=0 else 0,
-              255 if (i&2)!=0 else 0,
-              255 if (i&4)!=0 else 0) for i in range(8)]
-
-def find_closest_bbc_colour(p):
-    assert p[0]>=0 and p[0]<=255
-    assert p[1]>=0 and p[1]<=255
-    assert p[2]>=0 and p[2]<=255
-    
-    p=[int(math.pow(p[0]/255.0,gamma)*255),
-       int(math.pow(p[1]/255.0,gamma)*255),
-       int(math.pow(p[2]/255.0,gamma)*255)]
-
-    best=None
-    best_dist_sq=None
-    
-    for bbc_colour in bbc_colours:
-        dr=p[0]-bbc_colour[0]
-        dg=p[1]-bbc_colour[1]
-        db=p[2]-bbc_colour[2]
-        dist_sq=dr*dr+dg*dg+db*db
-
-        if best_dist_sq is None or dist_sq<best_dist_sq:
-            best_dist_sq=dist_sq
-            best=bbc_colour
-
-    return best
-
-def pack_4bpp(pixels):
-    assert len(pixels)==2,pixels
-    for i in range(2): assert pixels[i]>=0 and pixels[i]<=15
-
-    return ((pixels[0]>>3&1)<<7|
-            (pixels[1]>>3&1)<<6|
-            (pixels[0]>>2&1)<<5|
-            (pixels[1]>>2&1)<<4|
-            (pixels[0]>>1&1)<<3|
-            (pixels[1]>>1&1)<<2|
-            (pixels[0]>>0&1)<<1|
-            (pixels[1]>>0&1)<<1)
-
-def pack_2bpp(pixels):
-    assert len(pixels)==4,pixels
-    for i in range(4): assert pixels[i]>=0 and pixels[i]<=3
-
-    return ((pixels[0]>>1&1)<<7|
-            (pixels[1]>>1&1)<<6|
-            (pixels[2]>>1&1)<<5|
-            (pixels[3]>>1&1)<<4|
-            (pixels[0]>>0&1)<<3|
-            (pixels[1]>>0&1)<<2|
-            (pixels[2]>>0&1)<<1|
-            (pixels[3]>>0&1)<<0)
-
-def pack_1bpp(pixels):
-    assert len(pixels)==8,pixels
-    for i in range(8): assert pixels[i]==0 or pixels[i]==1
-
-    return (pixels[0]<<7|
-            pixels[1]<<6|
-            pixels[2]<<5|
-            pixels[3]<<4|
-            pixels[4]<<3|
-            pixels[5]<<2|
-            pixels[6]<<1|
-            pixels[7]<<0)
+import png,argparse,sys,math,bbc
 
 ##########################################################################
 ##########################################################################
@@ -170,11 +98,11 @@ def main(options):
                 # opaque pixel
                 for i in range(3):
                     if p[i]!=0 and p[i]!=255:
-                        p=find_closest_bbc_colour(p)
+                        p=bbc.find_closest_rgb(p)
                         print>>sys.stderr,'WARNING: non-BBC Micro colour %s at (%d,%d) - using %s'%(png_pixels[y][x],x,y,p)
                         break
 
-                pidx=bbc_colours.index((p[0],p[1],p[2]))
+                pidx=bbc.rgbs.index((p[0],p[1],p[2]))
                 try:
                     lidx=palette.index(pidx)
                 except ValueError:
@@ -187,7 +115,7 @@ def main(options):
     for y in range(0,len(bbc_lidxs),8):
         for x in range(0,len(bbc_lidxs[y]),4):
             for line in range(8):
-                data.append(pack_2bpp(bbc_lidxs[y+line][x+0:x+4]))
+                data.append(bbc.pack_2bpp(bbc_lidxs[y+line][x+0:x+4]))
 
     print '%d bytes BBC data'%len(data)
 
