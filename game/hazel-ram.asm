@@ -229,11 +229,7 @@
 .L_C540	skip &40
 .L_C580	skip &40
 .L_C5C0	skip &40
-.L_C600	skip 1
-.L_C601	skip 1
-.L_C602	skip 1
-.L_C603	skip &3C
-.L_C63F	skip 1
+.L_C600	skip &40
 .L_C640	skip &40
 .L_C680	skip &40
 .L_C6C0	skip &40	; stash $B bytes from $DAB6

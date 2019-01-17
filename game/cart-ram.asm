@@ -1123,31 +1123,31 @@ ENDIF
 .update_horizon_chars			; in Cart
 {
 		ldx #$40		;8AA5 A2 40
-.L_8AA7	lda L_C600,X	;8AA7 BD 00 C6
+.L_8AA7		lda L_C600,X	;8AA7 BD 00 C6
 		sta ZP_13		;8AAA 85 13
 		tay				;8AAC A8
-		lda L_C601,X	;8AAD BD 01 C6
+		lda L_C600+1,X	;8AAD BD 01 C6
 		sta ZP_14		;8AB0 85 14
 		cpy ZP_14		;8AB2 C4 14
 		bcs L_8AB7		;8AB4 B0 01
 		tay				;8AB6 A8
-.L_8AB7	lda L_C602,X	;8AB7 BD 02 C6
+.L_8AB7		lda L_C600+2,X	;8AB7 BD 02 C6
 		sta ZP_15		;8ABA 85 15
 		cpy ZP_15		;8ABC C4 15
 		bcs L_8AC1		;8ABE B0 01
 		tay				;8AC0 A8
-.L_8AC1	lda L_C603,X	;8AC1 BD 03 C6
+.L_8AC1		lda L_C600+3,X	;8AC1 BD 03 C6
 		sta ZP_16		;8AC4 85 16
 		cpy ZP_16		;8AC6 C4 16
 		bcs L_8ACB		;8AC8 B0 01
 		tay				;8ACA A8
-.L_8ACB	cpy #$40		;8ACB C0 40
+.L_8ACB		cpy #$40		;8ACB C0 40
 		bcc L_8B4A		;8ACD 90 7B
 		cpy #$C0		;8ACF C0 C0
 		bcc L_8AD6		;8AD1 90 03
 		ldy #$C0		;8AD3 A0 C0
 		dey				;8AD5 88
-.L_8AD6	txa				;8AD6 8A
+.L_8AD6		txa				;8AD6 8A
 		sec				;8AD7 38
 		sbc #$40		;8AD8 E9 40
 		and #$7C		;8ADA 29 7C
@@ -1465,21 +1465,21 @@ ENDIF
 		lsr ZP_6D		;8D15 46 6D
 		ldx ZP_41		;8D17 A6 41
 .L_8D19	stx ZP_51		;8D19 86 51
-		lda L_C600,X	;8D1B BD 00 C6
-		cmp L_C601,X	;8D1E DD 01 C6
+		lda L_C600+0,X	;8D1B BD 00 C6
+		cmp L_C600+1,X	;8D1E DD 01 C6
 		bcs L_8D26		;8D21 B0 03
-		lda L_C601,X	;8D23 BD 01 C6
-.L_8D26	cmp L_C602,X	;8D26 DD 02 C6
+		lda L_C600+1,X	;8D23 BD 01 C6
+.L_8D26		cmp L_C600+2,X	;8D26 DD 02 C6
 		bcs L_8D2E		;8D29 B0 03
-		lda L_C602,X	;8D2B BD 02 C6
-.L_8D2E	cmp L_C603,X	;8D2E DD 03 C6
+		lda L_C600+2,X	;8D2B BD 02 C6
+.L_8D2E		cmp L_C600+3,X	;8D2E DD 03 C6
 		bcs L_8D36		;8D31 B0 03
-		lda L_C603,X	;8D33 BD 03 C6
-.L_8D36	sta ZP_50		;8D36 85 50
+		lda L_C600+3,X	;8D33 BD 03 C6
+.L_8D36		sta ZP_50		;8D36 85 50
 		cmp #$41		;8D38 C9 41
 		bcs L_8D3F		;8D3A B0 03
 		jmp L_8DE8		;8D3C 4C E8 8D
-.L_8D3F	jsr L_8DF6		;8D3F 20 F6 8D
+.L_8D3F		jsr L_8DF6		;8D3F 20 F6 8D
 		ldy ZP_50		;8D42 A4 50
 		txa				;8D44 8A
 		sec				;8D45 38
@@ -1496,16 +1496,16 @@ ENDIF
 		sta ZP_29		;8D5C 85 29
 		bne L_8D82		;8D5E D0 22
 		lda L_0240,X	;8D60 BD 40 02
-		cmp L_C600,X	;8D63 DD 00 C6
+		cmp L_C600+0,X	;8D63 DD 00 C6
 		bcc L_8D80		;8D66 90 18
 		lda L_0241,X	;8D68 BD 41 02
-		cmp L_C601,X	;8D6B DD 01 C6
+		cmp L_C600+1,X	;8D6B DD 01 C6
 		bcc L_8D80		;8D6E 90 10
 		lda L_0242,X	;8D70 BD 42 02
-		cmp L_C602,X	;8D73 DD 02 C6
+		cmp L_C600+0,X	;8D73 DD 02 C6
 		bcc L_8D80		;8D76 90 08
 		lda L_0243,X	;8D78 BD 43 02
-		cmp L_C603,X	;8D7B DD 03 C6
+		cmp L_C600+0,X	;8D7B DD 03 C6
 		bcs L_8DE3		;8D7E B0 63
 .L_8D80	lda #$00		;8D80 A9 00
 .L_8D82	tax				;8D82 AA
@@ -1584,34 +1584,34 @@ ENDIF
 		sta L_C400,Y	;8E0F 99 00 C4
 .L_8E12	ldy L_0241,X	;8E12 BC 41 02
 		tya				;8E15 98
-		cmp L_C601,X	;8E16 DD 01 C6
+		cmp L_C600+1,X	;8E16 DD 01 C6
 		bcs L_8E2E		;8E19 B0 13
 		lda L_C3FF,Y	;8E1B B9 FF C3
 		eor #$04		;8E1E 49 04
 		sta L_C3FF,Y	;8E20 99 FF C3
-		ldy L_C601,X	;8E23 BC 01 C6
+		ldy L_C600+1,X	;8E23 BC 01 C6
 		lda L_C400,Y	;8E26 B9 00 C4
 		eor #$04		;8E29 49 04
 		sta L_C400,Y	;8E2B 99 00 C4
 .L_8E2E	ldy L_0242,X	;8E2E BC 42 02
 		tya				;8E31 98
-		cmp L_C602,X	;8E32 DD 02 C6
+		cmp L_C600+2,X	;8E32 DD 02 C6
 		bcs L_8E4A		;8E35 B0 13
 		lda L_C3FF,Y	;8E37 B9 FF C3
 		eor #$02		;8E3A 49 02
 		sta L_C3FF,Y	;8E3C 99 FF C3
-		ldy L_C602,X	;8E3F BC 02 C6
+		ldy L_C600+3,X	;8E3F BC 02 C6
 		lda L_C400,Y	;8E42 B9 00 C4
 		eor #$02		;8E45 49 02
 		sta L_C400,Y	;8E47 99 00 C4
 .L_8E4A	ldy L_0243,X	;8E4A BC 43 02
 		tya				;8E4D 98
-		cmp L_C603,X	;8E4E DD 03 C6
+		cmp L_C600+3,X	;8E4E DD 03 C6
 		bcs L_8E66		;8E51 B0 13
 		lda L_C3FF,Y	;8E53 B9 FF C3
 		eor #$01		;8E56 49 01
 		sta L_C3FF,Y	;8E58 99 FF C3
-		ldy L_C603,X	;8E5B BC 03 C6
+		ldy L_C600+4,X	;8E5B BC 03 C6
 		lda L_C400,Y	;8E5E B9 00 C4
 		eor #$01		;8E61 49 01
 		sta L_C400,Y	;8E63 99 00 C4
@@ -1855,7 +1855,7 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		bit L_8F81		;902A 2C 81 8F
 		bpl L_9056		;902D 10 27
 		ldx #$17		;902F A2 17
-.L_9031	lda L_C200,X	;9031 BD 00 C2
+.L_9031		lda L_C200,X	;9031 BD 00 C2
 		sta L_55A0,X	;9034 9D A0 55
 		lda L_C218,X	;9037 BD 18 C2
 		sta L_5608,X	;903A 9D 08 56
@@ -6009,9 +6009,9 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 {
 		ldy #$40		;2A5C A0 40
 		sty ZP_08		;2A5E 84 08
-.L_2A60	lda L_C640,Y	;2A60 B9 40 C6
+.L_2A60		lda L_C640,Y	;2A60 B9 40 C6
 		sec				;2A63 38
-		sbc L_C63F,Y	;2A64 F9 3F C6
+		sbc L_C640-1,Y	;2A64 F9 3F C6
 		sta ZP_14		;2A67 85 14
 		bpl L_2A70		;2A69 10 05
 		eor #$FF		;2A6B 49 FF
