@@ -7,6 +7,8 @@ build:
 
 	python bin/png2bbc.py -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
 
+	python bin/flames.py > build/flames-tables.asm
+
 	beebasm -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
 	python bin/crc32.py scr-beeb.ssd
 

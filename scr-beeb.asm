@@ -26,6 +26,7 @@ DEFAULT_TRACK_DRAW_DISTANCE = $02		; $06 for longer draw
 BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
+BEEB_GRAPHICS_SLOT = 6
 
 BEEB_PIXELS_COLOUR1 = &0F	; C64=$55
 BEEB_PIXELS_COLOUR2 = &F0	; C64=$AA
@@ -856,6 +857,13 @@ GUARD .disksys_loadto_addr
 	LDA #HI(kernel_start)
 	JSR disksys_load_file
 
+	SWR_SELECT_SLOT BEEB_GRAPHICS_SLOT
+	
+	ldx #lo(beeb_graphics_filename)
+	ldy #hi(beeb_graphics_filename)
+	lda #hi(beeb_graphics_start)
+	jsr disksys_load_file
+
 	\\ HAZEL must be last as stomping on FS workspace
 
 	LDX #LO(hazel_filename)
@@ -900,6 +908,8 @@ GUARD .disksys_loadto_addr
 
 	; Save off original top of HUD.
 {
+		SWR_SELECT_SLOT BEEB_KERNEL_SLOT
+	
 		ldx #0
 .save_top_of_hud_loop
 		lda L_6028,x
@@ -1218,6 +1228,7 @@ equb BEEB_CART_SLOT
 .core_filename EQUS "Core", 13
 .kernel_filename EQUS "Kernel", 13
 .cart_filename EQUS "Cart", 13
+.beeb_graphics_filename EQUS "Beebgfx",13
 .hazel_filename EQUS "Hazel", 13
 .data_filename EQUS "Data", 13
 
@@ -1413,6 +1424,23 @@ PRINT "Size =", ~(cart_end - cart_start)
 PRINT "Free =", ~(&C000 - cart_end)
 PRINT "--------"
 SAVE "Cart", cart_start, cart_end, 0
+PRINT "--------"
+
+CLEAR &8000,&C000
+ORG &8000
+GUARD &C000
+
+include "game/beeb-graphics.asm"
+
+PRINT "--------"
+PRINT "Beeb graphics RAM"
+PRINT "--------"
+PRINT "Start =", ~beeb_graphics_start
+PRINT "End =", ~beeb_graphics_end
+PRINT "Size =", ~(beeb_graphics_end - beeb_graphics_start)
+PRINT "Free =", ~(&C000 - beeb_graphics_end)
+PRINT "--------"
+SAVE "Beebgfx", beeb_graphics_start, beeb_graphics_end, 0
 PRINT "--------"
 
 ; *****************************************************************************

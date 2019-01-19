@@ -50,93 +50,68 @@ def main(options):
 
             palette.append(int(options.palette[i]))
 
-    png_result=png.Reader(filename=options.input_path).asRGBA()
-    
-    png_width=png_result[0]
-    png_height=png_result[1]
+    image=bbc.load_png(options.input_path,
+                       options.mode,
+                       options._160,
+                       -1 if options.transparent_output else None,
+                       options.transparent_rgb)
 
-    if png_height%4!=0:
+    if len(image[0])%4!=0:
         print>>sys.stderr,'FATAL: image height must be a multiple of 4'
         sys.exit(1)
         
-    if png_height%8!=0:
+    if len(image)%8!=0:
         print>>sys.stderr,'FATAL: image height must be a multiple of 8'
         sys.exit(1)
 
-    # Replace the png library business with tuples.
-    png_pixels=[]
-    for src_row in png_result[2]:
-        png_pixels.append([])
-        for i in range(0,len(src_row),4):
-            png_pixels[-1].append((src_row[i+0],
-                                   src_row[i+1],
-                                   src_row[i+2],
-                                   src_row[i+3]))
-
-    # Halve width, if necessary.
-    if options._160:
-        good=True
-        for y in range(len(png_pixels)):
-            row=[]
-            for x in range(0,len(png_pixels[y]),2):
-                if png_pixels[y][x+0]!=png_pixels[y][x+1]:
-                    print>>sys.stderr,'FATAL: pixel at (%d,%d) is different from pixel at (%d,%d)'%(x+0,y,x+1,y)
-                    good=False
-
-                row.append(png_pixels[y][x+0])
-
-            png_pixels[y]=row
-
-        if not good: sys.exit(1)
+    # print '%d x %d'%(len(image[0]),len(image))
 
     # Convert into BBC physical indexes: 0-7, and -1 for transparent
     # (going by the alpha channel value).
     bbc_lidxs=[]
     bbc_mask=[]
-    for y in range(len(png_pixels)):
+    for y in range(len(image)):
         bbc_lidxs.append([])
         bbc_mask.append([])
-        for x in range(len(png_pixels[y])):
-            p=png_pixels[y][x]
-            lidx=None
-            transparent=False
-
-            if p[3]<128 or (options.transparent_rgb is not None and
-                            p[0]==options.transparent_rgb[0] and
-                            p[1]==options.transparent_rgb[1] and
-                            p[2]==options.transparent_rgb[2]):
-                # transparent pixel
-                if options.transparent_output is None:
-                    print>>sys.stderr,'FATAL: transparent pixel at (%d,%d): %s'%(x,y,p)
-                    sys.exit(1)
-
-                lidx=options.transparent_output
-                transparent=True
+        for x in range(len(image[y])):
+            if image[y][x]==-1:
+                bbc_lidxs[-1].append(options.transparent_output)
+                bbc_mask[-1].append(len(palette)-1)
             else:
-                # opaque pixel
-                for i in range(3):
-                    if p[i]!=0 and p[i]!=255:
-                        p=bbc.find_closest_rgb(p)
-                        print>>sys.stderr,'WARNING: non-BBC Micro colour %s at (%d,%d) - using %s'%(png_pixels[y][x],x,y,p)
-                        break
-
-                pidx=bbc.rgbs.index((p[0],p[1],p[2]))
                 try:
-                    lidx=palette.index(pidx)
+                    bbc_lidxs[-1].append(palette.index(image[y][x]))
                 except ValueError:
-                    print>>sys.stderr,'FATAL: (%d,%d): colour %d not in BBC palette'%(x,y,pidx)
+                    print>>sys.stderr,'FATAL: (%d,%d): colour %d not in BBC palette'%(x,y,image[y][x])
                     sys.exit(1)
-                        
-            bbc_lidxs[-1].append(lidx)
-            bbc_mask[-1].append(len(palette)-1 if transparent else 0)
-            
+
+                bbc_mask[-1].append(0)
+
+        assert len(bbc_lidxs[-1])==len(image[y])
+        assert len(bbc_mask[-1])==len(image[y])
+
+    assert len(bbc_lidxs)==len(image)
+    assert len(bbc_mask)==len(image)
+    for y in range(len(image)):
+        assert len(bbc_lidxs[y])==len(image[y])
+        assert y==0 or len(bbc_lidxs[y])==len(bbc_lidxs[y-1])
+        assert len(bbc_mask[y])==len(image[y])
+
     pixel_data=[]
     mask_data=[]
+    assert len(bbc_lidxs)==len(bbc_mask)
     for y in range(0,len(bbc_lidxs),8):
         for x in range(0,len(bbc_lidxs[y]),4):
+            assert len(bbc_lidxs[y])==len(bbc_mask[y])
             for line in range(8):
-                pixel_data.append(bbc.pack_2bpp(bbc_lidxs[y+line][x+0:x+4]))
-                mask_data.append(bbc.pack_2bpp(bbc_mask[y+line][x+0:x+4]))
+                assert y+line<len(bbc_lidxs)
+                assert x<len(bbc_lidxs[y+line]),(x,len(bbc_lidxs[y+line]),y,line)
+                xs=bbc_lidxs[y+line][x+0:x+4]
+                assert len(xs)==4,(x,y,line)
+                pixel_data.append(bbc.pack_2bpp(xs))
+
+                xs=bbc_mask[y+line][x+0:x+4]
+                assert len(xs)==4,(x,y,line)
+                mask_data.append(bbc.pack_2bpp(xs))
 
     # print '%d bytes BBC data'%len(data)
 
