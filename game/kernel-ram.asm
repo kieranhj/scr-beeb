@@ -6816,15 +6816,12 @@ L_EBDD	= L_EBE7 - $A			;!
 		rts				;F667 60
 }
 
-.L_F668
-		ldx #$10		;F668 A2 10
+.L_F668 ldx #$10		;F668 A2 10
 		jsr L_F67E		;F66A 20 7E F6
 		ldx #$18		;F66D A2 18
 .L_F66F	lda #$3F		;F66F A9 3F
 		bne L_F680		;F671 D0 0D
-\\
-.L_F673
-		ldx #$30		;F673 A2 30
+.L_F673 ldx #$30		;F673 A2 30
 		jsr L_F67E		;F675 20 7E F6
 		ldx #$38		;F678 A2 38
 		bne L_F66F		;F67A D0 F3
@@ -6837,9 +6834,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda #$10		;F688 A9 10
 .L_F68A	sta ZP_14		;F68A 85 14
 		sty ZP_15		;F68C 84 15
-.L_F68E	lda L_6028,Y	;F68E B9 28 60
-		and ZP_16		;F691 25 16
-		ora L_80C8,X	;F693 1D C8 80
+.L_F68E	lda original_top_of_hud_data,Y
 		sta L_6028,Y	;F696 99 28 60
 		iny				;F699 C8
 		inx				;F69A E8
@@ -8162,5 +8157,11 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sty L_0400		;FFF0 8C 00 04
 		rts				;FFF3 60
 }
+
+; A copy of the original, undamaged HUD. Copied from the original HUD
+; data during load, and copied back to the screen at the start of each
+; game.
+.original_top_of_hud_data
+skip $f0
 
 .kernel_end

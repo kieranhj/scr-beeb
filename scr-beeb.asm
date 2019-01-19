@@ -770,7 +770,7 @@ PRINT "--------"
 PRINT "Start =", ~core_start
 PRINT "End =", ~P%
 PRINT "Size =", ~(P% - core_start)
-PRINT "Free =", ~(&4000 - P%)
+PRINT "Free =", ~(boot_start - P%)
 PRINT "DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
 PRINT "Core Data Size =", ~(core_data_end - core_data_start)
 PRINT "--------"
@@ -897,6 +897,17 @@ GUARD .disksys_loadto_addr
 	jsr convert_c64_pixels
 
 	\\ FS is now unusable as HAZEL has been trashed
+
+	; Save off original top of HUD.
+{
+		ldx #0
+.save_top_of_hud_loop
+		lda L_6028,x
+		sta original_top_of_hud_data,x
+		inx
+		cpx #$f0
+		bne save_top_of_hud_loop
+}
 
 	; C64 init at L_400F
 	; Set up VIC etc.
