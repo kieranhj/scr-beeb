@@ -15,7 +15,6 @@ INCLUDE "lib/bbc.h.asm"
 disksys_loadto_addr = $4300     ; SCR only (TEMP)
 
 MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
-print ~MAX_LOADABLE_ROM_SIZE
 
 _TODO = FALSE
 _NOT_BEEB = FALSE
@@ -768,12 +767,12 @@ INCLUDE "game/core-data.asm"
 PRINT "--------"
 PRINT "CORE RAM"
 PRINT "--------"
-PRINT "Start =", ~core_start
-PRINT "End =", ~P%
-PRINT "Size =", ~(P% - core_start)
-PRINT "Free =", ~(boot_start - P%)
-PRINT "DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
-PRINT "Core Data Size =", ~(core_data_end - core_data_start)
+PRINT "  Start =", ~core_start
+PRINT "  End =", ~P%
+PRINT "  Size =", ~(P% - core_start)
+PRINT "  Free =", ~(boot_start - P%)
+PRINT "  DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
+PRINT "  Core Data Size =", ~(core_data_end - core_data_start)
 PRINT "--------"
 SAVE "Core", core_start, P%, 0
 PRINT "--------"
@@ -1243,10 +1242,10 @@ INCLUDE "lib/disksys.asm"
 PRINT "---------"
 PRINT "BOOT CODE"
 PRINT "---------"
-PRINT "Start =", ~boot_start
-PRINT "End =", ~boot_end
-PRINT "Size =", ~(boot_end - boot_start)
-PRINT "Entry =", ~scr_entry
+PRINT "  Start =", ~boot_start
+PRINT "  End =", ~boot_end
+PRINT "  Size =", ~(boot_end - boot_start)
+PRINT "  Entry =", ~scr_entry
 PRINT "--------"
 SAVE "Loader", boot_start, boot_end, scr_entry
 PRINT "--------"
@@ -1380,9 +1379,9 @@ INCLUDE "game/boot-data.asm"
 PRINT "---------"
 PRINT "BOOT DATA"
 PRINT "---------"
-PRINT "Start =", ~boot_data_start
-PRINT "End =", ~boot_data_end
-PRINT "Size =", ~(boot_data_end - boot_data_start)
+PRINT "  Start =", ~boot_data_start
+PRINT "  End =", ~boot_data_end
+PRINT "  Size =", ~(boot_data_end - boot_data_start)
 PRINT "--------"
 SAVE "Data", boot_data_start, boot_data_end, 0
 PRINT "--------"
@@ -1418,10 +1417,10 @@ INCLUDE "game/cart-ram.asm"
 PRINT "--------"
 PRINT "CART RAM"
 PRINT "--------"
-PRINT "Start =", ~cart_start
-PRINT "End =", ~cart_end
-PRINT "Size =", ~(cart_end - cart_start)
-PRINT "Free =", ~(&C000 - cart_end)
+PRINT "  Start =", ~cart_start
+PRINT "  End =", ~cart_end
+PRINT "  Size =", ~(cart_end - cart_start)
+PRINT "  Free =", ~(&C000 - cart_end)
 PRINT "--------"
 SAVE "Cart", cart_start, cart_end, 0
 PRINT "--------"
@@ -1435,10 +1434,10 @@ include "game/beeb-graphics.asm"
 PRINT "--------"
 PRINT "Beeb graphics RAM"
 PRINT "--------"
-PRINT "Start =", ~beeb_graphics_start
-PRINT "End =", ~beeb_graphics_end
-PRINT "Size =", ~(beeb_graphics_end - beeb_graphics_start)
-PRINT "Free =", ~(&C000 - beeb_graphics_end)
+PRINT "  Start =", ~beeb_graphics_start
+PRINT "  End =", ~beeb_graphics_end
+PRINT "  Size =", ~(beeb_graphics_end - beeb_graphics_start)
+PRINT "  Free =", ~(&C000 - beeb_graphics_end)
 PRINT "--------"
 SAVE "Beebgfx", beeb_graphics_start, beeb_graphics_end, 0
 PRINT "--------"
@@ -1467,10 +1466,10 @@ INCLUDE "game/hazel-ram.asm"
 PRINT "---------"
 PRINT "HAZEL RAM"
 PRINT "---------"
-PRINT "Start =", ~hazel_start
-PRINT "End =", ~hazel_end
-PRINT "Size =", ~(hazel_end - hazel_start)
-PRINT "Free =", ~(&E000 - hazel_end)
+PRINT "  Start =", ~hazel_start
+PRINT "  End =", ~hazel_end
+PRINT "  Size =", ~(hazel_end - hazel_start)
+PRINT "  Free =", ~(&E000 - hazel_end)
 ; print "data_start =",~boot_data_start
 ; print "end of HAZEL data when loaded =", ~(disksys_loadto_addr+(hazel_end-hazel_start))
 PRINT "--------"
@@ -1511,10 +1510,10 @@ INCLUDE "game/kernel-ram.asm"
 PRINT "-----------"
 PRINT "KERNEL RAM"
 PRINT "-----------"
-PRINT "Start =", ~kernel_start
-PRINT "End =", ~kernel_end
-PRINT "Size =", ~(kernel_end - kernel_start)
-PRINT "Free =", ~(&C000 - kernel_end)
+PRINT "  Start =", ~kernel_start
+PRINT "  End =", ~kernel_end
+PRINT "  Size =", ~(kernel_end - kernel_start)
+PRINT "  Free =", ~(&C000 - kernel_end)
 PRINT "-------"
 SAVE "Kernel", kernel_start, kernel_end, 0
 PRINT "-------"

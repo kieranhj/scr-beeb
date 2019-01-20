@@ -10,6 +10,9 @@ build:
 	python bin/flames.py > build/flames-tables.asm
 
 	beebasm -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
+
+	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'align lost' | grep -vi 'safe to load to' | grep -Evi '^-+'
+
 	python bin/crc32.py scr-beeb.ssd
 
 ##########################################################################
