@@ -1,8 +1,48 @@
 .beeb_graphics_start
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 include "build/flames-tables.asm"
 
-.draw_flames
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._graphics_erase_flames
+{
+clc
+lda ZP_12
+adc #HI(flames_initial_erase_addr)
+sta erase_write+2
+
+ldy #LO(flames_initial_erase_addr)
+ldx #0
+
+.erase_loop
+
+.erase_read:lda flames_erase_values,x
+.erase_write:sta $ff00,y
+
+tya
+adc flames_erase_deltas,x
+tay
+bcc erase_noc
+inc erase_write+2
+clc
+.erase_noc
+
+inx
+
+cpx #flames_erase_writes_size
+bne erase_loop
+
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._graphics_draw_flames
 {
 asl A:tax
 
@@ -19,10 +59,11 @@ lda masked_values_tables+1,x:sta masked_value+2
 
 clc
 lda ZP_12
-adc #HI(initial_unmasked_write_offset)
+adc #HI(flames_initial_unmasked_write_addr)
 sta unmasked_write+2
 
-ldy #LO(initial_unmasked_write_offset)
+ldy #LO(flames_initial_unmasked_write_addr)
+ldx #0
 
 .unmasked_loop
 
@@ -30,7 +71,8 @@ ldy #LO(initial_unmasked_write_offset)
 .unmasked_write:sta $ff00,y
 
 tya
-adc unmasked_deltas,x
+adc flames_unmasked_deltas,x
+tay
 bcc unmasked_noc
 inc unmasked_write+2
 clc
@@ -38,18 +80,19 @@ clc
 
 inx
 
-cpx #unmasked_writes_size
+cpx #flames_unmasked_writes_size
 bne unmasked_loop
 
 ; masked
 
 clc
 lda ZP_12
-adc #HI(initial_masked_write_offset)
+adc #HI(flames_initial_masked_write_addr)
 sta masked_read+2
 sta masked_write+2
 
-ldy #LO(initial_masked_write_offset)
+ldy #LO(flames_initial_masked_write_addr)
+ldx #0
 
 .masked_loop
 
@@ -59,7 +102,8 @@ ldy #LO(initial_masked_write_offset)
 .masked_write:sta $ff00,y
 
 tya
-adc masked_deltas,x
+adc flames_masked_deltas,x
+tay
 bcc masked_noc
 inc masked_read+2
 inc masked_write+2
@@ -68,25 +112,28 @@ clc
 
 inx
 
-cpx #masked_writes_size
+cpx #flames_masked_writes_size
 bne masked_loop
 
 rts
 
 .unmasked_tables
-equw unmasked_flame_table_0
-equw unmasked_flame_table_1
-equw unmasked_flame_table_2
+equw flames_unmasked_values_0
+equw flames_unmasked_values_1
+equw flames_unmasked_values_2
 
 .masked_values_tables
-equw masked_flame_value_table_0
-equw masked_flame_value_table_1
-equw masked_flame_value_table_2
+equw flames_masked_values_0
+equw flames_masked_values_1
+equw flames_masked_values_2
 
 .masked_masks_tables
-equw masked_flame_mask_table_0
-equw masked_flame_mask_table_1
-equw masked_flame_mask_table_2
+equw flames_masked_masks_0
+equw flames_masked_masks_1
+equw flames_masked_masks_2
 }
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .beeb_graphics_end

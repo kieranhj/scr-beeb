@@ -641,24 +641,38 @@ ENDIF
 ; A=$45 ->	clear screen
 ; A=$46 ->	update colour map
 ; A=$47
-; A=$48 ->      fill in-game sky
+; A=$48 ->  fill in-game sky
+; A=$49 ->	draw animated flames
+; A=$4A ->	erase flames
 ; A=$55 ->	fill scanlines (A=value, YX=ptr, byte_52=count)
 ; A=$81 ->	poll for key X (like OSBYTE $81)
 
 .sysctl		; HAS DLL
 {
 		cmp #$3C		;8725 C9 3C
-		beq L_87A0		;8727 F0 77
+		bne not_3C
+		jmp move_draw_bridgeQ
+.not_3C
 		cmp #$3D		;8729 C9 3D
-		beq L_87A3		;872B F0 76
+		bne not_3D
+		jmp L_87A3
+.not_3D
 		cmp #$3E		;872D C9 3E
-		beq L_87A6		;872F F0 75
+		bne not_3E
+		jmp L_87A6
+.not_3E
 		cmp #$3F		;8731 C9 3F
-		beq L_87A9		;8733 F0 74
+		bne not_3F
+		jmp L_87A9
+.not_3F
 		cmp #$40		;8735 C9 40
-		beq L_87AC		;8737 F0 73
+		bne not_40
+		jmp L_87AC
+.not_40
 		cmp #$41		;8739 C9 41
-		beq L_87AF		;873B F0 72
+		bne not_41
+		jmp L_87AF
+.not_41
 		cmp #$42		;873D C9 42
 		beq L_87B2		;873F F0 71
 		cmp #$43		;8741 C9 43
@@ -686,13 +700,19 @@ ENDIF
 		cmp #$15		;876D C9 15
 		beq silence_channel		;876F F0 A5
 		cmp #$32		;8771 C9 32
-		beq sysctl_copy_menu_header_graphic		;8773 F0 4F
+		bne not_32
+		jmp sysctl_copy_menu_header_graphic		;8773 F0 4F
+.not_32
 		cmp #$55		;8775 C9 55
 		beq sysctl_fill_55_thunk;8777 F0 21
 		cmp #$34		;8779 C9 34
 		beq L_879D		;877B F0 20
 		cmp #$48
 		beq fill_in_game_sky_thunk
+		cmp #$49
+		beq draw_flames_thunk
+		cmp #$4a
+		beq erase_flames_thunk
 		rts				;877D 60
 
 .L_877E	jmp poll_key		;877E 4C D2 85
@@ -715,7 +735,6 @@ ENDIF
 
 .sysctl_fill_55_thunk lda #BEEB_PIXELS_COLOUR1:jmp fill_64s
 .L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
-.L_87A0	jmp move_draw_bridgeQ		;87A0 4C 4A 89
 .L_87A3	jmp draw_horizonQ		;87A3 4C 2F 8A
 .L_87A6	jmp update_horizon_chars		;87A6 4C A5 8A
 .L_87A9	jmp draw_crane		;87A9 4C 51 8B
@@ -728,6 +747,46 @@ ENDIF
 .L_87BE	jmp update_colour_map		;87BE 4C 57 90
 .L_87C1	jmp sysctl_47		;87C1 4C BB 90
 .fill_in_game_sky_thunk jmp fill_in_game_sky
+.draw_flames_thunk jmp sysctl_draw_flames
+.erase_flames_thunk jmp sysctl_erase_flames
+}
+
+
+; Temporary (?) hack, until I figure out where the C64 gets this info
+; from...
+.flames_frame:equb 0
+.flames_visible:equb 0,0
+
+.sysctl_erase_flames
+{
+{ldx ZP_12:beq k:ldx #1:.k}
+lda flames_visible,x
+beq done
+lda #0
+sta flames_visible,x
+jsr graphics_erase_flames
+.done
+rts
+}
+
+.sysctl_draw_flames
+{
+lda flames_frame
+jsr graphics_draw_flames
+
+ldx flames_frame
+inx
+cpx #3
+bne done
+ldx #0
+.done
+stx flames_frame
+
+{ldx ZP_12:beq k:ldx #1:.k}
+lda #1:sta flames_visible,x
+
+rts
+
 }
 
 .sysctl_copy_menu_header_graphic		; in Cart
@@ -3984,6 +4043,16 @@ L_14B6 = L_14B8-2
 		beq L_1767		;1777 F0 EE
 .L_1779	jsr update_horizon_chars_with_sysctl		;1779 20 2B 2C
 		lda #$48:jsr cart_sysctl
+
+		bit ZP_72:bpl no_flames
+		lda #$49:jsr cart_sysctl
+		jmp flames_done
+		
+.no_flames
+		lda #$4A:jsr cart_sysctl
+		
+.flames_done
+		
 		rts				;177C 60
 }
 

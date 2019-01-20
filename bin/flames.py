@@ -102,6 +102,17 @@ def stats(name,
 SimpleWrite=collections.namedtuple('SimpleWrite','addr values')
 MaskedWrite=collections.namedtuple('MaskedWrite','addr masks values')
 
+# everything before this is erased every frame anyway, so no need to
+# erase it manually.
+#
+# TODO - this probably means that anything past this address should
+# always be written unmasked? - but there are 8 masked entries past
+# this point. Does this mean lines could be drawn there in game, and
+# then not erased? Or does the default horizon table differ from the
+# HUD graphic? Not a huge problem, just a bit of inefficiency, but
+# should probably figure this out at some point...
+first_erase_addr=0x1560
+
 def main(options):
     hud=load_file('./build/scr-beeb-hud.dat')
     hud_mask=load_file('./build/scr-beeb-hud-mask.dat')
@@ -148,14 +159,14 @@ def main(options):
 
     print>>sys.stderr,'%d %d'%(len(masked_addrs),len(unmasked_addrs))
 
-    print 'initial_masked_write_offset=$%04x'%masked_addrs[0]
-    print 'initial_unmasked_write_offset=$%04x'%unmasked_addrs[0]
+    print 'flames_initial_masked_write_addr=$%04x'%(0x4000+masked_addrs[0])
+    print 'flames_initial_unmasked_write_addr=$%04x'%(0x4000+unmasked_addrs[0])
 
-    print 'unmasked_writes_size=%d'%len(unmasked_addrs)
-    print 'masked_writes_size=%d'%len(masked_addrs)
+    print 'flames_unmasked_writes_size=%d'%len(unmasked_addrs)
+    print 'flames_masked_writes_size=%d'%len(masked_addrs)
 
     for frame in range(3):
-        print '.unmasked_flame_table_%d'%frame
+        print '.flames_unmasked_values_%d'%frame
 
         for addr in unmasked_addrs:
             write=writes_by_addr[addr][frame]
@@ -165,7 +176,7 @@ def main(options):
                 assert write.mask==0
                 print '    equb $%02x ; +$%04x'%(write.value,addr)
 
-        print '.masked_flame_mask_table_%d'%frame
+        print '.flames_masked_masks_%d'%frame
 
         for addr in masked_addrs:
             write=writes_by_addr[addr][frame]
@@ -173,7 +184,7 @@ def main(options):
             else: mask=write.mask
             print '    equb $%02x ; +$%04x'%(mask,addr)
 
-        print '.masked_flame_value_table_%d'%frame
+        print '.flames_masked_values_%d'%frame
 
         for addr in masked_addrs:
             write=writes_by_addr[addr][frame]
@@ -181,119 +192,34 @@ def main(options):
             else: value=write.value
             print '    equb $%02x ; +$%04x'%(value,addr)
             
-    print '.unmasked_deltas'
+    print '.flames_unmasked_deltas'
     for i in range(1,len(unmasked_addrs)):
         print '    equb $%02x'%(unmasked_addrs[i]-unmasked_addrs[i-1])
     print '    equb 0'
 
-    print '.masked_deltas'
+    print '.flames_masked_deltas'
     for i in range(1,len(masked_addrs)):
         print '    equb $%02x'%(masked_addrs[i]-masked_addrs[i-1])
     print '    equb 0'
 
-    # masked_positions=set()
-    # for writes in all_writes:
-    #     for write in writes:
-            
+    erase_addrs=sorted(masked_addrs+unmasked_addrs)
+    for i in range(len(erase_addrs)):
+        if erase_addrs[i]>=first_erase_addr:
+            del erase_addrs[0:i]
+            break
 
-    #     for write in writes:
-    #         if write.pos not in all_writes: all_writes[write.pos]={}
-    #         assert frame not in all_writes[write.pos]
-    #         all_writes[write.pos][frame]=(write.mask,write.value)
+    print 'flames_erase_writes_size=%d'%len(erase_addrs)
+    print 'flames_initial_erase_addr=$%04x'%(0x4000+erase_addrs[0])
 
+    print '.flames_erase_values'
+    for addr in erase_addrs:
+        print '    equb $%02x ; +$%04x'%(hud[addr],addr)
+
+    print '.flames_erase_deltas'
+    for i in range(1,len(erase_addrs)):
+        print '    equb $%02x'%(erase_addrs[i]-erase_addrs[i-1])
+    print '    equb 0'
     
-
-    # set up empty item for any frames that don't write anything to a
-    # given address.
-    # for pos in all_writes.keys():
-    #     for frame in range(3):
-    #         if frame not in all_writes[pos]: all_writes[pos][frame]=None
-
-    # simple_writes={}
-    # masked_writes={}
-
-    # # get addresses.
-    # for pos in all_writes.keys():
-    #     mask=0
-    #     for frame in range(3):
-    #         write=all_writes[pos].get(frame,None)
-    #         if write is not None: mask|=write[0]
-
-    #     if mask==0:
-    #         # always unmasked
-            
-                
-    # for frame in range(3):
-    #     for pos in all_writes.keys():
-
-    # for 
-
-    # print len(all_writes)
-
-    # num_always_simple=0
-    # for pos in all_writes.keys():
-    #     mask=0
-    #     for write in all_writes[pos].values(): mask|=write[0]
-    #     if mask==0: num_always_simple+=1
-
-    # simple_writes={}
-    # masked_writes={}
-
-    # for frame in range(3):
-    #     for pos in all
-
-    # for frame in range(3):
-    #     print '.simple_flame_table_%d'%frame
-
-    #     for pos in all_writes.keys():
-    #         assert pos[0]%4==0
-
-    #         mask=0
-    #         for write in all_writes[pos].values(): mask|=write[0]
-            
-    #         if mask==0:
-    #             addr=get_addr(pos[0],pos[1])
-                
-    #             # simple write.
-    #             if frame in all_writes[pos]:
-    #                 assert all_writes[pos][frame][0]==0
-    #                 value=all_writes[pos][frame][1]
-    #             else:
-    #                 value=bbc.pack_2bpp([get(hud,pos[0]+i,pos[1]) for i in range(4)])
-
-    #             print '    equb $%02x ; %s ($%04x)'%(value,
-    #                                                  pos,
-    #                                                  get_addr(pos[0],pos[1]))
-
-    # for frame in range(3):
-    #     print '.masked_frame_table_%d'%frame
-
-    #     for pos in all_writes.keys():
-    #         assert pos[0]%4==0
-
-    #         mask=0
-    #         for write in all_writes[pos].values(): mask|=write[0]
-    #         if mask!=0:
-    #             # masked write
-
-    #             if frame in all_writes[pos]:
-    #                 mask,value=all_writes[pos][frame]
-    #             else:
-    #                 mask=255
-    #                 value=0
-
-    #             print '    equb $%02x,$%02x ; %s ($%04x)'%(mask,
-    #                                                        value,
-    #                                                        pos,
-    #                                                        get_addr(pos[0],pos[1]))
-
-    # num_masked=len(all_writes)-num_always_simple
-    
-    # print 'flames_simple_data_size=%d'%num_always_simple
-    # print 'flames_masked_data_size=%d'%num_masked
-    # print '; total size: %d'%(3*(num_always_simple+2*num_masked),)
-    
-
 
 ##########################################################################
 ##########################################################################

@@ -578,6 +578,7 @@ ENDIF
 .beeb_plot_font_string DLL_CALL_CART BEEB_PLOT_FONT_STRING, 73
 .beeb_plot_font_bcd DLL_CALL_CART BEEB_PLOT_FONT_BCD, 74
 
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -662,6 +663,7 @@ ENDIF
 	EQUB LO(BEEB_PLOT_FONT_GLYPH)
 	EQUB LO(BEEB_PLOT_FONT_STRING)
 	EQUB LO(BEEB_PLOT_FONT_BCD)
+	EQUB LO(_graphics_draw_flames)
 }
 
 .cart_table_HI
@@ -744,8 +746,144 @@ ENDIF
 	EQUB HI(BEEB_PLOT_FONT_GLYPH)
 	EQUB HI(BEEB_PLOT_FONT_STRING)
 	EQUB HI(BEEB_PLOT_FONT_BCD)
+	EQUB HI(_graphics_draw_flames)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
+
+; *****************************************************************************
+; Same again but for functions in Graphics module
+; *****************************************************************************
+
+MACRO DLL_CALL_GRAPHICS fn, id
+IF BEEB_GRAPHICS_SLOT = 0
+{
+	JMP fn
+}
+ELSE
+{
+IF _STORE_STATUS
+	PHP
+ENDIF
+
+    \\ Preserve X
+	STX DLL_REG_X
+
+    \\ Load fn index
+    LDX #id
+
+    \\ Call jump fn
+    JMP jump_to_graphics
+}
+ENDIF
+ENDMACRO
+
+.jump_to_graphics
+{
+    STA DLL_REG_A
+
+IF _STORE_STATUS
+	PLA
+	STA DLL_REG_STATUS
+ENDIF
+
+    \\ Remember current bank
+    LDA &F4: PHA
+
+    \\ Set new bank
+    LDA #BEEB_GRAPHICS_SLOT
+    STA &F4: STA &FE30
+
+    LDA graphics_table_LO, X
+    STA graphics_addr + 1
+
+    LDA graphics_table_HI, X
+
+IF _DEBUG
+    BMI fn_ok1   ; can only jump into upper half of RAM!
+    BRK         ; X=fn index that isn't implemented
+    .fn_ok1
+	CMP #&C0
+	BCC fn_ok2
+	BRK
+	.fn_ok2
+ENDIF
+
+    STA graphics_addr + 2
+
+IF _STORE_STATUS
+	LDA DLL_REG_STATUS
+	PHA
+ENDIF
+
+    \\ Restore A before fn call
+    LDX DLL_REG_X
+    LDA DLL_REG_A
+
+IF _STORE_STATUS
+	PLP
+ENDIF
+}
+\\ Call function
+.graphics_addr
+    JSR &FFFF
+{
+IF _STORE_STATUS
+	PHP
+ENDIF
+
+    \\ Preserve A
+    STA DLL_REG_A
+
+IF _STORE_STATUS
+	PLA
+	STA DLL_REG_STATUS
+ENDIF
+
+    \\ Restore original bank
+    PLA
+    STA &F4:STA &FE30
+
+IF _STORE_STATUS
+	LDA DLL_REG_STATUS
+	PHA
+ENDIF
+
+    \\ Restore A before return
+    LDA DLL_REG_A
+
+IF _STORE_STATUS
+	PLP
+ENDIF
+
+    RTS
+}
+
+; *****************************************************************************
+\\ Functions in Graphics module called from outside of Graphics RAM
+; *****************************************************************************
+
+.graphics_draw_flames DLL_CALL_GRAPHICS _graphics_draw_flames, 0
+.graphics_erase_flames DLL_CALL_GRAPHICS _graphics_erase_flames, 1
+
+; *****************************************************************************
+\\ Function addresses
+; *****************************************************************************
+
+.graphics_table_LO
+{
+	EQUB LO(_graphics_draw_flames)
+	EQUB LO(_graphics_erase_flames)
+}
+
+.graphics_table_HI
+{
+	EQUB HI(_graphics_draw_flames)
+	EQUB HI(_graphics_erase_flames)
+}
+
+PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"
+
+
 
 .beeb_dll_end
