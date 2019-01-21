@@ -7,6 +7,7 @@ include "build/flames-tables.asm"
 
 .menu_header_graphic_begin
 incbin "build/scr-beeb-header.dat"
+skip 2560						; book space for the Mode 1 version...
 .menu_header_graphic_end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
