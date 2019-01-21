@@ -791,114 +791,55 @@ rts
 
 .sysctl_copy_menu_header_graphic		; in Cart
 {
-if FALSE
+jsr graphics_copy_menu_header_graphic
 
-		lda #C64_VIC_IRQ_DISABLE		;87C4 A9 00
-		sta VIC_IRQMASK		;87C6 8D 1A D0
-		sei				;87C9 78
-		lda #C64_NO_IO_NO_KERNAL		;87CA A9 34
-		sta RAM_SELECT		;87CC 85 01
-		
-		lda #LO(L_D440)		;87CE A9 40
-		sta ZP_1E		;87D0 85 1E
-		lda #HI(L_D440)		;87D2 A9 D4
-		sta ZP_1F		;87D4 85 1F
-		ldx #$00		;87D6 A2 00
-.L_87D8	ldy #$00		;87D8 A0 00
-		lda L_D400,X	;87DA BD 00 D4	; NOT SID
-		sta ZP_08		;87DD 85 08
-		bne L_87E2		;87DF D0 01
-		iny				;87E1 C8
-.L_87E2	sty ZP_16		;87E2 84 16
-		lda L_D401,X	;87E4 BD 01 D4	; NOT SID
-		sta ZP_20		;87E7 85 20
-		lda L_D402,X	;87E9 BD 02 D4	; NOT SID
-		sta ZP_21		;87EC 85 21
-		ldy #$00		;87EE A0 00
-.L_87F0
-		lda (ZP_1E),Y	;87F0 B1 1E
-		sta (ZP_20),Y	;87F2 91 20
-		iny				;87F4 C8
-		cpy ZP_08		;87F5 C4 08
-		bne L_87F0		;87F7 D0 F7
-		lda ZP_1E		;87F9 A5 1E
-		clc				;87FB 18
-		adc ZP_08		;87FC 65 08
-		sta ZP_1E		;87FE 85 1E
-		lda ZP_1F		;8800 A5 1F
-		adc ZP_16		;8802 65 16
-		sta ZP_1F		;8804 85 1F
-		inx				;8806 E8
-		inx				;8807 E8
-		inx				;8808 E8
-		cpx #$27		;8809 E0 27
-		bne L_87D8		;880B D0 CB
+ldx #0
+.loop1
+lda L_D900+$28,x				; relocated from L_5428
+sta L_7C00,x
 
-		lda ZP_1E		;880D A5 1E
-		clc				;880F 18
-		adc #$40		;8810 69 40
-		sta ZP_20		;8812 85 20
-		lda ZP_1F		;8814 A5 1F
-		adc #$01		;8816 69 01
-		sta ZP_21		;8818 85 21
+lda L_DA00+$68,x				; relocated from L_5568
+sta L_0400,x
 
-else
+cpx #$40:bcs next
 
-		jsr graphics_copy_menu_header_graphic
+; each block is $140 bytes.
 
-		lda #$28:sta ZP_1E
-		lda #$d9:sta ZP_1F
+lda L_D900+$28+$100,x:sta L_7D00,x
+lda L_DA00+$68+$100,x:sta L_0500,x
 
-		lda #$68:sta ZP_20
-		lda #$da:sta ZP_21
+.next
 
-endif
+inx:bne loop1
 
-		ldy #$00		;881A A0 00
-.L_881C
-		lda (ZP_1E),Y	;881C B1 1E
-		sta L_7C00,Y	;881E 99 00 7C
-		lda (ZP_20),Y	;8821 B1 20
-		sta L_0400,Y	;8823 99 00 04
-		dey				;8826 88
-		bne L_881C		;8827 D0 F3
-		inc ZP_1F		;8829 E6 1F
-		inc ZP_21		;882B E6 21
-		ldy #$3F		;882D A0 3F
-.L_882F
-		lda (ZP_1E),Y	;882F B1 1E
-		sta L_7D00,Y	;8831 99 00 7D
-		lda (ZP_20),Y	;8834 B1 20
-		sta L_0500,Y	;8836 99 00 05
-		dey				;8839 88
-		bpl L_882F		;883A 10 F3
-		
 		lda #$11		;883C A9 11
 		sta ZP_52		;883E 85 52
+		
 		ldy #HI(L_4A00)		;8840 A0 4A
 		ldx #LO(L_4A00)		;8842 A2 00
 		lda #$00		;8844 A9 00
 		jsr fill_64s		;8846 20 21 89
-		lda #C64_IO_NO_KERNAL		;8849 A9 35
-		sta RAM_SELECT		;884B 85 01
-		cli				;884D 58
-		lda #C64_VIC_IRQ_RASTERCMP		;884E A9 01
-		sta VIC_IRQMASK		;8850 8D 1A D0
-		ldx #$00		;8853 A2 00
-.L_8855	lda L_0400,X	;8855 BD 00 04
 
-\\ WRITING TO COLOUR RAM IN IO
-;		sta L_D800,X	;8858 9D 00 D8
-		dex				;885B CA
-		bne L_8855		;885C D0 F7
-		ldx #$3F		;885E A2 3F
-.L_8860	lda L_0500,X	;8860 BD 00 05
+rts
 
-\\ WRITING TO COLOUR RAM IN IO
-;		sta L_D900,X	;8863 9D 00 D9
-		dex				;8866 CA
-		bpl L_8860		;8867 10 F7
-		rts				;8869 60
+; this is how the data at L_0400 is consumed - so maybe it doesn't
+; need to be copied?
+
+; 		ldx #$00		;8853 A2 00
+; .L_8855	lda L_0400,X	;8855 BD 00 04
+
+; \\ WRITING TO COLOUR RAM IN IO
+; ;		sta L_D800,X	;8858 9D 00 D8
+; 		dex				;885B CA
+; 		bne L_8855		;885C D0 F7
+; 		ldx #$3F		;885E A2 3F
+; .L_8860	lda L_0500,X	;8860 BD 00 05
+
+; \\ WRITING TO COLOUR RAM IN IO
+; ;		sta L_D900,X	;8863 9D 00 D9
+; 		dex				;8866 CA
+; 		bpl L_8860		;8867 10 F7
+; 		rts				;8869 60
 }
 
 ; If X bit	7 set, copy $62A0->$57C0, $6DE0->$D800

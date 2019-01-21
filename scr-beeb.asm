@@ -1069,16 +1069,16 @@ GUARD .disksys_loadto_addr
 		sta L_D200,X	;41F1 9D 00 D2
 		lda L_7F00,X	;41F4 BD 00 7F
 		sta L_D300,X	;41F7 9D 00 D3
-		lda L_4F00,X	;41FA BD 00 4F
-		sta L_D400,X	;41FD 9D 00 D4
-		lda L_5000,X	;4200 BD 00 50
-		sta L_D500,X	;4203 9D 00 D5
-		lda L_5100,X	;4206 BD 00 51
-		sta L_D600,X	;4209 9D 00 D6
-		lda L_5200,X	;420C BD 00 52
-		sta L_D700,X	;420F 9D 00 D7
-		lda L_5300,X	;4212 BD 00 53
-		sta L_D800,X	;4215 9D 00 D8
+		; lda L_4F00,X	;41FA BD 00 4F
+		; sta L_D400,X	;41FD 9D 00 D4
+		; lda L_5000,X	;4200 BD 00 50
+		; sta L_D500,X	;4203 9D 00 D5
+		; lda L_5100,X	;4206 BD 00 51
+		; sta L_D600,X	;4209 9D 00 D6
+		; lda L_5200,X	;420C BD 00 52
+		; sta L_D700,X	;420F 9D 00 D7
+		; lda L_5300,X	;4212 BD 00 53
+		; sta L_D800,X	;4215 9D 00 D8
 		lda L_5400,X	;4218 BD 00 54
 		sta L_D900,X	;421B 9D 00 D9
 		lda L_5500,X	;421E BD 00 55
@@ -1206,11 +1206,11 @@ rts
 equw L_80C8+0,L_80C8+48
 equb BEEB_CART_SLOT
 
-; Front end header graphic.
-;
-; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
-equw L_4F00+64,L_4F00+64+$4e8
-equb BEEB_CART_SLOT
+; ; Front end header graphic.
+; ;
+; ; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
+; equw L_4F00+64,L_4F00+64+$4e8
+; equb BEEB_CART_SLOT
 
 ; cart-ram.asm - track preview border.
 equw track_preview_border_start,track_preview_border_end
@@ -1368,7 +1368,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
-ORG &4F00
+ORG &5400
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 
