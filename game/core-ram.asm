@@ -709,25 +709,59 @@ ENDIF
 .L_38B4	equb $FE,$FD,$FB,$F7,$EF,$DF,$BF,$7F
 .L_38BC	equb $01,$02,$04,$08,$10,$20,$40,$80
 
+; Initialise offscreen colour map pointer for reading or writing. X =
+; X coordinate, Y = Y coordinate. On exit, access value with (ZP_1E),y
+; addressing mode.
 .get_colour_map_ptr
 {
 		stx ZP_C6		;38FA 86 C6
 		tya				;38FC 98
+		
 		sta ZP_1E		;38FD 85 1E
+
+; Y*2
+
 		asl A			;38FF 0A
+
+; Y*4
+
 		asl A			;3900 0A
+
+; Y*4+Y = Y*5
+
 		clc				;3901 18
 		adc ZP_1E		;3902 65 1E
+
+; Y*10
+
 		asl A			;3904 0A
+
+; Y*20 (LSB)
+
 		asl A			;3905 0A
 		sta ZP_1E		;3906 85 1E
+
+; Y*20 (MSB)
+
 		lda #$00		;3908 A9 00
 		rol A			;390A 2A
+
+; Y*40 (LSB)
+
 		asl ZP_1E		;390B 06 1E
+
+; Y*40 (MSB)
+
 		rol A			;390D 2A
+
+; Colour map buffer is $7c00...$7fe8.
+
 		clc				;390E 18
 		adc #$7C		;390F 69 7C
 		sta ZP_1F		;3911 85 1F
+
+; X coordinate.
+
 		ldy ZP_C6		;3913 A4 C6
 		rts				;3915 60
 }
