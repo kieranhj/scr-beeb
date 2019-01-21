@@ -50,6 +50,7 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 
     \\ Menus
 
+    IF 0
     LDA irq_part
     BNE menu_options
 
@@ -70,6 +71,8 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
     TXA:PHA:TYA:PHA
     JSR beeb_set_mode_4
     PLA:TAY:PLA:TAX
+    ENDIF
+
     JMP also_return
 
     .not_header
@@ -353,5 +356,92 @@ IF _DEBUG
     RTS
 }
 ENDIF
+
+.beeb_set_mode_5_full
+{
+    LDX #LO(beeb_mode5_crtc_regs)
+    LDY #HI(beeb_mode5_crtc_regs)
+    JSR beeb_set_crtc_regs
+
+    \\ BEEB SHADOW
+    LDA &FE34
+    AND #&FA          ; page in MAIN and display MAIN
+    STA &FE34
+
+    JMP beeb_set_mode_5
+}
+
+.beeb_set_mode_1
+{
+    LDX #LO(beeb_mode1_crtc_regs)
+    LDY #HI(beeb_mode1_crtc_regs)
+    JSR beeb_set_crtc_regs
+
+    \\ BEEB ULA SET MODE 1
+    LDA #ULA_MODE_1			; 80 chars per line @ 2bpp
+    STA &FE20
+
+    \\ BEEB SHADOW
+    LDA &FE34
+    ORA #5          ; page in SHADOW and display SHADOW
+    STA &FE34
+
+    \\ BEEB ULA SET PALETTE
+    LDX #LO(beeb_mode5_palette)
+    LDY #HI(beeb_mode5_palette)
+    JMP beeb_set_palette
+}
+
+.beeb_set_crtc_regs
+{
+    STX load_regs+1
+    STY load_regs+2
+
+	LDX #3  ; just horizontal
+	.loop
+	STX &FE00
+    .load_regs
+	LDA &FFFF,X
+	STA &FE01
+	DEX
+	BPL loop
+    RTS
+}
+
+.beeb_mode1_crtc_regs
+{
+	EQUB 127				; R0  horizontal total
+	EQUB 80					; R1  horizontal displayed
+	EQUB 98					; R2  horizontal position
+	EQUB &28				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI(screen1_address/8)	; R12 screen start address, high
+	EQUB LO(screen1_address/8)	; R13 screen start address, low
+}
+
+.beeb_mode5_crtc_regs
+{
+	EQUB 63				; R0  horizontal total
+	EQUB 40					; R1  horizontal displayed
+	EQUB 49					; R2  horizontal position
+	EQUB &24				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI(screen1_address/8)	; R12 screen start address, high
+	EQUB LO(screen1_address/8)	; R13 screen start address, low
+}
 
 .beeb_code_end

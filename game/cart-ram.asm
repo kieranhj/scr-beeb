@@ -28,7 +28,7 @@
 \\ 'MODE 2' = low-res bitmap w/ 4x colours per char (game)
 .set_multicolour_mode			; in Cart
 {
-		JSR beeb_set_mode_5
+		JSR beeb_set_mode_5_full
 
 		lda VIC_SCROLX		;83C0 AD 16 D0
 		ora #$10		;83C3 09 10			; 1=multicolour on
@@ -41,7 +41,7 @@
 \\ 'MODE 1' = high-res bitmap w/ 2x colours per char (frontend)
 .set_non_multicolour_mode		; in Cart
 {
-		JSR beeb_set_mode_4
+		JSR beeb_set_mode_1
 
 		lda VIC_SCROLX		;83CC AD 16 D0
 		and #$EF		;83CF 29 EF			; 0=multicolour off
@@ -77,7 +77,7 @@
 		ora #$10		;83FD 09 10			; 1=set_multicolour_mode
 		sta VIC_SCROLX		;83FF 8D 16 D0
 
-		JSR beeb_set_mode_5	; BEEB multicolour mode
+		JSR beeb_set_mode_5_full	; BEEB multicolour mode
 
 		lda #$F0		;8402 A9 F0			; $F0=
 		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)
@@ -339,11 +339,11 @@
 .L_85C1	sta L_85C5		;85C1 8D C5 85
 		rts				;85C4 60
 
-.L_846D	equb $00
-.L_846E	equb $00
+.L_846D	equb $00		; last VDU char
+.L_846E	equb $00		; VDU index
 
-.L_85C5	equb $00
-.L_85C6	equb $00
+.L_85C5	equb $00		; X pos
+.L_85C6	equb $00		; Y pos
 
 .L_85CA	equb $00
 .L_85CB	equb $00

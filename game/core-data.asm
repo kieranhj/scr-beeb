@@ -124,6 +124,35 @@ L_80A0	= L_8000 + $A0
 \\
 .L_A1F2	equb $E8,$46,$4B,$53,$52,$46,$55,$48,$42,$45,$52,$44
 
+.L_E8E1	equb $09,$06,$03,$00
+
+.L_EE35	equb $00
+
+; KEY DEFINITIONS
+
+.control_keys
+; equals, space, s, d, return
+; equb $2E,$27,$29,$12,$08
+equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+
+.menu_keys
+equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
+
+.L_F810	equb $11
+
+.L_2099	equb $78
+.L_209A	equb $6E
+.L_209B	equb $05
+
+;.L_083A	equb $00,$00,$00,$00,$00,$00 ; unused?
+.L_0840	equb $01
+
+.L_1327	equb $00
+.L_1328	equb $02
+
+; $80=main game,$00=exiting,$40=track preview,$41=frontend
+.irq_mode	equb $00
+
 PAGE_ALIGN
 .L_AD00	equb $FF,$8F,$FF,$EF,$FF
 		equb $FF,$4E,$FE,$9D,$FC,$EC,$FB,$FA,$29,$F8,$6F,$FE,$AC,$FB,$DA,$F8
@@ -857,34 +886,5 @@ L_AEC1 = L_AEC0 + 1
 		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
 
 .L_9674	equb "DIRECTORY:"
-
-.L_E8E1	equb $09,$06,$03,$00
-
-.L_EE35	equb $00
-
-; KEY DEFINITIONS
-
-.control_keys
-; equals, space, s, d, return
-; equb $2E,$27,$29,$12,$08
-equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
-
-.menu_keys
-equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
-
-.L_F810	equb $11
-
-.L_2099	equb $78
-.L_209A	equb $6E
-.L_209B	equb $05
-
-;.L_083A	equb $00,$00,$00,$00,$00,$00 ; unused?
-.L_0840	equb $01
-
-.L_1327	equb $00
-.L_1328	equb $02
-
-; $80=main game,$00=exiting,$40=track preview,$41=frontend
-.irq_mode	equb $00
 
 .core_data_end

@@ -817,21 +817,6 @@ GUARD .disksys_loadto_addr
 	LDA #13:STA &FE00
 	LDA #LO(screen1_address/8):STA &FE01
 
-	\\ Clear lower RAM
-
-	{
-		ldx #0
-		lda #0
-		.clear_loop
-		sta &300, X
-		inx
-		bne clear_loop
-		inc clear_loop+2
-		ldy clear_loop+2
-		cpy #&0D
-		bcc clear_loop
-	}
-
 \ Ensure HAZEL RAM is writeable - assume this says writable throughout?
 
     LDA &FE34:ORA #&8:STA &FE34
@@ -1117,6 +1102,36 @@ GUARD .disksys_loadto_addr
 
 	JSR beeb_plot_font_init
 
+	; Shadow copy
+
+	{
+		LDX #0
+
+		.reloc_loop
+		LDA copy_to_shadow, X
+		STA &300, X
+		INX
+		CPX #(copy_to_shadow_end - copy_to_shadow)
+		BNE reloc_loop
+
+		JSR &300
+	}
+
+	\\ Clear lower RAM
+
+	{
+		ldx #0
+		lda #0
+		.clear_loop
+		sta &300, X
+		inx
+		bne clear_loop
+		inc clear_loop+2
+		ldy clear_loop+2
+		cpy #&0D
+		bcc clear_loop
+	}
+
 	; BEEB SET INTERRUPT HANDLER
 
     SEI
@@ -1224,6 +1239,44 @@ equb BEEB_CART_SLOT
 .endtable
 }
 
+.copy_to_shadow
+{
+	; COPY DATA FROM MAIN TO SHADOW RAM
+	LDX #0
+	.read_loop
+	read_loop_reloc = read_loop - copy_to_shadow + &300
+	LDA &3000, X
+	STA &400,X
+	INX
+	BNE read_loop
+
+	; Page in SHADOW
+	LDA &FE34
+	ORA #4
+	STA &FE34
+
+	.write_loop
+	write_loop_reloc = write_loop - copy_to_shadow + &300
+	LDA &400,X
+	STA &3000,X
+	INX
+	BNE write_loop
+
+	; Page in MAIN
+	LDA &FE34
+	AND #&FB
+	STA &FE34
+
+	INC read_loop_reloc+2
+	INC write_loop_reloc+5
+
+	LDA read_loop_reloc+2
+	CMP #HI(core_data_end + &FF)
+	BNE read_loop
+
+	RTS
+}
+.copy_to_shadow_end
 
 .core_filename EQUS "Core", 13
 .kernel_filename EQUS "Kernel", 13
