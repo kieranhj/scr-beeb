@@ -791,11 +791,14 @@ rts
 
 .sysctl_copy_menu_header_graphic		; in Cart
 {
+if FALSE
+
 		lda #C64_VIC_IRQ_DISABLE		;87C4 A9 00
 		sta VIC_IRQMASK		;87C6 8D 1A D0
 		sei				;87C9 78
 		lda #C64_NO_IO_NO_KERNAL		;87CA A9 34
 		sta RAM_SELECT		;87CC 85 01
+		
 		lda #LO(L_D440)		;87CE A9 40
 		sta ZP_1E		;87D0 85 1E
 		lda #HI(L_D440)		;87D2 A9 D4
@@ -830,6 +833,7 @@ rts
 		inx				;8808 E8
 		cpx #$27		;8809 E0 27
 		bne L_87D8		;880B D0 CB
+
 		lda ZP_1E		;880D A5 1E
 		clc				;880F 18
 		adc #$40		;8810 69 40
@@ -837,6 +841,19 @@ rts
 		lda ZP_1F		;8814 A5 1F
 		adc #$01		;8816 69 01
 		sta ZP_21		;8818 85 21
+
+else
+
+		jsr graphics_copy_menu_header_graphic
+
+		lda #$28:sta ZP_1E
+		lda #$d9:sta ZP_1F
+
+		lda #$68:sta ZP_20
+		lda #$da:sta ZP_21
+
+endif
+
 		ldy #$00		;881A A0 00
 .L_881C
 		lda (ZP_1E),Y	;881C B1 1E
@@ -855,6 +872,7 @@ rts
 		sta L_0500,Y	;8836 99 00 05
 		dey				;8839 88
 		bpl L_882F		;883A 10 F3
+		
 		lda #$11		;883C A9 11
 		sta ZP_52		;883E 85 52
 		ldy #HI(L_4A00)		;8840 A0 4A
@@ -1415,57 +1433,57 @@ rts
 .L_8C0D_from_sysctl			; in Cart
 {
 		lda #217		;8C0D A9 D9
-		sec			;8C0F 38
+		sec				;8C0F 38
 		sbc ZP_14		;8C10 E5 14
 		ldy #$07		;8C12 A0 07
 		cpx #$01		;8C14 E0 01
 		beq L_8C44		;8C16 F0 2C
-		tax			;8C18 AA
-.L_8C19		cpy #$04		;8C19 C0 04
+		tax				;8C18 AA
+.L_8C19	cpy #$04		;8C19 C0 04
 		bcc L_8C26		;8C1B 90 09
 
 ; Left wheel
 
-		lda L_8C70,X		;8C1D BD 70 8C
-		sta L_7560,Y		;8C20 99 60 75
-		sta L_5560,Y		;8C23 99 60 55
-.L_8C26		lda L_8C78,X		;8C26 BD 78 8C
-		sta L_76A0,Y		;8C29 99 A0 76
-		sta L_56A0,Y		;8C2C 99 A0 56
-		lda L_8C80,X		;8C2F BD 80 8C
+		lda L_8C70,X	;8C1D BD 70 8C
+		sta $7560,Y		;8C20 99 60 75
+		sta $5560,Y		;8C23 99 60 55
+.L_8C26	lda L_8C78,X	;8C26 BD 78 8C
+		sta $76A0,Y		;8C29 99 A0 76
+		sta $56A0,Y		;8C2C 99 A0 56
+		lda L_8C80,X	;8C2F BD 80 8C
 		cpy #$06		;8C32 C0 06
 		bcc L_8C3A		;8C34 90 04
 		bne L_8C3D		;8C36 D0 05
 		ora #$01		;8C38 09 01
-.L_8C3A		sta L_77E0,Y		;8C3A 99 E0 77
-.L_8C3D		dex			;8C3D CA
-		dey			;8C3E 88
+.L_8C3A	sta L_77E0,Y	;8C3A 99 E0 77
+.L_8C3D	dex				;8C3D CA
+		dey				;8C3E 88
 		bpl L_8C19		;8C3F 10 D8
 		ldx #$00		;8C41 A2 00
-		rts			;8C43 60
-.L_8C44		tax			;8C44 AA
-.L_8C45		cpy #$04		;8C45 C0 04
+		rts				;8C43 60
+.L_8C44	tax				;8C44 AA
+.L_8C45	cpy #$04		;8C45 C0 04
 		bcc L_8C52		;8C47 90 09
 
 ; Right wheel
 
-		lda L_8C94,X		;8C49 BD 94 8C
-		sta L_7658,Y		;8C4C 99 58 76
-		sta L_5658,Y		;8C4F 99 58 56
-.L_8C52		lda L_8C9C,X		;8C52 BD 9C 8C
-		sta L_7798,Y		;8C55 99 98 77
-		sta L_5798,Y		;8C58 99 98 57
-		lda L_8CA4,X		;8C5B BD A4 8C
+		lda L_8C94,X	;8C49 BD 94 8C
+		sta $7658,Y		;8C4C 99 58 76
+		sta $5658,Y		;8C4F 99 58 56
+.L_8C52	lda L_8C9C,X	;8C52 BD 9C 8C
+		sta $7798,Y		;8C55 99 98 77
+		sta $5798,Y		;8C58 99 98 57
+		lda L_8CA4,X	;8C5B BD A4 8C
 		cpy #$06		;8C5E C0 06
 		bcc L_8C66		;8C60 90 04
 		bne L_8C69		;8C62 D0 05
 		ora #$40		;8C64 09 40
-.L_8C66		sta L_78D8,Y		;8C66 99 D8 78
-.L_8C69		dex			;8C69 CA
-		dey			;8C6A 88
+.L_8C66	sta L_78D8,Y	;8C66 99 D8 78
+.L_8C69	dex				;8C69 CA
+		dey				;8C6A 88
 		bpl L_8C45		;8C6B 10 D8
 		ldx #$01		;8C6D A2 01
-		rts			;8C6F 60
+		rts				;8C6F 60
 
 .*wheel_data_begin
 .L_8C70	equb $00,$00,$00,$00,$00,$00,$00,$00
@@ -1853,34 +1871,34 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		beq L_8FEB		;8F87 F0 62
 		ldx #$00		;8F89 A2 00
 .L_8F8B	lda #$FF		;8F8B A9 FF
-		sta L_62A0,X	;8F8D 9D A0 62
-		sta L_63E0,X	;8F90 9D E0 63
-		sta L_6520,X	;8F93 9D 20 65
-		sta L_6660,X	;8F96 9D 60 66
-		sta L_67A0,X	;8F99 9D A0 67
-		sta L_68E0,X	;8F9C 9D E0 68
-		sta L_6A20,X	;8F9F 9D 20 6A
-		sta L_6B60,X	;8FA2 9D 60 6B
-		sta L_6CA0,X	;8FA5 9D A0 6C
-		sta L_6DE0,X	;8FA8 9D E0 6D
-		sta L_6F20,X	;8FAB 9D 20 6F
-		sta L_7060,X	;8FAE 9D 60 70
-		sta L_71A0,X	;8FB1 9D A0 71
+		sta $62A0,X		;8F8D 9D A0 62
+		sta $63E0,X		;8F90 9D E0 63
+		sta $6520,X		;8F93 9D 20 65
+		sta $6660,X		;8F96 9D 60 66
+		sta $67A0,X		;8F99 9D A0 67
+		sta $68E0,X		;8F9C 9D E0 68
+		sta $6A20,X		;8F9F 9D 20 6A
+		sta $6B60,X		;8FA2 9D 60 6B
+		sta $6CA0,X		;8FA5 9D A0 6C
+		sta $6DE0,X		;8FA8 9D E0 6D
+		sta $6F20,X		;8FAB 9D 20 6F
+		sta $7060,X		;8FAE 9D 60 70
+		sta $71A0,X		;8FB1 9D A0 71
 		lda L_C000,X	;8FB4 BD 00 C0
-		sta L_72E0,X	;8FB7 9D E0 72
+		sta $72E0,X		;8FB7 9D E0 72
 		lda L_C100,X	;8FBA BD 00 C1
-		sta L_7420,X	;8FBD 9D 20 74
+		sta $7420,X		;8FBD 9D 20 74
 		dex				;8FC0 CA
 		bne L_8F8B		;8FC1 D0 C8
 		ldx #$17		;8FC3 A2 17
 .L_8FC5	lda L_C200,X	;8FC5 BD 00 C2
-		sta L_75A0,X	;8FC8 9D A0 75
+		sta $75A0,X		;8FC8 9D A0 75
 		lda L_C218,X	;8FCB BD 18 C2
-		sta L_7608,X	;8FCE 9D 08 76
+		sta $7608,X		;8FCE 9D 08 76
 		lda L_C230,X	;8FD1 BD 30 C2
-		sta L_7560,X	;8FD4 9D 60 75
+		sta $7560,X		;8FD4 9D 60 75
 		lda L_C248,X	;8FD7 BD 48 C2
-		sta L_7648,X	;8FDA 9D 48 76
+		sta $7648,X		;8FDA 9D 48 76
 		dex				;8FDD CA
 		bpl L_8FC5		;8FDE 10 E5
 		lda #$F0		;8FE0 A9 F0
@@ -1890,38 +1908,38 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		rts				;8FEA 60
 .L_8FEB	ldx #$00		;8FEB A2 00
 .L_8FED	lda #$FF		;8FED A9 FF
-		sta L_42A0,X	;8FEF 9D A0 42
-		sta L_43E0,X	;8FF2 9D E0 43
-		sta L_4520,X	;8FF5 9D 20 45
-		sta L_4660,X	;8FF8 9D 60 46
-		sta L_47A0,X	;8FFB 9D A0 47
-		sta L_48E0,X	;8FFE 9D E0 48
-		sta L_4A20,X	;9001 9D 20 4A
-		sta L_4B60,X	;9004 9D 60 4B
-		sta L_4CA0,X	;9007 9D A0 4C
-		sta L_4DE0,X	;900A 9D E0 4D
-		sta L_4F20,X	;900D 9D 20 4F
-		sta L_5060,X	;9010 9D 60 50
-		sta L_51A0,X	;9013 9D A0 51
+		sta $42A0,X	    ;8FEF 9D A0 42
+		sta $43E0,X	    ;8FF2 9D E0 43
+		sta $4520,X	    ;8FF5 9D 20 45
+		sta $4660,X	    ;8FF8 9D 60 46
+		sta $47A0,X	    ;8FFB 9D A0 47
+		sta $48E0,X	    ;8FFE 9D E0 48
+		sta $4A20,X	    ;9001 9D 20 4A
+		sta $4B60,X	    ;9004 9D 60 4B
+		sta $4CA0,X	    ;9007 9D A0 4C
+		sta $4DE0,X	    ;900A 9D E0 4D
+		sta $4F20,X	    ;900D 9D 20 4F
+		sta $5060,X	    ;9010 9D 60 50
+		sta $51A0,X	    ;9013 9D A0 51
 		bit L_8F81		;9016 2C 81 8F
 		bpl L_9027		;9019 10 0C
 		lda L_C000,X	;901B BD 00 C0
-		sta L_52E0,X	;901E 9D E0 52
+		sta $52E0,X	    ;901E 9D E0 52
 		lda L_C100,X	;9021 BD 00 C1
-		sta L_5420,X	;9024 9D 20 54
+		sta $5420,X	    ;9024 9D 20 54
 .L_9027	dex				;9027 CA
 		bne L_8FED		;9028 D0 C3
 		bit L_8F81		;902A 2C 81 8F
 		bpl L_9056		;902D 10 27
 		ldx #$17		;902F A2 17
-.L_9031		lda L_C200,X	;9031 BD 00 C2
-		sta L_55A0,X	;9034 9D A0 55
+.L_9031	lda L_C200,X	;9031 BD 00 C2
+		sta $55A0,X		;9034 9D A0 55
 		lda L_C218,X	;9037 BD 18 C2
-		sta L_5608,X	;903A 9D 08 56
+		sta $5608,X		;903A 9D 08 56
 		lda L_C230,X	;903D BD 30 C2
-		sta L_5560,X	;9040 9D 60 55
+		sta $5560,X	    ;9040 9D 60 55
 		lda L_C248,X	;9043 BD 48 C2
-		sta L_5648,X	;9046 9D 48 56
+		sta $5648,X	    ;9046 9D 48 56
 		dex				;9049 CA
 		bpl L_9031		;904A 10 E5
 		lda #$F0		;904C A9 F0
@@ -6326,17 +6344,17 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldx #$00		;2F05 A2 00
 .L_2F07
 		lda track_preview_border_0,X	;2F07 BD 30 61
-		sta L_4010,Y	;2F0A 99 10 40
-		sta L_40A0,Y	;2F0D 99 A0 40
+		sta $4010,Y 	;2F0A 99 10 40
+		sta $40A0,Y 	;2F0D 99 A0 40
 		lda track_preview_border_1,X	;2F10 BD 70 62
-		sta L_4150,Y	;2F13 99 50 41
-		sta L_41E0,Y	;2F16 99 E0 41
+		sta $4150,Y 	;2F13 99 50 41
+		sta $41E0,Y 	;2F16 99 E0 41
 		lda track_preview_border_2,X	;2F19 BD B0 63
-		sta L_5690,Y	;2F1C 99 90 56
-		sta L_5720,Y	;2F1F 99 20 57
+		sta $5690,Y 	;2F1C 99 90 56
+		sta $5720,Y 	;2F1F 99 20 57
 		lda track_preview_border_3,X	;2F22 BD F0 64
-		sta L_57D0,Y	;2F25 99 D0 57
-		sta L_5860,Y	;2F28 99 60 58
+		sta $57D0,Y  	;2F25 99 D0 57
+		sta $5860,Y  	;2F28 99 60 58
 		inx				;2F2B E8
 		iny				;2F2C C8
 		cpx #$18		;2F2D E0 18
@@ -6401,30 +6419,30 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		ldy #$02		;2F96 A0 02
 .L_2F98
 		lda #BEEB_PIXELS_COLOUR2;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
-		sta L_4008,X	;2F9A 9D 08 40
-		sta L_4130,X	;2F9D 9D 30 41
-		sta L_57C8,Y	;2FA0 99 C8 57
-		sta L_58F0,Y	;2FA3 99 F0 58
+		sta $4008,X 	;2F9A 9D 08 40
+		sta $4130,X 	;2F9D 9D 30 41
+		sta $57C8,Y 	;2FA0 99 C8 57
+		sta $58F0,Y 	;2FA3 99 F0 58
 		lda #%10000000	;2FA6 A9 80 - 2 0 0 0
-		sta L_4268,X	;2FA8 9D 68 42
+		sta $4268,X 	;2FA8 9D 68 42
 		lda #%00010000	;2FAB A9 02 - 0 0 0 2
-		sta L_5690,Y	;2FAD 99 90 56
+		sta $5690,Y 	;2FAD 99 90 56
 		iny				;2FB0 C8
 		dex				;2FB1 CA
 		bpl L_2F98		;2FB2 10 E4
 		ldx #$01		;2FB4 A2 01
 .L_2FB6
 		lda #%11100001	;2FB6 A9 A9 - 2 2 2 1
-		sta L_400E,X	;2FB8 9D 0E 40
+		sta $400E,X 	;2FB8 9D 0E 40
 		
 		lda #%01110000	;2FBB A9 2A - 0 2 2 2
-		sta L_4136,X	;2FBD 9D 36 41
+		sta $4136,X 	;2FBD 9D 36 41
 		
 		lda #%11100000	;2FC0 A9 A8 - 2 2 2 0
-		sta L_57C8,X	;2FC2 9D C8 57
+		sta $57C8,X 	;2FC2 9D C8 57
 		
 		lda #%01111000	;2FC5 A9 6A - 1 2 2 2
-		sta L_58F0,X	;2FC7 9D F0 58
+		sta $58F0,X 	;2FC7 9D F0 58
 		
 		dex				;2FCA CA
 		bpl L_2FB6		;2FCB 10 E9

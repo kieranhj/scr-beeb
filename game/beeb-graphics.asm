@@ -5,6 +5,10 @@
 
 include "build/flames-tables.asm"
 
+.menu_header_graphic_begin
+incbin "build/scr-beeb-header.dat"
+.menu_header_graphic_end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -131,6 +135,28 @@ equw flames_masked_values_2
 equw flames_masked_masks_0
 equw flames_masked_masks_1
 equw flames_masked_masks_2
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._graphics_copy_menu_header_graphic
+{
+
+if (menu_header_graphic_end-menu_header_graphic_begin) mod 256<>0
+error "oops"
+endif
+
+ldx #0
+.loop
+for i,0,(menu_header_graphic_end-menu_header_graphic_begin) div 256-1
+lda menu_header_graphic_begin+i*256,x:sta $4000+i*256,x
+next
+
+inx
+bne loop
+
+rts
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -6498,9 +6498,9 @@ L_EBDD	= L_EBE7 - $A			;!
 		bpl L_F3BB		;F3BF 10 FA
 		ldx #$00		;F3C1 A2 00
 		lda #$FF		;F3C3 A9 FF
-.L_F3C5	sta L_52E0,X	;F3C5 9D E0 52
-		sta L_5420,X	;F3C8 9D 20 54
-		sta L_5560,X	;F3CB 9D 60 55
+.L_F3C5	sta $52E0,X	    ;F3C5 9D E0 52
+		sta $5420,X	    ;F3C8 9D 20 54
+		sta $5560,X	    ;F3CB 9D 60 55
 		dex				;F3CE CA
 		bne L_F3C5		;F3CF D0 F4
 		jsr ensure_screen_enabled		;F3D1 20 9E 3F

@@ -1,6 +1,11 @@
 #!/usr/bin/python
 import os,png,sys
 
+if (os.getenv('INSIDE_EMACS') is not None and
+    os.getenv('USER')=='tom'):
+    # me, on my laptop...
+    os.chdir(os.path.expanduser('~/github/scr-beeb/sources/'))
+
 ##########################################################################
 ##########################################################################
 
@@ -109,6 +114,8 @@ def extract_menu_header_graphic(data):
             buffer[dest_idx]=data[src_idx]
             src_idx+=1
 
+    print 'Menu header ends at: +$%04x'%src_idx
+            
     for i in range(len(buffer)):
         if buffer[i] is None: buffer[i]=0x55
 
@@ -116,6 +123,29 @@ def extract_menu_header_graphic(data):
 
     save_png('header_menu_graphic',image)
 
+##########################################################################
+##########################################################################
+
+def extract_other_menu_stuff_2(data,offset):
+    image=[]
+    for y in range(8): image.append([])
+
+    for i in range(320):
+        byte=data[offset-0xd400+i]
+        mask=128
+        while mask!=0:
+            image[i&7].append(3 if (byte&mask)!=0 else 0)
+            mask>>=1
+
+    save_png('menu_%04x'%offset,image)
+
+def extract_other_menu_stuff(data):
+    image=extract_other_menu_stuff_2(data,0xd928)
+    image=extract_other_menu_stuff_2(data,0xda68)
+    
+
+    
+    
 ##########################################################################
 ##########################################################################
 
@@ -224,6 +254,7 @@ def extract_font(font_data):
 ##########################################################################
     
 def main():
+    # Original data from L_4F00 onwards.
     data=[
         0x18,0x28,0x41,
         0x20,0xE8,0x41,
@@ -1162,6 +1193,7 @@ def main():
     ]
     
     extract_menu_header_graphic(data)
+    extract_other_menu_stuff(data)
     extract_hud(data)
     extract_sprites(data)
     extract_font(font_data)
