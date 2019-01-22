@@ -155,8 +155,11 @@ def main(options):
     # Create wheel sprite tables.
     create_wheel_tables()
 
-    print 'hud_left_corner_byte=$%02x'%hud[19*320+6+32]
-    print 'hud_right_corner_byte=$%02x'%hud[19*320+6+32+248]
+    left_addr=19*320+6+32
+    print 'hud_left_corner_byte=$%02x'%(hud[left_addr]&~hud_mask[left_addr])
+
+    right_addr=left_addr+248
+    print 'hud_right_corner_byte=$%02x'%(hud[right_addr]&~hud_mask[right_addr])
 
 
 

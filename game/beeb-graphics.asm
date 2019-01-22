@@ -272,7 +272,7 @@ sta $77e3
 sta $77e4
 sta $77e5
 lda #hud_left_corner_byte
-sta $77e6,x
+sta $77e6
 rts
 }
 
