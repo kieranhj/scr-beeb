@@ -1,11 +1,6 @@
 #!/usr/bin/python
 import png,argparse,sys,math,bbc,collections,os
 
-if (os.getenv('INSIDE_EMACS') is not None and
-    os.getenv('USER')=='tom'):
-    # me, on my laptop...
-    os.chdir(os.path.expanduser('~/github/scr-beeb'))
-
 ##########################################################################
 ##########################################################################
 

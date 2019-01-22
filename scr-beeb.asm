@@ -82,7 +82,7 @@ ENDMACRO
 
 BEEB_HAZEL_OFFSET = $0
 
-L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
+; L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
 
 L_D401 = $D401 + BEEB_HAZEL_OFFSET
 L_D402 = $D402 + BEEB_HAZEL_OFFSET
@@ -1216,9 +1216,9 @@ equb BEEB_CART_SLOT
 equw track_preview_border_start,track_preview_border_end
 equb BEEB_CART_SLOT
 
-; cart-ram.asm - wheel stuff.
-equw wheel_data_begin,wheel_data_end
-equb BEEB_CART_SLOT
+; ; cart-ram.asm - wheel stuff.
+; equw wheel_data_begin,wheel_data_end
+; equb BEEB_CART_SLOT
 
 .endtable
 }

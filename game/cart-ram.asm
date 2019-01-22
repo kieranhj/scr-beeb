@@ -633,7 +633,7 @@ ENDIF
 ; A=$3D ->	draw horizon
 ; A=$3e
 ; A=$3f
-; A=$40 ->	draw wheel sprite placeholders
+; A=$40 ->	gone (was: draw wheel sprite placeholders)
 ; A=$41
 ; A=$42
 ; A=$43
@@ -644,6 +644,8 @@ ENDIF
 ; A=$48 ->  fill in-game sky
 ; A=$49 ->	draw animated flames
 ; A=$4A ->	erase flames
+; A=$4B ->  draw left wheel
+; A=$4C ->  draw right whee
 ; A=$55 ->	fill scanlines (A=value, YX=ptr, byte_52=count)
 ; A=$81 ->	poll for key X (like OSBYTE $81)
 
@@ -655,50 +657,82 @@ ENDIF
 .not_3C
 		cmp #$3D		;8729 C9 3D
 		bne not_3D
-		jmp L_87A3
+		jmp draw_horizonQ		;87A3 4C 2F 8A
 .not_3D
 		cmp #$3E		;872D C9 3E
 		bne not_3E
-		jmp L_87A6
+		jmp update_horizon_chars		;87A6 4C A5 8A
 .not_3E
 		cmp #$3F		;8731 C9 3F
 		bne not_3F
-		jmp L_87A9
+		jmp draw_crane		;87A9 4C 51 8B
 .not_3F
-		cmp #$40		;8735 C9 40
-		bne not_40
-		jmp L_87AC
-.not_40
+; 		cmp #$40		;8735 C9 40
+; 		bne not_40
+; 		jmp sysctl_draw_wheel_sprite_placeholders
+; .not_40
 		cmp #$41		;8739 C9 41
 		bne not_41
-		jmp L_87AF
+		jmp L_8CD0_from_sysctl		;87AF 4C D0 8C
 .not_41
 		cmp #$42		;873D C9 42
-		beq L_87B2		;873F F0 71
+		bne not_42
+		jmp L_8D15_from_sysctl		;87B2 4C 15 8D
+.not_42
 		cmp #$43		;8741 C9 43
-		beq L_87B5		;8743 F0 70
+		bne not_43
+		jmp draw_tachometer		;87B5 4C 77 8E
+.not_43
 		cmp #$44		;8745 C9 44
-		beq L_87B8		;8747 F0 6F
+		bne not_44
+		jmp L_8F11_from_sysctl		;87B8 4C 11 8F
+.not_44
 		cmp #$45		;8749 C9 45
-		beq L_87BB		;874B F0 6E
+		bne not_45
+		jmp clear_screen		;87BB 4C 82 8F
+.not_45
 		cmp #$46		;874D C9 46
-		beq L_87BE		;874F F0 6D
+		bne not_46
+		jmp update_colour_map		;87BE 4C 57 90
+.not_46
 		cmp #$47		;8751 C9 47
-		beq L_87C1		;8753 F0 6C
+		bne not_47
+		jmp sysctl_47		;87C1 4C BB 90
+.not_47
 		cmp #$01		;8755 C9 01
-		beq L_8781		;8757 F0 28
+		bne not_01
+		sta ZP_FE			;8781 85 FE
+		jmp set_non_multicolour_mode			;8783 4C CC 83
+.not_01
 		cmp #$02		;8759 C9 02
-		beq L_8786		;875B F0 29
+		bne not_02
+		sta ZP_FE			;8786 85 FE
+		jmp set_multicolour_mode			;8788 4C C0 83
+.not_02
 		cmp #$03		;875D C9 03
-		beq L_8793		;875F F0 32
+		bne not_03
+		lda #$02			;8793 A9 02
+		sta ZP_FE			;8795 85 FE
+		jmp set_track_preview_mode			;8797 4C F7 83
+.not_03
 		cmp #$10		;8761 C9 10
-		beq L_878B		;8763 F0 26
+		bne not_10
+		txa					;878B 8A
+		jmp L_8428_in_cart			;878C 4C 28 84
+.not_10
 		cmp #$20		;8765 C9 20
-		beq L_878F		;8767 F0 26
+		bne not_20
+		stx L_85D0			;878F 8E D0 85
+		rts				;8792 60
+.not_20
 		cmp #$81		;8769 C9 81
-		beq L_877E		;876B F0 11
+		bne not_81
+		jmp poll_key		;877E 4C D2 85
+.not_81
 		cmp #$15		;876D C9 15
-		beq silence_channel		;876F F0 A5
+		bne not_15
+		jmp silence_channel
+.not_15
 		cmp #$32		;8771 C9 32
 		bne not_32
 		jmp sysctl_copy_menu_header_graphic		;8773 F0 4F
@@ -713,44 +747,37 @@ ENDIF
 		beq draw_flames_thunk
 		cmp #$4a
 		beq erase_flames_thunk
+		cmp #$4b
+		bne not_4b
+		jmp graphics_draw_left_wheel
+.not_4b
+		cmp #$4c
+		bne not_4c
+		jmp graphics_draw_right_wheel
+.not_4c
 		rts				;877D 60
 
-.L_877E	jmp poll_key		;877E 4C D2 85
+.L_877E	
 
-.L_8781	sta ZP_FE			;8781 85 FE
-		jmp set_non_multicolour_mode			;8783 4C CC 83
+.L_8781	
 
-.L_8786	sta ZP_FE			;8786 85 FE
-		jmp set_multicolour_mode			;8788 4C C0 83
+.L_8786	
 
-.L_878B	txa					;878B 8A
-		jmp L_8428_in_cart			;878C 4C 28 84
+.L_878B	
 
-.L_878F	stx L_85D0			;878F 8E D0 85
-		rts				;8792 60
+.L_878F	
 
-.L_8793	lda #$02			;8793 A9 02
-		sta ZP_FE			;8795 85 FE
-		jmp set_track_preview_mode			;8797 4C F7 83
+.L_8793	
 
 .sysctl_fill_55_thunk lda #BEEB_PIXELS_COLOUR1:jmp fill_64s
 .L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
-.L_87A3	jmp draw_horizonQ		;87A3 4C 2F 8A
-.L_87A6	jmp update_horizon_chars		;87A6 4C A5 8A
-.L_87A9	jmp draw_crane		;87A9 4C 51 8B
-.L_87AC	jmp L_8C0D_from_sysctl		;87AC 4C 0D 8C
-.L_87AF	jmp L_8CD0_from_sysctl		;87AF 4C D0 8C
-.L_87B2	jmp L_8D15_from_sysctl		;87B2 4C 15 8D
-.L_87B5	jmp draw_tachometer		;87B5 4C 77 8E
-.L_87B8	jmp L_8F11_from_sysctl		;87B8 4C 11 8F
-.L_87BB	jmp clear_screen		;87BB 4C 82 8F
-.L_87BE	jmp update_colour_map		;87BE 4C 57 90
-.L_87C1	jmp sysctl_47		;87C1 4C BB 90
 .fill_in_game_sky_thunk jmp fill_in_game_sky
 .draw_flames_thunk jmp sysctl_draw_flames
 .erase_flames_thunk jmp sysctl_erase_flames
 }
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Temporary (?) hack, until I figure out where the C64 gets this info
 ; from...
@@ -788,6 +815,9 @@ lda #1:sta flames_visible,x
 rts
 
 }
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .sysctl_copy_menu_header_graphic		; in Cart
 {
@@ -1365,78 +1395,6 @@ rts
     equb $00 ; was $00 - 0 0 0 0
     equb $00 ; was $00 - 0 0 0 0
 
-}
-
-; C64 sprites can't be clipped. When the wheel is low enough that the
-; lower wheel sprite would need clipping, it's hidden, and this
-; routine draws an approximation of it instead.
-
-.L_8C0D_from_sysctl			; in Cart
-{
-		lda #217		;8C0D A9 D9
-		sec				;8C0F 38
-		sbc ZP_14		;8C10 E5 14
-		ldy #$07		;8C12 A0 07
-		cpx #$01		;8C14 E0 01
-		beq L_8C44		;8C16 F0 2C
-		tax				;8C18 AA
-.L_8C19	cpy #$04		;8C19 C0 04
-		bcc L_8C26		;8C1B 90 09
-
-; Left wheel
-
-		lda L_8C70,X	;8C1D BD 70 8C
-		sta $7560,Y		;8C20 99 60 75
-		sta $5560,Y		;8C23 99 60 55
-.L_8C26	lda L_8C78,X	;8C26 BD 78 8C
-		sta $76A0,Y		;8C29 99 A0 76
-		sta $56A0,Y		;8C2C 99 A0 56
-		lda L_8C80,X	;8C2F BD 80 8C
-		cpy #$06		;8C32 C0 06
-		bcc L_8C3A		;8C34 90 04
-		bne L_8C3D		;8C36 D0 05
-		ora #$01		;8C38 09 01
-.L_8C3A	sta L_77E0,Y	;8C3A 99 E0 77
-.L_8C3D	dex				;8C3D CA
-		dey				;8C3E 88
-		bpl L_8C19		;8C3F 10 D8
-		ldx #$00		;8C41 A2 00
-		rts				;8C43 60
-.L_8C44	tax				;8C44 AA
-.L_8C45	cpy #$04		;8C45 C0 04
-		bcc L_8C52		;8C47 90 09
-
-; Right wheel
-
-		lda L_8C94,X	;8C49 BD 94 8C
-		sta $7658,Y		;8C4C 99 58 76
-		sta $5658,Y		;8C4F 99 58 56
-.L_8C52	lda L_8C9C,X	;8C52 BD 9C 8C
-		sta $7798,Y		;8C55 99 98 77
-		sta $5798,Y		;8C58 99 98 57
-		lda L_8CA4,X	;8C5B BD A4 8C
-		cpy #$06		;8C5E C0 06
-		bcc L_8C66		;8C60 90 04
-		bne L_8C69		;8C62 D0 05
-		ora #$40		;8C64 09 40
-.L_8C66	sta L_78D8,Y	;8C66 99 D8 78
-.L_8C69	dex				;8C69 CA
-		dey				;8C6A 88
-		bpl L_8C45		;8C6B 10 D8
-		ldx #$01		;8C6D A2 01
-		rts				;8C6F 60
-
-.*wheel_data_begin
-.L_8C70	equb $00,$00,$00,$00,$00,$00,$00,$00
-.L_8C78	equb $00,$00,$00,$00,$00,$00,$00,$00
-.L_8C80	equb $00,$00,$00,$00,$00,$00,$00,$00,$AC,$AC,$B0,$B0,$B0,$B0,$B0,$C0
-		equb $C0,$C0,$C0,$00
-.L_8C94	equb $00,$00,$00,$00,$00,$00,$00,$00
-.L_8C9C	equb $00,$00,$00,$00,$00,$00,$00,$00
-.L_8CA4	equb $00,$00,$00,$00,$00,$00,$00,$00,$1A,$1A,$0E,$0E,$0E,$0E,$0E,$03
-		equb $03,$03,$03,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-		equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.*wheel_data_end
 }
 
 .L_8CD0_from_sysctl			; in Cart
@@ -3656,14 +3614,42 @@ L_14B6 = L_14B8-2
 .L_14C8	equb $20,$20,$BB,$BB,$8C,$77,$8C,$77
 }
 
-; update scratches and scrapes?
-; only called from main loop
+; Draw misc stuff.
 .L_14D0_from_main_loop		; HAS DLL
 {
-		ldx #$00		;14D0 A2 00
-		ldy #$0A		;14D2 A0 0A
-		lda #$04		;14D4 A9 04
-.L_14D6	sta ZP_16		;14D6 85 16
+; See place_dashboard_sprites (kernel-ram.asm)
+
+clc:lda ZP_5F:adc ZP_5D:sta ZP_5F
+bcc tyre_sprites_updated
+jsr kernel_update_tyre_spritesQ
+.tyre_sprites_updated
+
+; Left wheel.
+
+ldx #0:jsr get_wheel_y:tay
+lda vic_sprite_ptr5:sec:sbc #$65:tax
+lda #$4b:jsr cart_sysctl		; draw left wheel
+
+; Right wheel.
+
+ldx #1:jsr get_wheel_y:tay
+lda vic_sprite_ptr7:sec:sbc #$60:tax
+lda #$4c:jsr cart_sysctl		; draw right wheel
+
+; Flames.
+
+lda #$4A				; erase flames
+bit ZP_72:bpl do_flames	; taken if no flames
+lda #$49				; draw flames
+.do_flames:jsr cart_sysctl		; draw flames/erase flames
+
+rts
+
+.get_wheel_y
+		; ldx #$00		;14D0 A2 00  X = wheel index
+		; ldy #$0A		;14D2 A0 0A  Y = $a for left wheel, $e for right wheel
+		; lda #$04		;14D4 A9 04  A = sprite index
+;.L_14D6	sta ZP_16		;14D6 85 16
 		lda ZP_83,X		;14D8 B5 83
 		sta ZP_14		;14DA 85 14
 		lda ZP_86,X		;14DC B5 86
@@ -3698,49 +3684,16 @@ L_14B6 = L_14B8-2
 		adc ZP_1C		;150D 65 1C
 		asl L_C30A		;150F 0E 0A C3
 		bcs L_1518		;1512 B0 04
+
+; clamp wheel Y positions?
+
 		cmp #$BA		;1514 C9 BA
 		bcc L_151A		;1516 90 02
 .L_1518	lda #$B9		;1518 A9 B9
 .L_151A	cmp #$97		;151A C9 97
 		bcs L_1520		;151C B0 02
 		lda #$97		;151E A9 97
-.L_1520	sta VIC_SP0Y,Y	;1520 99 01 D0
-		clc				;1523 18
-		adc #$15		;1524 69 15
-		cmp #$BE		;1526 C9 BE
-		bcc L_1544		;1528 90 1A
-		ldy ZP_16		;152A A4 16
-		pha				;152C 48
-		lda VIC_SPENA		;152D AD 15 D0
-		and L_38B4,Y	;1530 39 B4 38
-		sta VIC_SPENA		;1533 8D 15 D0
-		pla				;1536 68
-		jsr L_156B		;1537 20 6B 15
-		ldy ZP_16		;153A A4 16
-		lda ZP_6E		;153C A5 6E
-		and L_38B4,Y	;153E 39 B4 38
-		jmp L_155C		;1541 4C 5C 15
-.L_1544	sta L_CFFF,Y	;1544 99 FF CF
-		ldy ZP_16		;1547 A4 16
-		lda ZP_6E		;1549 A5 6E
-		and L_38BC,Y	;154B 39 BC 38
-		bne L_1557		;154E D0 07
-		lda #$B2		;1550 A9 B2
-		jsr L_156B		;1552 20 6B 15
-		ldy ZP_16		;1555 A4 16
-.L_1557	lda ZP_6E		;1557 A5 6E
-		ora L_38BC,Y	;1559 19 BC 38
-.L_155C	sta ZP_6E		;155C 85 6E
-		ldy #$0E		;155E A0 0E
-		lda #$06		;1560 A9 06
-		inx				;1562 E8
-		cpx #$02		;1563 E0 02
-		beq L_156A		;1565 F0 03
-		jmp L_14D6		;1567 4C D6 14
-.L_156A	rts				;156A 60
-.L_156B	sta ZP_14		;156B 85 14
-		lda #$40		;156D A9 40
-		jmp sysctl		;156F 4C 25 87
+.L_1520 rts
 }
 
 .L_1572			; in Cart - only called from update_damage_display
@@ -4001,17 +3954,7 @@ L_14B6 = L_14B8-2
 		bcc L_1767		;1775 90 F0
 		beq L_1767		;1777 F0 EE
 .L_1779	jsr update_horizon_chars_with_sysctl		;1779 20 2B 2C
-		lda #$48:jsr cart_sysctl
-
-		bit ZP_72:bpl no_flames
-		lda #$49:jsr cart_sysctl
-		jmp flames_done
-		
-.no_flames
-		lda #$4A:jsr cart_sysctl
-		
-.flames_done
-		
+		lda #$48:jsr cart_sysctl					; fill sky
 		rts				;177C 60
 }
 

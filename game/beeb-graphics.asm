@@ -10,6 +10,8 @@ incbin "build/scr-beeb-header.dat"
 skip 2560						; book space for the Mode 1 version...
 .menu_header_graphic_end
 
+include "build/wheels-tables.asm"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -162,5 +164,131 @@ rts
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+MACRO REDRAW_ENGINE row0_addr,row1_addr,offset,masks,values
+
+clc
+
+lda #HI(row0_addr+offset):adc ZP_12:sta rd0+2:sta wr0+2
+
+lda #HI(row1_addr+offset):adc ZP_12:sta rd1+2:sta wr1+2
+
+ldx #23
+
+.loop
+
+.rd0:lda $ff00+LO(row0_addr+offset),x
+and masks+0,x
+ora values+0,x
+.wr0:sta $ff00+LO(row0_addr+offset),x
+
+.rd1:lda $ff00+LO(row1_addr+offset),x
+and masks+24,x
+ora values+24,x
+.wr1:sta $ff00+LO(row1_addr+offset),x
+
+lda $77c0+offset,x
+and masks+48,x
+ora values+48,x
+sta $77c0+offset,x
+
+dex
+bpl loop
+
+ENDMACRO
+
+._graphics_redraw_left_engine
+{
+rts
+}
+
+._graphics_redraw_right_engine
+{
+rts
+}
+
+MACRO WHEEL_BYTE y,masks,values
+ldy #y
+lda (ZP_1E),y
+and masks,x
+ora values,x
+sta (ZP_1E),y
+inx
+ENDMACRO
+
+MACRO WHEEL_ROUTINE y,masks,values
+ldx #0
+.loop
+ldy ZP_14:cpy #wheel_end_sprite_y:beq done
+
+; carry clear
+
+lda wheel_row_ptrs_LO-wheel_min_sprite_y,y:sta ZP_1E
+lda wheel_row_ptrs_HI-wheel_min_sprite_y,y:adc ZP_12:sta ZP_1F
+
+iny:sty ZP_14
+
+WHEEL_BYTE y+0,masks,values
+WHEEL_BYTE y+8,masks,values
+WHEEL_BYTE y+16,masks,values
+
+jmp loop
+.done
+rts
+ENDMACRO
+
+._graphics_draw_left_wheel_0:WHEEL_ROUTINE 0,wheel_left_0_masks,wheel_left_0_values
+._graphics_draw_left_wheel_1:WHEEL_ROUTINE 0,wheel_left_1_masks,wheel_left_1_values
+._graphics_draw_left_wheel_2:WHEEL_ROUTINE 0,wheel_left_2_masks,wheel_left_2_values
+
+._graphics_draw_right_wheel_0:WHEEL_ROUTINE 232,wheel_right_0_masks,wheel_right_0_values
+._graphics_draw_right_wheel_1:WHEEL_ROUTINE 232,wheel_right_1_masks,wheel_right_1_values
+._graphics_draw_right_wheel_2:WHEEL_ROUTINE 232,wheel_right_2_masks,wheel_right_2_values
+
+._graphics_draw_left_wheel
+{
+lda ZP_14:pha
+lda ZP_1E:pha
+lda ZP_1F:pha
+
+sty ZP_14
+
+cpx #0:bne not_0:jsr _graphics_draw_left_wheel_0:jmp drawn:.not_0
+cpx #1:bne not_1:jsr _graphics_draw_left_wheel_1:jmp drawn:.not_1
+jsr _graphics_draw_left_wheel_2
+
+.drawn
+
+REDRAW_ENGINE $5540,$5680,4*8,engine_left_masks,engine_left_values
+
+pla:sta ZP_1F
+pla:sta ZP_1E
+pla:sta ZP_14
+
+rts
+}
+
+._graphics_draw_right_wheel
+{
+lda ZP_14:pha
+lda ZP_1E:pha
+lda ZP_1F:pha
+
+sty ZP_14
+
+cpx #0:bne not_0:jsr _graphics_draw_right_wheel_0:jmp drawn:.not_0
+cpx #1:bne not_1:jsr _graphics_draw_right_wheel_1:jmp drawn:.not_1
+jsr _graphics_draw_right_wheel_2
+
+.drawn
+
+REDRAW_ENGINE $5540,$5680,33*8,engine_right_masks,engine_right_values
+
+pla:sta ZP_1F
+pla:sta ZP_1E
+pla:sta ZP_14
+
+rts
+}
 
 .beeb_graphics_end
