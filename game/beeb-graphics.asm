@@ -165,6 +165,7 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; Redraw part of the engine on top of the wheel sprite.
 MACRO REDRAW_ENGINE row0_addr,row1_addr,offset,masks,values
 
 clc
@@ -187,25 +188,46 @@ and masks+24,x
 ora values+24,x
 .wr1:sta $ff00+LO(row1_addr+offset),x
 
-; lda $77c0+offset,x
-; and masks+48,x
-; ora values+48,x
-; sta $77c0+offset,x
-
 dex
 bpl loop
 
 ENDMACRO
 
-MACRO WHEEL_BYTE y,masks,values
-ldy #y
-lda (ZP_1E),y
-and masks,x
-ora values,x
-sta (ZP_1E),y
-inx
-ENDMACRO
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; C64 version: the wheels are sprites - two sprites for the left
+; wheel, and two sprites for the right. C64 sprites appear on top of
+; the bitmap, so this makes the wheels appear on top of the engine. To
+; fix this, there are two additional higher-priority sprites, that
+; look like the nearest pair of exhaust pipes, positioned exactly on
+; top of the corresponding areas of the bitmap.
+; 
+; The wheel sprites aren't tall enough to reach the bottom of the
+; screen when the wheel is at its minimum Y coordinate, so the HUD
+; graphic contains 10 or so rows of black in the bottom left and right
+; corners. When the wheels is at its minimum Y coordinate, these areas
+; are revealed, and it just looks like you're looking at the inside of
+; the wheel.
+;
+;
+; The BBC version is sort of similar.
+;
+; For the part of the wheel that overlaps the double-buffered area, it
+; draws the wheel on top of the engine (writing unmasked $00 bytes if
+; it runs out of wheel data before reaching the bottom of the screen
+; area), then redraws the bit of the engine that could have been
+; overwritten.
+;
+; For the single-buffered area, it does a similar sort of thing, but
+; only writes each byte once to avoid flicker. There is also a
+; load-bearing pixel in the last byte of the single-buffered area that
+; needs to be retained.
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Copy blank wheel to double-buffered area.
 .wheel_blank_part
 {
 clc
@@ -236,6 +258,10 @@ stx ZP_14
 rts
 }
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Blank the bottom left corner.
 .wheel_blank_left_corner
 {
 lda #0
@@ -250,6 +276,7 @@ sta $77e6,x
 rts
 }
 
+; Blank the bottom right corner.
 .wheel_blank_right_corner
 {
 lda #0
@@ -264,6 +291,11 @@ sta $78de
 rts
 }
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Copy wheel data into the bottom right corner, followed by blank if
+; the data runs out before the bottom of the display.
 .wheel_copy_right_corner
 {
 lda #$d8:sta wheel_copy_corner_wr0+1:sta wheel_copy_corner_wr1+1
@@ -273,13 +305,20 @@ inx:inx							; copy from right column
 jmp wheel_copy_corner
 }
 
+; Copy wheel data into the bottom left corner, followed by blank if
+; the data runs out before the bottom of the display.
 .wheel_copy_left_corner
 {
 lda #$e0:sta wheel_copy_corner_wr0+1:sta wheel_copy_corner_wr1+1
 lda #$77:sta wheel_copy_corner_wr0+2:sta wheel_copy_corner_wr1+2
 lda #hud_left_corner_byte
+; run through into wheel_copy_corner
 }
 
+; Copy wheel data to left or right corner.
+;
+; Fix up wheel_copy_corner_wr0 and wheel_copy_corner_wr1 before
+; calling. A is the byte to store in the bottom row.
 .wheel_copy_corner
 {
 sta corner_values+6
@@ -308,7 +347,13 @@ equb 0,0,0,0,0,0
 equb 0
 }
 
-MACRO WHEEL_ROUTINE is_left,masks,values
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Generate a wheel copy routine - copy data from DATA to left
+; (IS_LEFT==TRUE) or right (IS_LEFT==FALSE) side of the screen in the
+; double-buffered area.
+MACRO WHEEL_ROUTINE is_left,data
 
 if is_left
 y=0
@@ -328,9 +373,17 @@ lda wheel_row_ptrs_HI-wheel_min_sprite_y,y:adc ZP_12:sta ZP_1F
 
 iny:sty ZP_14
 
-WHEEL_BYTE y+0,masks,values
-WHEEL_BYTE y+8,masks,values
-WHEEL_BYTE y+16,masks,values
+ldy #y+0
+lda (ZP_1E),y:and data,x:ora data+wheel_data_size,x:sta (ZP_1E),y
+inx
+
+ldy #y+8
+lda (ZP_1E),y:and data,x:ora data+wheel_data_size,x:sta (ZP_1E),y
+inx
+
+ldy #y+16
+lda (ZP_1E),y:and data,x:ora data+wheel_data_size,x:sta (ZP_1E),y
+inx
 
 cpx #wheel_data_size
 bne loop
@@ -350,8 +403,8 @@ rts
 
 .reached_bottom
 
-lda #LO(values):sta wheel_copy_corner_ld+1
-lda #HI(values):sta wheel_copy_corner_ld+2
+lda #LO(data+wheel_data_size):sta wheel_copy_corner_ld+1
+lda #HI(data+wheel_data_size):sta wheel_copy_corner_ld+2
 
 if is_left
 jsr wheel_copy_left_corner
@@ -365,39 +418,69 @@ ENDMACRO
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-._graphics_draw_left_wheel_0:WHEEL_ROUTINE TRUE,wheel_left_0_masks,wheel_left_0_values
-._graphics_draw_left_wheel_1:WHEEL_ROUTINE TRUE,wheel_left_1_masks,wheel_left_1_values
-._graphics_draw_left_wheel_2:WHEEL_ROUTINE TRUE,wheel_left_2_masks,wheel_left_2_values
+._graphics_draw_left_wheel_0:WHEEL_ROUTINE TRUE,wheel_left_0_data
+._graphics_draw_left_wheel_1:WHEEL_ROUTINE TRUE,wheel_left_1_data
+._graphics_draw_left_wheel_2:WHEEL_ROUTINE TRUE,wheel_left_2_data
+
+._graphics_draw_left_wheel_LO
+equb LO(_graphics_draw_left_wheel_0)
+equb LO(_graphics_draw_left_wheel_1)
+equb LO(_graphics_draw_left_wheel_2)
+
+._graphics_draw_left_wheel_HI
+equb HI(_graphics_draw_left_wheel_0)
+equb HI(_graphics_draw_left_wheel_1)
+equb HI(_graphics_draw_left_wheel_2)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-._graphics_draw_right_wheel_0:WHEEL_ROUTINE FALSE,wheel_right_0_masks,wheel_right_0_values
-._graphics_draw_right_wheel_1:WHEEL_ROUTINE FALSE,wheel_right_1_masks,wheel_right_1_values
-._graphics_draw_right_wheel_2:WHEEL_ROUTINE FALSE,wheel_right_2_masks,wheel_right_2_values
+._graphics_draw_right_wheel_0:WHEEL_ROUTINE FALSE,wheel_right_0_data
+._graphics_draw_right_wheel_1:WHEEL_ROUTINE FALSE,wheel_right_1_data
+._graphics_draw_right_wheel_2:WHEEL_ROUTINE FALSE,wheel_right_2_data
+
+._graphics_draw_right_wheel_LO
+equb LO(_graphics_draw_right_wheel_0)
+equb LO(_graphics_draw_right_wheel_1)
+equb LO(_graphics_draw_right_wheel_2)
+
+._graphics_draw_right_wheel_HI
+equb HI(_graphics_draw_right_wheel_0)
+equb HI(_graphics_draw_right_wheel_1)
+equb HI(_graphics_draw_right_wheel_2)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-._graphics_draw_left_wheel
-{
+MACRO WHEEL_PUSH 
 lda ZP_14:pha
 lda ZP_1E:pha
 lda ZP_1F:pha
+ENDMACRO
 
-sty ZP_14
-
-cpx #0:bne not_0:jsr _graphics_draw_left_wheel_0:jmp drawn:.not_0
-cpx #1:bne not_1:jsr _graphics_draw_left_wheel_1:jmp drawn:.not_1
-jsr _graphics_draw_left_wheel_2
-
-.drawn
-
-REDRAW_ENGINE $5540,$5680,4*8,engine_left_masks,engine_left_values
-
+MACRO WHEEL_POP
 pla:sta ZP_1F
 pla:sta ZP_1E
 pla:sta ZP_14
+ENDMACRO
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+._graphics_draw_left_wheel
+{
+WHEEL_PUSH
+
+sty ZP_14
+
+lda _graphics_draw_left_wheel_LO,x:sta call+1
+lda _graphics_draw_left_wheel_HI,x:sta call+2
+.call jsr $ffff
+
+REDRAW_ENGINE $5540,$5680,4*8,engine_left_masks,engine_left_values
+
+WHEEL_POP
 
 rts
 }
@@ -407,23 +490,17 @@ rts
 
 ._graphics_draw_right_wheel
 {
-lda ZP_14:pha
-lda ZP_1E:pha
-lda ZP_1F:pha
+WHEEL_PUSH
 
 sty ZP_14
 
-cpx #0:bne not_0:jsr _graphics_draw_right_wheel_0:jmp drawn:.not_0
-cpx #1:bne not_1:jsr _graphics_draw_right_wheel_1:jmp drawn:.not_1
-jsr _graphics_draw_right_wheel_2
-
-.drawn
+lda _graphics_draw_right_wheel_LO,x:sta call+1
+lda _graphics_draw_right_wheel_HI,x:sta call+2
+.call jsr $ffff
 
 REDRAW_ENGINE $5540,$5680,33*8,engine_right_masks,engine_right_values
 
-pla:sta ZP_1F
-pla:sta ZP_1E
-pla:sta ZP_14
+WHEEL_POP
 
 rts
 }

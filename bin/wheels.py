@@ -63,11 +63,13 @@ def create_wheel_side_tables(side,images):
 
         for i in range(len(masks)): values[i]&=~masks[i]
 
-        print '.wheel_%s_%d_masks'%(side,frame)
+        print '.wheel_%s_%d_data'%(side,frame)
+        print '; masks'
         print equb(masks)
-
-        print '.wheel_%s_%d_values'%(side,frame)
+        print 'IF P%%<>wheel_%s_%d_data+wheel_data_size:ERROR "oops":ENDIF'%(side,frame)
+        print '; values'
         print equb(values)
+        print 'IF P%%<>wheel_%s_%d_data+wheel_data_size*2:ERROR "oops":ENDIF'%(side,frame)
 
 def create_wheel_tables():
     # Load wheel sprites.
@@ -104,9 +106,6 @@ def create_wheel_tables():
                              len(images[i][0]),len(images[i]),
                              len(images[0][0]),len(images[0])))
 
-    create_wheel_side_tables('left',images[0:3])
-    create_wheel_side_tables('right',images[3:6])
-
     # 3 bytes/row.
     wheel_min_sprite_y=151      # in VIC sprite coordinates
     wheel_end_sprite_y=19*8+50  # in VIC sprite coordinates
@@ -116,6 +115,9 @@ def create_wheel_tables():
     print 'wheel_min_sprite_y=%d'%wheel_min_sprite_y
     print 'wheel_end_sprite_y=%d'%wheel_end_sprite_y
     print 'hud_bottom_sprite_y=%d'%hud_bottom_sprite_y
+
+    create_wheel_side_tables('left',images[0:3])
+    create_wheel_side_tables('right',images[3:6])
 
     # # Additional blank data.
     # max_num_blank_lines=wheel_end_sprite_y-(wheel_min_sprite_y+len(images[0]))
