@@ -9,6 +9,8 @@ build:
 
 	python bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./graphics/scr-beeb-header.png 5
 
+	python bin/png2bbc.py -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
+
 	python bin/flames.py > build/flames-tables.asm
 
 	python bin/wheels.py > build/wheels-tables.asm
