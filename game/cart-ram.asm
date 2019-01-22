@@ -3624,24 +3624,22 @@ bcc tyre_sprites_updated
 jsr kernel_update_tyre_spritesQ
 .tyre_sprites_updated
 
-; Left wheel.
+; Erase flames. Do this first, if doing it at all, because the erase
+; isn't masked.
+{bit ZP_72:bmi ok:lda #$4A:jsr cart_sysctl:.ok} ; erase flames
 
+; Left wheel.
 ldx #0:jsr get_wheel_y:tay
 lda vic_sprite_ptr5:sec:sbc #$65:tax
 lda #$4b:jsr cart_sysctl		; draw left wheel
 
 ; Right wheel.
-
 ldx #1:jsr get_wheel_y:tay
 lda vic_sprite_ptr7:sec:sbc #$60:tax
 lda #$4c:jsr cart_sysctl		; draw right wheel
 
-; Flames.
-
-lda #$4A				; erase flames
-bit ZP_72:bpl do_flames	; taken if no flames
-lda #$49				; draw flames
-.do_flames:jsr cart_sysctl		; draw flames/erase flames
+; Draw flames.
+{bit ZP_72:bpl ok:lda #$49:jsr cart_sysctl:.ok} ; draw flames
 
 rts
 

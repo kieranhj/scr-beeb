@@ -187,25 +187,15 @@ and masks+24,x
 ora values+24,x
 .wr1:sta $ff00+LO(row1_addr+offset),x
 
-lda $77c0+offset,x
-and masks+48,x
-ora values+48,x
-sta $77c0+offset,x
+; lda $77c0+offset,x
+; and masks+48,x
+; ora values+48,x
+; sta $77c0+offset,x
 
 dex
 bpl loop
 
 ENDMACRO
-
-._graphics_redraw_left_engine
-{
-rts
-}
-
-._graphics_redraw_right_engine
-{
-rts
-}
 
 MACRO WHEEL_BYTE y,masks,values
 ldy #y
@@ -216,12 +206,122 @@ sta (ZP_1E),y
 inx
 ENDMACRO
 
-MACRO WHEEL_ROUTINE y,masks,values
-ldx #0
-.loop
-ldy ZP_14:cpy #wheel_end_sprite_y:beq done
+.wheel_blank_part
+{
+clc
+sta ld0+1
+adc #8:sta ld8+1
+adc #8:sta ld16+1
 
-; carry clear
+ldx ZP_14
+
+.loop
+cpx #wheel_end_sprite_y:bcs done
+
+lda wheel_row_ptrs_LO-wheel_min_sprite_y,x:sta ZP_1E
+lda wheel_row_ptrs_HI-wheel_min_sprite_y,x:adc ZP_12:sta ZP_1F
+
+inx
+
+lda #0
+
+.ld0:ldy #0:sta (ZP_1E),y
+.ld8:ldy #8:sta (ZP_1E),y
+.ld16:ldy #16:sta (ZP_1E),y
+
+bne loop
+
+.done
+stx ZP_14
+rts
+}
+
+.wheel_blank_left_corner
+{
+lda #0
+sta $77e0
+sta $77e1
+sta $77e2
+sta $77e3
+sta $77e4
+sta $77e5
+lda #hud_left_corner_byte
+sta $77e6,x
+rts
+}
+
+.wheel_blank_right_corner
+{
+lda #0
+sta $78d8
+sta $78d9
+sta $78da
+sta $78db
+sta $78dc
+sta $78dd
+lda #hud_right_corner_byte
+sta $78de
+rts
+}
+
+.wheel_copy_right_corner
+{
+lda #$d8:sta wheel_copy_corner_wr0+1:sta wheel_copy_corner_wr1+1
+lda #$78:sta wheel_copy_corner_wr0+2:sta wheel_copy_corner_wr1+2
+lda #hud_right_corner_byte
+inx:inx							; copy from right column
+jmp wheel_copy_corner
+}
+
+.wheel_copy_left_corner
+{
+lda #$e0:sta wheel_copy_corner_wr0+1:sta wheel_copy_corner_wr1+1
+lda #$77:sta wheel_copy_corner_wr0+2:sta wheel_copy_corner_wr1+2
+lda #hud_left_corner_byte
+}
+
+.wheel_copy_corner
+{
+sta corner_values+6
+ldy #0
+.loop
+.*wheel_copy_corner_ld:lda $ffff,x
+ora corner_values,y
+.*wheel_copy_corner_wr0:sta $ffff,y
+inx:inx:inx
+cpx #wheel_data_size:bcs out_of_data
+iny
+cpy #7:bne loop
+
+rts
+
+.out_of_data_loop
+lda corner_values,y
+.*wheel_copy_corner_wr1:sta $ffff,y
+.out_of_data
+iny
+cpy #7:bne out_of_data_loop
+rts
+
+.corner_values
+equb 0,0,0,0,0,0
+equb 0
+}
+
+MACRO WHEEL_ROUTINE is_left,masks,values
+
+if is_left
+y=0
+else
+y=232
+endif
+
+ldx #0
+
+.loop
+ldy ZP_14
+
+cpy #wheel_end_sprite_y:bcs reached_bottom
 
 lda wheel_row_ptrs_LO-wheel_min_sprite_y,y:sta ZP_1E
 lda wheel_row_ptrs_HI-wheel_min_sprite_y,y:adc ZP_12:sta ZP_1F
@@ -232,18 +332,52 @@ WHEEL_BYTE y+0,masks,values
 WHEEL_BYTE y+8,masks,values
 WHEEL_BYTE y+16,masks,values
 
-jmp loop
-.done
+cpx #wheel_data_size
+bne loop
+
+; Out of data.
+
+lda #y:jsr wheel_blank_part
+
+; And blank out the bottom corner bit too.
+if is_left
+jsr wheel_blank_left_corner
+else
+jsr wheel_blank_right_corner
+endif
+
+rts
+
+.reached_bottom
+
+lda #LO(values):sta wheel_copy_corner_ld+1
+lda #HI(values):sta wheel_copy_corner_ld+2
+
+if is_left
+jsr wheel_copy_left_corner
+else
+jsr wheel_copy_right_corner
+endif
+
 rts
 ENDMACRO
 
-._graphics_draw_left_wheel_0:WHEEL_ROUTINE 0,wheel_left_0_masks,wheel_left_0_values
-._graphics_draw_left_wheel_1:WHEEL_ROUTINE 0,wheel_left_1_masks,wheel_left_1_values
-._graphics_draw_left_wheel_2:WHEEL_ROUTINE 0,wheel_left_2_masks,wheel_left_2_values
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-._graphics_draw_right_wheel_0:WHEEL_ROUTINE 232,wheel_right_0_masks,wheel_right_0_values
-._graphics_draw_right_wheel_1:WHEEL_ROUTINE 232,wheel_right_1_masks,wheel_right_1_values
-._graphics_draw_right_wheel_2:WHEEL_ROUTINE 232,wheel_right_2_masks,wheel_right_2_values
+._graphics_draw_left_wheel_0:WHEEL_ROUTINE TRUE,wheel_left_0_masks,wheel_left_0_values
+._graphics_draw_left_wheel_1:WHEEL_ROUTINE TRUE,wheel_left_1_masks,wheel_left_1_values
+._graphics_draw_left_wheel_2:WHEEL_ROUTINE TRUE,wheel_left_2_masks,wheel_left_2_values
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._graphics_draw_right_wheel_0:WHEEL_ROUTINE FALSE,wheel_right_0_masks,wheel_right_0_values
+._graphics_draw_right_wheel_1:WHEEL_ROUTINE FALSE,wheel_right_1_masks,wheel_right_1_values
+._graphics_draw_right_wheel_2:WHEEL_ROUTINE FALSE,wheel_right_2_masks,wheel_right_2_values
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ._graphics_draw_left_wheel
 {
@@ -268,6 +402,9 @@ pla:sta ZP_14
 rts
 }
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ._graphics_draw_right_wheel
 {
 lda ZP_14:pha
@@ -290,5 +427,8 @@ pla:sta ZP_14
 
 rts
 }
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .beeb_graphics_end
