@@ -11048,7 +11048,7 @@ seg000:3E9B
 seg000:3E9B	     loc_3E9B:				     ; CODE XREF: sub_3DF9+9Dj
 seg000:3E9B 8A			     TXA     
 seg000:3E9C 20 15 92		     JSR     convert_X_to_BCD
-seg000:3E9F 8D 6A C7		     STA     boost_left_BCD
+seg000:3E9F 8D 6A C7		     STA     boost_reserve
 seg000:3EA2 AD 19 C7		     LDA     byte_C719
 seg000:3EA5 8D 7E C3		     STA     byte_C37E
 seg000:3EA5	     ; End of function sub_3DF9
