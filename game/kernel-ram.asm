@@ -1255,24 +1255,28 @@
 		sta ZP_17		;11C7 85 17
 		stx ZP_15		;11C9 86 15
 		sty ZP_16		;11CB 84 16
-		lda #$F0		;11CD A9 F0
-		bit L_C36A		;11CF 2C 6A C3
-		bpl L_11D6		;11D2 10 02
-		lda #$FD		;11D4 A9 FD
-.L_11D6	ldx #$22		;11D6 A2 22
-		jsr L_142E		;11D8 20 2E 14
-		lda ZP_18		;11DB A5 18
-		ldx #$23		;11DD A2 23
-		jsr L_142E		;11DF 20 2E 14
-		lda ZP_16		;11E2 A5 16
-		ldx #$61		;11E4 A2 61
-		jsr L_142E		;11E6 20 2E 14
-		lda ZP_15		;11E9 A5 15
-		ldx #$62		;11EB A2 62
-		jsr L_142E		;11ED 20 2E 14
-		lda ZP_17		;11F0 A5 17
-		ldx #$63		;11F2 A2 63
-		jsr L_142E		;11F4 20 2E 14
+
+		jsr dash_update_distance_to_ai_car
+
+; 		lda #$F0		;11CD A9 F0
+; 		bit L_C36A		;11CF 2C 6A C3
+; 		bpl L_11D6		;11D2 10 02
+; 		lda #$FD		;11D4 A9 FD
+; .L_11D6	ldx #$22		;11D6 A2 22
+; 		jsr L_142E		;11D8 20 2E 14
+; 		lda ZP_18		;11DB A5 18
+; 		ldx #$23		;11DD A2 23
+; 		jsr L_142E		;11DF 20 2E 14
+; 		lda ZP_16		;11E2 A5 16
+; 		ldx #$61		;11E4 A2 61
+; 		jsr L_142E		;11E6 20 2E 14
+; 		lda ZP_15		;11E9 A5 15
+; 		ldx #$62		;11EB A2 62
+; 		jsr L_142E		;11ED 20 2E 14
+; 		lda ZP_17		;11F0 A5 17
+; 		ldx #$63		;11F2 A2 63
+; 		jsr L_142E		;11F4 20 2E 14
+		
 		lda L_C364		;11F7 AD 64 C3
 		bne L_11FF		;11FA D0 03
 		jsr L_1154_with_color_ram		;11FC 20 54 11

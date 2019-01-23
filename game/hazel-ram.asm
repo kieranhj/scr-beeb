@@ -138,7 +138,7 @@
 .L_C367	skip 1
 .L_C368	skip 1		; Crash Timer
 .L_C369	skip 1
-.L_C36A	skip 1
+.L_C36A	skip 1					; distance_to_aicar_in_segments
 .L_C36B	skip 1
 .L_C36C	skip 1
 .L_C36D	skip 1

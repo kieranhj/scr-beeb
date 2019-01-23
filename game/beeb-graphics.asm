@@ -510,20 +510,6 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.graphics_get_hud_font_digit_offset
-{
-and #$0f
-asl a:sta add_x2+1
-asl a:.add_x2:adc #$ff
-tax
-rts
-}
-
-._graphics_reset_hud
-{
-
-}
-
 ; The text areas are not really very conveniently aligned :(
 ;
 ; 6 scanlines to write.
@@ -539,17 +525,23 @@ rts
 ; 4  7baf  7e29  7c6f  7ee9
 ; 5  7ce8  7e2a  7da8  7eea
 
+dash_ZP_ptr0=ZP_1E
+dash_ZP_ptr1=ZP_20
+dash_ZP_ptr2=ZP_22
+dash_ZP_offset=ZP_24
+dash_ZP_tmp=ZP_25
+
 MACRO PREPARE_ROUTINE addr_012,addr_34,addr_5
-lda #LO(addr_012):sta ZP_1E
-lda #HI(addr_012):sta ZP_1F
+lda #LO(addr_012):sta dash_ZP_ptr0+0
+lda #HI(addr_012):sta dash_ZP_ptr0+1
 
-lda #LO(addr_34):sta ZP_20
-lda #HI(addr_34):sta ZP_21
+lda #LO(addr_34):sta dash_ZP_ptr1+0
+lda #HI(addr_34):sta dash_ZP_ptr1+1
 
-lda #LO(addr_5):sta ZP_22
-lda #HI(addr_5):sta ZP_23
+lda #LO(addr_5):sta dash_ZP_ptr2+0
+lda #HI(addr_5):sta dash_ZP_ptr2+1
 
-lda #0:sta ZP_14
+lda #0:sta dash_ZP_offset
 
 rts
 ENDMACRO
@@ -575,44 +567,44 @@ rts
 
 .dash_loadbuf
 {
-ldy ZP_14
+ldy dash_ZP_offset
 
 ; +0
-lda (ZP_1E),y:sta dash_buffer+0
-lda (ZP_20),y:sta dash_buffer+3
-lda (ZP_22),y:sta dash_buffer+5
+lda (dash_ZP_ptr0),y:sta dash_buffer+0
+lda (dash_ZP_ptr1),y:sta dash_buffer+3
+lda (dash_ZP_ptr2),y:sta dash_buffer+5
 
 ; +1
 iny
-lda (ZP_1E),y:sta dash_buffer+1
-lda (ZP_20),y:sta dash_buffer+4
+lda (dash_ZP_ptr0),y:sta dash_buffer+1
+lda (dash_ZP_ptr1),y:sta dash_buffer+4
 
 ; +2
 iny
-lda (ZP_1E),y:sta dash_buffer+2
+lda (dash_ZP_ptr0),y:sta dash_buffer+2
 
 rts
 }
 
 .dash_storebuf
 {
-ldy ZP_14
+ldy dash_ZP_offset
 
 ; +0
-lda dash_buffer+0:sta (ZP_1E),y
-lda dash_buffer+3:sta (ZP_20),y
-lda dash_buffer+5:sta (ZP_22),y
+lda dash_buffer+0:sta (dash_ZP_ptr0),y
+lda dash_buffer+3:sta (dash_ZP_ptr1),y
+lda dash_buffer+5:sta (dash_ZP_ptr2),y
 
 ; +1
 iny
-lda dash_buffer+1:sta (ZP_1E),y
-lda dash_buffer+4:sta (ZP_20),y
+lda dash_buffer+1:sta (dash_ZP_ptr0),y
+lda dash_buffer+4:sta (dash_ZP_ptr1),y
 
 ; +2
 iny
-lda dash_buffer+2:sta (ZP_1E),y
+lda dash_buffer+2:sta (dash_ZP_ptr0),y
 
-clc:tya:adc #6:sta ZP_14
+clc:tya:adc #6:sta dash_ZP_offset
 rts
 }
 
@@ -621,27 +613,27 @@ rts
 
 ; storech - overwrite dash_buffer with char (or part thereof).
 
-.dash_storech_0
+.dash_storech_0_and_storebuf
 {
 lda #LO(hud_font_shift0):sta dash_storech_read_table+1
 lda #HI(hud_font_shift0):sta dash_storech_read_table+2
-jmp dash_storech
+jsr dash_storech
+jmp dash_storebuf
 }
 
-.dash_storech_2l
+.dash_storech_2l_and_storebuf
 {
 lda #LO(hud_font_shift2_a):sta dash_storech_read_table+1
 lda #HI(hud_font_shift2_a):sta dash_storech_read_table+2
-jmp dash_storech
+jsr dash_storech
+jmp dash_storebuf
 }
 
 .dash_storech_2r
 {
 lda #LO(hud_font_shift2_b):sta dash_storech_read_table+1
 lda #HI(hud_font_shift2_b):sta dash_storech_read_table+2
-jmp dash_storech
 }
-
 .dash_storech
 {
 ldy #5
@@ -663,12 +655,13 @@ rts
 ; addch - add char (or part thereof), masked, into existing contents
 ; of dash_buffer.
 
-.dash_addch_2l
+.dash_addch_2l_and_storebuf
 {
 lda #$33:sta dash_addch_mask+1
 lda #LO(hud_font_shift2_a):sta dash_addch_read_table+1
 lda #HI(hud_font_shift2_a):sta dash_addch_read_table+2
-jmp dash_addch
+jsr dash_addch
+jmp dash_storebuf
 }
 
 .dash_addch_2r
@@ -676,9 +669,7 @@ jmp dash_addch
 lda #$cc:sta dash_addch_mask+1
 lda #LO(hud_font_shift2_b):sta dash_addch_read_table+1
 lda #HI(hud_font_shift2_b):sta dash_addch_read_table+2
-jmp dash_addch
 }
-
 .dash_addch
 {
 ldy #5
@@ -694,6 +685,20 @@ inx
 dey
 bpl loop
 rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; stores right half of whatever's in dash_ZP_tmp, left half of X, and
+; puts X in dash_ZP_tmp ready for the next call.
+.dash_storech_2_and_storebuf
+{
+stx reload_x+1
+ldx dash_ZP_tmp:jsr dash_storech_2r
+.reload_x:ldx #$ff
+stx dash_ZP_tmp
+jmp dash_addch_2l_and_storebuf
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -723,50 +728,6 @@ asl a
 tax
 rts
 }
-
-; .graphics_update_lap_and_boost
-; {
-; jsr prepare_for_hud_nw
-; lda #0:sta ZP_14
-
-; ; 'L'
-; ldx #hud_font_char_L
-; jsr graphics_store_char_shift0
-; jsr graphics_store_hud
-
-; ; lap count
-; lda L_C378:beq lap0
-; jsr digit
-; jsr graphics_store_char_shift0
-; jmp draw_lap
-; .lap0
-; jsr graphics_clear_hud_buffer
-; .draw_lap
-; jsr graphics_store_hud
-
-; ; 'B' (left half)
-; ldx #hud_font_char_B
-; jsr graphics_store_char_shift2_a
-; jsr graphics_store_hud
-
-; ; 'B' (right half) + Boost reserve high nybble (left half)
-; ldx #hud_font_char_B			; 'B'
-; jsr graphics_store_char_shift2_b
-; lda boost_reserve:jsr high_nybble_digit:stx ZP_15:jsr graphics_add_char_shift2_a
-; jsr graphics_store_hud
-
-; ;Boost reserve high nybble (right half) + boost reserve low nybble (right half)
-; ldx ZP_15:jsr graphics_store_char_shift2_b
-; lda boost_reserve:jsr low_nybble_digit:stx ZP_15:jsr graphics_add_char_shift2_a
-; jsr graphics_store_hud
-
-; ; Boost reserve low nybble (left half)
-; jsr graphics_load_hud
-; ldx ZP_15:jsr graphics_add_char_shift2_b
-; jsr graphics_store_hud
-
-; rts
-; }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -817,13 +778,13 @@ jsr dash_save_zp
 ; NW - lap/boost
 jsr dash_prepare_for_nw:jsr dash_clear_west
 
-lda #0:sta ZP_14
+lda #0:sta dash_ZP_offset
 
-ldx #hud_font_char_L:jsr dash_storech_0:jsr dash_storebuf
+ldx #hud_font_char_L:jsr dash_storech_0_and_storebuf
 
-lda #16:sta ZP_14
+lda #16:sta dash_ZP_offset
 
-ldx #hud_font_char_B:jsr dash_storech_2l:jsr dash_storebuf
+ldx #hud_font_char_B:jsr dash_storech_2l_and_storebuf
 ldx #hud_font_char_B:jsr dash_storech_2r:jsr dash_storebuf
 
 ; SW - aicar distance
@@ -847,22 +808,20 @@ jsr dash_save_zp
 
 jsr dash_prepare_for_nw
 
-lda #3*8:sta ZP_14
+lda #3*8:sta dash_ZP_offset
+
+lda #hud_font_char_B:sta dash_ZP_tmp
 
 ; 'B' (right half) + Boost reserve high nybble (left half)
-ldx #hud_font_char_B:jsr dash_storech_2r
-lda boost_reserve:jsr high_nybble_digit:stx ZP_15:jsr dash_addch_2l
-jsr dash_storebuf
+lda boost_reserve:jsr high_nybble_digit:jsr dash_storech_2_and_storebuf
 
 ;Boost reserve high nybble (right half) + boost reserve low nybble
 ;(left half)
-ldx ZP_15:jsr dash_storech_2r
-lda boost_reserve:jsr low_nybble_digit:stx ZP_15:jsr dash_addch_2l
-jsr dash_storebuf
+lda boost_reserve:jsr low_nybble_digit:jsr dash_storech_2_and_storebuf
 
 ; Boost reserve low nybble (right half)
 jsr dash_loadbuf
-ldx ZP_15:jsr dash_addch_2r
+ldx dash_ZP_tmp:jsr dash_addch_2r
 jsr dash_storebuf
 
 jmp dash_restore_zp
@@ -876,13 +835,42 @@ jmp dash_restore_zp
 jsr dash_save_zp
 jsr dash_prepare_for_nw
 
-lda #1*8:sta ZP_14
+lda #1*8:sta dash_ZP_offset
 
 ldx #hud_font_char_space
 lda L_C378:beq storech
 jsr digit
 .storech
-jsr dash_storech_0
+jsr dash_storech_0_and_storebuf
+
+jmp dash_restore_zp
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._dash_update_distance_to_ai_car
+{
+jsr dash_save_zp
+jsr dash_prepare_for_sw
+
+ldx #hud_font_char_space
+lda L_C36A
+and #$f0
+bpl prefix
+ldx #hud_font_char_minus
+.prefix
+stx dash_ZP_tmp
+
+jsr dash_storech_2l_and_storebuf
+
+lda ZP_18:jsr digit:jsr dash_storech_2_and_storebuf
+lda ZP_16:jsr digit:jsr dash_storech_2_and_storebuf
+lda ZP_15:jsr digit:jsr dash_storech_2_and_storebuf
+lda ZP_17:jsr digit:jsr dash_storech_2_and_storebuf
+
+jsr dash_loadbuf
+ldx dash_ZP_tmp:jsr dash_addch_2r
 jsr dash_storebuf
 
 jmp dash_restore_zp
@@ -913,27 +901,27 @@ jmp dash_restore_zp
 
 .dash_save_zp
 {
-lda ZP_14:sta dash_restore_zp_reload_14+1
-lda ZP_15:sta dash_restore_zp_reload_15+1
-lda ZP_1E:sta dash_restore_zp_reload_1E+1
-lda ZP_1F:sta dash_restore_zp_reload_1F+1
-lda ZP_20:sta dash_restore_zp_reload_20+1
-lda ZP_21:sta dash_restore_zp_reload_21+1
-lda ZP_22:sta dash_restore_zp_reload_22+1
-lda ZP_23:sta dash_restore_zp_reload_23+1
+lda dash_ZP_offset:sta dash_restore_zp_reload_offset+1
+lda dash_ZP_tmp:sta dash_restore_zp_reload_tmp+1
+lda dash_ZP_ptr0+0:sta dash_restore_zp_reload_ptr0_0+1
+lda dash_ZP_ptr0+1:sta dash_restore_zp_reload_ptr0_1+1
+lda dash_ZP_ptr1+0:sta dash_restore_zp_reload_ptr1_0+1
+lda dash_ZP_ptr1+1:sta dash_restore_zp_reload_ptr1_1+1
+lda dash_ZP_ptr2+0:sta dash_restore_zp_reload_ptr2_0+1
+lda dash_ZP_ptr2+1:sta dash_restore_zp_reload_ptr2_1+1
 rts
 }
 
 .dash_restore_zp
 {
-.*dash_restore_zp_reload_14:lda #$ff:sta ZP_14
-.*dash_restore_zp_reload_15:lda #$ff:sta ZP_15
-.*dash_restore_zp_reload_1E:lda #$ff:sta ZP_1E
-.*dash_restore_zp_reload_1F:lda #$ff:sta ZP_1F
-.*dash_restore_zp_reload_20:lda #$ff:sta ZP_20
-.*dash_restore_zp_reload_21:lda #$ff:sta ZP_21
-.*dash_restore_zp_reload_22:lda #$ff:sta ZP_22
-.*dash_restore_zp_reload_23:lda #$ff:sta ZP_23
+.*dash_restore_zp_reload_offset:lda #$ff:sta dash_ZP_offset
+.*dash_restore_zp_reload_tmp:lda #$ff:sta dash_ZP_tmp
+.*dash_restore_zp_reload_ptr0_0:lda #$ff:sta dash_ZP_ptr0+0
+.*dash_restore_zp_reload_ptr0_1:lda #$ff:sta dash_ZP_ptr0+1
+.*dash_restore_zp_reload_ptr1_0:lda #$ff:sta dash_ZP_ptr1+0
+.*dash_restore_zp_reload_ptr1_1:lda #$ff:sta dash_ZP_ptr1+1
+.*dash_restore_zp_reload_ptr2_0:lda #$ff:sta dash_ZP_ptr2+0
+.*dash_restore_zp_reload_ptr2_1:lda #$ff:sta dash_ZP_ptr2+1
 rts
 }
 
