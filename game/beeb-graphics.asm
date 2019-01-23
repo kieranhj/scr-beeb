@@ -529,7 +529,7 @@ dash_ZP_ptr0=ZP_1E
 dash_ZP_ptr1=ZP_20
 dash_ZP_ptr2=ZP_22
 dash_ZP_offset=ZP_24
-dash_ZP_tmp=ZP_25
+dash_ZP_last_char=ZP_25
 
 MACRO PREPARE_ROUTINE addr_012,addr_34,addr_5
 lda #LO(addr_012):sta dash_ZP_ptr0+0
@@ -690,14 +690,14 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; stores right half of whatever's in dash_ZP_tmp, left half of X, and
-; puts X in dash_ZP_tmp ready for the next call.
+; stores right half of whatever's in dash_ZP_last_char, left half of X, and
+; puts X in dash_ZP_last_char ready for the next call.
 .dash_storech_2_and_storebuf
 {
 stx reload_x+1
-ldx dash_ZP_tmp:jsr dash_storech_2r
+ldx dash_ZP_last_char:jsr dash_storech_2r
 .reload_x:ldx #$ff
-stx dash_ZP_tmp
+stx dash_ZP_last_char
 jmp dash_addch_2l_and_storebuf
 }
 
@@ -810,7 +810,7 @@ jsr dash_prepare_for_nw
 
 lda #3*8:sta dash_ZP_offset
 
-lda #hud_font_char_B:sta dash_ZP_tmp
+lda #hud_font_char_B:sta dash_ZP_last_char
 
 ; 'B' (right half) + Boost reserve high nybble (left half)
 lda boost_reserve:jsr high_nybble_digit:jsr dash_storech_2_and_storebuf
@@ -821,7 +821,7 @@ lda boost_reserve:jsr low_nybble_digit:jsr dash_storech_2_and_storebuf
 
 ; Boost reserve low nybble (right half)
 jsr dash_loadbuf
-ldx dash_ZP_tmp:jsr dash_addch_2r
+ldx dash_ZP_last_char:jsr dash_addch_2r
 jsr dash_storebuf
 
 jmp dash_restore_zp
@@ -860,7 +860,7 @@ and #$f0
 bpl prefix
 ldx #hud_font_char_minus
 .prefix
-stx dash_ZP_tmp
+stx dash_ZP_last_char
 
 jsr dash_storech_2l_and_storebuf
 
@@ -870,10 +870,94 @@ lda ZP_15:jsr digit:jsr dash_storech_2_and_storebuf
 lda ZP_17:jsr digit:jsr dash_storech_2_and_storebuf
 
 jsr dash_loadbuf
-ldx dash_ZP_tmp:jsr dash_addch_2r
+ldx dash_ZP_last_char:jsr dash_addch_2r
 jsr dash_storebuf
 
 jmp dash_restore_zp
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._dash_update_current_lap_time
+{
+jsr dash_save_zp
+jsr dash_prepare_for_ne
+
+ldy #0
+
+; think ZP_82 is just briefly set after finishing a lap, so you see
+; the hundredths...
+{lda ZP_82:beq k:lda #$80:.k}
+
+jsr dash_update_time
+
+jmp dash_restore_zp
+}
+
+._dash_update_best_lap_time
+{
+jsr dash_save_zp
+jsr dash_prepare_for_se
+
+ldy #2
+lda #$80						; show hundredths
+
+jsr dash_update_time
+
+jmp dash_restore_zp
+}
+
+.dash_update_time
+{
+sta show_hundredths
+sty offset
+
+; Minutes
+
+lda L_8398,Y:jsr low_nybble_digit:stx dash_ZP_last_char
+jsr dash_loadbuf:jsr dash_addch_2l_and_storebuf
+
+ldx #hud_font_char_colon:jsr dash_storech_2_and_storebuf
+
+; The right half of the colon is discarded.
+
+ldy offset:lda L_82B0,y:pha
+
+jsr high_nybble_digit:jsr dash_storech_0_and_storebuf
+pla:jsr low_nybble_digit:jsr dash_storech_0_and_storebuf
+
+bit show_hundredths:bpl no_hundredths
+
+; Only the right half of the dot is drawn.
+lda #hud_font_char_dot:sta dash_ZP_last_char
+
+ldy offset:lda L_8298,Y:pha
+
+jsr high_nybble_digit:jsr dash_storech_2_and_storebuf
+pla:jsr low_nybble_digit:jsr dash_storech_2_and_storebuf
+
+jsr dash_loadbuf
+ldx dash_ZP_last_char:jsr dash_addch_2r
+jsr dash_storebuf
+
+rts
+
+.no_hundredths
+jsr dash_clearbuf
+
+jsr dash_storebuf
+
+jsr dash_storebuf
+
+jsr dash_loadbuf
+ldx #hud_font_char_space:jsr dash_addch_2r
+jsr dash_storebuf
+
+rts
+
+.show_hundredths:equb $ff
+.offset:equb $ff
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -902,7 +986,7 @@ jmp dash_restore_zp
 .dash_save_zp
 {
 lda dash_ZP_offset:sta dash_restore_zp_reload_offset+1
-lda dash_ZP_tmp:sta dash_restore_zp_reload_tmp+1
+lda dash_ZP_last_char:sta dash_restore_zp_reload_tmp+1
 lda dash_ZP_ptr0+0:sta dash_restore_zp_reload_ptr0_0+1
 lda dash_ZP_ptr0+1:sta dash_restore_zp_reload_ptr0_1+1
 lda dash_ZP_ptr1+0:sta dash_restore_zp_reload_ptr1_0+1
@@ -915,7 +999,7 @@ rts
 .dash_restore_zp
 {
 .*dash_restore_zp_reload_offset:lda #$ff:sta dash_ZP_offset
-.*dash_restore_zp_reload_tmp:lda #$ff:sta dash_ZP_tmp
+.*dash_restore_zp_reload_tmp:lda #$ff:sta dash_ZP_last_char
 .*dash_restore_zp_reload_ptr0_0:lda #$ff:sta dash_ZP_ptr0+0
 .*dash_restore_zp_reload_ptr0_1:lda #$ff:sta dash_ZP_ptr0+1
 .*dash_restore_zp_reload_ptr1_0:lda #$ff:sta dash_ZP_ptr1+0

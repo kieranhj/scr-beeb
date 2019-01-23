@@ -873,6 +873,9 @@ ENDIF
 .dash_update_lap DLL_CALL_GRAPHICS _dash_update_lap, 6
 .dash_update_boost DLL_CALL_GRAPHICS _dash_update_boost, 7
 .dash_update_distance_to_ai_car DLL_CALL_GRAPHICS _dash_update_distance_to_ai_car, 8
+.dash_update_current_lap_time DLL_CALL_GRAPHICS _dash_update_current_lap_time, 9
+.dash_update_best_lap_time DLL_CALL_GRAPHICS _dash_update_best_lap_time, 10
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -888,6 +891,8 @@ ENDIF
 	EQUB LO(_dash_update_lap)					; 6
 	EQUB LO(_dash_update_boost)					; 7
 	EQUB LO(_dash_update_distance_to_ai_car)	; 8
+	EQUB LO(_dash_update_current_lap_time)		; 9
+	EQUB LO(_dash_update_best_lap_time)			; 10
 }
 
 .graphics_table_HI
@@ -901,6 +906,8 @@ ENDIF
 	EQUB HI(_dash_update_lap)					; 6
 	EQUB HI(_dash_update_boost)					; 7
 	EQUB HI(_dash_update_distance_to_ai_car)	; 8
+	EQUB HI(_dash_update_current_lap_time)		; 9
+	EQUB HI(_dash_update_best_lap_time)			; 10
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

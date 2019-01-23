@@ -958,10 +958,11 @@
 		txa				;0F9C 8A
 		pha				;0F9D 48
 		jsr L_1144_with_color_ram		;0F9E 20 44 11
-		ldy #$02		;0FA1 A0 02
-		ldx #$03		;0FA3 A2 03
-		lda #$80		;0FA5 A9 80
-		jsr L_121F		;0FA7 20 1F 12
+		jsr dash_update_best_lap_time
+		; ldy #$02		;0FA1 A0 02
+		; ldx #$03		;0FA3 A2 03
+		; lda #$80		;0FA5 A9 80
+		; jsr L_121F		;0FA7 20 1F 12
 		pla				;0FAA 68
 		tax				;0FAB AA
 		rts				;0FAC 60
@@ -1074,12 +1075,14 @@
 {
 		txa				;1078 8A
 		pha				;1079 48
-		ldx #$02		;107A A2 02
-		ldy #$00		;107C A0 00
-		lda ZP_82		;107E A5 82
-		beq L_1084		;1080 F0 02
-		lda #$80		;1082 A9 80
-.L_1084	jsr L_121F		;1084 20 1F 12
+		; ldx #$02		;107A A2 02
+		; ldy #$00		;107C A0 00
+		; lda ZP_82		;107E A5 82
+		; beq L_1084		;1080 F0 02
+		; lda #$80		;1082 A9 80
+		jsr dash_update_current_lap_time
+; .L_1084	jsr L_121F		;1084 20 1F 12
+
 		pla				;1087 68
 		tax				;1088 AA
 		rts				;1089 60
@@ -1305,71 +1308,71 @@
 
 ; Something to do with plotting the dashboard sprite?
 
-.L_121F			; in kernel
-{
-		sty ZP_C7		;121F 84 C7
-		sta L_C3CC		;1221 8D CC C3
-		lda L_1296,X	;1224 BD 96 12
-		sta ZP_C6		;1227 85 C6
-		tax				;1229 AA
-		lda L_8398,Y	;122A B9 98 83
-		and #$0F		;122D 29 0F
-		jsr L_1422		;122F 20 22 14
-		ldy ZP_C7		;1232 A4 C7
-		ldx ZP_C6		;1234 A6 C6
-		inx				;1236 E8
-		lda L_82B0,Y	;1237 B9 B0 82
-		lsr A			;123A 4A
-		lsr A			;123B 4A
-		lsr A			;123C 4A
-		lsr A			;123D 4A
-		jsr L_1426		;123E 20 26 14
-		jsr L_1411		;1241 20 11 14
-		ldy ZP_C7		;1244 A4 C7
-		ldx ZP_C6		;1246 A6 C6
-		inx				;1248 E8
-		inx				;1249 E8
-		lda L_82B0,Y	;124A B9 B0 82
-		and #$0F		;124D 29 0F
-		jsr L_142A		;124F 20 2A 14
-		ldy ZP_C7		;1252 A4 C7
-		lda ZP_C6		;1254 A5 C6
-		clc				;1256 18
-		adc #$41		;1257 69 41
-		tax				;1259 AA
-		lda L_8298,Y	;125A B9 98 82
-		lsr A			;125D 4A
-		lsr A			;125E 4A
-		lsr A			;125F 4A
-		lsr A			;1260 4A
-		bit L_C3CC		;1261 2C CC C3
-		bmi L_1268		;1264 30 02
-		lda #$F0		;1266 A9 F0
-.L_1268	jsr L_142E		;1268 20 2E 14
-		lda #$02		;126B A9 02
-		sta L_3FF6,X	;126D 9D F6 3F
-		ldy ZP_C7		;1270 A4 C7
-		lda ZP_C6		;1272 A5 C6
-		clc				;1274 18
-		adc #$42		;1275 69 42
-		tax				;1277 AA
-		lda L_8298,Y	;1278 B9 98 82
-		and #$0F		;127B 29 0F
-		bit L_C3CC		;127D 2C CC C3
-		bmi L_1284		;1280 30 02
-		lda #$F0		;1282 A9 F0
-.L_1284	jsr L_1422		;1284 20 22 14
-		lda ZP_6F		;1287 A5 6F
-		ldx ZP_C6		;1289 A6 C6
-		bpl L_1291		;128B 10 04
-		ora #$0C		;128D 09 0C
-		bne L_1293		;128F D0 02
-.L_1291	ora #$03		;1291 09 03
-.L_1293	sta ZP_6F		;1293 85 6F
-		rts				;1295 60
+; .L_121F			; in kernel
+; {
+; 		sty ZP_C7		;121F 84 C7
+; 		sta L_C3CC		;1221 8D CC C3
+; 		lda L_1296,X	;1224 BD 96 12
+; 		sta ZP_C6		;1227 85 C6
+; 		tax				;1229 AA
+; 		lda L_8398,Y	;122A B9 98 83
+; 		and #$0F		;122D 29 0F
+; 		jsr L_1422		;122F 20 22 14
+; 		ldy ZP_C7		;1232 A4 C7
+; 		ldx ZP_C6		;1234 A6 C6
+; 		inx				;1236 E8
+; 		lda L_82B0,Y	;1237 B9 B0 82
+; 		lsr A			;123A 4A
+; 		lsr A			;123B 4A
+; 		lsr A			;123C 4A
+; 		lsr A			;123D 4A
+; 		jsr L_1426		;123E 20 26 14
+; 		jsr L_1411		;1241 20 11 14
+; 		ldy ZP_C7		;1244 A4 C7
+; 		ldx ZP_C6		;1246 A6 C6
+; 		inx				;1248 E8
+; 		inx				;1249 E8
+; 		lda L_82B0,Y	;124A B9 B0 82
+; 		and #$0F		;124D 29 0F
+; 		jsr L_142A		;124F 20 2A 14
+; 		ldy ZP_C7		;1252 A4 C7
+; 		lda ZP_C6		;1254 A5 C6
+; 		clc				;1256 18
+; 		adc #$41		;1257 69 41
+; 		tax				;1259 AA
+; 		lda L_8298,Y	;125A B9 98 82
+; 		lsr A			;125D 4A
+; 		lsr A			;125E 4A
+; 		lsr A			;125F 4A
+; 		lsr A			;1260 4A
+; 		bit L_C3CC		;1261 2C CC C3
+; 		bmi L_1268		;1264 30 02
+; 		lda #$F0		;1266 A9 F0
+; .L_1268	jsr L_142E		;1268 20 2E 14
+; 		lda #$02		;126B A9 02
+; 		sta L_3FF6,X	;126D 9D F6 3F
+; 		ldy ZP_C7		;1270 A4 C7
+; 		lda ZP_C6		;1272 A5 C6
+; 		clc				;1274 18
+; 		adc #$42		;1275 69 42
+; 		tax				;1277 AA
+; 		lda L_8298,Y	;1278 B9 98 82
+; 		and #$0F		;127B 29 0F
+; 		bit L_C3CC		;127D 2C CC C3
+; 		bmi L_1284		;1280 30 02
+; 		lda #$F0		;1282 A9 F0
+; .L_1284	jsr L_1422		;1284 20 22 14
+; 		lda ZP_6F		;1287 A5 6F
+; 		ldx ZP_C6		;1289 A6 C6
+; 		bpl L_1291		;128B 10 04
+; 		ora #$0C		;128D 09 0C
+; 		bne L_1293		;128F D0 02
+; .L_1291	ora #$03		;1291 09 03
+; .L_1293	sta ZP_6F		;1293 85 6F
+; 		rts				;1295 60
 
-.L_1296	equb $03,$21,$83,$A1
-}
+; .L_1296	equb $03,$21,$83,$A1
+; }
 
 .initialise_hud_sprites
 {
