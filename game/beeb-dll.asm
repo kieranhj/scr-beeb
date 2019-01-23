@@ -840,6 +840,7 @@ IF _STORE_STATUS
 	STA DLL_REG_STATUS
 ENDIF
 
+
     \\ Restore original bank
     PLA
     STA &F4:STA &FE30
@@ -868,6 +869,9 @@ ENDIF
 .graphics_copy_menu_header_graphic DLL_CALL_GRAPHICS _graphics_copy_menu_header_graphic, 2
 .graphics_draw_left_wheel DLL_CALL_GRAPHICS _graphics_draw_left_wheel, 3
 .graphics_draw_right_wheel DLL_CALL_GRAPHICS _graphics_draw_right_wheel, 4
+.dash_reset DLL_CALL_GRAPHICS _dash_reset, 5
+.dash_update_lap DLL_CALL_GRAPHICS _dash_update_lap, 6
+.dash_update_boost DLL_CALL_GRAPHICS _dash_update_boost, 7
 
 ; *****************************************************************************
 \\ Function addresses
@@ -875,20 +879,26 @@ ENDIF
 
 .graphics_table_LO
 {
-	EQUB LO(_graphics_draw_flames)
-	EQUB LO(_graphics_erase_flames)
-	EQUB LO(_graphics_copy_menu_header_graphic)
-	EQUB LO(_graphics_draw_left_wheel)
-	EQUB LO(_graphics_draw_right_wheel)
+	EQUB LO(_graphics_draw_flames)				; 0
+	EQUB LO(_graphics_erase_flames)				; 1
+	EQUB LO(_graphics_copy_menu_header_graphic) ; 2
+	EQUB LO(_graphics_draw_left_wheel)			; 3
+	EQUB LO(_graphics_draw_right_wheel)			; 4
+	EQUB LO(_dash_reset)						; 5
+	EQUB LO(_dash_update_lap)					; 6
+	EQUB LO(_dash_update_boost)					; 7
 }
 
 .graphics_table_HI
 {
-	EQUB HI(_graphics_draw_flames)
-	EQUB HI(_graphics_erase_flames)
-	EQUB HI(_graphics_copy_menu_header_graphic)
-	EQUB HI(_graphics_draw_left_wheel)
-	EQUB HI(_graphics_draw_right_wheel)
+	EQUB HI(_graphics_draw_flames)				; 0
+	EQUB HI(_graphics_erase_flames)				; 1
+	EQUB HI(_graphics_copy_menu_header_graphic) ; 2
+	EQUB HI(_graphics_draw_left_wheel)			; 3
+	EQUB HI(_graphics_draw_right_wheel)			; 4
+	EQUB HI(_dash_reset)						; 5
+	EQUB HI(_dash_update_lap)					; 6
+	EQUB HI(_dash_update_boost)					; 7
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

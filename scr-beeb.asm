@@ -359,7 +359,7 @@ ZP_6B	= $6B + BEEB_ZP_OFFSET		; 0=on track,$80=off track (sometimes $C0)
 ZP_6C	= $6C + BEEB_ZP_OFFSET		; end of game timer (either too much damage or lost to opponent)
 ZP_6D	= $6D + BEEB_ZP_OFFSET
 ZP_6E	= $6E + BEEB_ZP_OFFSET
-ZP_6F	= $6F + BEEB_ZP_OFFSET
+ZP_6F	= $6F + BEEB_ZP_OFFSET	; dashboard_sprites_enabled
 ZP_70	= $70
 ZP_71	= $71
 ZP_72	= $72
@@ -794,6 +794,11 @@ GUARD .disksys_loadto_addr
 	LDA #200
 	LDX #2
 	JSR osbyte
+
+	lda #15
+	ldx #0
+	ldy #0
+	jsr osbyte
 
 	; BEEB SET SCREEN MODE 4
 

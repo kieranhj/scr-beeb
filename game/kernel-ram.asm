@@ -1003,9 +1003,13 @@
 		sta ZP_82		;0FEE 85 82
 		jsr L_1078		;0FF0 20 78 10
 .L_0FF3	stx ZP_C6		;0FF3 86 C6
-		lda L_C378		;0FF5 AD 78 C3
-		ldx #$04		;0FF8 A2 04
-		jsr L_1426		;0FFA 20 26 14
+
+		jsr dash_update_lap
+		
+		; lda L_C378		;0FF5 AD 78 C3
+		; ldx #$04		;0FF8 A2 04
+		; jsr L_1426		;0FFA 20 26 14
+		
 		ldx ZP_C6		;0FFD A6 C6
 .L_0FFF	lda L_C378,X	;0FFF BD 78 C3
 		cmp #$01		;1002 C9 01
@@ -1365,12 +1369,16 @@
 
 .initialise_hud_sprites
 {
-		ldx #$03		;129A A2 03
-		lda #$1C		;129C A9 1C
-		jsr L_1426		;129E 20 26 14
-		ldx #$43		;12A1 A2 43
-		lda #$12		;12A3 A9 12
-		jsr L_142E		;12A5 20 2E 14
+
+jsr dash_reset
+
+		; ldx #$03		;129A A2 03
+		; lda #$1C		;129C A9 1C
+		; jsr L_1426		;129E 20 26 14
+		; ldx #$43		;12A1 A2 43
+		; lda #$12		;12A3 A9 12
+		; jsr L_142E		;12A5 20 2E 14
+
 		rts				;12A8 60
 }
 
@@ -6790,16 +6798,20 @@ L_EBDD	= L_EBE7 - $A			;!
 ;L_F634	= *-1			;!
 		cld				;F635 D8
 		sta boost_reserve		;F636 8D 6A C7
-		lsr A			;F639 4A
-		lsr A			;F63A 4A
-		lsr A			;F63B 4A
-		lsr A			;F63C 4A
-		ldx #$44		;F63D A2 44
-		jsr L_142E		;F63F 20 2E 14
-		lda boost_reserve		;F642 AD 6A C7
-		and #$0F		;F645 29 0F
-		ldx #$45		;F647 A2 45
-		jsr L_142E		;F649 20 2E 14
+
+		jsr dash_update_boost
+		
+		; lsr A			;F639 4A
+		; lsr A			;F63A 4A
+		; lsr A			;F63B 4A
+		; lsr A			;F63C 4A
+		; ldx #$44		;F63D A2 44
+		; jsr L_142E		;F63F 20 2E 14
+		; lda boost_reserve		;F642 AD 6A C7
+		; and #$0F		;F645 29 0F
+		; ldx #$45		;F647 A2 45
+		; jsr L_142E		;F649 20 2E 14
+
 .L_F64C	lda #$80		;F64C A9 80
 		sta ZP_72		;F64E 85 72
 		lda ZP_6E		;F650 A5 6E

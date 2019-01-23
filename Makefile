@@ -15,6 +15,8 @@ build:
 
 	python bin/wheels.py > build/wheels-tables.asm
 
+	python bin/hud_font.py > build/hud-font-tables.asm
+
 	beebasm -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
 
 	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'align lost' | grep -vi 'safe to load to' | grep -Evi '^-+'
