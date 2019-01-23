@@ -1099,6 +1099,7 @@ ENDIF
 
 .L_3D46	lda L_C364		;3D46 AD 64 C3
 		bne L_3D50		;3D49 D0 05
+		
 		ldy #$0B		;3D4B A0 0B
 		jsr kernel_L_114D_with_color_ram		;3D4D 20 4D 11
 

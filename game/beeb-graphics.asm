@@ -841,6 +841,9 @@ jsr dash_prepare_for_ne:jsr dash_clear_east
 ; SE - best lap
 jsr dash_prepare_for_se:jsr dash_clear_east
 
+ldy #7:jsr dash_update_flag_icon
+ldy #7:jsr dash_update_stopwatch_icon
+
 jmp dash_restore_zp
 }
 
@@ -1008,25 +1011,66 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; .graphics_update_aicar_distance
-; {
-; ; - or space
-; ldx #hud_font_char_space
-; lda #$f0
-; bit L_C36A						; distance_to_aicar_in_segments
-; bpl print
-; ldx #hud_font_char_minus
-; .print
-; jsr graphics_store_char_0
-; jsr graphics_store_hud
+; Icon 0 = checquered flag; icon 1 = stopwatch.
 
-; lda byte_18:jsr digit:jsr graphics_store_char_shift0:jsr graphics_store_hud
-; lda byte_16:jsr digit:jsr graphics_store_char_shift0:jsr graphics_store_hud
-; lda byte_15:jsr digit:jsr graphics_store_char_shift0:jsr graphics_store_hud
-; lda byte_17:jsr digit:jsr graphics_store_char_shift0:jsr graphics_store_hud
+icon_0_addr=$7e60
 
-; rts
-; }
+.dash_icon_offsets
+equb 0							; $7e60
+equb $d0-$60					; $7ed0
+
+.dash_icon_colours
+equb $ff
+equb $ff
+
+; the C64 dash icon colours are either 7 (yellow) or 11 (dark grey).
+.dash_set_icon_state
+{
+lda #$f0						; "grey"
+cpy #7							; yellow?
+bne got_colour					; taken if grey
+lda #$ff						; yellow
+.got_colour
+
+cmp dash_icon_colours,x:beq done
+
+sta dash_icon_colours,x:sta _and+1
+
+; Each icon is 7 scanlines high, so only process 15 bytes in total,
+; and skip offset 7.
+ldy dash_icon_offsets,x
+ldx #15
+.loop
+cpy #7:beq next
+lda icon_0_addr,y				; abcdefgh
+lsr a:lsr a:lsr a:lsr a			; 0000abcd
+ora icon_0_addr,y				; abcdxyzw
+and #$0f						; 0000xyzw
+sta or+1
+asl a:asl a:asl a:asl a			; xyzw0000
+.or:ora #$ff					; xyzwxyzw
+._and:and #$ff
+sta icon_0_addr,y
+.next
+iny
+dex
+bne loop
+.done
+rts
+}
+
+._dash_update_flag_icon
+{
+ldx #0:jmp dash_set_icon_state
+}
+
+._dash_update_stopwatch_icon
+{
+ldx #1:jmp dash_set_icon_state
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .dash_save_zp
 {
@@ -1053,5 +1097,8 @@ rts
 .*dash_restore_zp_reload_ptr2_1:lda #$ff:sta dash_ZP_ptr2+1
 rts
 }
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .beeb_graphics_end

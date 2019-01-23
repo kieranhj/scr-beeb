@@ -1181,24 +1181,29 @@
 .L_1143	rts				;1143 60
 }
 
+; switch best lap icon on/off
 .L_1144_with_color_ram		; in kernel
+		lda L_C395
 		ldy #$0B		;1144 A0 0B
 		lda L_C395		;1146 AD 95 C3
 		bne L_114D_with_color_ram		;1149 D0 02
 		ldy #$07		;114B A0 07
 .L_114D_with_color_ram
-		sty L_DBDA		;114D 8C DA DB		; COLOR RAM
-		sty L_DBDB		;1150 8C DB DB		; COLOR RAM
+	    jsr dash_update_stopwatch_icon
+		; sty L_DBDA		;114D 8C DA DB		; COLOR RAM
+		; sty L_DBDB		;1150 8C DB DB		; COLOR RAM
 		rts				;1153 60
 
+; switch checquered flag icon on/off
 .L_1154_with_color_ram		; in kernel
 		ldy #$0B		;1154 A0 0B
 		jsr L_F5E9		;1156 20 E9 F5
 		bpl L_115D_with_color_ram		;1159 10 02
 		ldy #$07		;115B A0 07
 .L_115D_with_color_ram
-		sty L_DBCC		;115D 8C CC DB		; COLOR RAM
-		sty L_DBCD		;1160 8C CD DB		; COLOR RAM
+	    jsr dash_update_flag_icon
+		; sty L_DBCC		;115D 8C CC DB		; COLOR RAM
+		; sty L_DBCD		;1160 8C CD DB		; COLOR RAM
 		rts				;1163 60
 
 .update_distance_to_ai_car_readout
