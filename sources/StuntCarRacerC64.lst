@@ -2728,7 +2728,7 @@ seg000:0F9E 20 44 11		     JSR     sub_1144
 seg000:0FA1 A0 02		     LDY     #2
 seg000:0FA3 A2 03		     LDX     #3
 seg000:0FA5 A9 80		     LDA     #$80
-seg000:0FA7 20 1F 12		     JSR     sub_121F
+seg000:0FA7 20 1F 12		     JSR     sub_121F ; update fastest lap time display
 seg000:0FAA 68			     PLA     
 seg000:0FAB AA			     TAX     
 seg000:0FAC 60			     RTS     
@@ -2786,7 +2786,7 @@ seg000:0FF3	     loc_FF3:				     ; CODE XREF: sub_FAD+3Aj
 seg000:0FF3 86 C6		     STX     byte_C6
 seg000:0FF5 AD 78 C3		     LDA     byte_C378
 seg000:0FF8 A2 04		     LDX     #4
-seg000:0FFA 20 26 14		     JSR     copy_char_into_sprite_shifted_2
+seg000:0FFA 20 26 14		     JSR     copy_char_into_sprite_shifted_2 ; lap indicator
 seg000:0FFD A6 C6		     LDX     byte_C6
 seg000:0FFF	     
 seg000:0FFF	     loc_FFF:				     ; CODE XREF: sub_FAD+33j
@@ -2894,7 +2894,7 @@ seg000:1080 F0 02		     BEQ     loc_1084
 seg000:1082 A9 80		     LDA     #$80
 seg000:1084	     
 seg000:1084	     loc_1084:				     ; CODE XREF: sub_1078+8j
-seg000:1084 20 1F 12		     JSR     sub_121F
+seg000:1084 20 1F 12		     JSR     sub_121F ; update current lap time display
 seg000:1087 68			     PLA     
 seg000:1088 AA			     TAX     
 seg000:1089 60			     RTS     
@@ -3172,19 +3172,19 @@ seg000:11D4 A9 FD		     LDA     #$FD	     ; '-'
 seg000:11D6	     
 seg000:11D6	     loc_11D6:				     ; CODE XREF: update_distance_to_ai_car_readout+6Ej
 seg000:11D6 A2 22		     LDX     #$22	     ; Column 1
-seg000:11D8 20 2E 14		     JSR     copy_char_into_sprite_unshifted
+seg000:11D8 20 2E 14		     JSR     copy_char_into_sprite_unshifted ; AI car distance
 seg000:11DB A5 18		     LDA     byte_18
 seg000:11DD A2 23		     LDX     #$23	     ; Column 2
-seg000:11DF 20 2E 14		     JSR     copy_char_into_sprite_unshifted
+seg000:11DF 20 2E 14		     JSR     copy_char_into_sprite_unshifted ; AI car distance
 seg000:11E2 A5 16		     LDA     byte_16
 seg000:11E4 A2 61		     LDX     #$61	     ; Column 0
-seg000:11E6 20 2E 14		     JSR     copy_char_into_sprite_unshifted
+seg000:11E6 20 2E 14		     JSR     copy_char_into_sprite_unshifted ; AI car distance
 seg000:11E9 A5 15		     LDA     byte_15
 seg000:11EB A2 62		     LDX     #$62	     ; Column 1
-seg000:11ED 20 2E 14		     JSR     copy_char_into_sprite_unshifted
+seg000:11ED 20 2E 14		     JSR     copy_char_into_sprite_unshifted ; AI car distance
 seg000:11F0 A5 17		     LDA     byte_17
 seg000:11F2 A2 63		     LDX     #$63	     ; Column 2
-seg000:11F4 20 2E 14		     JSR     copy_char_into_sprite_unshifted
+seg000:11F4 20 2E 14		     JSR     copy_char_into_sprite_unshifted ; AI car distance
 seg000:11F7 AD 64 C3		     LDA     byte_C364
 seg000:11FA D0 03		     BNE     loc_11FF
 seg000:11FC 20 54 11		     JSR     sub_1154
