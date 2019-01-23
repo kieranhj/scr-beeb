@@ -12,6 +12,7 @@ osasci = &FFE3
 oswrch = &FFEE
 osword = &FFF1
 osbyte = &FFF4
+oscli = &FFF7
 
 BRKV=&202
 IRQ1V = &204

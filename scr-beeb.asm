@@ -802,24 +802,24 @@ GUARD .disksys_loadto_addr
 
 	; BEEB SET SCREEN MODE 4
 
-	LDA #22
-	JSR oswrch
-	LDA #BEEB_SCREEN_MODE
-	JSR oswrch
+	; LDA #22
+	; JSR oswrch
+	; LDA #BEEB_SCREEN_MODE
+	; JSR oswrch
 
-	LDA #10: STA &FE00		; turn off cursor
-	LDA #32: STA &FE01
+	; LDA #10: STA &FE00		; turn off cursor
+	; LDA #32: STA &FE01
 
-	; BEEB SET SCREEN TO 8K
+	; ; BEEB SET SCREEN TO 8K
 
-	LDA #6:STA &FE00		; R6 = vertical displayed
-	LDA #25:STA &FE01		; 25 rows = 200 scanlines
+	; LDA #6:STA &FE00		; R6 = vertical displayed
+	; LDA #25:STA &FE01		; 25 rows = 200 scanlines
 
-	LDA #12:STA &FE00
-	LDA #HI(screen1_address/8):STA &FE01
+	; LDA #12:STA &FE00
+	; LDA #HI(screen1_address/8):STA &FE01
 
-	LDA #13:STA &FE00
-	LDA #LO(screen1_address/8):STA &FE01
+	; LDA #13:STA &FE00
+	; LDA #LO(screen1_address/8):STA &FE01
 
 	\\ Clear lower RAM
 
@@ -1141,6 +1141,10 @@ GUARD .disksys_loadto_addr
 
     CLI
 
+	; Sort out display.
+	jsr set_up_beeb_display
+	
+
 		jmp game_start		;425A 4C 22 3B
 
         ; ^^^ JUMP TO GAME START
@@ -1151,6 +1155,40 @@ GUARD .disksys_loadto_addr
     	EQUB $00
     	EQUB $00
 .L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
+}
+
+.set_up_beeb_display
+{
+; show main RAM, not shadow RAM.
+lda $fe34:and #$fe:sta $fe34
+
+; set up Mode 4 + palette.
+jsr beeb_set_mode_4
+
+; set up CRTC.
+ldx #13
+.loop
+lda crtc,x:stx $fe00:sta $fe01
+dex:bpl loop
+
+rts
+
+.crtc
+;    R0  R1  R2  R3  R4  R5  R6  R7  R8  R9  R10 R11
+equb $3f,$28,$31,$42,$26,$00,$19,$22,$01,$07,$20,$08
+equb HI(screen1_address/8) 		; R12
+equb LO(screen1_address/8)		; R13
+
+	; ; BEEB SET SCREEN TO 8K
+
+	; LDA #6:STA &FE00		; R6 = vertical displayed
+	; LDA #25:STA &FE01		; 25 rows = 200 scanlines
+
+	; LDA #12:STA &FE00
+	; LDA #HI(screen1_address/8):STA &FE01
+
+	; LDA #13:STA &FE00
+	; LDA #LO(screen1_address/8):STA &FE01
 }
 
 .convert_c64_pixels
@@ -1252,7 +1290,7 @@ PRINT "  End =", ~boot_end
 PRINT "  Size =", ~(boot_end - boot_start)
 PRINT "  Entry =", ~scr_entry
 PRINT "--------"
-SAVE "Loader", boot_start, boot_end, scr_entry
+SAVE "Loader2", boot_start, boot_end, scr_entry
 PRINT "--------"
 
 ; *****************************************************************************
@@ -1521,4 +1559,71 @@ PRINT "  Size =", ~(kernel_end - kernel_start)
 PRINT "  Free =", ~(&C000 - kernel_end)
 PRINT "-------"
 SAVE "Kernel", kernel_start, kernel_end, 0
+PRINT "-------"
+
+; *****************************************************************************
+; Title screen
+; *****************************************************************************
+CLEAR $0,$8000
+ORG $3000
+GUARD $8000
+INCBIN "build/scr-beeb-title-screen.dat"
+SAVE "Title",$3000,$8000,0
+
+; *****************************************************************************
+; Title screen loader
+; *****************************************************************************
+CLEAR $0,$8000
+ORG $1900
+
+.title_screen_loader_start
+{
+lda #0:ldx #$ff:jsr osbyte		; query machine type
+cpx #3:beq type_ok				; Master 128
+cpx #5:beq type_ok				; Master Compact
+
+ldx #master_required-text
+.print
+lda text,x:jsr osasci:cmp #13:beq done:inx:bne print
+.done:rts
+
+.type_ok
+lda #$ea:ldx #0:ldy #255:jsr osbyte ; query Tube presence
+cpx #0:beq tube_ok
+ldx #disable_tube-text:jmp print
+
+.tube_ok
+lda #22:jsr oswrch
+lda #2:jsr oswrch
+
+lda #10:sta $fe00:lda #32:sta $fe01 ; disable cursor
+
+lda #108:ldx #1:jsr osbyte		; page in shadow memory
+
+ldx #LO(load_title):ldy #HI(load_title):jsr oscli
+
+lda #108:ldx #0:jsr osbyte		; page in main memory
+lda #113:ldx #2:jsr osbyte		; display shadow memory
+
+ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
+
+.load_title:equs "LOAD Title":equb 13
+.run_loader2:equs "RUN Loader2":equb 13
+
+.text
+.master_required:equs "Master required",13
+.disable_tube:equs "Please disable the Tube",13
+
+}
+.title_screen_loader_end
+
+PRINT "-----------"
+PRINT "Title Screen Loader"
+PRINT "-----------"
+PRINT "  Start =", ~title_screen_loader_start
+PRINT "  End =", ~title_screen_loader_end
+PRINT "  Size =", ~(title_screen_loader_end - title_screen_loader_start)
+PRINT "  Free =", ~(&3000 - title_screen_loader_end)
+PRINT "-------"
+SAVE "Loader",title_screen_loader_start,title_screen_loader_end
 PRINT "-------"
