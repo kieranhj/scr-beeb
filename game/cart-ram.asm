@@ -1002,6 +1002,8 @@ rts
 
 .sysctl_copy_menu_header_graphic		; in Cart
 {
+	JMP beeb_unpack_menu
+
 		lda #C64_VIC_IRQ_DISABLE		;87C4 A9 00
 		sta VIC_IRQMASK		;87C6 8D 1A D0
 		sei				;87C9 78
@@ -4883,7 +4885,7 @@ L_14B6 = L_14B8-2
 
 MENU_AREA_LEFT = 4
 MENU_AREA_TOP = 9
-MENU_AREA_WIDTH = 28
+MENU_AREA_WIDTH = 24
 MENU_AREA_HEIGHT = 16
 MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
 

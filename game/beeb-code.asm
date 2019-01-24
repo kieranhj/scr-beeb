@@ -444,4 +444,21 @@ ENDIF
 	EQUB LO(screen1_address/8)	; R13 screen start address, low
 }
 
+.beeb_unpack_menu
+{
+    LDA &FE30
+    PHA
+    SWR_SELECT_SLOT BEEB_GRAPHICS_SLOT
+
+    LDA #HI(screen1_address)
+    LDX #LO(menu_header_compressed)
+    LDY #HI(menu_header_compressed)
+    JSR PUCRUNCH_UNPACK
+
+    PLA
+    STA &F4
+    STA &FE30
+    RTS
+}
+
 .beeb_code_end
