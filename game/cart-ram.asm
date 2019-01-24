@@ -6222,10 +6222,9 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 
 .draw_track_preview_border			; called from game_start
 {
-if TRUE
+if FANCY_TRACK_PREVIEW
 
-jsr preview_draw_border
-rts
+jmp preview_draw_border
 
 else
 
@@ -6341,34 +6340,38 @@ endif
 
 }
 
-; ; moved from boot data.
-; .track_preview_border_start
-; .track_preview_border_0
-; EQUB $AA,$AA,$AA,$AA,$AA,$AA,$01,$01,$AA,$AA,$AA,$AA,$AA,$AA,$50,$50
-; EQUB $AA,$AA,$AA,$AA,$AA,$AA,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
+if NOT(FANCY_TRACK_PREVIEW)
 
-; .track_preview_border_1	
-; EQUB $A8,$A8,$A8,$A8,$A8,$A8,$01,$01,$0A,$0A,$0A,$0A,$0A,$0A,$50,$50
-; EQUB $80,$80,$80,$80,$80,$80,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
+; moved from boot data.
+.track_preview_border_start
+.track_preview_border_0
+EQUB $AA,$AA,$AA,$AA,$AA,$AA,$01,$01,$AA,$AA,$AA,$AA,$AA,$AA,$50,$50
+EQUB $AA,$AA,$AA,$AA,$AA,$AA,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
 
-; .track_preview_border_2
-; EQUB $54,$54,$02,$02,$02,$02,$02,$02,$05,$05,$A0,$A0,$A0,$A0,$A0,$A0
-; EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$00,$00,$00,$00,$00,$00,$00,$00
+.track_preview_border_1	
+EQUB $A8,$A8,$A8,$A8,$A8,$A8,$01,$01,$0A,$0A,$0A,$0A,$0A,$0A,$50,$50
+EQUB $80,$80,$80,$80,$80,$80,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
 
-; .track_preview_border_3
-; EQUB $54,$54,$AA,$AA,$AA,$AA,$AA,$AA,$05,$05,$AA,$AA,$AA,$AA,$AA,$AA
-; EQUB $40,$40,$AA,$AA,$AA,$AA,$AA,$AA,$00,$00,$00,$00,$00,$00,$00,$00
+.track_preview_border_2
+EQUB $54,$54,$02,$02,$02,$02,$02,$02,$05,$05,$A0,$A0,$A0,$A0,$A0,$A0
+EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$00,$00,$00,$00,$00,$00,$00,$00
 
-; .L_6630
-; EQUB $A8,$A8,$A8,$A8,$A8,$A8,$A9,$A9,$A8,$A8,$A8,$A8,$A8,$A8,$01,$01 ; 6630
-; EQUB $A9,$A9,$A9,$A9,$A8,$A8,$A8,$A8,$01,$01,$01,$01,$A8,$A8,$A8,$A8 ; 6770
-; EQUB $A8,$A8,$A9,$A9,$A9,$A9,$A9,$A9,$A8,$A8,$01,$01,$01,$01,$01,$01 ; 68b0
+.track_preview_border_3
+EQUB $54,$54,$AA,$AA,$AA,$AA,$AA,$AA,$05,$05,$AA,$AA,$AA,$AA,$AA,$AA
+EQUB $40,$40,$AA,$AA,$AA,$AA,$AA,$AA,$00,$00,$00,$00,$00,$00,$00,$00
 
-; .L_6640
-; EQUB $40,$40,$40,$40,$40,$40,$2A,$2A,$6A,$6A,$6A,$6A,$6A,$6A,$2A,$2A ; 6640
-; EQUB $2A,$2A,$2A,$2A,$40,$40,$40,$40,$2A,$2A,$2A,$2A,$6A,$6A,$6A,$6A ; 6780
-; EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
-; .track_preview_border_end
+.L_6630
+EQUB $A8,$A8,$A8,$A8,$A8,$A8,$A9,$A9,$A8,$A8,$A8,$A8,$A8,$A8,$01,$01 ; 6630
+EQUB $A9,$A9,$A9,$A9,$A8,$A8,$A8,$A8,$01,$01,$01,$01,$A8,$A8,$A8,$A8 ; 6770
+EQUB $A8,$A8,$A9,$A9,$A9,$A9,$A9,$A9,$A8,$A8,$01,$01,$01,$01,$01,$01 ; 68b0
+
+.L_6640
+EQUB $40,$40,$40,$40,$40,$40,$2A,$2A,$6A,$6A,$6A,$6A,$6A,$6A,$2A,$2A ; 6640
+EQUB $2A,$2A,$2A,$2A,$40,$40,$40,$40,$2A,$2A,$2A,$2A,$6A,$6A,$6A,$6A ; 6780
+EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
+.track_preview_border_end
+
+endif
 
 .draw_track_preview_track_name			; called from game_start
 {

@@ -61,6 +61,10 @@ KEY_RETURN = IKN_return
 KEY_RIGHT_SHIFT = IKN_shift		;$26	; right shift
 KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
 
+; If TRUE, add extra background and hand-drawn border to the track
+; preview screen. Otherwise, use the (minimally fixed up) C64 version.
+FANCY_TRACK_PREVIEW = TRUE
+
 ; *****************************************************************************
 ; MACROS
 ; *****************************************************************************
@@ -1255,9 +1259,11 @@ equb BEEB_CART_SLOT
 ; equw L_4F00+64,L_4F00+64+$4e8
 ; equb BEEB_CART_SLOT
 
+if NOT(FANCY_TRACK_PREVIEW)
 ; cart-ram.asm - track preview border.
-; equw track_preview_border_start,track_preview_border_end
-; equb BEEB_CART_SLOT
+equw track_preview_border_start,track_preview_border_end
+equb BEEB_CART_SLOT
+endif
 
 ; ; cart-ram.asm - wheel stuff.
 ; equw wheel_data_begin,wheel_data_end
