@@ -1256,8 +1256,8 @@ equb BEEB_CART_SLOT
 ; equb BEEB_CART_SLOT
 
 ; cart-ram.asm - track preview border.
-equw track_preview_border_start,track_preview_border_end
-equb BEEB_CART_SLOT
+; equw track_preview_border_start,track_preview_border_end
+; equb BEEB_CART_SLOT
 
 ; ; cart-ram.asm - wheel stuff.
 ; equw wheel_data_begin,wheel_data_end

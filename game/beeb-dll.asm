@@ -877,6 +877,10 @@ ENDIF
 .dash_update_best_lap_time DLL_CALL_GRAPHICS _dash_update_best_lap_time, 10
 .dash_update_flag_icon DLL_CALL_GRAPHICS _dash_update_flag_icon, 11
 .dash_update_stopwatch_icon DLL_CALL_GRAPHICS _dash_update_stopwatch_icon, 12
+.preview_draw_border DLL_CALL_GRAPHICS _preview_draw_border, 13
+.preview_fix_up_cleared_screen DLL_CALL_GRAPHICS _preview_fix_up_cleared_screen, 14
+.preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -896,6 +900,9 @@ ENDIF
 	EQUB LO(_dash_update_best_lap_time)			; 10
 	EQUB LO(_dash_update_flag_icon)				; 11
 	EQUB LO(_dash_update_stopwatch_icon)		; 12
+	EQUB LO(_preview_draw_border)				; 13
+	EQUB LO(_preview_fix_up_cleared_screen)		; 14
+	EQUB LO(_preview_add_background)			; 15
 }
 
 .graphics_table_HI
@@ -913,6 +920,9 @@ ENDIF
 	EQUB HI(_dash_update_best_lap_time)			; 10
 	EQUB HI(_dash_update_flag_icon)				; 11
 	EQUB HI(_dash_update_stopwatch_icon)		; 12
+	EQUB HI(_preview_draw_border)				; 13
+	EQUB HI(_preview_fix_up_cleared_screen)		; 14
+	EQUB HI(_preview_add_background)			; 15
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"
