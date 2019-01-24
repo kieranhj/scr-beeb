@@ -1234,87 +1234,99 @@ jmp preview_initialise_corners
 {
 jsr preview_save_zp
 
-lda #LO(preview_area_background_data):sta preview_ZP_src+0
-lda #HI(preview_area_background_data):sta preview_ZP_src+1
+jsr clear_C600
 
-lda #0
+ldy #64
 
-.columns_loop
-sta x
+.one_row
 
-; 64 = top of screen - same units as the horizon table.
-lda #64
-sta y
+sty y
 
-lda #0
-sta src_index
-sta mask
+lda y
+sec:sbc #64
+lsr a:lsr a:lsr a
+pha
 
-.copy_column_loop
+lda y
+and #7
+clc
+adc #LO(preview_area_background_data)
+sta preview_ZP_src+0
+
+pla
+adc #HI(preview_area_background_data)
+sta preview_ZP_src+1
+
+clc
+; Point to left edge of preview area.
+tya:adc Q_pointers_LO,y:sta preview_ZP_dest+0
+lda Q_pointers_HI,y:adc #0:sta preview_ZP_dest+1
+
+; Position in columns - 0-31.
+ldx #0
+
+.one_byte
+
+stx x
+
+; skip this byte if it's entirely hidden.
+lda L_C600,x:cmp #$ff:beq next_column
 
 lda #0:sta mask_tmp
 
-ldx x
+; X = X position in pixels.
+txa:asl a:asl a:tax
+
+; Y = X position as byte offset.
+asl a:tay
+
+; Form mask - 0 = background, 1 = screen
 lda y
 cmp L_C640+0,X:rol mask_tmp
 cmp L_C640+1,X:rol mask_tmp
 cmp L_C640+2,X:rol mask_tmp
 cmp L_C640+3,X:rol mask_tmp
 
-; convert into proper pixel mask.
+; Form pixel mask from that - 0 = background, 3 = screen
 lda mask_tmp:asl a:asl a:asl a:asl a:ora mask_tmp
 
-; accumulate.
-ora mask
+; Accumlate.
+ldx x:ora L_C600,x:sta L_C600,x
 
-; check if all 4 pixels' columns done...
-cmp #$ff:beq next_column
+; Form masked background byte.
+eor #$ff:and (preview_ZP_src),y:sta mask_tmp
 
-sta mask
+; Form masked screen byte.
+lda (preview_ZP_dest),y:and L_C600,x
 
-; form masked source byte.
-eor #$ff
-ldy src_index
-and (preview_ZP_src),y:sta mask_tmp
-
-; form screen address.
-ldy y
-lda x
-asl A							; turn into column byte offset (and C=0)
-adc Q_pointers_LO,y
-sta preview_ZP_dest+0
-
-lda Q_pointers_HI,y
-adc #0
-sta preview_ZP_dest+1
-
-; form masked screen byte.
-ldy y:lda (preview_ZP_dest),y:and mask
-
-; merge and write.
-ora mask_tmp
-sta (preview_ZP_dest),y
-
-; next row.
-inc y
-inc src_index
-lda src_index
-cmp #preview_area_background_height
-bne copy_column_loop
+; Merge and write.
+ora mask_tmp:sta (preview_ZP_dest),y
 
 .next_column
-clc
-lda preview_ZP_src+0
-adc #preview_area_background_height
-sta preview_ZP_src+0
-{bcc noc:inc preview_ZP_src+1:.noc}
+inx
+cpx #32
+bne one_byte
 
-clc:lda x:adc #4
-bmi done
-jmp columns_loop
+ldy y
+iny
+cpy #64+preview_area_background_height
+beq done
+jmp one_row
 .done
 
+jsr clear_C600
+
 jmp preview_restore_zp
+
+.clear_C600
+; This table doesn't appear to be used for anything during the track
+; preview process, so I'm sure this is perfectly safe...
+ldx #31
+lda #0
+.init_loop
+sta L_C600,x
+dex:bpl init_loop
+rts
 
 ; mask: 1=draw screen, 0=draw background.
 .mask_tmp:equb 0

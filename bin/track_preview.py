@@ -107,16 +107,14 @@ def main(options):
     # Arrange the backdrop in columns.
     while area[area_height].count(3)==len(area[area_height]): area_height-=1
 
-    print
+    # Adjust background so it's an even number of character rows.
+    area_height=(area_height+7)//8*8
+
     print 'preview_area_background_height=%d'%area_height
 
-    print
+    print 
     print '.preview_area_background_data'
-    values=[]
-    for x in range(0,128,4):
-        for y in range(0,area_height):
-            values.append(bbc.pack_2bpp(area[y][x:x+4]))
-    equb(values,area_height)
+    equb(pack(area,0,0,128,area_height),8)
             
 
 ##########################################################################
