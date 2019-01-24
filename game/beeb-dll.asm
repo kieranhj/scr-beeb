@@ -531,7 +531,7 @@ ENDIF
 .cart_L_14D0_from_main_loop DLL_CALL_CART L_14D0_from_main_loop, 28
 .cart_L_1611 DLL_CALL_CART L_1611, 29
 .cart_save_rndQ_stateQ DLL_CALL_CART save_rndQ_stateQ, 30
-.cart_L_1637 DLL_CALL_CART L_1637, 31
+.cart_load_rndQ_stateQ DLL_CALL_CART load_rndQ_stateQ, 31
 .cart_draw_trackQ DLL_CALL_CART draw_trackQ, 32
 .cart_make_near_road_coords DLL_CALL_CART make_near_road_coords, 33
 .cart_L_1A3B DLL_CALL_CART L_1A3B, 34
@@ -562,8 +562,8 @@ ENDIF
 .cart_print_driver_v_driver DLL_CALL_CART print_driver_v_driver, 58
 .cart_do_driver_league_changes DLL_CALL_CART do_driver_league_changes, 59
 .cart_menu_colour_map_stuff DLL_CALL_CART menu_colour_map_stuff, 60
-.cart_L_39D1 DLL_CALL_CART L_39D1, 61
-.cart_L_39F1 DLL_CALL_CART L_39F1, 62
+.cart_get_menu_screen_ptr DLL_CALL_CART get_menu_screen_ptr, 61
+.cart_prep_menu_graphics DLL_CALL_CART prep_menu_graphics, 62
 .cart_set_up_colour_map_for_track_preview DLL_CALL_CART set_up_colour_map_for_track_preview, 63
 
 .cart_start_of_frame DLL_CALL_CART start_of_frame, 64
@@ -617,7 +617,7 @@ ENDIF
 	EQUB LO(L_14D0_from_main_loop)
 	EQUB LO(L_1611)
 	EQUB LO(save_rndQ_stateQ)
-	EQUB LO(L_1637)
+	EQUB LO(load_rndQ_stateQ)
 	EQUB LO(draw_trackQ)
 	EQUB LO(make_near_road_coords)
 	EQUB LO(L_1A3B)
@@ -648,8 +648,8 @@ ENDIF
 	EQUB LO(print_driver_v_driver)
 	EQUB LO(do_driver_league_changes)
 	EQUB LO(menu_colour_map_stuff)
-	EQUB LO(L_39D1)
-	EQUB LO(L_39F1)
+	EQUB LO(get_menu_screen_ptr)
+	EQUB LO(prep_menu_graphics)
 	EQUB LO(set_up_colour_map_for_track_preview)
 
 	EQUB LO(start_of_frame)
@@ -700,7 +700,7 @@ ENDIF
 	EQUB HI(L_14D0_from_main_loop)
 	EQUB HI(L_1611)
 	EQUB HI(save_rndQ_stateQ)
-	EQUB HI(L_1637)
+	EQUB HI(load_rndQ_stateQ)
 	EQUB HI(draw_trackQ)
 	EQUB HI(make_near_road_coords)
 	EQUB HI(L_1A3B)
@@ -731,8 +731,8 @@ ENDIF
 	EQUB HI(print_driver_v_driver)
 	EQUB HI(do_driver_league_changes)
 	EQUB HI(menu_colour_map_stuff)
-	EQUB HI(L_39D1)
-	EQUB HI(L_39F1)
+	EQUB HI(get_menu_screen_ptr)
+	EQUB HI(prep_menu_graphics)
 	EQUB HI(set_up_colour_map_for_track_preview)
 
 	EQUB HI(start_of_frame)

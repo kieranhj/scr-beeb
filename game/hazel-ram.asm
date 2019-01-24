@@ -201,7 +201,7 @@
 .L_C3D4	skip 3
 .L_C3D7	skip 1
 .L_C3D8	skip 1
-.L_C3D9	skip 1
+.write_char_pixel_offset	skip 1
 .L_C3DA	skip 2
 .L_C3DC	skip 3
 .L_C3DF	skip &20
@@ -413,31 +413,19 @@ ENDIF
 
 ; L_A4C0
 .pixel_masks_2
-IF 1
 		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
 		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
 		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
 		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
-
-.Q_pointers_LO
-		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
-		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
-		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
-		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
-ELSE
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
 
 ; $A500 LO pointers?
 
 .Q_pointers_LO
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-		equb $7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD,$7F,$DF,$F7,$FD
-ENDIF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+		EQUB &7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF,&7F,&BF,&DF,&EF
+
 		equb $60,$60,$60,$60,$60,$60,$60,$60,$98,$98,$98,$98,$98,$98,$98,$98
 		equb $D0,$D0,$D0,$D0,$D0,$D0,$D0,$D0,$08,$08,$08,$08,$08,$08,$08,$08
 		equb $40,$40,$40,$40,$40,$40,$40,$40,$78,$78,$78,$78,$78,$78,$78,$78
