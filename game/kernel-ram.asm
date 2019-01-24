@@ -2294,7 +2294,8 @@
 		jsr cart_sysctl		;98FC 20 25 87
 		lda #$06		;98FF A9 06
 		sta VIC_EXTCOL		;9901 8D 20 D0
-		lda #$5F		;9904 A9 5F
+		; BEEB was $5F but need to clear entire MODE 1 screen
+		lda #$7F		;9904 A9 5F
 		sta ZP_1F		;9906 85 1F
 		ldy #$00		;9908 A0 00
 		sty ZP_1E		;990A 84 1E

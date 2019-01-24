@@ -6706,7 +6706,7 @@ EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
 		ldy L_3017,X	;2FEE BC 17 30
 		ldx #$58		;2FF1 A2 58
 		lda #$14		;2FF3 A9 14
-		jsr plot_menu_line_colour_3		;2FF5 20 4F 3A
+		jsr plot_preview_line_colour_3		;2FF5 20 4F 3A
 		dec ZP_17		;2FF8 C6 17
 		bpl L_2FEC		;2FFA 10 F0
 		lda #$03		;2FFC A9 03
@@ -6714,13 +6714,13 @@ EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
 		ldx #$54		;3000 A2 54
 		ldy #$E9		;3002 A0 E9
 		lda #$14		;3004 A9 14
-		jsr plot_menu_vertical_line		;3006 20 66 3A
+		jsr plot_preview_vertical_line		;3006 20 66 3A
 		lda #$C0		;3009 A9 C0
 		sta ZP_15		;300B 85 15
 		ldx #$A8		;300D A2 A8
 		ldy #$E9		;300F A0 E9
 		lda #$14		;3011 A9 14
-		jsr plot_menu_vertical_line		;3013 20 66 3A
+		jsr plot_preview_vertical_line		;3013 20 66 3A
 		rts				;3016 60
 
 .L_3017	equb $D6,$D7,$E8,$E9		; y positions of box horizontals
@@ -7131,6 +7131,7 @@ EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
 
 .plot_menu_wood_surround				; in Cart
 {
+	RTS
 		lda #$01		;398D A9 01
 		sta ZP_17		;398F 85 17
 .L_3991	ldy #$F7		;3991 A0 F7

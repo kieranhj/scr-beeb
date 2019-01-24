@@ -483,11 +483,11 @@ ENDIF
 {
 		lda #$00		;3504 A9 00
 		jsr vic_set_border_colour		;3506 20 BB 3F
-		jsr cart_draw_menu_header		;3509 20 49 1C
 		lda #$01		;350C A9 01		; 'MODE 1'
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
 		sta irq_mode		;3513 8D F8 3D
+		jsr cart_draw_menu_header		;3509 20 49 1C
 		jsr cart_prep_menu_graphics		;3516 20 F1 39
 		jsr set_up_screen_for_menu		;3519 20 1F 35
 		jmp ensure_screen_enabled		;351C 4C 9E 3F
@@ -787,9 +787,94 @@ ENDIF
 		sta ZP_14		;3A4F 85 14
 		lda #BEEB_PIXELS_COLOUR3		;3A51 A9 FF
 
-; A=screen byte
+; A=screen byte; X,Y=pixel coords
 .plot_menu_line
 {
+		sta ZP_16		;3A53 85 16
+
+\\ Rewritten horizontal line draw routine for MODE 1
+
+		jsr get_mode1_menu_screen_ptr
+
+		.loop
+		lda ZP_16		;3A58 A5 16
+
+		ldy #0
+		sta (ZP_1E),Y	;3A5A 91 1E
+		ldy #8
+		sta (ZP_1E),Y	;3A5A 91 1E
+
+		clc
+		lda ZP_1E
+		adc #16
+		sta ZP_1E
+		lda ZP_1F
+		adc #0
+		sta ZP_1F
+
+		dec ZP_14		;3A61 C6 14
+		bne loop		;3A63 D0 F0
+		rts				;3A65 60
+}
+
+.get_mode1_menu_screen_ptr
+{
+	lda #0
+	sta ZP_1F
+
+	; (X-$30) * 4 for char address
+
+	txa
+	sec
+	sbc #$30
+	.ok
+	asl A
+	rol ZP_1F
+	asl A
+	rol ZP_1F
+	sta ZP_1E
+
+	; (y-$30)/8 row address
+
+	tya
+	sec
+	sbc #$30
+	lsr A:lsr A: lsr A
+	tax
+	clc
+	lda mode1_screen_LO, X
+	adc ZP_1E
+	sta ZP_1E
+	lda mode1_screen_HI, X
+	adc ZP_1F
+	sta ZP_1F
+
+	; y=y % 8
+
+	tya
+	and #7
+	clc
+	adc ZP_1E
+	sta ZP_1E
+	
+	rts
+
+.mode1_screen_LO
+FOR y,0,24,1
+EQUB LO(screen1_address + y*$280)
+NEXT
+
+.mode1_screen_HI
+FOR y,0,24,1
+EQUB HI(screen1_address + y*$280)
+NEXT
+}
+
+; A=width in chars; X,Y pixel coords
+.plot_preview_line_colour_3
+{
+		sta ZP_14		;3A4F 85 14
+		lda #BEEB_PIXELS_COLOUR3		;3A51 A9 FF
 		sta ZP_16		;3A53 85 16
 
 	.loop
@@ -805,8 +890,8 @@ ENDIF
 		rts				;3A65 60
 }
 
-; A=width in chars, ZP_15=screen byte, 
-.plot_menu_vertical_line
+; A=width in chars; X,Y pixel coords
+.plot_preview_vertical_line
 {
 		sta ZP_14		;3A66 85 14
 .L_3A68	jsr cart_get_menu_screen_ptr		;3A68 20 D1 39
