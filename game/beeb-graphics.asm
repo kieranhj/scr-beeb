@@ -1036,12 +1036,13 @@ cmp dash_icon_colours,x:beq done
 
 sta dash_icon_colours,x:sta _and+1
 
-; Each icon is 7 scanlines high, so only process 15 bytes in total,
-; and skip offset 7.
+; Each icon is 7 scanlines high.
 ldy dash_icon_offsets,x
-ldx #15
+jsr do
+iny								; skip 7th row
+.do
+ldx #7
 .loop
-cpy #7:beq next
 lda icon_0_addr,y				; abcdefgh
 lsr a:lsr a:lsr a:lsr a			; 0000abcd
 ora icon_0_addr,y				; abcdxyzw
