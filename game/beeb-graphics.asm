@@ -12,11 +12,14 @@ skip 2560						; book space for the Mode 1 version...
 
 include "build/wheels-tables.asm"
 
+; Don't remember why I called this "HUD" and not "dash"...
 include "build/hud-font-tables.asm"
 
 if FANCY_TRACK_PREVIEW
 include "build/track-preview.asm"
 endif
+
+include "build/dash-icons.asm"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1015,52 +1018,71 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Icon 0 = checquered flag; icon 1 = stopwatch.
+; Icon 0 = checquered flag ($7d27); icon 1 = stopwatch ($7d97)
+;
+; Each icon is 2 columns * 7 pixels = 14 bytes.
+;
+; There are 4 icons stored in the buffer:
+;
+; 0 = icon 0 off
+; 1 = icon 0 on
+; 2 = icon 1 off
+; 3 = icon 1 on
 
-icon_0_addr=$7e60
+.dash_icon_c64_colours
+equb 7							; on
+equb 7							; on
 
 .dash_icon_offsets
-equb 0							; $7e60
-equb $d0-$60					; $7ed0
+equb dash_icon_0-dash_icons
+equb dash_icon_1-dash_icons
 
-.dash_icon_colours
-equb $ff
-equb $ff
+.dash_icon_dest_addrs_LO:equb LO(dash_icon_0_addr),LO(dash_icon_1_addr)
+.dash_icon_dest_addrs_HI:equb HI(dash_icon_0_addr),HI(dash_icon_1_addr)
 
-; the C64 dash icon colours are either 7 (yellow) or 11 (dark grey).
+; the C64 dash icon colours are either 7 (yellow, on) or 11 (dark
+; grey, off).
 .dash_set_icon_state
 {
-lda #$f0						; "grey"
+tya
+cmp dash_icon_c64_colours,x
+bne set_icon_state
+rts
+
+.set_icon_state
+sta dash_icon_c64_colours,x
+
+jsr dash_save_zp
+
+lda dash_icon_offsets,x
 cpy #7							; yellow?
 bne got_colour					; taken if grey
-lda #$ff						; yellow
+adc #14-1						; offset to on version, -1 as C=1
 .got_colour
 
-cmp dash_icon_colours,x:beq done
+ldy dash_icon_dest_addrs_LO,x:sty dash_ZP_ptr0+0
+ldy dash_icon_dest_addrs_HI,x:sty dash_ZP_ptr0+1
 
-sta dash_icon_colours,x:sta _and+1
+tax
 
-; Each icon is 7 scanlines high.
-ldy dash_icon_offsets,x
-jsr do
-iny								; skip 7th row
-.do
-ldx #7
-.loop
-lda icon_0_addr,y				; abcdefgh
-lsr a:lsr a:lsr a:lsr a			; 0000abcd
-ora icon_0_addr,y				; abcdxyzw
-and #$0f						; 0000xyzw
-sta or+1
-asl a:asl a:asl a:asl a			; xyzw0000
-.or:ora #$ff					; xyzwxyzw
-._and:and #$ff
-sta icon_0_addr,y
-.next
-iny
-dex
-bne loop
-.done
+ldy #7:lda dash_icons,x:inx:sta (dash_ZP_ptr0),y
+ldy #15:lda dash_icons,x:inx:sta (dash_ZP_ptr0),y
+
+clc
+lda dash_ZP_ptr0+0:adc #$40:sta dash_ZP_ptr0+0
+lda dash_ZP_ptr0+1:adc #$01:sta dash_ZP_ptr0+1
+
+ldy #0:jsr copy6
+ldy #8:jsr copy6
+
+jmp dash_restore_zp
+
+.copy6
+lda #6:sta dash_ZP_offset
+.copy6_loop
+lda dash_icons,x:sta (dash_ZP_ptr0),y
+inx:iny
+dec dash_ZP_offset:bne copy6_loop
 rts
 }
 

@@ -17,6 +17,8 @@ build:
 
 	python bin/hud_font.py > build/hud-font-tables.asm
 
+	python bin/dash_icons.py > build/dash-icons.asm
+
 	python bin/track_preview.py > build/track-preview.asm
 
 	beebasm -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
