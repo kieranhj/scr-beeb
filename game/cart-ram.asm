@@ -1769,6 +1769,9 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		lda ZP_12		;8F85 A5 12
 		beq L_8FEB		;8F87 F0 62
 		ldx #$00		;8F89 A2 00
+
+; Clear buffer 2
+
 .L_8F8B	lda #$FF		;8F8B A9 FF
 		sta $62A0,X		;8F8D 9D A0 62
 		sta $63E0,X		;8F90 9D E0 63
@@ -1789,6 +1792,7 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		sta $7420,X		;8FBD 9D 20 74
 		dex				;8FC0 CA
 		bne L_8F8B		;8FC1 D0 C8
+		
 		ldx #$17		;8FC3 A2 17
 .L_8FC5	lda L_C200,X	;8FC5 BD 00 C2
 		sta $75A0,X		;8FC8 9D A0 75
@@ -1800,12 +1804,38 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		sta $7648,X		;8FDA 9D 48 76
 		dex				;8FDD CA
 		bpl L_8FC5		;8FDE 10 E5
-		lda #$F0		;8FE0 A9 F0
-		; sta L_7578		;8FE2 8D 78 75
-		lda #$0F		;8FE5 A9 0F
-		; sta L_7640		;8FE7 8D 40 76
+		
 		rts				;8FEA 60
-.L_8FEB	ldx #$00		;8FEB A2 00
+
+; Clear buffer 1.
+
+.L_8FEB
+		bit L_8F81
+		bmi copy_everything
+
+		ldx #$00
+.L_8FED_2
+		lda #$FF		;8FED A9 FF
+		sta $42A0,X	    ;8FEF 9D A0 42
+		sta $43E0,X	    ;8FF2 9D E0 43
+		sta $4520,X	    ;8FF5 9D 20 45
+		sta $4660,X	    ;8FF8 9D 60 46
+		sta $47A0,X	    ;8FFB 9D A0 47
+		sta $48E0,X	    ;8FFE 9D E0 48
+		sta $4A20,X	    ;9001 9D 20 4A
+		sta $4B60,X	    ;9004 9D 60 4B
+		sta $4CA0,X	    ;9007 9D A0 4C
+		sta $4DE0,X	    ;900A 9D E0 4D
+		sta $4F20,X	    ;900D 9D 20 4F
+		sta $5060,X	    ;9010 9D 60 50
+		sta $51A0,X	    ;9013 9D A0 51
+.L_9027_2
+		dex				;9027 CA
+		bne L_8FED_2	;9028 D0 C3
+		rts
+
+.copy_everything
+		ldx #$00		;8FEB A2 00
 .L_8FED	lda #$FF		;8FED A9 FF
 		sta $42A0,X	    ;8FEF 9D A0 42
 		sta $43E0,X	    ;8FF2 9D E0 43
@@ -1820,16 +1850,18 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		sta $4F20,X	    ;900D 9D 20 4F
 		sta $5060,X	    ;9010 9D 60 50
 		sta $51A0,X	    ;9013 9D A0 51
-		bit L_8F81		;9016 2C 81 8F
-		bpl L_9027		;9019 10 0C
+		; bit L_8F81		;9016 2C 81 8F
+		; bpl L_9027		;9019 10 0C
 		lda L_C000,X	;901B BD 00 C0
 		sta $52E0,X	    ;901E 9D E0 52
 		lda L_C100,X	;9021 BD 00 C1
 		sta $5420,X	    ;9024 9D 20 54
 .L_9027	dex				;9027 CA
 		bne L_8FED		;9028 D0 C3
-		bit L_8F81		;902A 2C 81 8F
-		bpl L_9056		;902D 10 27
+		
+		; bit L_8F81		;902A 2C 81 8F
+		; bpl L_9056		;902D 10 27
+		
 		ldx #$17		;902F A2 17
 .L_9031	lda L_C200,X	;9031 BD 00 C2
 		sta $55A0,X		;9034 9D A0 55
@@ -1841,10 +1873,7 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		sta $5648,X	    ;9046 9D 48 56
 		dex				;9049 CA
 		bpl L_9031		;904A 10 E5
-		lda #$F0		;904C A9 F0
-		; sta L_5578		;904E 8D 78 55
-		lda #$0F		;9051 A9 0F
-		; sta L_5640		;9053 8D 40 56
+		
 .L_9056	rts				;9056 60
 
 .L_8F81	equb $00
