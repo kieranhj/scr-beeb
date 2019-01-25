@@ -1082,7 +1082,7 @@ ENDIF
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
 
 		IF _DEBUG
-		JSR beeb_debug_framerate
+		JSR graphics_draw_debug_framerate
 		ENDIF
 		
 		jsr flip_display_page		;3D2C 20 42 3F

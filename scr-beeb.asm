@@ -1123,8 +1123,6 @@ GUARD .disksys_loadto_addr
 
 	; BEEB LATE INIT
 
-	JSR beeb_plot_font_init
-
 	; BEEB SET INTERRUPT HANDLER
 
     SEI

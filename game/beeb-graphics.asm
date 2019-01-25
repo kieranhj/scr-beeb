@@ -1344,4 +1344,45 @@ endif
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+IF _DEBUG
+._graphics_draw_debug_framerate
+{
+sec
+lda vsync_counter
+tax
+sbc prev_vsync
+cmp #10
+bcc ok
+lda #9
+.ok
+stx prev_vsync
+
+asl a							; n*2
+sta beeb_writeptr
+asl a							; n*4, C=0
+adc beeb_writeptr
+tax								; n*6
+
+lda #0:sta beeb_writeptr
+clc
+lda ZP_12:adc #HI(screen1_address):sta beeb_writeptr+1
+
+ldy #5
+.loop
+sty reload_y+1
+ldy hud_font,x
+lda hud_font_shift0,y
+eor #$ff
+.reload_y:ldy #$ff
+sta (beeb_writeptr),y
+inx
+dey
+bpl loop
+
+rts
+
+.prev_vsync:equb 0
+}
+ENDIF
+
 .beeb_graphics_end

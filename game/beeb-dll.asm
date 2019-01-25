@@ -573,11 +573,6 @@ ENDIF
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 .cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
 .cart_print_track_title DLL_CALL_CART print_track_title, 70
-.beeb_plot_font_init DLL_CALL_CART BEEB_PLOT_FONT_INIT, 71
-.beeb_plot_font_glyph DLL_CALL_CART BEEB_PLOT_FONT_GLYPH, 72
-.beeb_plot_font_string DLL_CALL_CART BEEB_PLOT_FONT_STRING, 73
-.beeb_plot_font_bcd DLL_CALL_CART BEEB_PLOT_FONT_BCD, 74
-
 
 ; *****************************************************************************
 \\ Function addresses
@@ -659,11 +654,6 @@ ENDIF
 	EQUB LO(set_text_cursor)
 	EQUB LO(print_number_unpadded)
 	EQUB LO(print_track_title)
-	EQUB LO(BEEB_PLOT_FONT_INIT)
-	EQUB LO(BEEB_PLOT_FONT_GLYPH)
-	EQUB LO(BEEB_PLOT_FONT_STRING)
-	EQUB LO(BEEB_PLOT_FONT_BCD)
-	EQUB LO(_graphics_draw_flames)
 }
 
 .cart_table_HI
@@ -742,11 +732,6 @@ ENDIF
 	EQUB HI(set_text_cursor)
 	EQUB HI(print_number_unpadded)
 	EQUB HI(print_track_title)
-	EQUB HI(BEEB_PLOT_FONT_INIT)
-	EQUB HI(BEEB_PLOT_FONT_GLYPH)
-	EQUB HI(BEEB_PLOT_FONT_STRING)
-	EQUB HI(BEEB_PLOT_FONT_BCD)
-	EQUB HI(_graphics_draw_flames)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
@@ -882,6 +867,7 @@ if FANCY_TRACK_PREVIEW
 .preview_fix_up_cleared_screen DLL_CALL_GRAPHICS _preview_fix_up_cleared_screen, 14
 .preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
 endif
+.graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
 
 ; *****************************************************************************
 \\ Function addresses
@@ -905,6 +891,7 @@ endif
 	EQUB LO(_preview_draw_border)				; 13
 	EQUB LO(_preview_fix_up_cleared_screen)		; 14
 	EQUB LO(_preview_add_background)			; 15
+	EQUB LO(_graphics_draw_debug_framerate)		; 16
 }
 
 .graphics_table_HI
@@ -925,6 +912,7 @@ endif
 	EQUB HI(_preview_draw_border)				; 13
 	EQUB HI(_preview_fix_up_cleared_screen)		; 14
 	EQUB HI(_preview_add_background)			; 15
+	EQUB HI(_graphics_draw_debug_framerate)		; 16
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"
