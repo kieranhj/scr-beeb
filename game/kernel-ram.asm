@@ -896,11 +896,17 @@
 
 .L_0F2A
 {
+
+; update last lap display timer.
+
 		lda ZP_82		;0F2A A5 82
 		beq L_0F35		;0F2C F0 07
 		dec ZP_82		;0F2E C6 82
 		bne L_0F35		;0F30 D0 03
 		jsr L_0F9C		;0F32 20 9C 0F
+
+; add 0.2 seconds to lap times 0 and 1.
+
 .L_0F35	ldx #$01		;0F35 A2 01
 .L_0F37	jsr L_109C		;0F37 20 9C 10
 		jsr L_0FAD		;0F3A 20 AD 0F
@@ -1097,34 +1103,67 @@
 		rts				;109B 60
 }
 
+
+; Add 0.2 second to a lap time.
 .L_109C			; in kernel
-		lda #$14		;109C A9 14
+		lda #$14		;109C A9 14 $14 = 20
+
+; Add BCD hundredths of a second to a lap time.
 .L_109E			; in kernel
 {
 		sed				;109E F8
+
+; Add to lap fractional seconds.
+
 		clc				;109F 18
 		adc L_8298,X	;10A0 7D 98 82
 		sta L_8298,X	;10A3 9D 98 82
 		bcc L_10D7		;10A6 90 2F
+
+; Carry - increment seconds.
+
 		lda L_82B0,X	;10A8 BD B0 82
 		adc #$00		;10AB 69 00
 		sta L_82B0,X	;10AD 9D B0 82
+
+; 60 seconds reached?
+
 		cmp #$60		;10B0 C9 60
 		bcc L_10C6		;10B2 90 12
+
+; 60 seconds reached. Reset seconds count.
+
 		lda #$00		;10B4 A9 00
 		sta L_82B0,X	;10B6 9D B0 82
+
+; Increment minutes count. Clamp at 9.
+
 		lda L_8398,X	;10B9 BD 98 83
 		clc				;10BC 18
 		adc #$01		;10BD 69 01
 		cmp #$0A		;10BF C9 0A
 		bcs L_10C6		;10C1 B0 03
 		sta L_8398,X	;10C3 9D 98 83
-.L_10C6	cpx #$00		;10C6 E0 00
+.L_10C6
+
+; Was that the current lap time just updated? If not, bail out; if so,
+; update dashboard.
+
+		cpx #$00		;10C6 E0 00 lap time 0 = current lap time
 		bne L_10D7		;10C8 D0 0D
+
+; Skip dashboard update if currently displaying the best lap.
+
 		lda ZP_82		;10CA A5 82
 		bne L_10D7		;10CC D0 09
+
+; ???
+
 		lda L_C378		;10CE AD 78 C3
 		beq L_10D7		;10D1 F0 04
+
+; L_1078 = update dashboard current lap time.
+
 		cld				;10D3 D8
 		jsr L_1078		;10D4 20 78 10
 .L_10D7	cld				;10D7 D8
