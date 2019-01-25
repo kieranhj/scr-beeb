@@ -1203,6 +1203,8 @@ ldx #0
 
 .convert_table_entry
 
+cpx #endtable-table:beq done
+
 ldy #0
 
 lda table+0,x:sta ZP_20+0
@@ -1230,7 +1232,9 @@ lda ZP_20+0:cmp table+2,x:bne convert_byte
 lda ZP_20+1:cmp table+3,x:bne convert_byte
 
 inx:inx:inx:inx:inx
-cpx #endtable-table:bne convert_table_entry
+jmp convert_table_entry
+
+.done
 
 pla:sta ZP_20+1
 pla:sta ZP_20+0
@@ -1246,10 +1250,10 @@ rts
 ; equw L_6000,L_6000+25*320
 ; equb BEEB_CART_SLOT
 
-; core-data.asm - HUD damage stuff mixed in with the font data. See
-; L_F668.
-equw L_80C8+$00,L_80C8+$40
-equb BEEB_CART_SLOT
+; ; core-data.asm - HUD damage stuff mixed in with the font data. See
+; ; L_F668.
+; equw L_80C8+$00,L_80C8+$40
+; equb BEEB_CART_SLOT
 
 ; ; Front end header graphic.
 ; ;
