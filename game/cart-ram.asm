@@ -2870,7 +2870,7 @@ rts
 		jsr poll_key_with_sysctl		;97B1 20 C9 C7
 		beq L_97B7		;97B4 F0 01
 		rts				;97B6 60
-.L_97B7	ldy #$64		;97B7 A0 64
+.L_97B7	ldy #$64		;97B7 A0 64 DEFINE KEYS
 		lda #$04		;97B9 A9 04
 		jsr kernel_set_up_text_sprite		;97BB 20 A9 12
 		lda #$01		;97BE A9 01
@@ -2893,7 +2893,7 @@ rts
 		bne L_97FF		;97E9 D0 14
 		cmp control_keys,Y	;97EB D9 07 F8
 		beq L_9802		;97EE F0 12
-		ldy #$D4		;97F0 A0 D4
+		ldy #$D4		;97F0 A0 D4 FAULT FOUND
 		lda #$04		;97F2 A9 04
 		jsr kernel_set_up_text_sprite		;97F4 20 A9 12
 		ldy #$28		;97F7 A0 28
@@ -2917,11 +2917,11 @@ rts
 		bpl L_97CA		;9821 10 A7
 		dec L_983B		;9823 CE 3B 98
 		bmi L_9832		;9826 30 0A
-		ldy #$C4		;9828 A0 C4
+		ldy #$C4		;9828 A0 C4 VERIFY KEYS
 		lda #$04		;982A A9 04
 		jsr kernel_set_up_text_sprite		;982C 20 A9 12
 		jmp L_97C3		;982F 4C C3 97
-.L_9832	ldy #$4C		;9832 A0 4C
+.L_9832	ldy #$4C		;9832 A0 4C PAUSED
 		lda #$02		;9834 A9 02
 		jsr kernel_set_up_text_sprite		;9836 20 A9 12
 		rts				;9839 60
@@ -2929,7 +2929,12 @@ rts
 .L_983A	equb $00
 .L_983B	equb $00
 .L_983C	equb $00,$01,$04,$03,$02
-.L_9841	equb $B4,$A4,$94,$84,$74
+.L_9841
+equb $B4						; BACK
+equb $A4						; BACK BOOST
+equb $94						; AHEAD BOOST
+equb $84						; STEER RIGHT
+equb $74						; STEER LEFT
 }
 
 .store_restore_control_keys			; HAS DLL
@@ -3951,7 +3956,7 @@ rts
 		lda #$3C		;1582 A9 3C
 		sta ZP_6C		;1584 85 6C
 		lda #$02		;1586 A9 02
-		ldy #$00		;1588 A0 00
+		ldy #$00		;1588 A0 00 WRECK
 		jsr kernel_set_up_text_sprite		;158A 20 A9 12
 .L_158D	rts				;158D 60
 }

@@ -1207,7 +1207,7 @@ NEXT
 		ldy #$0B		;3D4B A0 0B
 		jsr kernel_L_114D_with_color_ram		;3D4D 20 4D 11
 
-.L_3D50	ldy #$3C		;3D50 A0 3C
+.L_3D50	ldy #$3C		;3D50 A0 3C PRESS FIRE
 		lda #$04		;3D52 A9 04
 		jsr kernel_set_up_text_sprite		;3D54 20 A9 12
 		lda #$FF		;3D57 A9 FF
@@ -1432,7 +1432,7 @@ NEXT
 		pha				;3EFD 48
 		lda L_1328		;3EFE AD 28 13
 		pha				;3F01 48
-		ldy #$4C		;3F02 A0 4C
+		ldy #$4C		;3F02 A0 4C PAUSED
 		lda #$02		;3F04 A9 02
 		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
@@ -1444,7 +1444,7 @@ NEXT
 		tax				;3F17 AA
 		pla				;3F18 68
 		sta L_1327		;3F19 8D 27 13
-		tay				;3F1C A8
+		tay				;3F1C A8 <<reinstate last text sprite>>
 		pla				;3F1D 68
 		sta L_C355		;3F1E 8D 55 C3
 		bpl L_3F27_with_SID		;3F21 10 04
