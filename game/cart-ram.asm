@@ -7131,9 +7131,9 @@ EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
 		rts				;3943 60
 }
 
+IF 0
 .plot_menu_wood_surround				; in Cart
 {
-	RTS
 		lda #$01		;398D A9 01
 		sta ZP_17		;398F 85 17
 .L_3991	ldy #$F7		;3991 A0 F7
@@ -7169,6 +7169,7 @@ EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
 		bne L_3991		;39CE D0 C1
 		rts				;39D0 60
 }
+ENDIF
 
 ; return pointer to menu options one screen-ish
 ; addr = Q_pointers[Y] + ((X - $40) & $7C) * 2
@@ -7213,7 +7214,8 @@ EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
 		sta ZP_19		;3A05 85 19
 		lda L_3A32,Y	;3A07 B9 32 3A
 		sta ZP_18		;3A0A 85 18
-		jsr plot_menu_wood_surround		;3A0C 20 8D 39
+\\ don't need to copy this
+\\		jsr plot_menu_wood_surround		;3A0C 20 8D 39
 		dec ZP_1A		;3A0F C6 1A
 		bpl L_39FD		;3A11 10 EA
 		ldy #$70		;3A13 A0 70
