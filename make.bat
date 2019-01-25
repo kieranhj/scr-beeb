@@ -13,5 +13,7 @@ set PYTHON=C:\Home\Python27\python.exe
 
 	%PYTHON% bin/hud_font.py > build/hud-font-tables.asm
 
+	%PYTHON% bin/track_preview.py > build/track-preview.asm
+
 ..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
 %PYTHON% bin\crc32.py scr-beeb.ssd
