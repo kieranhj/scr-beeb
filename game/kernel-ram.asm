@@ -6845,30 +6845,97 @@ endif
 		rts				;F667 60
 }
 
-.L_F668 ldx #$10		;F668 A2 10
+; update damage holes.
+;
+; Y on entry = dest offset to copy to (???)
+
+.L_F668
+
+; Copy hole graphic.
+
+; Copy 8 bytes starting from +$10, dest mask = %11111111
+  	   	ldx #$10		;F668 A2 10
 		jsr L_F67E		;F66A 20 7E F6
+
+
+; Copy 8 bytes starting from +$18, dest mask = %00111111
 		ldx #$18		;F66D A2 18
-.L_F66F	lda #$3F		;F66F A9 3F
+		
+.L_F66F
+
+; Copy 8 bytes starting from +X, dest mask = %00111111
+		lda #%01110111	;F66F A9 3F
 		bne L_F680		;F671 D0 0D
-.L_F673 ldx #$30		;F673 A2 30
+		
+.L_F673
+
+; Copy hole-with-highlight graphic.
+
+; Copy 8 bytes starting from +$30, dest mask = %11111111
+		ldx #$30		;F673 A2 30
 		jsr L_F67E		;F675 20 7E F6
+
+; Copy 8 bytes starting from +$38, dest mask = %00111111
+
 		ldx #$38		;F678 A2 38
 		bne L_F66F		;F67A D0 F3
-.L_F67C	ldx #$20		;F67C A2 20
-.L_F67E	lda #$00		;F67E A9 00
-.L_F680	sta ZP_16		;F680 85 16
+		
+; .L_F67C
+
+; ; Copy original pattern??
+
+; ; Copy 8 bytes starting from $20, dest mask = %00000000
+; 		ldx #$20		;F67C A2 20
+
+.L_F67E
+
+; Copy 8 bytes starting from +X, dest mask = %00000000
+		lda #%00000000	;F67E A9 00
+
+.L_F680
+
+; save destination mask.
+
+  		sta ZP_16		;F680 85 16
+
+; copy 8 bytes starting from +X.
+
 		lda #$08		;F682 A9 08
 		bne L_F68A		;F684 D0 04
-.L_F686	ldx #$00		;F686 A2 00
-		lda #$10		;F688 A9 10
-.L_F68A	sta ZP_14		;F68A 85 14
+		
+; .L_F686
+
+; ; Copy original pattern??
+
+; ; copy 16 bytes starting from +0.
+;         ldx #$00		;F686 A2 00
+; 		lda #$10		;F688 A9 10
+		
+.L_F68A
+
+; ZP_14 = number of bytes to copy
+		sta ZP_14		;F68A 85 14
+
+; ZP_15 = ???
 		sty ZP_15		;F68C 84 15
-.L_F68E	lda original_top_of_hud_data,Y
+
+
+.L_F68E
+
+; Copy one byte, masked.
+
+		lda original_top_of_hud_data,Y
+		and ZP_16		;F691 25 16
+		ora L_80C8,X	;F693 1D C8 80
 		sta L_6028,Y	;F696 99 28 60
+		
 		iny				;F699 C8
 		inx				;F69A E8
 		dec ZP_14		;F69B C6 14
 		bne L_F68E		;F69D D0 EF
+
+.update_top_of_hud_done
+; divide dest offset by 8 to get a column value.
 		lda ZP_15		;F69F A5 15
 		lsr A			;F6A1 4A
 		lsr A			;F6A2 4A
@@ -6876,24 +6943,62 @@ endif
 		tax				;F6A4 AA
 		rts				;F6A5 60
 
+; The top row is arranged in 10 groups of 3 columns, with a pattern
+; like ABAABA (etc), copied out of a table that contains 2/3 of that
+; pattern. So there's these two routines, one that copies 1/3 (8
+; bytes) and one that copies 2/3 (16 bytes), and they're called in an
+; alternating fashion. They were originally part of the above, as the
+; patterns are part of the same table as the damage holes.
+;
+; I didn't change any of the overall logic of this, but these two
+; routines need to work a bit differently (the BBC version takes a
+; copy of the entire top row as-is)
+.L_F686
+ldx #16
+bne copy_original_top_of_hud
+
+.L_F67C
+ldx #8
+.copy_original_top_of_hud
+{
+sty ZP_15
+.loop
+lda original_top_of_hud_data,Y:sta L_6028,Y
+iny:dex:bne loop
+jmp update_top_of_hud_done
+}
+
 .L_F6A6
 {
+; Color RAM stuff.
+
 		ldx #$1D		;F6A6 A2 1D
 .L_F6A8	lda #$0A		;F6A8 A9 0A
 ; COLOR RAM
 ;		sta L_D805,X	;F6AA 9D 05 D8
 		dex				;F6AD CA
 		bpl L_F6A8		;F6AE 10 F8
+
+; Copy original frame data, starting from the left edge. The columns
+; alternate.
+
 		ldy #$00		;F6B0 A0 00
 		lda L_C719		;F6B2 AD 19 C7
 		sta ZP_08		;F6B5 85 08
-.L_F6B7	jsr L_F67C		;F6B7 20 7C F6
+		
+.L_F6B7
+		jsr L_F67C		;F6B7 20 7C F6
 		dec ZP_08		;F6BA C6 08
 		bmi L_F6C6		;F6BC 30 08
+
 		jsr L_F686		;F6BE 20 86 F6
 .L_F6C1	cpy #$F0		;F6C1 C0 F0
 		bcc L_F6B7		;F6C3 90 F2
+		
 		rts				;F6C5 60
+
+; Copy damage hole.
+
 .L_F6C6	jsr L_F67C		;F6C6 20 7C F6
 		jsr L_F67C		;F6C9 20 7C F6
 		tya				;F6CC 98

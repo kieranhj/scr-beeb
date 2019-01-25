@@ -1248,7 +1248,7 @@ rts
 
 ; core-data.asm - HUD damage stuff mixed in with the font data. See
 ; L_F668.
-equw L_80C8+0,L_80C8+48
+equw L_80C8+$00,L_80C8+$40
 equb BEEB_CART_SLOT
 
 ; ; Front end header graphic.

@@ -240,6 +240,8 @@
 .L_C70B	equb $00
 .L_C70C	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .L_C718	equb $00
+
+; L_C719 tracks number of damage holes somehow.
 .L_C719	equb $00
 .L_C71A	equb $00,$00
 .L_C71C	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
