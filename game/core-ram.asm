@@ -1075,6 +1075,9 @@ NEXT
 {
 		lda #$0B		;3C36 A9 0B
 		jsr vic_set_border_colour		;3C38 20 BB 3F
+
+		lda #$03:jsr cart_sysctl ; 'mode 3'
+		
 		jsr initialise_game_vars		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
 		sta irq_mode		;3C40 8D F8 3D
@@ -1090,8 +1093,8 @@ NEXT
 
 		jsr update_colour_map_with_sysctl		;3C51 20 30 2C
 		ldx L_C76B		;3C54 AE 6B C7
-		lda #$03		;3C57 A9 03			; 'MODE 3'
-		jsr cart_sysctl		;3C59 20 25 87
+		; lda #$03		;3C57 A9 03			; 'MODE 3'
+		; jsr cart_sysctl		;3C59 20 25 87
 		jsr cart_set_up_colour_map_for_track_preview		;3C5C 20 77 3A
 		jsr cart_draw_track_preview_border		;3C5F 20 03 2F
 		jsr cart_draw_track_preview_track_name		;3C62 20 CE 2F
