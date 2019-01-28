@@ -1,3 +1,7 @@
+PUCRUNCH?=pucrunch
+PYTHON?=python
+BEEBASM?=beebasm
+
 ##########################################################################
 ##########################################################################
 
@@ -5,27 +9,35 @@
 build:
 	mkdir -p ./build
 
-	python bin/png2bbc.py -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
+	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
 
-	python bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./graphics/scr-beeb-header.png 5
+	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./graphics/scr-beeb-header.png 5
 
-	python bin/png2bbc.py -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
+	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
 
-	python bin/flames.py > build/flames-tables.asm
+	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-menu.dat --palette 0143 ./graphics/scr-beeb-menu.png 1
 
-	python bin/wheels.py > build/wheels-tables.asm
+	$(PYTHON) bin/flames.py > build/flames-tables.asm
 
-	python bin/hud_font.py > build/hud-font-tables.asm
+	$(PYTHON) bin/wheels.py > build/wheels-tables.asm
 
-	python bin/dash_icons.py > build/dash-icons.asm
+	$(PYTHON) bin/hud_font.py > build/hud-font-tables.asm
 
-	python bin/track_preview.py > build/track-preview.asm
+	$(PYTHON) bin/dash_icons.py > build/dash-icons.asm
 
-	beebasm -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
+	$(PYTHON) bin/track_preview.py > build/track-preview.asm
+
+	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
+
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-title-screen.dat" build/scr-beeb-title-screen.pu
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-menu.dat" build/scr-beeb-menu.pu
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-credits.dat" build/scr-beeb-credits.pu
+
+	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
 
 	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'align lost' | grep -vi 'safe to load to' | grep -Evi '^-+'
 
-	python bin/crc32.py scr-beeb.ssd
+	$(PYTHON) bin/crc32.py scr-beeb.ssd
 
 ##########################################################################
 ##########################################################################

@@ -896,11 +896,17 @@
 
 .L_0F2A
 {
+
+; update last lap display timer.
+
 		lda ZP_82		;0F2A A5 82
 		beq L_0F35		;0F2C F0 07
 		dec ZP_82		;0F2E C6 82
 		bne L_0F35		;0F30 D0 03
 		jsr L_0F9C		;0F32 20 9C 0F
+
+; add 0.2 seconds to lap times 0 and 1.
+
 .L_0F35	ldx #$01		;0F35 A2 01
 .L_0F37	jsr L_109C		;0F37 20 9C 10
 		jsr L_0FAD		;0F3A 20 AD 0F
@@ -1055,11 +1061,11 @@
 		ldy #$54		;1045 A0 54
 		bit L_C76C		;1047 2C 6C C7
 		bpl L_1057		;104A 10 0B
-		ldy #$08		;104C A0 08
+		ldy #$08		;104C A0 08 RACE WON
 		bne L_1057		;104E D0 07
 .L_1050	lda #$80		;1050 A9 80
 		sta L_C362		;1052 8D 62 C3
-		ldy #$1C		;1055 A0 1C
+		ldy #$1C		;1055 A0 1C RACE LOST
 .L_1057	lda #$04		;1057 A9 04
 		jsr set_up_text_sprite		;1059 20 A9 12
 .L_105C	lda L_C362		;105C AD 62 C3
@@ -1097,34 +1103,67 @@
 		rts				;109B 60
 }
 
+
+; Add 0.2 second to a lap time.
 .L_109C			; in kernel
-		lda #$14		;109C A9 14
+		lda #$14		;109C A9 14 $14 = 20
+
+; Add BCD hundredths of a second to a lap time.
 .L_109E			; in kernel
 {
 		sed				;109E F8
+
+; Add to lap fractional seconds.
+
 		clc				;109F 18
 		adc L_8298,X	;10A0 7D 98 82
 		sta L_8298,X	;10A3 9D 98 82
 		bcc L_10D7		;10A6 90 2F
+
+; Carry - increment seconds.
+
 		lda L_82B0,X	;10A8 BD B0 82
 		adc #$00		;10AB 69 00
 		sta L_82B0,X	;10AD 9D B0 82
+
+; 60 seconds reached?
+
 		cmp #$60		;10B0 C9 60
 		bcc L_10C6		;10B2 90 12
+
+; 60 seconds reached. Reset seconds count.
+
 		lda #$00		;10B4 A9 00
 		sta L_82B0,X	;10B6 9D B0 82
+
+; Increment minutes count. Clamp at 9.
+
 		lda L_8398,X	;10B9 BD 98 83
 		clc				;10BC 18
 		adc #$01		;10BD 69 01
 		cmp #$0A		;10BF C9 0A
 		bcs L_10C6		;10C1 B0 03
 		sta L_8398,X	;10C3 9D 98 83
-.L_10C6	cpx #$00		;10C6 E0 00
+.L_10C6
+
+; Was that the current lap time just updated? If not, bail out; if so,
+; update dashboard.
+
+		cpx #$00		;10C6 E0 00 lap time 0 = current lap time
 		bne L_10D7		;10C8 D0 0D
+
+; Skip dashboard update if currently displaying the best lap.
+
 		lda ZP_82		;10CA A5 82
 		bne L_10D7		;10CC D0 09
+
+; ???
+
 		lda L_C378		;10CE AD 78 C3
 		beq L_10D7		;10D1 F0 04
+
+; L_1078 = update dashboard current lap time.
+
 		cld				;10D3 D8
 		jsr L_1078		;10D4 20 78 10
 .L_10D7	cld				;10D7 D8
@@ -1394,54 +1433,130 @@ jsr dash_reset
 		rts				;12A8 60
 }
 
+; Y = offset into text_sprite_data
+; A = # 4-byte blocks at the given offset
 .set_up_text_sprite
 {
-		sty L_1327		;12A9 8C 27 13
+		sty L_1327		;12A9 8C 27 13 data offset
 		sta L_1328		;12AC 8D 28 13
 		sta ZP_A0		;12AF 85 A0
 		txa				;12B1 8A
 		pha				;12B2 48
 		ldx #$7F		;12B3 A2 7F
+
+; reset the < flag.
+
 		lda #$00		;12B5 A9 00
 		sta ZP_18		;12B7 85 18
+
+; clear sprite contents.
+
 .L_12B9	sta L_7F80,X	;12B9 9D 80 7F
 		dex				;12BC CA
 		bpl L_12B9		;12BD 10 FA
-.L_12BF	ldx text_sprite_data,Y	;12BF BE 29 13
+
+.L_12BF
+
+; fetch first byte of block - dest offset in sprite data.
+;
+; the values actually used are:
+;
+; $03 - left sprite, row 3
+; $43 - right sprite, row 3
+; $21 - left sprite, row 11
+; $61 - right sprite, row 11
+
+		ldx text_sprite_data,Y	;12BF BE 29 13
 		iny				;12C2 C8
+
+; ZP_08 = column counter - each sprite is 24 px/3 chars wide.
+
 		lda #$03		;12C3 A9 03
 		sta ZP_08		;12C5 85 08
-.L_12C7	lda text_sprite_data,Y	;12C7 B9 29 13
+		
+.L_12C7
+		lda text_sprite_data,Y	;12C7 B9 29 13
+
 		cmp #$3C		;12CA C9 3C
-		bne L_12D2		;12CC D0 04
-		stx ZP_18		;12CE 86 18
-		lda #$20		;12D0 A9 20
-.L_12D2	sec				;12D2 38
+		bne L_12D2		;12CC D0 04 taken if not '<'
+
+; ZP_18 set if a < was seen - shift this row left 4 pixels.
+
+		stx ZP_18		;12CE 86 18 store offset of data to shift
+		lda #$20		;12D0 A9 20 pretend it was a space
+		
+.L_12D2
+
+; convert ASCII->char index
+
+        sec				;12D2 38
 		sbc #$30		;12D3 E9 30
+
+; save X+Y.
+
 		sty ZP_C7		;12D5 84 C7
 		stx ZP_C6		;12D7 86 C6
+
+; L_1469 = get address of B&W data for font char in ZP_1E
+
 		jsr L_1469		;12D9 20 69 14
-.L_12DC	lda (ZP_1E),Y	;12DC B1 1E
+		
+.L_12DC
+
+; copy font char byte into sprite data.
+
+		lda (ZP_1E),Y	;12DC B1 1E
 		sta L_7F80,X	;12DE 9D 80 7F
+
+; advance to next row of sprite
+
 		inx				;12E1 E8
 		inx				;12E2 E8
 		inx				;12E3 E8
+
+; next byte of font data - and so on.
+
 		iny				;12E4 C8
 		cpy #$07		;12E5 C0 07
 		bne L_12DC		;12E7 D0 F3
+
+; restore X+Y.
+
 		ldy ZP_C7		;12E9 A4 C7
 		ldx ZP_C6		;12EB A6 C6
+
+; next text sprite data byte
+
 		iny				;12ED C8
+
+; ??? next sprite column ???
+
 		inx				;12EE E8
+
+; 3 columns.
+
 		dec ZP_08		;12EF C6 08
 		bne L_12C7		;12F1 D0 D4
+
+; repeat for all blocks of 4 bytes
+
 		dec ZP_A0		;12F3 C6 A0
 		bne L_12BF		;12F5 D0 C8
+
+; Check for a row shift offset.
+
 		lda ZP_18		;12F7 A5 18
 		beq L_131F		;12F9 F0 24
+
+; < flag was set.
+
 		lda #$06		;12FB A9 06
-		sta ZP_08		;12FD 85 08
+		sta ZP_08		;12FD 85 08 shift 6 rows
+		
 		ldx ZP_18		;12FF A6 18
+
+; shift row left, 4 times.
+
 .L_1301	ldy #$04		;1301 A0 04
 .L_1303	asl L_7FC2,X	;1303 1E C2 7F
 		rol L_7FC1,X	;1306 3E C1 7F
@@ -1456,90 +1571,100 @@ jsr dash_reset
 		inx				;131A E8
 		dec ZP_08		;131B C6 08
 		bne L_1301		;131D D0 E2
-.L_131F	lda #$80		;131F A9 80
+		
+.L_131F
+
+; indicate there's a text sprite set up - looks like the IRQ handler
+; checks this.
+
+		lda #$80		;131F A9 80
 		sta L_C355		;1321 8D 55 C3
 		pla				;1324 68
 		tax				;1325 AA
 		rts				;1326 60
 
+; There doesn't appear to be any way to make defines for the offsets
+; in BeebAsm :(
 .text_sprite_data
-		equb $03,$3C,$57,$52,$43,$45,$43,$4B,$03,$20,$52,$41,$43,$43,$45,$20
-		equb $21,$3C,$20,$57,$61,$4F,$4E,$20,$61,$54,$20,$20,$03,$20,$52,$41
-		equb $43,$43,$45,$20,$21,$20,$4C,$4F,$61,$53,$54,$20,$03,$20,$44,$52
-		equb $43,$4F,$50,$20,$21,$3C,$53,$54,$61,$41,$52,$54,$03,$3C,$50,$52
-		equb $43,$45,$53,$53,$21,$20,$46,$49,$61,$52,$45,$20,$03,$50,$41,$55
-		equb $43,$53,$45,$44,$03,$20,$4C,$41,$43,$50,$53,$20,$21,$20,$4F,$56
-		equb $61,$45,$52,$20,$03,$44,$45,$46,$43,$49,$4E,$45,$21,$20,$4B,$45
-		equb $61,$59,$53,$20,$03,$3C,$53,$54,$43,$45,$45,$52,$21,$20,$4C,$45
-		equb $61,$46,$54,$20,$03,$20,$53,$54,$43,$45,$45,$52,$21,$20,$52,$49
-		equb $61,$47,$48,$54,$03,$3C,$41,$48,$43,$45,$41,$44,$21,$2B,$42,$4F
-		equb $61,$4F,$53,$54,$03,$20,$42,$41,$43,$43,$4B,$20,$21,$2B,$42,$4F
-		equb $61,$4F,$53,$54,$03,$20,$42,$41,$43,$43,$4B,$20,$21,$20,$20,$20
-		equb $61,$20,$20,$20,$03,$56,$45,$52,$43,$49,$46,$59,$21,$20,$4B,$45
-		equb $61,$59,$53,$20,$03,$20,$46,$41,$43,$55,$4C,$54,$21,$20,$46,$4F
-		equb $61,$55,$4E,$44
+		equb $03,"<WR",$43,"ECK"					   ; +0   +$00
 
+; the "T" part looks like a bug - when used, A is set to 4 - see
+; L_1057.
+		equb $03," RA",$43,"CE ",$21,"< W",$61,"ON ",$61,"T  " ; +8   +$08
+		equb $03," RA",$43,"CE ",$21," LO",$61,"ST "		   ; +28  +$1C
+		equb $03," DR",$43,"OP ",$21,"<ST",$61,"ART"		   ; +44  +$2C
+		equb $03,"<PR",$43,"ESS",$21," FI",$61,"RE "		   ; +60  +$3C
+		equb $03,"PAU",$43,"SED",""					 ; +76  +$4C
+		equb $03," LA",$43,"PS ",$21," OV",$61,"ER "		   ; +84  +$54
+		equb $03,"DEF",$43,"INE",$21," KE",$61,"YS "		   ; +100 +$64
+		equb $03,"<ST",$43,"EER",$21," LE",$61,"FT "		   ; +116 +$74
+		equb $03," ST",$43,"EER",$21," RI",$61,"GHT"		   ; +132 +$84
+		equb $03,"<AH",$43,"EAD",$21,"+BO",$61,"OST"		   ; +148 +$94
+		equb $03," BA",$43,"CK ",$21,"+BO",$61,"OST"		   ; +164 +$A4
+		equb $03," BA",$43,"CK ",$21,"   ",$61,"   "		   ; +180 +$B4
+		equb $03,"VER",$43,"IFY",$21," KE",$61,"YS "		   ; +196 +$C4
+		equb $03," FA",$43,"ULT",$21," FO",$61,"UND"		   ; +212 +$D4
 }
 
-.L_1411				; only called from Kernel?
-{
-		lda L_3FFA,X	;1411 BD FA 3F
-		ora #$80		;1414 09 80
-		sta L_3FFA,X	;1416 9D FA 3F
-		lda L_3FF1,X	;1419 BD F1 3F
-		ora #$80		;141C 09 80
-		sta L_3FF1,X	;141E 9D F1 3F
-		rts				;1421 60
-}
+; .L_1411				; only called from Kernel?
+; {
+; 		lda L_3FFA,X	;1411 BD FA 3F
+; 		ora #$80		;1414 09 80
+; 		sta L_3FFA,X	;1416 9D FA 3F
+; 		lda L_3FF1,X	;1419 BD F1 3F
+; 		ora #$80		;141C 09 80
+; 		sta L_3FF1,X	;141E 9D F1 3F
+; 		rts				;1421 60
+; }
 
-.L_1422				; only called from Kernel?
-		ldy #$00		;1422 A0 00
-		beq L_1430		;1424 F0 0A
+; .L_1422				; only called from Kernel?
+; 		ldy #$00		;1422 A0 00
+; 		beq L_1430		;1424 F0 0A
 
-.L_1426				; only called from Kernel?
-		ldy #$80		;1426 A0 80
-		bne L_1430		;1428 D0 06
+; .L_1426				; only called from Kernel?
+; 		ldy #$80		;1426 A0 80
+; 		bne L_1430		;1428 D0 06
 
-.L_142A				; only called from Kernel?
-		ldy #$C0		;142A A0 C0
-		bne L_1430		;142C D0 02
+; .L_142A				; only called from Kernel?
+; 		ldy #$C0		;142A A0 C0
+; 		bne L_1430		;142C D0 02
 
-.L_142E				; only called from Kernel?
-		ldy #$40		;142E A0 40
+; .L_142E				; only called from Kernel?
+; 		ldy #$40		;142E A0 40
 
-.L_1430				; not an entry point
-{
-		sty ZP_DB		;1430 84 DB
-		jsr L_1469		;1432 20 69 14
-.L_1435	lda (ZP_1E),Y	;1435 B1 1E
-		bit ZP_DB		;1437 24 DB
-		bpl L_145A		;1439 10 1F
-		lsr A			;143B 4A
-		bit ZP_DB		;143C 24 DB
-		bvs L_1441		;143E 70 01
-		lsr A			;1440 4A
-.L_1441	sta ZP_14		;1441 85 14
-		lda L_4000,X	;1443 BD 00 40
-		and #$80		;1446 29 80
-		ora ZP_14		;1448 05 14
-		sta L_4000,X	;144A 9D 00 40
-		bit ZP_DB		;144D 24 DB
-		bvs L_1460		;144F 70 0F
-		lda #$00		;1451 A9 00
-		ror A			;1453 6A
-		sta L_4001,X	;1454 9D 01 40
-		jmp L_1460		;1457 4C 60 14
-.L_145A	bvs L_145D		;145A 70 01
-		asl A			;145C 0A
-.L_145D	sta L_4000,X	;145D 9D 00 40
-.L_1460	inx				;1460 E8
-		inx				;1461 E8
-		inx				;1462 E8
-		iny				;1463 C8
-		cpy #$07		;1464 C0 07
-		bne L_1435		;1466 D0 CD
-		rts				;1468 60
-}
+; .L_1430				; not an entry point
+; {
+; 		sty ZP_DB		;1430 84 DB
+; 		jsr L_1469		;1432 20 69 14
+; .L_1435	lda (ZP_1E),Y	;1435 B1 1E
+; 		bit ZP_DB		;1437 24 DB
+; 		bpl L_145A		;1439 10 1F
+; 		lsr A			;143B 4A
+; 		bit ZP_DB		;143C 24 DB
+; 		bvs L_1441		;143E 70 01
+; 		lsr A			;1440 4A
+; .L_1441	sta ZP_14		;1441 85 14
+; 		lda L_4000,X	;1443 BD 00 40
+; 		and #$80		;1446 29 80
+; 		ora ZP_14		;1448 05 14
+; 		sta L_4000,X	;144A 9D 00 40
+; 		bit ZP_DB		;144D 24 DB
+; 		bvs L_1460		;144F 70 0F
+; 		lda #$00		;1451 A9 00
+; 		ror A			;1453 6A
+; 		sta L_4001,X	;1454 9D 01 40
+; 		jmp L_1460		;1457 4C 60 14
+; .L_145A	bvs L_145D		;145A 70 01
+; 		asl A			;145C 0A
+; .L_145D	sta L_4000,X	;145D 9D 00 40
+; .L_1460	inx				;1460 E8
+; 		inx				;1461 E8
+; 		inx				;1462 E8
+; 		iny				;1463 C8
+; 		cpy #$07		;1464 C0 07
+; 		bne L_1435		;1466 D0 CD
+; 		rts				;1468 60
+; }
 
 .L_1469				; only called from Kernel?
 {
@@ -5515,20 +5640,20 @@ L_EBDD	= L_EBE7 - $A			;!
 		and #$1F		;EC50 29 1F
 		clc				;EC52 18
 		adc #$A0		;EC53 69 A0
-		ldy #$2C		;EC55 A0 2C
+		ldy #$2C		;EC55 A0 2C DROP START
 		bit L_C37C		;EC57 2C 7C C3
 		bpl L_EC5E		;EC5A 10 02
-		ldy #$3C		;EC5C A0 3C
+		ldy #$3C		;EC5C A0 3C PRESS FIRE
 .L_EC5E	bit L_C76C		;EC5E 2C 6C C7
 		bmi L_EC65		;EC61 30 02
 		lda #$8C		;EC63 A9 8C
 .L_EC65	sta ZP_2F		;EC65 85 2F
 		lda #$04		;EC67 A9 04
-		jmp set_up_text_sprite		;EC69 4C A9 12
+		jmp set_up_text_sprite	;EC69 4C A9 12
 .L_EC6C	lda #$00		;EC6C A9 00
-		jsr L_ECDB_in_kernel		;EC6E 20 DB EC
+		jsr L_ECDB_in_kernel	;EC6E 20 DB EC
 		lda #$02		;EC71 A9 02
-		jsr L_EC9A_in_kernel		;EC73 20 9A EC
+		jsr L_EC9A_in_kernel	;EC73 20 9A EC
 		dec ZP_2F		;EC76 C6 2F
 		bne L_EC7C		;EC78 D0 02
 		inc ZP_2F		;EC7A E6 2F
@@ -6529,9 +6654,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta $5560,X	    ;F3CB 9D 60 55
 		dex				;F3CE CA
 		bne L_F3C5		;F3CF D0 F4
-if FANCY_TRACK_PREVIEW
 		jsr preview_fix_up_cleared_screen
-endif		
 		jsr ensure_screen_enabled		;F3D1 20 9E 3F
 		lda #$0B		;F3D4 A9 0B
 		sta L_262B		;F3D6 8D 2B 26	_SELF_MOD to L_25EA in Core
@@ -6543,9 +6666,7 @@ endif
 		dex				;F3E5 CA
 		bpl L_F3DB		;F3E6 10 F3
 		jsr draw_track_preview		;F3E8 20 F6 F2
-if FANCY_TRACK_PREVIEW
 		jsr preview_add_background
-endif
 		lda #$08		;F3EB A9 08
 		sta L_262B		;F3ED 8D 2B 26	_SELF_MOD to L_25EA in Core
 		ldx #$00		;F3F0 A2 00

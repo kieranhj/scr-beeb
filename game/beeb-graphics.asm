@@ -16,9 +16,7 @@ include "build/wheels-tables.asm"
 ; Don't remember why I called this "HUD" and not "dash"...
 include "build/hud-font-tables.asm"
 
-if FANCY_TRACK_PREVIEW
 include "build/track-preview.asm"
-endif
 
 include "build/dash-icons.asm"
 
@@ -445,13 +443,13 @@ ENDMACRO
 ._graphics_draw_left_wheel_2:WHEEL_ROUTINE TRUE,wheel_left_2_data
 
 ._graphics_draw_left_wheel_LO
-equb LO(_graphics_draw_left_wheel_0)
 equb LO(_graphics_draw_left_wheel_1)
+equb LO(_graphics_draw_left_wheel_0)
 equb LO(_graphics_draw_left_wheel_2)
 
 ._graphics_draw_left_wheel_HI
-equb HI(_graphics_draw_left_wheel_0)
 equb HI(_graphics_draw_left_wheel_1)
+equb HI(_graphics_draw_left_wheel_0)
 equb HI(_graphics_draw_left_wheel_2)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1141,22 +1139,6 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-if NOT(FANCY_TRACK_PREVIEW)
-
-; Bogus entries for the DLL table.
-._preview_draw_border
-._preview_fix_up_cleared_screen
-._preview_add_background
-brk
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-else
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 preview_ZP_src=ZP_1E
 preview_ZP_dest=ZP_20
 
@@ -1370,11 +1352,6 @@ rts
 .src_index:equb 0
 .x:equb 0
 }
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

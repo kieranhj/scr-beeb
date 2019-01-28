@@ -127,13 +127,21 @@ L_80A0	= L_8000 + $A0
 	equb $00,$44,$44,$28,$10,$10,$10,$00 ; 89
 	equb $00,$7E,$04,$08,$10,$20,$7E,$00 ; 90
 
-; Lap time fractions of second?
+; Lap type indexes:
+;
+; +0 = player current lap
+; +1 = opponent current lap??
+; +2 = best lap
+;
+; These appear to be arrays, so there are probably more...
+
+; Lap time fractions of second
 .L_8298	equb $01,$00,$00,$00,$00,$00,$00,$FF,$80,$00,$00,$00,$00,$00
 
 .L_82A6	equb $00
 .L_82A7	equb $FF,$00,$00,$00,$FF,$00,$00,$00,$01
 
-; Lap time fractions of second?
+; Lap time seconds
 .L_82B0	equb $00,$00,$00,$FF,$00,$00,$00,$80,$01,$00,$00,$00,$00,$00
 
 .L_82BE	equb $00
@@ -153,7 +161,7 @@ L_80A0	= L_8000 + $A0
 		equb $00,$00,$00,$42,$24,$18,$24,$42,$00,$00,$00,$42,$42,$42,$3E,$02
 		equb $3C,$00,$00,$7E,$04,$18,$20,$7E,$00
 
-; Lap time fractions of second?
+; Lap time minutes
 .L_8398	equb $00,$00,$00,$FF,$00,$00,$00,$81,$81,$81,$81,$81,$81,$81
 
 .L_83A6	equb $81

@@ -2870,7 +2870,7 @@ rts
 		jsr poll_key_with_sysctl		;97B1 20 C9 C7
 		beq L_97B7		;97B4 F0 01
 		rts				;97B6 60
-.L_97B7	ldy #$64		;97B7 A0 64
+.L_97B7	ldy #$64		;97B7 A0 64 DEFINE KEYS
 		lda #$04		;97B9 A9 04
 		jsr kernel_set_up_text_sprite		;97BB 20 A9 12
 		lda #$01		;97BE A9 01
@@ -2893,7 +2893,7 @@ rts
 		bne L_97FF		;97E9 D0 14
 		cmp control_keys,Y	;97EB D9 07 F8
 		beq L_9802		;97EE F0 12
-		ldy #$D4		;97F0 A0 D4
+		ldy #$D4		;97F0 A0 D4 FAULT FOUND
 		lda #$04		;97F2 A9 04
 		jsr kernel_set_up_text_sprite		;97F4 20 A9 12
 		ldy #$28		;97F7 A0 28
@@ -2917,11 +2917,11 @@ rts
 		bpl L_97CA		;9821 10 A7
 		dec L_983B		;9823 CE 3B 98
 		bmi L_9832		;9826 30 0A
-		ldy #$C4		;9828 A0 C4
+		ldy #$C4		;9828 A0 C4 VERIFY KEYS
 		lda #$04		;982A A9 04
 		jsr kernel_set_up_text_sprite		;982C 20 A9 12
 		jmp L_97C3		;982F 4C C3 97
-.L_9832	ldy #$4C		;9832 A0 4C
+.L_9832	ldy #$4C		;9832 A0 4C PAUSED
 		lda #$02		;9834 A9 02
 		jsr kernel_set_up_text_sprite		;9836 20 A9 12
 		rts				;9839 60
@@ -2929,7 +2929,12 @@ rts
 .L_983A	equb $00
 .L_983B	equb $00
 .L_983C	equb $00,$01,$04,$03,$02
-.L_9841	equb $B4,$A4,$94,$84,$74
+.L_9841
+equb $B4						; BACK
+equb $A4						; BACK BOOST
+equb $94						; AHEAD BOOST
+equb $84						; STEER RIGHT
+equb $74						; STEER LEFT
 }
 
 .store_restore_control_keys			; HAS DLL
@@ -3951,7 +3956,7 @@ rts
 		lda #$3C		;1582 A9 3C
 		sta ZP_6C		;1584 85 6C
 		lda #$02		;1586 A9 02
-		ldy #$00		;1588 A0 00
+		ldy #$00		;1588 A0 00 WRECK
 		jsr kernel_set_up_text_sprite		;158A 20 A9 12
 .L_158D	rts				;158D 60
 }
@@ -6488,156 +6493,8 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 
 .draw_track_preview_border			; called from game_start
 {
-if FANCY_TRACK_PREVIEW
-
 jmp preview_draw_border
-
-else
-
-		ldy #$00		;2F03 A0 00
-		ldx #$00		;2F05 A2 00
-.L_2F07
-		lda track_preview_border_0,X	;2F07 BD 30 61
-		sta $4010,Y 	;2F0A 99 10 40
-		sta $40A0,Y 	;2F0D 99 A0 40
-		lda track_preview_border_1,X	;2F10 BD 70 62
-		sta $4150,Y 	;2F13 99 50 41
-		sta $41E0,Y 	;2F16 99 E0 41
-		lda track_preview_border_2,X	;2F19 BD B0 63
-		sta $5690,Y 	;2F1C 99 90 56
-		sta $5720,Y 	;2F1F 99 20 57
-		lda track_preview_border_3,X	;2F22 BD F0 64
-		sta $57D0,Y  	;2F25 99 D0 57
-		sta $5860,Y  	;2F28 99 60 58
-		inx				;2F2B E8
-		iny				;2F2C C8
-		cpx #$18		;2F2D E0 18
-		bne L_2F33		;2F2F D0 02
-		ldx #$00		;2F31 A2 00
-.L_2F33	cpy #$90		;2F33 C0 90
-		bne L_2F07		;2F35 D0 D0
-		ldx #LO(L_6630)		;2F37 A2 30
-		ldy #HI(L_6630)		;2F39 A0 66
-		lda #LO(L_4148)		;2F3B A9 48
-		sta ZP_1E		;2F3D 85 1E
-		lda #HI(L_4148)		;2F3F A9 41
-		jsr L_2F4E		;2F41 20 4E 2F
-		
-		ldx #LO(L_6640)		;2F44 A2 40
-		ldy #HI(L_6640)		;2F46 A0 66
-		lda #LO(L_4268)		;2F48 A9 68
-		sta ZP_1E		;2F4A 85 1E
-		lda #HI(L_4268)		;2F4C A9 42
-.L_2F4E
-		sta ZP_1F		;2F4E 85 1F
-		stx ZP_16		;2F50 86 16
-		sty ZP_17		;2F52 84 17
-		lda #$12		;2F54 A9 12
-		sta ZP_14		;2F56 85 14
-.L_2F58
-		lda ZP_17		;2F58 A5 17
-		sta ZP_99		;2F5A 85 99
-		lda ZP_16		;2F5C A5 16
-		sta ZP_98		;2F5E 85 98
-		lda #$03		;2F60 A9 03
-		sta ZP_15		;2F62 85 15
-.L_2F64
-		ldy #$00		;2F64 A0 00
-.L_2F66
-		lda (ZP_98),Y		;2F66 B1 98
-		sta (ZP_1E),Y		;2F68 91 1E
-		iny			;2F6A C8
-		cpy #$10		;2F6B C0 10
-		bne L_2F66		;2F6D D0 F7
-		dec ZP_14		;2F6F C6 14
-		beq L_2F94		;2F71 F0 21
-		lda ZP_1E		;2F73 A5 1E
-		clc			;2F75 18
-		adc #$40		;2F76 69 40
-		sta ZP_1E		;2F78 85 1E
-		lda ZP_1F		;2F7A A5 1F
-		adc #$01		;2F7C 69 01
-		sta ZP_1F		;2F7E 85 1F
-		dec ZP_15		;2F80 C6 15
-		beq L_2F58		;2F82 F0 D4
-		lda ZP_98		;2F84 A5 98
-		clc			;2F86 18
-		adc #$10		;2F87 69 40
-		sta ZP_98		;2F89 85 98
-		lda ZP_99		;2F8B A5 99
-		adc #$00		;2F8D 69 01
-		sta ZP_99		;2F8F 85 99
-		jmp L_2F64		;2F91 4C 64 2F
-.L_2F94
-		ldx #$05		;2F94 A2 05
-		ldy #$02		;2F96 A0 02
-.L_2F98
-		lda #BEEB_PIXELS_COLOUR2;2F98 A9 AA		; BEEB_PIXELS_COLOUR2?
-		sta $4008,X 	;2F9A 9D 08 40
-		sta $4130,X 	;2F9D 9D 30 41
-		sta $57C8,Y 	;2FA0 99 C8 57
-		sta $58F0,Y 	;2FA3 99 F0 58
-		lda #%10000000	;2FA6 A9 80 - 2 0 0 0
-		sta $4268,X 	;2FA8 9D 68 42
-		lda #%00010000	;2FAB A9 02 - 0 0 0 2
-		sta $5690,Y 	;2FAD 99 90 56
-		iny				;2FB0 C8
-		dex				;2FB1 CA
-		bpl L_2F98		;2FB2 10 E4
-		ldx #$01		;2FB4 A2 01
-.L_2FB6
-		lda #%11100001	;2FB6 A9 A9 - 2 2 2 1
-		sta $400E,X 	;2FB8 9D 0E 40
-		
-		lda #%01110000	;2FBB A9 2A - 0 2 2 2
-		sta $4136,X 	;2FBD 9D 36 41
-		
-		lda #%11100000	;2FC0 A9 A8 - 2 2 2 0
-		sta $57C8,X 	;2FC2 9D C8 57
-		
-		lda #%01111000	;2FC5 A9 6A - 1 2 2 2
-		sta $58F0,X 	;2FC7 9D F0 58
-		
-		dex				;2FCA CA
-		bpl L_2FB6		;2FCB 10 E9
-		rts				;2FCD 60
-
-endif
-
 }
-
-if NOT(FANCY_TRACK_PREVIEW)
-
-; moved from boot data.
-.track_preview_border_start
-.track_preview_border_0
-EQUB $AA,$AA,$AA,$AA,$AA,$AA,$01,$01,$AA,$AA,$AA,$AA,$AA,$AA,$50,$50
-EQUB $AA,$AA,$AA,$AA,$AA,$AA,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
-
-.track_preview_border_1	
-EQUB $A8,$A8,$A8,$A8,$A8,$A8,$01,$01,$0A,$0A,$0A,$0A,$0A,$0A,$50,$50
-EQUB $80,$80,$80,$80,$80,$80,$15,$15,$00,$00,$00,$00,$00,$00,$00,$00
-
-.track_preview_border_2
-EQUB $54,$54,$02,$02,$02,$02,$02,$02,$05,$05,$A0,$A0,$A0,$A0,$A0,$A0
-EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$00,$00,$00,$00,$00,$00,$00,$00
-
-.track_preview_border_3
-EQUB $54,$54,$AA,$AA,$AA,$AA,$AA,$AA,$05,$05,$AA,$AA,$AA,$AA,$AA,$AA
-EQUB $40,$40,$AA,$AA,$AA,$AA,$AA,$AA,$00,$00,$00,$00,$00,$00,$00,$00
-
-.L_6630
-EQUB $A8,$A8,$A8,$A8,$A8,$A8,$A9,$A9,$A8,$A8,$A8,$A8,$A8,$A8,$01,$01 ; 6630
-EQUB $A9,$A9,$A9,$A9,$A8,$A8,$A8,$A8,$01,$01,$01,$01,$A8,$A8,$A8,$A8 ; 6770
-EQUB $A8,$A8,$A9,$A9,$A9,$A9,$A9,$A9,$A8,$A8,$01,$01,$01,$01,$01,$01 ; 68b0
-
-.L_6640
-EQUB $40,$40,$40,$40,$40,$40,$2A,$2A,$6A,$6A,$6A,$6A,$6A,$6A,$2A,$2A ; 6640
-EQUB $2A,$2A,$2A,$2A,$40,$40,$40,$40,$2A,$2A,$2A,$2A,$6A,$6A,$6A,$6A ; 6780
-EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
-.track_preview_border_end
-
-endif
 
 .draw_track_preview_track_name			; called from game_start
 {

@@ -1157,6 +1157,9 @@ NEXT
 {
 		lda #$0B		;3C36 A9 0B
 		jsr vic_set_border_colour		;3C38 20 BB 3F
+
+		lda #$03:jsr cart_sysctl ; 'mode 3'
+		
 		jsr initialise_game_vars		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
 		sta irq_mode		;3C40 8D F8 3D
@@ -1172,8 +1175,8 @@ NEXT
 
 		jsr update_colour_map_with_sysctl		;3C51 20 30 2C
 		ldx L_C76B		;3C54 AE 6B C7
-		lda #$03		;3C57 A9 03			; 'MODE 3'
-		jsr cart_sysctl		;3C59 20 25 87
+		; lda #$03		;3C57 A9 03			; 'MODE 3'
+		; jsr cart_sysctl		;3C59 20 25 87
 		jsr cart_set_up_colour_map_for_track_preview		;3C5C 20 77 3A
 		jsr cart_draw_track_preview_border		;3C5F 20 03 2F
 		jsr cart_draw_track_preview_track_name		;3C62 20 CE 2F
@@ -1289,7 +1292,7 @@ NEXT
 		ldy #$0B		;3D4B A0 0B
 		jsr kernel_L_114D_with_color_ram		;3D4D 20 4D 11
 
-.L_3D50	ldy #$3C		;3D50 A0 3C
+.L_3D50	ldy #$3C		;3D50 A0 3C PRESS FIRE
 		lda #$04		;3D52 A9 04
 		jsr kernel_set_up_text_sprite		;3D54 20 A9 12
 		lda #$FF		;3D57 A9 FF
@@ -1514,7 +1517,7 @@ NEXT
 		pha				;3EFD 48
 		lda L_1328		;3EFE AD 28 13
 		pha				;3F01 48
-		ldy #$4C		;3F02 A0 4C
+		ldy #$4C		;3F02 A0 4C PAUSED
 		lda #$02		;3F04 A9 02
 		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
@@ -1526,7 +1529,7 @@ NEXT
 		tax				;3F17 AA
 		pla				;3F18 68
 		sta L_1327		;3F19 8D 27 13
-		tay				;3F1C A8
+		tay				;3F1C A8 <<reinstate last text sprite>>
 		pla				;3F1D 68
 		sta L_C355		;3F1E 8D 55 C3
 		bpl L_3F27_with_SID		;3F21 10 04
