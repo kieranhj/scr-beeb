@@ -21,9 +21,9 @@ rem	%PYTHON% bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./
 
 	%PYTHON% bin/png2bbc.py -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
 
-	bin\pucrunch.exe -d -c0 -l0x1000 "build\scr-beeb-title-screen.dat" build\scr-beeb-title-screen.pu
-	bin\pucrunch.exe -d -c0 -l0x1000 "build\scr-beeb-menu.dat" build\scr-beeb-menu.pu
-	bin\pucrunch.exe -d -c0 -l0x1000 "build\scr-beeb-credits.dat" build\scr-beeb-credits.pu
+	bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-title-screen.dat" build\scr-beeb-title-screen.pu
+	bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-menu.dat" build\scr-beeb-menu.pu
+	bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-credits.dat" build\scr-beeb-credits.pu
 
 ..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
 %PYTHON% bin\crc32.py scr-beeb.ssd
