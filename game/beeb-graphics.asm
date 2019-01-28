@@ -136,7 +136,15 @@ equw flames_masked_masks_2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.menu_header_compressed
+._graphics_unpack_menu_screen
+{
+    LDA #HI(screen1_address)
+    LDX #LO(beeb_menu_screen_compressed)
+    LDY #HI(beeb_menu_screen_compressed)
+    JMP PUCRUNCH_UNPACK
+}
+
+.beeb_menu_screen_compressed
 INCBIN "build/scr-beeb-menu.pu"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -742,7 +742,9 @@ ENDIF
 		inx				;391D E8
 		lda L_3944,X	;391E BD 44 39
 		inx				;3921 E8
-.L_3922	sta (ZP_1E),Y	;3922 91 1E
+.L_3922
+\\ BEEB don't fill colour map
+\\		sta (ZP_1E),Y	;3922 91 1E
 		iny				;3924 C8
 		bne L_3929		;3925 D0 02
 		inc ZP_1F		;3927 E6 1F

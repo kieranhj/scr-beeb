@@ -866,6 +866,8 @@ ENDIF
 .graphics_draw_flames DLL_CALL_GRAPHICS _graphics_draw_flames, 0
 .graphics_erase_flames DLL_CALL_GRAPHICS _graphics_erase_flames, 1
 
+.graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 2
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -874,12 +876,16 @@ ENDIF
 {
 	EQUB LO(_graphics_draw_flames)
 	EQUB LO(_graphics_erase_flames)
+
+	EQUB LO(_graphics_unpack_menu_screen)
 }
 
 .graphics_table_HI
 {
 	EQUB HI(_graphics_draw_flames)
 	EQUB HI(_graphics_erase_flames)
+
+	EQUB HI(_graphics_unpack_menu_screen)
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

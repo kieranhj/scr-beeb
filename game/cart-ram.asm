@@ -1002,8 +1002,9 @@ rts
 
 .sysctl_copy_menu_header_graphic		; in Cart
 {
-	JMP beeb_unpack_menu
+	JMP graphics_unpack_menu_screen
 
+IF 0
 		lda #C64_VIC_IRQ_DISABLE		;87C4 A9 00
 		sta VIC_IRQMASK		;87C6 8D 1A D0
 		sei				;87C9 78
@@ -1094,6 +1095,7 @@ rts
 		dex				;8866 CA
 		bpl L_8860		;8867 10 F7
 		rts				;8869 60
+ENDIF
 }
 
 ; If X bit	7 set, copy $62A0->$57C0, $6DE0->$D800
@@ -4929,14 +4931,19 @@ MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
 {
 		lda #$08		;1C49 A9 08
 		sta ZP_52		;1C4B 85 52
-		ldy #HI(L_4000)		;1C4D A0 40
-		ldx #LO(L_4000)		;1C4F A2 00
-		lda #$55		;1C51 A9 55
-		jsr sysctl		;1C53 20 25 87
-		ldx #$38		;1C56 A2 38
-		ldy #$5F		;1C58 A0 5F
-		lda #$20		;1C5A A9 20
-		jsr plot_menu_line_colour_2		;1C5C 20 3C 3A
+
+\\ BEEB no need to clear header area
+\\		ldy #HI(L_4000)		;1C4D A0 40
+\\		ldx #LO(L_4000)		;1C4F A2 00
+\\		lda #$55		;1C51 A9 55
+\\		jsr sysctl		;1C53 20 25 87
+
+\\ BEEB not sure we need this line either?
+\\		ldx #$38		;1C56 A2 38
+\\		ldy #$5F		;1C58 A0 5F
+\\		lda #$20		;1C5A A9 20
+\\		jsr plot_menu_line_colour_2		;1C5C 20 3C 3A
+
 		lda #$32		;1C5F A9 32
 		jmp sysctl		;1C61 4C 25 87
 }
@@ -7123,7 +7130,8 @@ EQUB $40,$40,$2A,$2A,$2A,$2A,$2A,$2A,$6A,$6A,$2A,$2A,$2A,$2A,$2A,$2A ; 68c0
 		sta ZP_14		;3935 85 14
 		inx				;3937 E8
 .L_3938	lda L_397A,X	;3938 BD 7A 39
-		sta (ZP_1E),Y	;393B 91 1E
+\\ BEEB don't fill colour map
+\\		sta (ZP_1E),Y	;393B 91 1E
 		iny				;393D C8
 		inx				;393E E8
 		dec ZP_14		;393F C6 14
@@ -7218,8 +7226,10 @@ ENDIF
 \\		jsr plot_menu_wood_surround		;3A0C 20 8D 39
 		dec ZP_1A		;3A0F C6 1A
 		bpl L_39FD		;3A11 10 EA
-		ldy #$70		;3A13 A0 70
-		jsr plot_menu_width_line		;3A15 20 4B 3A
+
+\\ don't need top line of menu
+\\		ldy #$70		;3A13 A0 70
+\\		jsr plot_menu_width_line		;3A15 20 4B 3A
 		ldy #$09		;3A18 A0 09
 		jsr load_rndQ_stateQ		;3A1A 20 37 16
 		rts				;3A1D 60
