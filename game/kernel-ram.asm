@@ -1795,14 +1795,14 @@ jsr dash_reset
 {
 		lda #$00		;2AAE A9 00
 		sta L_C39A		;2AB0 8D 9A C3
-		lda #$07		;2AB3 A9 07
-		sta L_3953		;2AB5 8D 53 39
+		lda #BEEB_PIXELS_COLOUR2		;2AB3 A9 07
+		sta menu_option_colour		;2AB5 8D 53 39
 		ldy #$13		;2AB8 A0 13
-		jsr L_3848		;2ABA 20 48 38
+		jsr colour_menu_option		;2ABA 20 48 38
 		ldy #$14		;2ABD A0 14
-		jsr L_3848		;2ABF 20 48 38
-		lda #$0F		;2AC2 A9 0F
-		sta L_3953		;2AC4 8D 53 39
+		jsr colour_menu_option		;2ABF 20 48 38
+		lda #BEEB_PIXELS_COLOUR1		;2AC2 A9 0F
+		sta menu_option_colour		;2AC4 8D 53 39
 		jsr set_write_char_half_row_flag		;2AC7 20 84 38
 		lda L_C77B		;2ACA AD 7B C7
 		beq L_2AE9		;2ACD F0 1A
@@ -2209,7 +2209,11 @@ jsr dash_reset
 		sta ZP_1A		;36C8 85 1A
 		lda #$00		;36CA A9 00
 		sta ZP_17		;36CC 85 17
-.L_36CE	ldy ZP_1A		;36CE A4 1A
+.L_36CE
+		jsr plot_menu_option_3		;3717 20 54 38
+		jsr clear_write_char_half_row_flag		;371A 20 1F 36
+
+		ldy ZP_1A		;36CE A4 1A
 		jsr print_division_type		;36D0 20 54 35
 		inc ZP_1A		;36D3 E6 1A
 		lda #$00		;36D5 A9 00
@@ -2243,8 +2247,7 @@ jsr dash_reset
 		lda ZP_08		;3711 A5 08
 		cmp #$03		;3713 C9 03
 		bne L_36D9		;3715 D0 C2
-		jsr L_3854		;3717 20 54 38
-		jsr clear_write_char_half_row_flag		;371A 20 1F 36
+
 		dec L_C360		;371D CE 60 C3
 		bpl L_36CE		;3720 10 AC
 		asl L_C356		;3722 0E 56 C3
@@ -2364,7 +2367,7 @@ jsr dash_reset
 		jsr set_up_screen_for_frontend		;94E4 20 04 35
 		lda #$01		;94E7 A9 01
 		sta ZP_19		;94E9 85 19
-		jsr L_3858		;94EB 20 58 38
+		jsr plot_menu_option_2		;94EB 20 58 38
 		ldx #$0C		;94EE A2 0C
 		jsr print_driver_name		;94F0 20 8B 38
 		lda L_C39A		;94F3 AD 9A C3
@@ -2376,7 +2379,7 @@ jsr dash_reset
 		jsr cart_write_file_string		;9503 20 E2 95
 		lda L_C39A		;9506 AD 9A C3
 		bpl L_951D		;9509 10 12
-		jsr L_3858		;950B 20 58 38
+		jsr plot_menu_option_2		;950B 20 58 38
 		lda L_C39A		;950E AD 9A C3
 		clc				;9511 18
 		adc #$02		;9512 69 02
@@ -5796,7 +5799,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr cart_print_msg_4		;ED87 20 27 30
 		lda #$01		;ED8A A9 01
 		sta ZP_19		;ED8C 85 19
-		jsr L_3858		;ED8E 20 58 38
+		jsr plot_menu_option_2		;ED8E 20 58 38
 		ldx #$0E		;ED91 A2 0E
 		ldy #$10		;ED93 A0 10
 		jsr cart_set_text_cursor		;ED95 20 6B 10
@@ -5903,14 +5906,16 @@ L_EBDD	= L_EBE7 - $A			;!
 		sty ZP_17		;EE4D 84 17
 		cpy ZP_0C		;EE4F C4 0C
 		bne L_EE5E		;EE51 D0 0B
-		lda #$0A		;EE53 A9 0A
+
+	\\ Colour of menu item when actually selected
+		lda #$5A		;EE53 A9 0A		; WAS $0A could be BEEB_PIXELS_COLOUR3?
 		ldy ZP_0F		;EE55 A4 0F
 		bne L_EE5B		;EE57 D0 02
-		lda #$07		;EE59 A9 07
-.L_EE5B	sta L_3953		;EE5B 8D 53 39
-.L_EE5E	jsr L_3858		;EE5E 20 58 38
-		lda #$0F		;EE61 A9 0F
-		sta L_3953		;EE63 8D 53 39
+		lda #BEEB_PIXELS_COLOUR1		;EE59 A9 07		; WAS $07
+.L_EE5B	sta menu_option_colour		;EE5B 8D 53 39
+.L_EE5E	jsr plot_menu_option_2		;EE5E 20 58 38
+		lda #BEEB_PIXELS_COLOUR2		;EE61 A9 0F		; WAS $F0
+		sta menu_option_colour		;EE63 8D 53 39
 		lda ZP_17		;EE66 A5 17
 		clc				;EE68 18
 		adc #$01		;EE69 69 01

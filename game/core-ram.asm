@@ -504,13 +504,17 @@ ENDIF
 		jsr get_colour_map_ptr		;352F 20 FA 38
 		ldx #$12		;3532 A2 12
 		lda #$01		;3534 A9 01
-		jsr fill_colourmap_solid		;3536 20 16 39
+
+\\ BEEB DON'T NEED COLOUR MAP
+\\		jsr fill_colourmap_solid		;3536 20 16 39
 		ldx #$04		;3539 A2 04
 		ldy #$09		;353B A0 09
 		jsr get_colour_map_ptr		;353D 20 FA 38
 		ldx #$0A		;3540 A2 0A
 		lda #$02		;3542 A9 02
-		jsr fill_colourmap_solid		;3544 20 16 39
+
+\\ BEEB DON'T NEED COLOUR MAP
+\\		jsr fill_colourmap_solid		;3544 20 16 39
 		lda L_31A0		;3547 AD A0 31
 		beq L_354D		;354A F0 01
 		rts				;354C 60
@@ -593,14 +597,14 @@ ENDIF
 		jsr cart_print_driver_v_driver		;35EE 20 38 37
 		ldx #$60		;35F1 A2 60		; "RESULT"
 		jsr cart_print_msg_4		;35F3 20 27 30
-		jsr L_3858		;35F6 20 58 38
+		jsr plot_menu_option_2		;35F6 20 58 38
 		ldx #$6A		;35F9 A2 6A		; "Race Winner: "
 		jsr cart_print_msg_4		;35FB 20 27 30
 		ldx L_C76F		;35FE AE 6F C7
 		jsr print_driver_name		;3601 20 8B 38
 		ldx #$E9		;3604 A2 E9		; " 2pts"
 		jsr cart_print_msg_4		;3606 20 27 30
-		jsr L_3858		;3609 20 58 38
+		jsr plot_menu_option_2		;3609 20 58 38
 		ldx #$78		;360C A2 78		; "Fastest Lap: "
 		jsr cart_print_msg_4		;360E 20 27 30
 		ldx L_C770		;3611 AE 70 C7
@@ -633,21 +637,25 @@ ENDIF
 .track_background_colours	equb $08,$05,$0C,$05,$05,$08,$0C,$08
 
 .L_3834	equb $06,$04,$00
+; menu option y rows
 .L_3837	equb $0D,$10,$13,$16,$10,$13,$10,$0F,$14,$17,$0A,$0E,$12,$16
 .L_3845	equb $0E,$0B,$11
 
-.L_3848	ldx #$04		;3848 A2 04
+.colour_menu_option
+		ldx #$04		;3848 A2 04
 		jsr get_colour_map_ptr		;384A 20 FA 38
 		ldx #$0E		;384D A2 0E
 		lda #$01		;384F A9 01
 		jmp fill_colourmap_solid		;3851 4C 16 39
 
-.L_3854	lda #$03		;3854 A9 03
-		bne highlight_current_menu_item		;3856 D0 02
+.plot_menu_option_3
+		lda #$03		;3854 A9 03
+		bne plot_menu_option		;3856 D0 02
 
-.L_3858	lda #$02		;3858 A9 02
+.plot_menu_option_2
+		lda #$02		;3858 A9 02
 
-.highlight_current_menu_item
+.plot_menu_option
 {
 		sta ZP_73		;385A 85 73
 		ldx ZP_19		;385C A6 19
@@ -656,7 +664,7 @@ ENDIF
 		sty ZP_7A		;3863 84 7A
 		jsr plot_menu_item_line		;3865 20 42 3A
 .L_3868	ldy ZP_74		;3868 A4 74
-		jsr L_3848		;386A 20 48 38
+		jsr colour_menu_option		;386A 20 48 38
 		inc ZP_74		;386D E6 74
 		dec ZP_73		;386F C6 73
 		bne L_3868		;3871 D0 F5
@@ -716,6 +724,7 @@ ENDIF
 ; addressing mode.
 .get_colour_map_ptr
 {
+IF 0
 		stx ZP_C6		;38FA 86 C6
 		tya				;38FC 98
 		
@@ -766,36 +775,109 @@ ENDIF
 
 		ldy ZP_C6		;3913 A4 C6
 		rts				;3915 60
+ELSE
+	LDA #0
+	STA ZP_1F
+
+	; X*16
+	TXA
+	ROL A
+	ROL A
+	ROL A:ROL ZP_1F
+	ROL A:ROL ZP_1F
+	STA ZP_1E
+
+	; Lookup Y row from table
+	CLC
+	LDA ZP_1E
+	ADC mode1_screen_LO, Y
+	STA ZP_1E
+	LDA ZP_1F
+	ADC mode1_screen_HI, Y
+	STA ZP_1F
+
+	LDY ZP_1E
+	LDA #0
+	STA ZP_1E
+	RTS
+ENDIF
 }
 
+; A=how many table entries to consume
+; X=index into table menu_colourmap_table
+; first value=#chars to fill, second value=colour value
 .fill_colourmap_solid
 {
 		sta ZP_15		;3916 85 15
-.L_3918	lda L_3944,X	;3918 BD 44 39
+.L_3918
+		LDA #0:STA ZP_C6
+
+		lda menu_colourmap_table,X	;3918 BD 44 39
+
+		; BEEB *16 for MODE 1 bytes per char
+		ASL A:ROL ZP_C6
+		ASL A:ROL ZP_C6
+		ASL A:ROL ZP_C6
+		ASL A:ROL ZP_C6
+
 		sta ZP_14		;391B 85 14
 		inx				;391D E8
-		lda L_3944,X	;391E BD 44 39
+		lda menu_colourmap_table,X	;391E BD 44 39
 		inx				;3921 E8
 .L_3922
-\\ BEEB don't fill colour map
-\\		sta (ZP_1E),Y	;3922 91 1E
+		sta (ZP_1E),Y	;3922 91 1E
+
 		iny				;3924 C8
 		bne L_3929		;3925 D0 02
 		inc ZP_1F		;3927 E6 1F
 .L_3929	dec ZP_14		;3929 C6 14
 		bne L_3922		;392B D0 F5
+
+		; BEEB HI byte of count after *16
+		DEC ZP_C6
+		BPL L_3922
+
 		dec ZP_15		;392D C6 15
 		bne L_3918		;392F D0 E7
 		rts				;3931 60
 }
 
 ; Used by colourmap functions above
-.L_3944	equb $F0,$1E,$02,$1E,$20,$79,$06,$98,$1C,$18,$0E,$28,$0E,$28,$1C
-.L_3953	equb $0F,$1C,$08,$14,$78,$14,$28,$0C,$78,$36,$06,$0B,$07,$45,$06,$0B
-		equb $16,$5F,$06,$28,$63,$28,$06,$02,$0D,$01,$06,$0B,$0A,$07,$0F,$01
-		equb $06,$0B,$0A,$07,$0F,$50,$06
+.menu_colourmap_table
+		equb $F0,$5A	; $00 - unused?
+		equb $02,$5A	; $02 - unused?
+		equb $20,$5A	; $04 - unused?
+		equb $06,$5A	; $06 - unused?
+		equb $1C,$5A	; $08 - menu_colour_map_stuff - NO LONGER USED
+		equb $0E,$5A	; $0A - set_up_screen_for_menu - NO LONGER USED
+		equb $0E,$5A	; $0C - unused?
+		equb $1C		; $0E - highlighted option
+.menu_option_colour
+		equb BEEB_PIXELS_COLOUR1
+		equb $1C,$5A	; $10 - menu_colour_map_stuff - NO LONGER USED, print_results_table, do_end_of_race_screen
+		equb $14,$5A	; $12 - set_up_screen_for_menu - NO LONGER USED
+		equb $14,BEEB_PIXELS_COLOUR2	; $14 - print_track_records
+		equb $0C,$5A	; $16 - unused?
+		equb $36,BEEB_PIXELS_COLOUR2	; $18 - do_hall_of_fame_screen
+		equb $0B,BEEB_PIXELS_COLOUR2	; $1A - ""
+		equb $45,BEEB_PIXELS_COLOUR2	; $1C - ""
+		equb $0B,BEEB_PIXELS_COLOUR2	; $1E - ""
+		equb $5F,BEEB_PIXELS_COLOUR2	; $20 - ""
+		equb $28,BEEB_PIXELS_COLOUR2	; $22 - ""
+		equb $28,BEEB_PIXELS_COLOUR1	; $24 - do_hall_of_fame_screen
+		equb $02,BEEB_PIXELS_COLOUR1	; $26 - ""
+		equb $01,BEEB_PIXELS_COLOUR1	; $28 - ""
+		equb $0B,BEEB_PIXELS_COLOUR1	; $2A - ""
+		equb $07,BEEB_PIXELS_COLOUR1	; $2C - ""
+		equb $01,BEEB_PIXELS_COLOUR1	; $2E - ""
+		equb $0B,BEEB_PIXELS_COLOUR1	; $30 - ""
+		equb $07,BEEB_PIXELS_COLOUR1	; $32 - ""
+		equb $50,$5A	; $34 - do_hall_of_fame_screen
+
+IF 0	\\ used by fill_colourmap_varying - now removed
 .L_397A	equb $04,$AE,$AE,$90,$89,$08,$90,$89,$89,$90,$89,$90,$89,$89,$04,$A5
 		equb $A5,$90,$89		
+ENDIF
 
 ; A=width in chars
 .plot_menu_line_colour_2
@@ -894,6 +976,7 @@ ENDIF
 	sta ZP_1E
 	
 	rts
+}
 
 .mode1_screen_LO
 FOR y,0,24,1
@@ -904,7 +987,6 @@ NEXT
 FOR y,0,24,1
 EQUB HI(screen1_address + y*$280)
 NEXT
-}
 
 ; A=width in chars; X,Y pixel coords
 .plot_preview_line_colour_3
