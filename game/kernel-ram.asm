@@ -6524,9 +6524,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta $5560,X	    ;F3CB 9D 60 55
 		dex				;F3CE CA
 		bne L_F3C5		;F3CF D0 F4
-if FANCY_TRACK_PREVIEW
 		jsr preview_fix_up_cleared_screen
-endif		
 		jsr ensure_screen_enabled		;F3D1 20 9E 3F
 		lda #$0B		;F3D4 A9 0B
 		sta L_262B		;F3D6 8D 2B 26	_SELF_MOD to L_25EA in Core
@@ -6538,9 +6536,7 @@ endif
 		dex				;F3E5 CA
 		bpl L_F3DB		;F3E6 10 F3
 		jsr draw_track_preview		;F3E8 20 F6 F2
-if FANCY_TRACK_PREVIEW
 		jsr preview_add_background
-endif
 		lda #$08		;F3EB A9 08
 		sta L_262B		;F3ED 8D 2B 26	_SELF_MOD to L_25EA in Core
 		ldx #$00		;F3F0 A2 00

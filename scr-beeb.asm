@@ -62,10 +62,6 @@ KEY_RETURN = IKN_return
 KEY_RIGHT_SHIFT = IKN_shift		;$26	; right shift
 KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
 
-; If TRUE, add extra background and hand-drawn border to the track
-; preview screen. Otherwise, use the (minimally fixed up) C64 version.
-FANCY_TRACK_PREVIEW = TRUE
-
 ; *****************************************************************************
 ; MACROS
 ; *****************************************************************************
@@ -895,10 +891,6 @@ GUARD .disksys_loadto_addr
 	LDY #HI(hazel_end - hazel_start + &FF)
 	JSR disksys_copy_block
 
-	\\ Convert graphics 
-
-	jsr convert_c64_pixels
-
 	\\ FS is now unusable as HAZEL has been trashed
 
 	; Save off original top of HUD.
@@ -1211,87 +1203,6 @@ equb LO(screen1_address/8)		; R13
 
 	; LDA #13:STA &FE00
 	; LDA #LO(screen1_address/8):STA &FE01
-}
-
-.convert_c64_pixels
-{
-lda $f4:pha
-lda ZP_20+0:pha
-lda ZP_20+1:pha
-
-ldx #0
-
-.convert_table_entry
-
-cpx #endtable-table:beq done
-
-ldy #0
-
-lda table+0,x:sta ZP_20+0
-lda table+1,x:sta ZP_20+1
-lda table+4,x:sta $f4:sta $fe30
-
-.convert_byte
-
-sty hbits:sty lbits
-
-lda (ZP_20),y
-
-asl a:rol hbits:asl a:rol lbits
-asl a:rol hbits:asl a:rol lbits
-asl a:rol hbits:asl a:rol lbits
-asl a:rol hbits:asl a:rol lbits
-
-lda hbits:asl a:asl a:asl a:asl a:ora lbits
-
-sta (ZP_20),y
-
-{inc ZP_20+0:bne noc:inc ZP_20+1:.noc}
-
-lda ZP_20+0:cmp table+2,x:bne convert_byte
-lda ZP_20+1:cmp table+3,x:bne convert_byte
-
-inx:inx:inx:inx:inx
-jmp convert_table_entry
-
-.done
-
-pla:sta ZP_20+1
-pla:sta ZP_20+0
-pla:sta $f4:sta $fe30
-
-rts
-
-.hbits equb 0
-.lbits equb 0
-
-.table
-; ; boot-data.asm - In-game stuff
-; equw L_6000,L_6000+25*320
-; equb BEEB_CART_SLOT
-
-; ; core-data.asm - HUD damage stuff mixed in with the font data. See
-; ; L_F668.
-; equw L_80C8+$00,L_80C8+$40
-; equb BEEB_CART_SLOT
-
-; ; Front end header graphic.
-; ;
-; ; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
-; equw L_4F00+64,L_4F00+64+$4e8
-; equb BEEB_CART_SLOT
-
-if NOT(FANCY_TRACK_PREVIEW)
-; cart-ram.asm - track preview border.
-equw track_preview_border_start,track_preview_border_end
-equb BEEB_CART_SLOT
-endif
-
-; ; cart-ram.asm - wheel stuff.
-; equw wheel_data_begin,wheel_data_end
-; equb BEEB_CART_SLOT
-
-.endtable
 }
 
 .copy_to_shadow

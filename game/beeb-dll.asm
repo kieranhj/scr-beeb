@@ -862,11 +862,9 @@ ENDIF
 .dash_update_best_lap_time DLL_CALL_GRAPHICS _dash_update_best_lap_time, 10
 .dash_update_flag_icon DLL_CALL_GRAPHICS _dash_update_flag_icon, 11
 .dash_update_stopwatch_icon DLL_CALL_GRAPHICS _dash_update_stopwatch_icon, 12
-if FANCY_TRACK_PREVIEW
 .preview_draw_border DLL_CALL_GRAPHICS _preview_draw_border, 13
 .preview_fix_up_cleared_screen DLL_CALL_GRAPHICS _preview_fix_up_cleared_screen, 14
 .preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
-endif
 .graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
 .graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 17
 
