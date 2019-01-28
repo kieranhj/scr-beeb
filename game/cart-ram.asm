@@ -444,8 +444,8 @@
 		lda (ZP_F4),Y	;8582 B1 F4
 
 ; Mask out bits we're going to write (on right)
-
-		and nibble_to_beeb_byte, X		;8584 2D CA 85
+; Let's not mask this out as we're filling with colour anyway
+;		and nibble_to_beeb_byte, X		;8584 2D CA 85
 
 ; Mask in glyph bits from first byte
 
@@ -465,8 +465,8 @@
 		lda (ZP_F6),Y	;858B B1 F6
 
 ; Mask out bits we're going to write (on left)
-
-		and nibble_to_beeb_byte, X		;858D 2D CB 85
+; Let's not mask this out as we're filling with colour anyway
+;		and nibble_to_beeb_byte, X		;858D 2D CB 85
 
 ; Mask in glyph bits from second byte
 
@@ -486,8 +486,8 @@
 		lda (ZP_F8),Y	;858B B1 F6
 
 ; Mask out bits we're going to write (on left)
-
-		and nibble_to_beeb_byte, X		;858D 2D CB 85
+; Let's not mask this out as we're filling with colour anyway
+;		and nibble_to_beeb_byte, X		;858D 2D CB 85
 
 ; Mask in glyph bits from second byte
 
@@ -2291,11 +2291,11 @@ rts
 {
 		lda #$0E		;91CF A9 0E
 		sta ZP_19		;91D1 85 19
-		lda #$0A		;91D3 A9 0A
-		sta L_3953		;91D5 8D 53 39
-		jsr L_3854		;91D8 20 54 38
-		lda #$0F		;91DB A9 0F
-		sta L_3953		;91DD 8D 53 39
+		lda #BEEB_PIXELS_COLOUR2		;91D3 A9 0A
+		sta menu_option_colour		;91D5 8D 53 39
+		jsr plot_menu_option_3		;91D8 20 54 38
+		lda #BEEB_PIXELS_COLOUR1		;91DB A9 0F
+		sta menu_option_colour		;91DD 8D 53 39
 		ldx #$23		;91E0 A2 23		; "Race Time: "
 		jsr print_msg_1		;91E2 20 A5 32
 		ldx L_C76E		;91E5 AE 6E C7
@@ -2345,17 +2345,17 @@ rts
 		lda #$01		;9233 A9 01
 		jsr fill_colourmap_solid		;9235 20 16 39
 		ldx #$B8		;9238 A2 B8
-		ldy #$05		;923A A0 05
+		ldy #BEEB_PIXELS_COLOUR2		;923A A0 05
 		lda #$03		;923C A9 03
 		sta ZP_19		;923E 85 19
 		lda L_C305		;9240 AD 05 C3
 		and #$01		;9243 29 01
 		beq L_924F		;9245 F0 08
 		ldx #$E3		;9247 A2 E3			; "New track record"
-		ldy #$07		;9249 A0 07
+		ldy #BEEB_PIXELS_COLOUR1		;9249 A0 07
 		lda #$10		;924B A9 10
 		sta ZP_19		;924D 85 19
-.L_924F	sty L_3953		;924F 8C 53 39
+.L_924F	sty menu_option_colour		;924F 8C 53 39
 		jsr print_msg_3		;9252 20 DC A1
 		lda L_C305		;9255 AD 05 C3
 		and #$C0		;9258 29 C0
@@ -2363,9 +2363,9 @@ rts
 		bne L_9263		;925C D0 05
 		ldx #$6F		;925E A2 6F			; "s"
 		jsr print_msg_3		;9260 20 DC A1
-.L_9263	jsr L_3854		;9263 20 54 38
-		lda #$0F		;9266 A9 0F
-		sta L_3953		;9268 8D 53 39
+.L_9263	jsr plot_menu_option_3		;9263 20 54 38
+		lda #BEEB_PIXELS_COLOUR2		;9266 A9 0F
+		sta menu_option_colour		;9268 8D 53 39
 		bit L_C305		;926B 2C 05 C3
 		bpl L_9282		;926E 10 12
 		ldx #$23		;9270 A2 23			; "Race Time: "
@@ -6798,7 +6798,7 @@ endif
 		lda L_31A1		;315C AD A1 31
 		clc				;315F 18
 		adc #$02		;3160 69 02
-		jsr highlight_current_menu_item		;3162 20 5A 38
+		jsr plot_menu_option		;3162 20 5A 38
 .L_3165	jsr L_387B		;3165 20 7B 38
 		inc ZP_7A		;3168 E6 7A
 		jsr print_driver_stats		;316A 20 4F 36
@@ -6882,7 +6882,7 @@ endif
 		jsr print_msg_4		;363D 20 27 30
 		lda #$01		;3640 A9 01
 		sta ZP_19		;3642 85 19
-.L_3644	jsr L_3858		;3644 20 58 38
+.L_3644	jsr plot_menu_option_2		;3644 20 58 38
 		jsr print_driver_stats		;3647 20 4F 36
 		bne L_3644		;364A D0 F8
 		jmp L_361C		;364C 4C 1C 36
@@ -6925,7 +6925,7 @@ endif
 {
 		sta ZP_19		;3738 85 19
 		jsr kernel_L_E8E5		;373A 20 E5 E8
-		jsr L_3858		;373D 20 58 38
+		jsr plot_menu_option_2		;373D 20 58 38
 		ldx L_C771		;3740 AE 71 C7
 		jsr print_driver_name		;3743 20 8B 38
 		ldx #$28		;3746 A2 28	; " V "
@@ -6961,11 +6961,11 @@ endif
 		bne L_37B6		;3785 D0 2F
 		lda L_C71A		;3787 AD 1A C7
 		beq L_3797		;378A F0 0B
-		jsr L_3858		;378C 20 58 38
+		jsr plot_menu_option_2		;378C 20 58 38
 		ldx #$CE		;378F A2 CE		; "EXCELLENT DRIVING - WELL DONE"
 		jsr print_msg_2		;3791 20 CB A1
 		jmp L_37CE		;3794 4C CE 37
-.L_3797	jsr L_3858		;3797 20 58 38
+.L_3797	jsr plot_menu_option_2		;3797 20 58 38
 		ldx #$B7		;379A A2 B7		; "Promotion for  "
 		jsr print_msg_4		;379C 20 27 30
 		ldy ZP_50		;379F A4 50
@@ -6973,7 +6973,7 @@ endif
 		jsr print_driver_name		;37A4 20 8B 38
 		ldy ZP_50		;37A7 A4 50
 		bne L_37B6		;37A9 D0 0B
-		jsr L_3858		;37AB 20 58 38
+		jsr plot_menu_option_2		;37AB 20 58 38
 		ldx #$A7		;37AE A2 A7		; "to the SUPER LEAGUE"
 		jsr print_msg_2		;37B0 20 CB A1
 		jmp L_37CE		;37B3 4C CE 37
@@ -6981,7 +6981,7 @@ endif
 		dey				;37B8 88
 		cpy #$0B		;37B9 C0 0B
 		beq L_37CE		;37BB F0 11
-		jsr L_3858		;37BD 20 58 38
+		jsr plot_menu_option_2		;37BD 20 58 38
 		ldx #$C7		;37C0 A2 C7		; "Relegation for "
 		jsr print_msg_4		;37C2 20 27 30
 		ldy ZP_8A		;37C5 A4 8A
@@ -7049,12 +7049,16 @@ endif
 		cmp #$09		;38D3 C9 09
 		bcs L_38D9		;38D5 B0 02
 		ldx #$0E		;38D7 A2 0E
-.L_38D9	jsr fill_colourmap_varying		;38D9 20 32 39
+.L_38D9
+\\ BEEB DON'T NEED COLOUR MAP
+\\		jsr fill_colourmap_varying		;38D9 20 32 39
 		ldx #$08		;38DC A2 08
 		lda #$01		;38DE A9 01
-		jsr fill_colourmap_solid		;38E0 20 16 39
+\\ BEEB DON'T NEED COLOUR MAP
+\\		jsr fill_colourmap_solid		;38E0 20 16 39
 		ldx #$05		;38E3 A2 05
-		jsr fill_colourmap_varying		;38E5 20 32 39
+\\ BEEB DON'T NEED COLOUR MAP
+\\\		jsr fill_colourmap_varying		;38E5 20 32 39
 		dec ZP_A0		;38E8 C6 A0
 		bne L_38CF		;38EA D0 E3
 		ldx #$04		;38EC A2 04
@@ -7062,9 +7066,12 @@ endif
 		jsr get_colour_map_ptr		;38F0 20 FA 38
 		ldx #$10		;38F3 A2 10
 		lda #$01		;38F5 A9 01
-		jmp fill_colourmap_solid		;38F7 4C 16 39
+\\ BEEB DON'T NEED COLOUR MAP
+\\		jmp fill_colourmap_solid		;38F7 4C 16 39
+		RTS
 }
 
+IF 0
 .fill_colourmap_varying		; in Cart
 {
 		lda L_397A,X	;3932 BD 7A 39
@@ -7079,6 +7086,7 @@ endif
 		bne L_3938		;3941 D0 F5
 		rts				;3943 60
 }
+ENDIF
 
 IF 0
 .plot_menu_wood_surround				; in Cart

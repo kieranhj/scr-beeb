@@ -197,6 +197,81 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 ; $80=main game,$00=exiting,$40=track preview,$41=frontend
 .irq_mode	equb $00
 
+
+; *****************************************************************************
+\\ Data moved from Kernel RAM to Core
+; *****************************************************************************
+
+; FRONTEND STRINGS
+
+.frontend_strings_2
+		equb $1F,$11,$0B,"SELECT",$FF
+		equb "Practise ",$FF
+		equb "Start the Racing Season",$FF
+		equb "Load/Save/Replay       ",$FF
+		equb "Load",$FF
+		equb "Save",$FF
+		equb "Replay",$FF
+		equb "Cancel",$FF
+		equb "LOAD from Tape",$FF
+		equb "LOAD from Disc",$FF
+		equb "SAVE to Tape",$FF
+		equb "SAVE to Disc",$FF
+		equb $1F,$05,$13,"   Filename?  >",$FF
+		equb "to the SUPER LEAGUE",$FF
+		equb $1F,$0C
+.L_E0BD	equb $09,"SUPER DIVISION "
+		equb $FF
+		equb "EXCELLENT DRIVING - WELL DONE",$FF
+		equb "Hall of Fame",$FF
+
+.frontend_strings_3
+		equb $1F,$11,$0B,"SELECT",$FF
+		equb "Single Player League",$FF
+		equb "Multiplayer",$FF
+		equb "Enter another driver",$FF
+		equb "Continue",$FF
+		equb "Tracks in DIVISION ",$FF
+		equb $00,$00,$00
+		equb $00,$00,$00," S.",$FF
+		equb "        s",$FF
+		equb $1F,$06
+.L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
+		equb "Track:  The ",$FF
+		equb $1F,$0A,$09
+		equb "DRIVERS CHAMPIONSHIP",$FF
+		equb $1F,$0E,$14,"Track record",$FF
+		equb $00
+.L_3273	equb "------------",$FF
+.L_3280	equb "------------",$FF
+		equb $1F,$0C,$0F
+		equb "New track record",$FF
+
+.frontend_strings_4
+		equb $1F,$0F
+.L_3409	equb $09,"DIVISION ",$FF
+		equb $1F,$0F
+.L_3416	equb $0D,"RACE  ",$FF
+		equb $1F,$06,$0B,"Track:  ",$FF
+		equb "The ",$FF
+		equb " V ",$FF
+		equb $1F,$03,$18
+		equb "steer to rotate view or fire to continue",$FF
+		equb $1F
+.L_3460	equb $0F,$15,"The ",$FF
+		equb $1F,$11,$12,"RESULT",$FF
+		equb "Race Winner: ",$FF
+		equb "Fastest Lap: ",$FF
+		equb $1F,$0E,$0B
+		equb "RESULTS TABLE"
+		equb $1F,$06,$0E
+		equb "DRIVER     RACED WIN LAP  PTS",$FF
+		equb "Promotion for  ",$FF
+		equb "Relegation for ",$FF
+		equb " CHANGES",$FF
+		equb $1F,$12,$0E,"NAME?",$FF
+		equb " 2pts",$FF," 1pt",$FF," of ",$FF
+
 PAGE_ALIGN
 .L_AD00	equb $FF,$8F,$FF,$EF,$FF
 		equb $FF,$4E,$FE,$9D,$FC,$EC,$FB,$FA,$29,$F8,$6F,$FE,$AC,$FB,$DA,$F8
@@ -841,80 +916,6 @@ L_AEC1 = L_AEC0 + 1
 		equb $6E,$69
 		equb $01
 		equb $00
-
-; *****************************************************************************
-\\ Data moved from Kernel RAM to Core
-; *****************************************************************************
-
-; FRONTEND STRINGS
-
-.frontend_strings_2
-		equb $1F,$11,$0B,"SELECT",$FF
-		equb "Practise ",$FF
-		equb "Start the Racing Season",$FF
-		equb "Load/Save/Replay       ",$FF
-		equb "Load",$FF
-		equb "Save",$FF
-		equb "Replay",$FF
-		equb "Cancel",$FF
-		equb "LOAD from Tape",$FF
-		equb "LOAD from Disc",$FF
-		equb "SAVE to Tape",$FF
-		equb "SAVE to Disc",$FF
-		equb $1F,$05,$13,"   Filename?  >",$FF
-		equb "to the SUPER LEAGUE",$FF
-		equb $1F,$0C
-.L_E0BD	equb $09,"SUPER DIVISION "
-		equb $FF
-		equb "EXCELLENT DRIVING - WELL DONE",$FF
-		equb "Hall of Fame",$FF
-
-.frontend_strings_3
-		equb $1F,$11,$0B,"SELECT",$FF
-		equb "Single Player League",$FF
-		equb "Multiplayer",$FF
-		equb "Enter another driver",$FF
-		equb "Continue",$FF
-		equb "Tracks in DIVISION ",$FF
-		equb $00,$00,$00
-		equb $00,$00,$00," S.",$FF
-		equb "        s",$FF
-		equb $1F,$06
-.L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
-		equb "Track:  The ",$FF
-		equb $1F,$0A,$09
-		equb "DRIVERS CHAMPIONSHIP",$FF
-		equb $1F,$0E,$14,"Track record",$FF
-		equb $00
-.L_3273	equb "------------",$FF
-.L_3280	equb "------------",$FF
-		equb $1F,$0C,$0F
-		equb "New track record",$FF
-
-.frontend_strings_4
-		equb $1F,$0F
-.L_3409	equb $09,"DIVISION ",$FF
-		equb $1F,$0F
-.L_3416	equb $0D,"RACE  ",$FF
-		equb $1F,$06,$0B,"Track:  ",$FF
-		equb "The ",$FF
-		equb " V ",$FF
-		equb $1F,$03,$18
-		equb "steer to rotate view or fire to continue",$FF
-		equb $1F
-.L_3460	equb $0F,$15,"The ",$FF
-		equb $1F,$11,$12,"RESULT",$FF
-		equb "Race Winner: ",$FF
-		equb "Fastest Lap: ",$FF
-		equb $1F,$0E,$0B
-		equb "RESULTS TABLE"
-		equb $1F,$06,$0E
-		equb "DRIVER     RACED WIN LAP  PTS",$FF
-		equb "Promotion for  ",$FF
-		equb "Relegation for ",$FF
-		equb " CHANGES",$FF
-		equb $1F,$12,$0E,"NAME?",$FF
-		equb " 2pts",$FF," 1pt",$FF," of ",$FF
 
 .file_strings
 		equb " NOT",$FF
