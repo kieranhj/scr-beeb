@@ -15,6 +15,8 @@ rem	%PYTHON% bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./
 
 	%PYTHON% bin/hud_font.py > build/hud-font-tables.asm
 
+	%PYTHON% bin/dash_icons.py > build/dash-icons.asm
+
 	%PYTHON% bin/track_preview.py > build/track-preview.asm
 
 	%PYTHON% bin/png2bbc.py -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
