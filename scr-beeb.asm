@@ -1580,6 +1580,7 @@ lda #108:ldx #1:jsr osbyte		; page in shadow memory
 ldx #LO(load_title):ldy #HI(load_title):jsr oscli
 
 lda #108:ldx #0:jsr osbyte		; page in main memory
+lda #19:jsr osbyte
 lda #113:ldx #2:jsr osbyte		; display shadow memory
 
 ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
