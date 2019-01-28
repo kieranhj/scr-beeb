@@ -191,6 +191,7 @@ SHEILA_System_VIA_Interrupt_Flag   = $FE4D
 SHEILA_System_VIA_Interrupt_Enable   = $FE4E
 SHEILA_System_VIA_Register_A_NH   = $FE4F
 
+ULA_MODE_1 = &D8
 ULA_MODE_4 = &88
 ULA_MODE_5 = &C4
 

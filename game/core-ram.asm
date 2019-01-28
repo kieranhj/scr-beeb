@@ -483,12 +483,12 @@ ENDIF
 {
 		lda #$00		;3504 A9 00
 		jsr vic_set_border_colour		;3506 20 BB 3F
-		jsr cart_draw_menu_header		;3509 20 49 1C
 		lda #$01		;350C A9 01		; 'MODE 1'
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
 		sta irq_mode		;3513 8D F8 3D
-		jsr cart_L_39F1		;3516 20 F1 39
+		jsr cart_draw_menu_header		;3509 20 49 1C
+		jsr cart_prep_menu_graphics		;3516 20 F1 39
 		jsr set_up_screen_for_menu		;3519 20 1F 35
 		jmp ensure_screen_enabled		;351C 4C 9E 3F
 }
@@ -609,7 +609,7 @@ ENDIF
 		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
 \\
-.store_X_in_L_85D0_with_sysctl
+.clear_write_char_half_row_flag
 {
 		ldx #$00		;361F A2 00
 		lda #$20		;3621 A9 20
@@ -654,7 +654,7 @@ ENDIF
 		ldy L_3837,X	;385E BC 37 38
 		sty ZP_74		;3861 84 74
 		sty ZP_7A		;3863 84 7A
-		jsr L_3A42		;3865 20 42 3A
+		jsr plot_menu_item_line		;3865 20 42 3A
 .L_3868	ldy ZP_74		;3868 A4 74
 		jsr L_3848		;386A 20 48 38
 		inc ZP_74		;386D E6 74
@@ -662,15 +662,17 @@ ENDIF
 		bne L_3868		;3871 D0 F5
 		bit L_C356		;3873 2C 56 C3
 		bmi L_387B		;3876 30 03
-		jsr L_3A42		;3878 20 42 3A
+		jsr plot_menu_item_line		;3878 20 42 3A
 }
 \\ Fall through
 .L_387B	ldx #$05		;387B A2 05
 		ldy ZP_7A		;387D A4 7A
 		jsr cart_set_text_cursor		;387F 20 6B 10
 		inc ZP_19		;3882 E6 19
+
 \\ Fall through
-.L_3884	ldx #$80		;3884 A2 80
+.set_write_char_half_row_flag
+		ldx #$80		;3884 A2 80
 		lda #$20		;3886 A9 20
 		jmp cart_sysctl		;3888 4C 25 87
 
@@ -774,7 +776,9 @@ ENDIF
 		inx				;391D E8
 		lda L_3944,X	;391E BD 44 39
 		inx				;3921 E8
-.L_3922	sta (ZP_1E),Y	;3922 91 1E
+.L_3922
+\\ BEEB don't fill colour map
+\\		sta (ZP_1E),Y	;3922 91 1E
 		iny				;3924 C8
 		bne L_3929		;3925 D0 02
 		inc ZP_1F		;3927 E6 1F
@@ -793,26 +797,124 @@ ENDIF
 .L_397A	equb $04,$AE,$AE,$90,$89,$08,$90,$89,$89,$90,$89,$90,$89,$89,$04,$A5
 		equb $A5,$90,$89		
 
-.L_3A3C
+; A=width in chars
+.plot_menu_line_colour_2
 		sta ZP_14		;3A3C 85 14
 		lda #BEEB_PIXELS_COLOUR2;3A3E A9 AA
-		bne L_3A53		;3A40 D0 11
+		bne plot_menu_line		;3A40 D0 11
 \\
-.L_3A42	lda ZP_74		;3A42 A5 74
+; Y=47 + A*8
+.plot_menu_item_line
+		lda ZP_74		;3A42 A5 74
 		asl A			;3A44 0A
 		asl A			;3A45 0A
 		asl A			;3A46 0A
 		clc				;3A47 18
 		adc #$2F		;3A48 69 2F
 		tay				;3A4A A8
-\\
-.L_3A4B	ldx #$40		;3A4B A2 40
+
+; A=$1C (28 chars = 224 pixels)
+.plot_menu_width_line
+		ldx #$40		;3A4B A2 40
 		lda #$1C		;3A4D A9 1C
-\\
-.L_3A4F	sta ZP_14		;3A4F 85 14
-		lda #$FF		;3A51 A9 FF
-.L_3A53	sta ZP_16		;3A53 85 16
-.L_3A55	jsr cart_L_39D1		;3A55 20 D1 39
+
+; A=width in chars
+.plot_menu_line_colour_3
+		sta ZP_14		;3A4F 85 14
+		lda #BEEB_PIXELS_COLOUR3		;3A51 A9 FF
+
+; A=screen byte; X,Y=pixel coords
+.plot_menu_line
+{
+		sta ZP_16		;3A53 85 16
+
+\\ Rewritten horizontal line draw routine for MODE 1
+
+		jsr get_mode1_menu_screen_ptr
+
+		.loop
+		lda ZP_16		;3A58 A5 16
+
+		ldy #0
+		sta (ZP_1E),Y	;3A5A 91 1E
+		ldy #8
+		sta (ZP_1E),Y	;3A5A 91 1E
+
+		clc
+		lda ZP_1E
+		adc #16
+		sta ZP_1E
+		lda ZP_1F
+		adc #0
+		sta ZP_1F
+
+		dec ZP_14		;3A61 C6 14
+		bne loop		;3A63 D0 F0
+		rts				;3A65 60
+}
+
+.get_mode1_menu_screen_ptr
+{
+	lda #0
+	sta ZP_1F
+
+	; (X-$30) * 4 for char address
+
+	txa
+	sec
+	sbc #$30
+	.ok
+	asl A
+	rol ZP_1F
+	asl A
+	rol ZP_1F
+	sta ZP_1E
+
+	; (y-$30)/8 row address
+
+	tya
+	sec
+	sbc #$30
+	lsr A:lsr A: lsr A
+	tax
+	clc
+	lda mode1_screen_LO, X
+	adc ZP_1E
+	sta ZP_1E
+	lda mode1_screen_HI, X
+	adc ZP_1F
+	sta ZP_1F
+
+	; y=y % 8
+
+	tya
+	and #7
+	clc
+	adc ZP_1E
+	sta ZP_1E
+	
+	rts
+
+.mode1_screen_LO
+FOR y,0,24,1
+EQUB LO(screen1_address + y*$280)
+NEXT
+
+.mode1_screen_HI
+FOR y,0,24,1
+EQUB HI(screen1_address + y*$280)
+NEXT
+}
+
+; A=width in chars; X,Y pixel coords
+.plot_preview_line_colour_3
+{
+		sta ZP_14		;3A4F 85 14
+		lda #BEEB_PIXELS_COLOUR3		;3A51 A9 FF
+		sta ZP_16		;3A53 85 16
+
+	.loop
+		jsr cart_get_menu_screen_ptr		;3A55 20 D1 39
 		lda ZP_16		;3A58 A5 16
 		sta (ZP_1E),Y	;3A5A 91 1E
 		txa				;3A5C 8A
@@ -820,13 +922,15 @@ ENDIF
 		adc #$04		;3A5E 69 04
 		tax				;3A60 AA
 		dec ZP_14		;3A61 C6 14
-		bne L_3A55		;3A63 D0 F0
+		bne loop		;3A63 D0 F0
 		rts				;3A65 60
+}
 
-.L_3A66
+; A=width in chars; X,Y pixel coords
+.plot_preview_vertical_line
 {
 		sta ZP_14		;3A66 85 14
-.L_3A68	jsr cart_L_39D1		;3A68 20 D1 39
+.L_3A68	jsr cart_get_menu_screen_ptr		;3A68 20 D1 39
 		lda (ZP_1E),Y	;3A6B B1 1E
 		ora ZP_15		;3A6D 05 15
 		sta (ZP_1E),Y	;3A6F 91 1E
@@ -1256,7 +1360,7 @@ ENDIF
 		lda #$04		;3E77 A9 04
 		sta L_C354		;3E79 8D 54 C3
 		ldy #$09		;3E7C A0 09
-		jsr cart_L_1637		;3E7E 20 37 16
+		jsr cart_load_rndQ_stateQ		;3E7E 20 37 16
 		lda #$3B		;3E81 A9 3B
 		sta ZP_03		;3E83 85 03
 		jsr kernel_initialise_hud_sprites		;3E85 20 9A 12

@@ -28,7 +28,7 @@
 \\ 'MODE 2' = low-res bitmap w/ 4x colours per char (game)
 .set_multicolour_mode			; in Cart
 {
-		JSR beeb_set_mode_5
+		JSR beeb_set_mode_5_full
 
 		lda VIC_SCROLX		;83C0 AD 16 D0
 		ora #$10		;83C3 09 10			; 1=multicolour on
@@ -41,7 +41,7 @@
 \\ 'MODE 1' = high-res bitmap w/ 2x colours per char (frontend)
 .set_non_multicolour_mode		; in Cart
 {
-		JSR beeb_set_mode_4
+		JSR beeb_set_mode_1
 
 		lda VIC_SCROLX		;83CC AD 16 D0
 		and #$EF		;83CF 29 EF			; 0=multicolour off
@@ -77,7 +77,7 @@
 		ora #$10		;83FD 09 10			; 1=set_multicolour_mode
 		sta VIC_SCROLX		;83FF 8D 16 D0
 
-		JSR beeb_set_mode_5	; BEEB multicolour mode
+		JSR beeb_set_mode_5_full	; BEEB multicolour mode
 
 		lda #$F0		;8402 A9 F0			; $F0=
 		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)
@@ -171,45 +171,66 @@
 
 .write_char_body	; in Cart
 {
-		ldx L_846D		;8485 AE 6D 84
+		ldx write_char_set_pos		;8485 AE 6D 84
 		beq L_84A1		;8488 F0 17
-		inc L_846E		;848A EE 6E 84
-		ldx L_846E		;848D AE 6E 84
+		inc write_char_pos_idx		;848A EE 6E 84
+		ldx write_char_pos_idx		;848D AE 6E 84
 		cpx #$02		;8490 E0 02
 		beq L_8498		;8492 F0 04
-		sta L_85C5		;8494 8D C5 85
+		sta write_char_x_pos		;8494 8D C5 85
 		rts				;8497 60
-.L_8498	sta L_85C6		;8498 8D C6 85
+.L_8498	sta write_char_y_pos		;8498 8D C6 85
 		lda #$00		;849B A9 00
-		sta L_846D		;849D 8D 6D 84
+		sta write_char_set_pos		;849D 8D 6D 84
 		rts				;84A0 60
+
+\\ Start VDU 31
 
 .L_84A1	cmp #$1F		;84A1 C9 1F
 		bne L_84AE		;84A3 D0 09
-		sta L_846D		;84A5 8D 6D 84
+		sta write_char_set_pos		;84A5 8D 6D 84
 		lda #$00		;84A8 A9 00
-		sta L_846E		;84AA 8D 6E 84
+		sta write_char_pos_idx		;84AA 8D 6E 84
 		rts				;84AD 60
+
+\\ VDU 9 = move cursor right
 
 .L_84AE	cmp #$09		;84AE C9 09
 		bne L_84B6		;84B0 D0 04
-		inc L_85C5		;84B2 EE C5 85
+		inc write_char_x_pos		;84B2 EE C5 85
 		rts				;84B5 60
 
+\\ VDU 127 = delete
+
 .L_84B6	cmp #$7F		;84B6 C9 7F
-		bcc L_84D3		;84B8 90 19
+		bcc plot_glyph		;84B8 90 19
 		bne L_84D2		;84BA D0 16
-		dec L_85C5		;84BC CE C5 85
+		dec write_char_x_pos		;84BC CE C5 85
 		lda #$80		;84BF A9 80
 		sta L_85D1		;84C1 8D D1 85
 		lda #$20		;84C4 A9 20
 		sta L_85C7		;84C6 8D C7 85
 		jsr write_char_body		;84C9 20 85 84
 		lsr L_85D1		;84CC 4E D1 85
-		dec L_85C5		;84CF CE C5 85
+		dec write_char_x_pos		;84CF CE C5 85
 .L_84D2	rts				;84D2 60
 
-.L_84D3	asl A			;84D3 0A
+\\ ASCII char
+
+.plot_glyph
+
+; Super hack balls!
+
+	ldx irq_mode
+	cpx #$40
+	bne plot_gylph_mode_1
+	jmp plot_glyph_mode_4
+
+	.plot_gylph_mode_1
+
+; Calculate address of glyph data
+
+		asl A			;84D3 0A
 		rol ZP_F1		;84D4 26 F1
 		asl A			;84D6 0A
 		rol ZP_F1		;84D7 26 F1
@@ -222,30 +243,50 @@
 		and #$07		;84E3 29 07
 		adc #HI(font_data - $100)		;84E5 69 7F
 		sta ZP_F1		;84E7 85 F1
-		lda L_85C5		;84E9 AD C5 85
+
+; ZP_F0 contains pointer to glyph data
+
+; Character x position *8
+
+		lda write_char_x_pos		;84E9 AD C5 85
 		asl A			;84EC 0A
 		asl A			;84ED 0A
 		asl A			;84EE 0A
-		ora L_C3D9		;84EF 0D D9 C3
+
+; Mask in a pixel offset
+
+		ora write_char_pixel_offset		;84EF 0D D9 C3
+
+; Calculate X*7
+
 		rol ZP_FB		;84F2 26 FB
 		sec				;84F4 38
-		sbc L_85C5		;84F5 ED C5 85
+		sbc write_char_x_pos		;84F5 ED C5 85
 		sta ZP_FA		;84F8 85 FA
 		bcs L_84FE		;84FA B0 02
 		dec ZP_FB		;84FC C6 FB
+
+; Calculate X * 7/8
+
 .L_84FE	lsr ZP_FB		;84FE 46 FB
 		ror A			;8500 6A
 		lsr A			;8501 4A
 		lsr A			;8502 4A
-		sta L_85CC		;8503 8D CC 85
+
+; Store X byte and pixel offset
+
+		sta write_char_byte_offset		;8503 8D CC 85
 		lda ZP_FA		;8506 A5 FA
 		and #$07		;8508 29 07
-		sta L_85CD		;850A 8D CD 85
-		lda L_85C6		;850D AD C6 85
+		sta write_char_bit_offset		;850A 8D CD 85
+
+; Calculate Y * 40
+
+		lda write_char_y_pos		;850D AD C6 85
 		asl A			;8510 0A
 		asl A			;8511 0A
 		clc				;8512 18
-		adc L_85C6		;8513 6D C6 85
+		adc write_char_y_pos		;8513 6D C6 85
 		sta ZP_FA		;8516 85 FA
 		lda #$00		;8518 A9 00
 		asl ZP_FA		;851A 06 FA
@@ -255,9 +296,12 @@
 		asl ZP_FA		;8520 06 FA
 		rol A			;8522 2A
 		sta ZP_FB		;8523 85 FB
+
+; Calculate screen address = $4000 + (Y*40 + X_byte) * 8
+
 		lda ZP_FA		;8525 A5 FA
 		clc				;8527 18
-		adc L_85CC		;8528 6D CC 85
+		adc write_char_byte_offset		;8528 6D CC 85
 		sta ZP_F4		;852B 85 F4
 		lda ZP_FB		;852D A5 FB
 		adc #$00		;852F 69 00
@@ -267,91 +311,258 @@
 		rol A			;8536 2A
 		asl ZP_F4		;8537 06 F4
 		rol A			;8539 2A
+
+		asl ZP_F4		;8537 06 F4
+		rol A			;8539 2A
+
 		clc				;853A 18
-		adc #$40		;853B 69 40
+		adc #HI(screen1_address)		;853B 69 40
 		sta ZP_F5		;853D 85 F5
+
+	; correct bits
+
+		lda write_char_bit_offset
+		cmp #$04
+		bcc bit_ok
+		sbc #4
+		sta write_char_bit_offset
+		clc
+		lda ZP_F4
+		adc #8
+		sta ZP_F4
+		bcc bit_ok
+		inc ZP_F5
+		.bit_ok
+
+;  ZP_F4 contains screen write address
+
+; L_85D0 is flag to offset by half a char row?
+
 		lda ZP_F4		;853F A5 F4
 		bit L_85D0		;8541 2C D0 85
 		bpl L_854B		;8544 10 05
+
+; Screen address += 4 means move down half a character row?
+
 		clc				;8546 18
 		adc #$04		;8547 69 04
 		sta ZP_F4		;8549 85 F4
+
+; Calculate address of screen byte in next columns
+
 .L_854B	clc				;854B 18
 		adc #$08		;854C 69 08
 		sta ZP_F6		;854E 85 F6
 		lda ZP_F5		;8550 A5 F5
 		adc #$00		;8552 69 00
 		sta ZP_F7		;8554 85 F7
+
+; ZP_F6 contains screen address += 8
+
+		clc				;854B 18
+		lda ZP_F6
+		adc #$08		;854C 69 08
+		sta ZP_F8		;854E 85 F6
+		lda ZP_F7		;8550 A5 F5
+		adc #$00		;8552 69 00
+		sta ZP_F9		;8554 85 F7
+
+; ZP_F8 contains screen address += 16
+
 		lda #$FF		;8556 A9 FF
-		sta L_85CB		;8558 8D CB 85
+		sta write_char_next_col_mask		;8558 8D CB 85
 		lda #$00		;855B A9 00
-		ldx L_85CD		;855D AE CD 85
+		ldx write_char_bit_offset		;855D AE CD 85
 		beq L_856A		;8560 F0 08
+
+; Rotate current column mask by bit offset
+
 .L_8562	sec				;8562 38
 		ror A			;8563 6A
-		ror L_85CB		;8564 6E CB 85
+		ror write_char_next_col_mask		;8564 6E CB 85
 		dex				;8567 CA
 		bne L_8562		;8568 D0 F8
-.L_856A	sta L_85CA		;856A 8D CA 85
+
+; A contains bit mask for current column
+
+.L_856A	sta write_char_curr_col_mask		;856A 8D CA 85
+
+; Start index into font glyph data
+
 		ldy #$00		;856D A0 00
-.L_856F	lda #$00		;856F A9 00
+
+; Zero next byte of glyph data to write
+
+.plot_glyph_loop
+		lda #$00		;856F A9 00
 		sta ZP_FB		;8571 85 FB
+
+; Load a byte of glyph data
+
 		lda (ZP_F0),Y	;8573 B1 F0
-		ldx L_85CD		;8575 AE CD 85
+		ldx write_char_bit_offset		;8575 AE CD 85
 		beq L_8580		;8578 F0 06
+
+; Rotate font data by bit offset into ZP_FB for next byte
+
 .L_857A	lsr A			;857A 4A
 		ror ZP_FB		;857B 66 FB
 		dex				;857D CA
 		bne L_857A		;857E D0 FA
+
+; First byte of glyph data in ZP_FA
+
 .L_8580	sta ZP_FA		;8580 85 FA
+
+; Convert glyph data into beeb bytes
+
+	; top nibble only of second glyph byte
+		lda ZP_FB
+		lsr a:lsr a:lsr a:lsr a:tax
+		lda nibble_to_beeb_byte, X
+		sta ZP_FC
+
+	; bottom nibble of first glyph byte
+		lda ZP_FA
+		and #$0f:tax
+		lda nibble_to_beeb_byte, X
+		sta ZP_FB
+
+	; top nibble of first glyph byte
+		lda ZP_FA
+		lsr a:lsr a:lsr a:lsr a:tax
+		lda nibble_to_beeb_byte, X
+		sta ZP_FA
+
+; First byte column mask top nibble
+
+		lda write_char_curr_col_mask
+		lsr a:lsr a:lsr a:lsr a:tax
+
+; Load first screen byte
+
 		lda (ZP_F4),Y	;8582 B1 F4
-		and L_85CA		;8584 2D CA 85
+
+; Mask out bits we're going to write (on right)
+
+		and nibble_to_beeb_byte, X		;8584 2D CA 85
+
+; Mask in glyph bits from first byte
+
 		ora ZP_FA		;8587 05 FA
+
+; Store first byte to screen
+
 		sta (ZP_F4),Y	;8589 91 F4
+
+; First byte column mask bottom nibble
+
+		lda write_char_curr_col_mask
+		and #$0f:tax
+
+; Load second screen byte
+
 		lda (ZP_F6),Y	;858B B1 F6
-		and L_85CB		;858D 2D CB 85
+
+; Mask out bits we're going to write (on left)
+
+		and nibble_to_beeb_byte, X		;858D 2D CB 85
+
+; Mask in glyph bits from second byte
+
 		ora ZP_FB		;8590 05 FB
+
+; Store second byte to screen
+
 		sta (ZP_F6),Y	;8592 91 F6
+
+; Second byte column mask top nibble
+
+		lda write_char_next_col_mask
+		lsr a:lsr a:lsr a:lsr a:tax
+
+; Load third screen byte
+
+		lda (ZP_F8),Y	;858B B1 F6
+
+; Mask out bits we're going to write (on left)
+
+		and nibble_to_beeb_byte, X		;858D 2D CB 85
+
+; Mask in glyph bits from second byte
+
+		ora ZP_FC		;8590 05 FB
+
+; Store second byte to screen
+
+		sta (ZP_F8),Y	;8592 91 F6
+
+
+; Check flag L_85D0
+
 		bit L_85D0		;8594 2C D0 85
 		bpl L_85B0		;8597 10 17
+
 		cpy #$03		;8599 C0 03
 		bne L_85B0		;859B D0 13
-		ldx #$02		;859D A2 02
+
+; When plotting on half character row alignment
+; Increment screen pointers to next row after 4 scanlines
+
+		ldx #$04		;859D A2 02
 .L_859F	lda ZP_F4,X		;859F B5 F4
 		clc				;85A1 18
-		adc #$38		;85A2 69 38
+		adc #$78		;85A2 69 38
 		sta ZP_F4,X		;85A4 95 F4
 		lda ZP_F5,X		;85A6 B5 F5
-		adc #$01		;85A8 69 01
+		adc #$02		;85A8 69 01
 		sta ZP_F5,X		;85AA 95 F5
 		dex				;85AC CA
 		dex				;85AD CA
 		bpl L_859F		;85AE 10 EF
+
+; Regular character row handling
+; Increment Y to next scanline
+
 .L_85B0	iny				;85B0 C8
 		cpy #$08		;85B1 C0 08
-		bne L_856F		;85B3 D0 BA
+		beq plot_glyph_loop_done		;85B3 D0 BA
+		jmp plot_glyph_loop
+
+.plot_glyph_loop_done
+; Finished plotting glyph
+; Increment X position by 1
+
 		lda #$01		;85B5 A9 01
 		clc				;85B7 18
-		adc L_85C5		;85B8 6D C5 85
+		adc write_char_x_pos		;85B8 6D C5 85
+
+; Maximum with of screen is 45
+
 		cmp #$2D		;85BB C9 2D
 		bcc L_85C1		;85BD 90 02
+
+; Wrap around to X pos 0 if reach end of screen
+
 		lda #$00		;85BF A9 00
-.L_85C1	sta L_85C5		;85C1 8D C5 85
+.L_85C1	sta write_char_x_pos		;85C1 8D C5 85
 		rts				;85C4 60
 
-.L_846D	equb $00
-.L_846E	equb $00
+.nibble_to_beeb_byte equb $00,$11,$22,$33,$44,$55,$66,$77,$88,$99,$aa,$bb,$cc,$dd,$ee,$ff
+}
 
-.L_85C5	equb $00
-.L_85C6	equb $00
+.write_char_set_pos	equb $00		; last VDU char
+.write_char_pos_idx	equb $00		; VDU index
 
-.L_85CA	equb $00
-.L_85CB	equb $00
-.L_85CC	equb $00
-.L_85CD	equb $00
+.write_char_x_pos	equb $00		; X pos
+.write_char_y_pos	equb $00		; Y pos
+
+.write_char_curr_col_mask	equb $00
+.write_char_next_col_mask	equb $00
+.write_char_byte_offset	equb $00
+.write_char_bit_offset	equb $00
 
 .L_85D1	equb $00
-}
 
 \\ Temporary storage for registers A,X,Y
 .L_85C7	equb $00
@@ -821,6 +1032,9 @@ rts
 
 .sysctl_copy_menu_header_graphic		; in Cart
 {
+	JMP graphics_unpack_menu_screen
+
+IF 0
 jsr graphics_copy_menu_header_graphic
 
 ldx #0
@@ -870,6 +1084,7 @@ rts
 ; 		dex				;8866 CA
 ; 		bpl L_8860		;8867 10 F7
 ; 		rts				;8869 60
+ENDIF
 }
 
 ; If X bit	7 set, copy $62A0->$57C0, $6DE0->$D800
@@ -2364,7 +2579,7 @@ rts
 		rts				;9499 60
 .L_949A	lda L_31A1		;949A AD A1 31
 		beq L_9491		;949D F0 F2
-.L_949F	jsr L_3884		;949F 20 84 38
+.L_949F	jsr set_write_char_half_row_flag		;949F 20 84 38
 		ldx #$06		;94A2 A2 06
 		ldy #$16		;94A4 A0 16
 		jsr set_text_cursor		;94A6 20 6B 10
@@ -3825,11 +4040,9 @@ rts
 		dex				;1633 CA
 		bpl L_162E		;1634 10 F8
 		rts				;1636 60
-
-.L_1648	equb $B1,$65,$3B,$17,$3B
 }
 
-.L_1637				; HAS DLL
+.load_rndQ_stateQ	; HAS DLL
 {
 		ldx #$04		;1637 A2 04
 .L_1639	lda L_1643,Y	;1639 B9 43 16
@@ -3838,9 +4051,11 @@ rts
 		dex				;163F CA
 		bpl L_1639		;1640 10 F7
 		rts				;1642 60
-
-.L_1643	equb $B1,$86,$77,$8F,$8D
 }
+
+\\ Must be contiguous
+.L_1643	equb $B1,$86,$77,$8F,$8D
+.L_1648	equb $B1,$65,$3B,$17,$3B
 
 .start_of_frame		; in Cart
 {
@@ -4599,25 +4814,42 @@ rts
 		jmp sysctl		;1C20 4C 25 87
 }
 
+MENU_AREA_LEFT = 4
+MENU_AREA_TOP = 9
+MENU_AREA_WIDTH = 24
+MENU_AREA_HEIGHT = 16
+MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
+
 .clear_menu_area			; HAS DLL
 {
-		ldx #$10		;1C23 A2 10
-		lda #HI(L_4B60)		;1C25 A9 4B
+		ldx #MENU_AREA_HEIGHT		;1C23 A2 10
+		lda #HI(MENU_AREA_ADDRESS)		;1C25 A9 4B
 		sta ZP_1F		;1C27 85 1F
-		lda #LO(L_4B60)		;1C29 A9 60
+		lda #LO(MENU_AREA_ADDRESS)		;1C29 A9 60		; row 9, column 4
 		sta ZP_1E		;1C2B 85 1E
-.L_1C2D	ldy #$DF		;1C2D A0 DF
+
+.L_1C2D
 		lda #$00		;1C2F A9 00
+
+		ldy #0
+	.page_loop
+		sta (ZP_1E),Y	;1C31 91 1E
+		iny
+		bne page_loop
+		INC ZP_1F
+
+		ldy #LO(MENU_AREA_WIDTH * 8) - 1		;1C2D A0 DF
 .L_1C31	sta (ZP_1E),Y	;1C31 91 1E
 		dey				;1C33 88
 		cpy #$FF		;1C34 C0 FF
 		bne L_1C31		;1C36 D0 F9
+
 		lda ZP_1E		;1C38 A5 1E
 		clc				;1C3A 18
-		adc #$40		;1C3B 69 40
+		adc #$80		;1C3B 69 40
 		sta ZP_1E		;1C3D 85 1E
 		lda ZP_1F		;1C3F A5 1F
-		adc #$01		;1C41 69 01
+		adc #$01		;1C41 69 01		; already incremented by 1
 		sta ZP_1F		;1C43 85 1F
 		dex				;1C45 CA
 		bne L_1C2D		;1C46 D0 E5
@@ -4628,14 +4860,19 @@ rts
 {
 		lda #$08		;1C49 A9 08
 		sta ZP_52		;1C4B 85 52
-		ldy #HI(L_4000)		;1C4D A0 40
-		ldx #LO(L_4000)		;1C4F A2 00
-		lda #$55		;1C51 A9 55
-		jsr sysctl		;1C53 20 25 87
-		ldx #$38		;1C56 A2 38
-		ldy #$5F		;1C58 A0 5F
-		lda #$20		;1C5A A9 20
-		jsr L_3A3C		;1C5C 20 3C 3A
+
+\\ BEEB no need to clear header area
+\\		ldy #HI(L_4000)		;1C4D A0 40
+\\		ldx #LO(L_4000)		;1C4F A2 00
+\\		lda #$55		;1C51 A9 55
+\\		jsr sysctl		;1C53 20 25 87
+
+\\ BEEB not sure we need this line either?
+\\		ldx #$38		;1C56 A2 38
+\\		ldy #$5F		;1C58 A0 5F
+\\		lda #$20		;1C5A A9 20
+\\		jsr plot_menu_line_colour_2		;1C5C 20 3C 3A
+
 		lda #$32		;1C5F A9 32
 		jmp sysctl		;1C61 4C 25 87
 }
@@ -6404,7 +6641,7 @@ endif
 
 .draw_track_preview_track_name			; called from game_start
 {
-		jsr L_3884		;2FCE 20 84 38
+		jsr set_write_char_half_row_flag		;2FCE 20 84 38
 		ldx current_track		;2FD1 AE 7D C7
 		lda L_301B,X	;2FD4 BD 1B 30
 		sta L_3460		;2FD7 8D 60 34
@@ -6412,14 +6649,14 @@ endif
 		jsr print_msg_4		;2FDC 20 27 30
 		ldx current_track		;2FDF AE 7D C7
 		jsr print_track_name		;2FE2 20 92 38
-		jsr store_X_in_L_85D0_with_sysctl		;2FE5 20 1F 36
+		jsr clear_write_char_half_row_flag		;2FE5 20 1F 36
 		lda #$03		;2FE8 A9 03
 		sta ZP_17		;2FEA 85 17
 .L_2FEC	ldx ZP_17		;2FEC A6 17
 		ldy L_3017,X	;2FEE BC 17 30
 		ldx #$58		;2FF1 A2 58
 		lda #$14		;2FF3 A9 14
-		jsr L_3A4F		;2FF5 20 4F 3A
+		jsr plot_preview_line_colour_3		;2FF5 20 4F 3A
 		dec ZP_17		;2FF8 C6 17
 		bpl L_2FEC		;2FFA 10 F0
 		lda #$03		;2FFC A9 03
@@ -6427,16 +6664,16 @@ endif
 		ldx #$54		;3000 A2 54
 		ldy #$E9		;3002 A0 E9
 		lda #$14		;3004 A9 14
-		jsr L_3A66		;3006 20 66 3A
+		jsr plot_preview_vertical_line		;3006 20 66 3A
 		lda #$C0		;3009 A9 C0
 		sta ZP_15		;300B 85 15
 		ldx #$A8		;300D A2 A8
 		ldy #$E9		;300F A0 E9
 		lda #$14		;3011 A9 14
-		jsr L_3A66		;3013 20 66 3A
+		jsr plot_preview_vertical_line		;3013 20 66 3A
 		rts				;3016 60
 
-.L_3017	equb $D6,$D7,$E8,$E9
+.L_3017	equb $D6,$D7,$E8,$E9		; y positions of box horizontals
 .L_301B	equb $F,$D,$10,$10,$10,$F,$10,$D
 }
 
@@ -6498,7 +6735,7 @@ endif
 		lda L_31A1		;30C9 AD A1 31
 		cmp #$05		;30CC C9 05
 		bcc L_30D3		;30CE 90 03
-		jsr L_3884		;30D0 20 84 38
+		jsr set_write_char_half_row_flag		;30D0 20 84 38
 .L_30D3	ldx L_31A1		;30D3 AE A1 31
 		lda L_3190,X	;30D6 BD 90 31
 		tay				;30D9 A8
@@ -6512,7 +6749,7 @@ endif
 		beq L_30F4		;30EB F0 07
 		cmp #$05		;30ED C9 05
 		beq L_30F4		;30EF F0 03
-		jsr store_X_in_L_85D0_with_sysctl		;30F1 20 1F 36
+		jsr clear_write_char_half_row_flag		;30F1 20 1F 36
 .L_30F4	ldx L_31A1		;30F4 AE A1 31
 		lda L_3198,X	;30F7 BD 98 31
 		sta L_321D		;30FA 8D 1D 32
@@ -6547,10 +6784,10 @@ endif
 		ldx #$10		;3139 A2 10
 		lda #$01		;313B A9 01
 		jsr fill_colourmap_solid		;313D 20 16 39
-		jsr L_3884		;3140 20 84 38
+		jsr set_write_char_half_row_flag		;3140 20 84 38
 		ldx #$13		;3143 A2 13		; "FINAL SEASON"
 		jsr print_msg_1		;3145 20 A5 32
-		jsr store_X_in_L_85D0_with_sysctl		;3148 20 1F 36
+		jsr clear_write_char_half_row_flag		;3148 20 1F 36
 		jmp L_3158		;314B 4C 58 31
 .L_314E	ldy #$0B		;314E A0 0B
 		jsr print_track_title		;3150 20 70 31
@@ -6695,7 +6932,7 @@ endif
 		jsr print_msg_4		;3748 20 27 30
 		ldx L_C772		;374B AE 72 C7
 		jsr print_driver_name		;374E 20 8B 38
-		jmp store_X_in_L_85D0_with_sysctl		;3751 4C 1F 36
+		jmp clear_write_char_half_row_flag		;3751 4C 1F 36
 }
 
 .do_driver_league_changes
@@ -6834,7 +7071,8 @@ endif
 		sta ZP_14		;3935 85 14
 		inx				;3937 E8
 .L_3938	lda L_397A,X	;3938 BD 7A 39
-		sta (ZP_1E),Y	;393B 91 1E
+\\ BEEB don't fill colour map
+\\		sta (ZP_1E),Y	;393B 91 1E
 		iny				;393D C8
 		inx				;393E E8
 		dec ZP_14		;393F C6 14
@@ -6842,7 +7080,8 @@ endif
 		rts				;3943 60
 }
 
-.L_398D				; in Cart
+IF 0
+.plot_menu_wood_surround				; in Cart
 {
 		lda #$01		;398D A9 01
 		sta ZP_17		;398F 85 17
@@ -6869,7 +7108,7 @@ endif
 		dey				;39B9 88
 		and #$07		;39BA 29 07
 		bne L_39C1		;39BC D0 03
-.L_39BE	jsr L_39D1		;39BE 20 D1 39
+.L_39BE	jsr get_menu_screen_ptr		;39BE 20 D1 39
 .L_39C1	cpy #$70		;39C1 C0 70
 		bcc L_39CC		;39C3 90 07
 		dec ZP_14		;39C5 C6 14
@@ -6879,8 +7118,18 @@ endif
 		bne L_3991		;39CE D0 C1
 		rts				;39D0 60
 }
+ENDIF
 
-.L_39D1
+; return pointer to menu options one screen-ish
+; addr = Q_pointers[Y] + ((X - $40) & $7C) * 2
+; if X < $40 addr -= $100
+; if X > $C0 addr += $100
+; screen = addr[y]
+
+; X=pixel X pos including screen border (32 pixels) and menu border (32 pixels)
+; Y=pixel Y pos including 48? pixel top border
+; returns a pointer in ZP_1E that can still be indexed by Y!
+.get_menu_screen_ptr
 {
 		txa				;39D1 8A
 		sec				;39D2 38
@@ -6901,11 +7150,11 @@ endif
 .L_39F0	rts				;39F0 60
 }
 
-.L_39F1
+.prep_menu_graphics
 {
 		jsr save_rndQ_stateQ		;39F1 20 2C 16
 		ldy #$04		;39F4 A0 04
-		jsr L_1637		;39F6 20 37 16
+		jsr load_rndQ_stateQ		;39F6 20 37 16
 		lda #$09		;39F9 A9 09
 		sta ZP_1A		;39FB 85 1A
 .L_39FD	ldy ZP_1A		;39FD A4 1A
@@ -6914,13 +7163,16 @@ endif
 		sta ZP_19		;3A05 85 19
 		lda L_3A32,Y	;3A07 B9 32 3A
 		sta ZP_18		;3A0A 85 18
-		jsr L_398D		;3A0C 20 8D 39
+\\ don't need to copy this
+\\		jsr plot_menu_wood_surround		;3A0C 20 8D 39
 		dec ZP_1A		;3A0F C6 1A
 		bpl L_39FD		;3A11 10 EA
-		ldy #$70		;3A13 A0 70
-		jsr L_3A4B		;3A15 20 4B 3A
+
+\\ don't need top line of menu
+\\		ldy #$70		;3A13 A0 70
+\\		jsr plot_menu_width_line		;3A15 20 4B 3A
 		ldy #$09		;3A18 A0 09
-		jsr L_1637		;3A1A 20 37 16
+		jsr load_rndQ_stateQ		;3A1A 20 37 16
 		rts				;3A1D 60
 		
 .L_3A1E	equb $38,$3C,$B0,$B4,$B8,$BC,$C0,$C4,$C8,$CC
@@ -7074,6 +7326,248 @@ endif
 .L_CFB3	dey				;CFB3 88
 		bne L_CF77		;CFB4 D0 C1
 		rts				;CFB6 60
+}
+
+.plot_glyph_mode_4
+{
+\\ ASCII char
+; Calculate address of glyph data
+
+		asl A			;84D3 0A
+		rol ZP_F1		;84D4 26 F1
+		asl A			;84D6 0A
+		rol ZP_F1		;84D7 26 F1
+		asl A			;84D9 0A
+		rol ZP_F1		;84DA 26 F1
+		clc				;84DC 18
+		adc #LO(font_data - $100)		;84DD 69 C0
+		sta ZP_F0		;84DF 85 F0
+		lda ZP_F1		;84E1 A5 F1
+		and #$07		;84E3 29 07
+		adc #HI(font_data - $100)		;84E5 69 7F
+		sta ZP_F1		;84E7 85 F1
+
+; ZP_F0 contains pointer to glyph data
+
+; Character x position *8
+
+		lda write_char_x_pos		;84E9 AD C5 85
+		asl A			;84EC 0A
+		asl A			;84ED 0A
+		asl A			;84EE 0A
+
+; Mask in a pixel offset
+
+		ora write_char_pixel_offset		;84EF 0D D9 C3
+
+; Calculate X*7
+
+		rol ZP_FB		;84F2 26 FB
+		sec				;84F4 38
+		sbc write_char_x_pos		;84F5 ED C5 85
+		sta ZP_FA		;84F8 85 FA
+		bcs L_84FE		;84FA B0 02
+		dec ZP_FB		;84FC C6 FB
+
+; Calculate X * 7/8
+
+.L_84FE	lsr ZP_FB		;84FE 46 FB
+		ror A			;8500 6A
+		lsr A			;8501 4A
+		lsr A			;8502 4A
+
+; Store X byte and pixel offset
+
+		sta write_char_byte_offset		;8503 8D CC 85
+		lda ZP_FA		;8506 A5 FA
+		and #$07		;8508 29 07
+		sta write_char_bit_offset		;850A 8D CD 85
+
+; Calculate Y * 40
+
+		lda write_char_y_pos		;850D AD C6 85
+		asl A			;8510 0A
+		asl A			;8511 0A
+		clc				;8512 18
+		adc write_char_y_pos		;8513 6D C6 85
+		sta ZP_FA		;8516 85 FA
+		lda #$00		;8518 A9 00
+		asl ZP_FA		;851A 06 FA
+		rol A			;851C 2A
+		asl ZP_FA		;851D 06 FA
+		rol A			;851F 2A
+		asl ZP_FA		;8520 06 FA
+		rol A			;8522 2A
+		sta ZP_FB		;8523 85 FB
+
+; Calculate screen address = $4000 + (Y*40 + X_byte) * 8
+
+		lda ZP_FA		;8525 A5 FA
+		clc				;8527 18
+		adc write_char_byte_offset		;8528 6D CC 85
+		sta ZP_F4		;852B 85 F4
+		lda ZP_FB		;852D A5 FB
+		adc #$00		;852F 69 00
+		asl ZP_F4		;8531 06 F4
+		rol A			;8533 2A
+		asl ZP_F4		;8534 06 F4
+		rol A			;8536 2A
+		asl ZP_F4		;8537 06 F4
+		rol A			;8539 2A
+
+		clc				;853A 18
+		adc #HI(screen1_address)		;853B 69 40
+		sta ZP_F5		;853D 85 F5
+
+;  ZP_F4 contains screen write address
+
+; L_85D0 is flag to offset by half a char row?
+
+		lda ZP_F4		;853F A5 F4
+		bit L_85D0		;8541 2C D0 85
+		bpl L_854B		;8544 10 05
+
+; Screen address += 4 means move down half a character row?
+
+		clc				;8546 18
+		adc #$04		;8547 69 04
+		sta ZP_F4		;8549 85 F4
+
+; Calculate address of screen byte in next column
+
+.L_854B	clc				;854B 18
+		adc #$08		;854C 69 08
+		sta ZP_F6		;854E 85 F6
+		lda ZP_F5		;8550 A5 F5
+		adc #$00		;8552 69 00
+		sta ZP_F7		;8554 85 F7
+
+; ZP_F6 contains screen address += 8
+
+		lda #$FF		;8556 A9 FF
+		sta write_char_next_col_mask		;8558 8D CB 85
+		lda #$00		;855B A9 00
+		ldx write_char_bit_offset		;855D AE CD 85
+		beq L_856A		;8560 F0 08
+
+; Rotate current column mask by bit offset
+
+.L_8562	sec				;8562 38
+		ror A			;8563 6A
+		ror write_char_next_col_mask		;8564 6E CB 85
+		dex				;8567 CA
+		bne L_8562		;8568 D0 F8
+
+; A contains bit mask for current column
+
+.L_856A	sta write_char_curr_col_mask		;856A 8D CA 85
+
+; Start index into font glyph data
+
+		ldy #$00		;856D A0 00
+
+; Zero next byte of glyph data to write
+
+.plot_glyph_loop
+		lda #$00		;856F A9 00
+		sta ZP_FB		;8571 85 FB
+
+; Load a byte of glyph data
+
+		lda (ZP_F0),Y	;8573 B1 F0
+		ldx write_char_bit_offset		;8575 AE CD 85
+		beq L_8580		;8578 F0 06
+
+; Rotate font data by bit offset into ZP_FB for next byte
+
+.L_857A	lsr A			;857A 4A
+		ror ZP_FB		;857B 66 FB
+		dex				;857D CA
+		bne L_857A		;857E D0 FA
+
+; First byte of glyph data in ZP_FA
+
+.L_8580	sta ZP_FA		;8580 85 FA
+
+; Load first screen byte
+
+		lda (ZP_F4),Y	;8582 B1 F4
+
+; Mask out bits we're going to write (on right)
+
+		and write_char_curr_col_mask		;8584 2D CA 85
+
+; Mask in glyph bits from first byte
+
+		ora ZP_FA		;8587 05 FA
+
+; Store first byte to screen
+
+		sta (ZP_F4),Y	;8589 91 F4
+
+; Load second screen byte
+
+		lda (ZP_F6),Y	;858B B1 F6
+
+; Mask out bits we're going to write (on left)
+
+		and write_char_next_col_mask		;858D 2D CB 85
+
+; Mask in glyph bits from second byte
+
+		ora ZP_FB		;8590 05 FB
+
+; Store second byte to screen
+
+		sta (ZP_F6),Y	;8592 91 F6
+
+; Check flag L_85D0
+
+		bit L_85D0		;8594 2C D0 85
+		bpl L_85B0		;8597 10 17
+
+		cpy #$03		;8599 C0 03
+		bne L_85B0		;859B D0 13
+
+; When plotting on half character row alignment
+; Increment screen pointers to next row after 4 scanlines
+
+		ldx #$02		;859D A2 02
+.L_859F	lda ZP_F4,X		;859F B5 F4
+		clc				;85A1 18
+		adc #$38		;85A2 69 38
+		sta ZP_F4,X		;85A4 95 F4
+		lda ZP_F5,X		;85A6 B5 F5
+		adc #$01		;85A8 69 01
+		sta ZP_F5,X		;85AA 95 F5
+		dex				;85AC CA
+		dex				;85AD CA
+		bpl L_859F		;85AE 10 EF
+
+; Regular character row handling
+; Increment Y to next scanline
+
+.L_85B0	iny				;85B0 C8
+		cpy #$08		;85B1 C0 08
+		bne plot_glyph_loop		;85B3 D0 BA
+
+; Finished plotting glyph
+; Increment X position by 1
+
+		lda #$01		;85B5 A9 01
+		clc				;85B7 18
+		adc write_char_x_pos		;85B8 6D C5 85
+
+; Maximum with of screen is 45
+
+		cmp #$2D		;85BB C9 2D
+		bcc L_85C1		;85BD 90 02
+
+; Wrap around to X pos 0 if reach end of screen
+
+		lda #$00		;85BF A9 00
+.L_85C1	sta write_char_x_pos		;85C1 8D C5 85
+		rts				;85C4 60
 }
 
 PAGE_ALIGN

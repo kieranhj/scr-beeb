@@ -1678,7 +1678,7 @@ jsr dash_reset
 		jsr L_3848		;2ABF 20 48 38
 		lda #$0F		;2AC2 A9 0F
 		sta L_3953		;2AC4 8D 53 39
-		jsr L_3884		;2AC7 20 84 38
+		jsr set_write_char_half_row_flag		;2AC7 20 84 38
 		lda L_C77B		;2ACA AD 7B C7
 		beq L_2AE9		;2ACD F0 1A
 		ldx #$71		;2ACF A2 71
@@ -1703,7 +1703,7 @@ jsr dash_reset
 		rts				;2AFC 60
 .L_2AFD	jsr cart_L_9448		;2AFD 20 48 94
 		bcs L_2AE9		;2B00 B0 E7
-		jsr store_X_in_L_85D0_with_sysctl		;2B02 20 1F 36
+		jsr clear_write_char_half_row_flag		;2B02 20 1F 36
 		jsr cart_save_rndQ_stateQ		;2B05 20 2C 16
 		lda #$00		;2B08 A9 00
 		jsr vic_set_border_colour		;2B0A 20 BB 3F
@@ -1833,7 +1833,7 @@ jsr dash_reset
 		lda #$00		;2C16 A9 00
 		jsr cart_L_93A8		;2C18 20 A8 93
 		ldy #$09		;2C1B A0 09
-		jsr cart_L_1637		;2C1D 20 37 16
+		jsr cart_load_rndQ_stateQ		;2C1D 20 37 16
 		rts				;2C20 60
 
 .L_2C21	equb $01,$08	;2C21 01 08
@@ -2105,10 +2105,10 @@ jsr dash_reset
 		ora ZP_08		;36F2 05 08
 		eor #$01		;36F4 49 01
 		tay				;36F6 A8
-		jsr L_3884		;36F7 20 84 38
+		jsr set_write_char_half_row_flag		;36F7 20 84 38
 		ldx track_order,Y	;36FA BE 28 37
 		jsr print_track_name		;36FD 20 92 38
-		jsr store_X_in_L_85D0_with_sysctl		;3700 20 1F 36
+		jsr clear_write_char_half_row_flag		;3700 20 1F 36
 .L_3703	ldy ZP_17		;3703 A4 17
 		ldx L_C70C,Y	;3705 BE 0C C7
 		jsr print_driver_name		;3708 20 8B 38
@@ -2119,7 +2119,7 @@ jsr dash_reset
 		cmp #$03		;3713 C9 03
 		bne L_36D9		;3715 D0 C2
 		jsr L_3854		;3717 20 54 38
-		jsr store_X_in_L_85D0_with_sysctl		;371A 20 1F 36
+		jsr clear_write_char_half_row_flag		;371A 20 1F 36
 		dec L_C360		;371D CE 60 C3
 		bpl L_36CE		;3720 10 AC
 		asl L_C356		;3722 0E 56 C3
@@ -2261,7 +2261,7 @@ jsr dash_reset
 		jsr cart_write_file_string		;951A 20 E2 95
 .L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
 		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
-		jsr store_X_in_L_85D0_with_sysctl		;9523 20 1F 36
+		jsr clear_write_char_half_row_flag		;9523 20 1F 36
 .L_9526	lda L_C39A		;9526 AD 9A C3
 		rts				;9529 60
 }
@@ -2314,7 +2314,8 @@ jsr dash_reset
 		jsr cart_sysctl		;98FC 20 25 87
 		lda #$06		;98FF A9 06
 		sta VIC_EXTCOL		;9901 8D 20 D0
-		lda #$5F		;9904 A9 5F
+		; BEEB was $5F but need to clear entire MODE 1 screen
+		lda #$7F		;9904 A9 5F
 		sta ZP_1F		;9906 85 1F
 		ldy #$00		;9908 A0 00
 		sty ZP_1E		;990A 84 1E
@@ -2343,9 +2344,9 @@ jsr dash_reset
 		lda #$01		;9939 A9 01
 		jsr fill_colourmap_solid		;993B 20 16 39
 		lda #$01		;993E A9 01
-		sta L_C3D9		;9940 8D D9 C3
+		sta write_char_pixel_offset		;9940 8D D9 C3
 		lda #$02		;9943 A9 02
-		sta L_C3D9		;9945 8D D9 C3
+		sta write_char_pixel_offset		;9945 8D D9 C3
 		ldx #$3B		;9948 A2 3B		; "HALL of FAME"
 		jsr cart_print_msg_1		;994A 20 A5 32
 		lda L_C71A		;994D AD 1A C7
@@ -2369,14 +2370,14 @@ jsr dash_reset
 		asl A			;9971 0A
 		tax				;9972 AA
 		lda #$01		;9973 A9 01
-		sta L_C3D9		;9975 8D D9 C3
+		sta write_char_pixel_offset		;9975 8D D9 C3
 		lda track_initials,X	;9978 BD EF 99
 		jsr cart_write_char		;997B 20 6F 84
 		lda track_initials+1,X	;997E BD F0 99
 		jsr cart_write_char		;9981 20 6F 84
 		jsr cart_print_space		;9984 20 AF 91
 		lda #$04		;9987 A9 04
-		sta L_C3D9		;9989 8D D9 C3
+		sta write_char_pixel_offset		;9989 8D D9 C3
 		lda #$00		;998C A9 00
 		sta ZP_08		;998E 85 08
 .L_9990	lda ZP_19		;9990 A5 19
@@ -2393,7 +2394,7 @@ jsr dash_reset
 		dey				;99A2 88
 		bne L_999B		;99A3 D0 F6
 		jsr cart_print_space		;99A5 20 AF 91
-		dec L_C3D9		;99A8 CE D9 C3
+		dec write_char_pixel_offset		;99A8 CE D9 C3
 		lda L_0400,X	;99AB BD 00 04
 		sta L_8398		;99AE 8D 98 83
 		lda L_0401,X	;99B1 BD 01 04
@@ -2408,12 +2409,12 @@ jsr dash_reset
 		bpl L_99D5		;99C8 10 0B
 		jsr cart_print_2space		;99CA 20 AA 91
 		lda #$02		;99CD A9 02
-		sta L_C3D9		;99CF 8D D9 C3
+		sta write_char_pixel_offset		;99CF 8D D9 C3
 		jmp L_9990		;99D2 4C 90 99
 .L_99D5	dec ZP_19		;99D5 C6 19
 		bpl L_9960		;99D7 10 87
 		lda #$00		;99D9 A9 00
-		sta L_C3D9		;99DB 8D D9 C3
+		sta write_char_pixel_offset		;99DB 8D D9 C3
 		lda VIC_SCROLY		;99DE AD 11 D0
 		ora #$10		;99E1 09 10			; 1=enable screen
 		sta VIC_SCROLY		;99E3 8D 11 D0
@@ -5691,7 +5692,7 @@ L_EBDD	= L_EBE7 - $A			;!
 {
 		sta ZP_0B		;EDAB 85 0B
 		lda #$0B		;EDAD A9 0B
-		jsr L_3A4F		;EDAF 20 4F 3A
+		jsr plot_menu_line_colour_3		;EDAF 20 4F 3A
 		lsr L_EE35		;EDB2 4E 35 EE
 .L_EDB5	ldx #$00		;EDB5 A2 00
 .L_EDB7	ldy #$02		;EDB7 A0 02
@@ -5755,7 +5756,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		inx				;EE2D E8
 .L_EE2E	cpx #$0C		;EE2E E0 0C
 		bne L_EE23		;EE30 D0 F1
-.L_EE32	jmp store_X_in_L_85D0_with_sysctl		;EE32 4C 1F 36
+.L_EE32	jmp clear_write_char_half_row_flag		;EE32 4C 1F 36
 }
 
 ; Moved to Hazel
@@ -5823,7 +5824,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		jmp L_EE4B		;EEAF 4C 4B EE
 .L_EEB2	lda ZP_0F		;EEB2 A5 0F
 		beq L_EEC1		;EEB4 F0 0B
-		jsr store_X_in_L_85D0_with_sysctl		;EEB6 20 1F 36
+		jsr clear_write_char_half_row_flag		;EEB6 20 1F 36
 		ldy #$07		;EEB9 A0 07
 		jsr delay_approx_Y_25ths_sec		;EEBB 20 EB 3F
 		lda ZP_0C		;EEBE A5 0C

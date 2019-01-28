@@ -29,6 +29,7 @@ BEEB_GRAPHICS_SLOT = 6
 
 BEEB_PIXELS_COLOUR1 = &0F	; C64=$55
 BEEB_PIXELS_COLOUR2 = &F0	; C64=$AA
+BEEB_PIXELS_COLOUR3 = &FF	; C64=$FF
 
 ; C64 controls
 ; Left/Right = S/D
@@ -759,6 +760,7 @@ GUARD .boot_start
 INCLUDE "game/core-ram.asm"
 INCLUDE "game/beeb-dll.asm"
 INCLUDE "game/beeb-code.asm"
+INCLUDE "lib/unpack.asm"		; could probably be move to SWRAM beeb-graphics
 
 \\ Core Data
 
@@ -824,21 +826,6 @@ GUARD .disksys_loadto_addr
 
 	; LDA #13:STA &FE00
 	; LDA #LO(screen1_address/8):STA &FE01
-
-	\\ Clear lower RAM
-
-	{
-		ldx #0
-		lda #0
-		.clear_loop
-		sta &300, X
-		inx
-		bne clear_loop
-		inc clear_loop+2
-		ldy clear_loop+2
-		cpy #&0D
-		bcc clear_loop
-	}
 
 \ Ensure HAZEL RAM is writeable - assume this says writable throughout?
 
@@ -1123,6 +1110,39 @@ GUARD .disksys_loadto_addr
 
 	; BEEB LATE INIT
 
+	\\ Need to copy data from &3000 - &3FFF into SHADOW RAM as this may be
+	\\ accessed by the frontend system whilst the MODE 1 SHADOW screen is
+	\\ paged in. As we're in the loader above $3000 we need to copy some
+	\\ code down to spare RAM ($300) to copy a page at a time w/ bank swaps.
+
+	{
+		LDX #0
+
+		.reloc_loop
+		LDA copy_to_shadow, X
+		STA &300, X
+		INX
+		CPX #(copy_to_shadow_end - copy_to_shadow)
+		BNE reloc_loop
+
+		JSR &300
+	}
+
+	\\ Clear lower RAM
+
+	{
+		ldx #0
+		lda #0
+		.clear_loop
+		sta &300, X
+		inx
+		bne clear_loop
+		inc clear_loop+2
+		ldy clear_loop+2
+		cpy #&0D
+		bcc clear_loop
+	}
+
 	; BEEB SET INTERRUPT HANDLER
 
     SEI
@@ -1274,6 +1294,44 @@ endif
 .endtable
 }
 
+.copy_to_shadow
+{
+	; COPY DATA FROM MAIN TO SHADOW RAM
+	LDX #0
+	.read_loop
+	read_loop_reloc = read_loop - copy_to_shadow + &300
+	LDA &3000, X
+	STA &400,X
+	INX
+	BNE read_loop
+
+	; Page in SHADOW
+	LDA &FE34
+	ORA #4
+	STA &FE34
+
+	.write_loop
+	write_loop_reloc = write_loop - copy_to_shadow + &300
+	LDA &400,X
+	STA &3000,X
+	INX
+	BNE write_loop
+
+	; Page in MAIN
+	LDA &FE34
+	AND #&FB
+	STA &FE34
+
+	INC read_loop_reloc+2
+	INC write_loop_reloc+5
+
+	LDA read_loop_reloc+2
+	CMP #HI(core_data_end + &FF)
+	BNE read_loop
+
+	RTS
+}
+.copy_to_shadow_end
 
 .core_filename EQUS "Core", 13
 .kernel_filename EQUS "Kernel", 13

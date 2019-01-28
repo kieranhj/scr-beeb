@@ -5,10 +5,11 @@
 
 include "build/flames-tables.asm"
 
-.menu_header_graphic_begin
-incbin "build/scr-beeb-header.dat"
-skip 2560						; book space for the Mode 1 version...
-.menu_header_graphic_end
+; Entire menu screen nnow compressed with pucrunch
+;.menu_header_graphic_begin
+;incbin "build/scr-beeb-header.dat"
+;skip 2560						; book space for the Mode 1 version...
+;.menu_header_graphic_end
 
 include "build/wheels-tables.asm"
 
@@ -151,7 +152,18 @@ equw flames_masked_masks_2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+._graphics_unpack_menu_screen
+{
+    LDA #HI(screen1_address)
+    LDX #LO(beeb_menu_screen_compressed)
+    LDY #HI(beeb_menu_screen_compressed)
+    JMP PUCRUNCH_UNPACK
+}
 
+.beeb_menu_screen_compressed
+INCBIN "build/scr-beeb-menu.pu"
+
+IF 0
 ._graphics_copy_menu_header_graphic
 {
 
@@ -170,6 +182,7 @@ bne loop
 
 rts
 }
+ENDIF
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
