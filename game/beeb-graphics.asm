@@ -443,13 +443,13 @@ ENDMACRO
 ._graphics_draw_left_wheel_2:WHEEL_ROUTINE TRUE,wheel_left_2_data
 
 ._graphics_draw_left_wheel_LO
-equb LO(_graphics_draw_left_wheel_0)
 equb LO(_graphics_draw_left_wheel_1)
+equb LO(_graphics_draw_left_wheel_0)
 equb LO(_graphics_draw_left_wheel_2)
 
 ._graphics_draw_left_wheel_HI
-equb HI(_graphics_draw_left_wheel_0)
 equb HI(_graphics_draw_left_wheel_1)
+equb HI(_graphics_draw_left_wheel_0)
 equb HI(_graphics_draw_left_wheel_2)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
