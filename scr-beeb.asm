@@ -15,7 +15,6 @@ INCLUDE "lib/bbc.h.asm"
 disksys_loadto_addr = $4300     ; SCR only (TEMP)
 
 MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
-print ~MAX_LOADABLE_ROM_SIZE
 
 _TODO = FALSE
 _NOT_BEEB = FALSE
@@ -63,6 +62,10 @@ KEY_RETURN = IKN_return
 KEY_RIGHT_SHIFT = IKN_shift		;$26	; right shift
 KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
 
+; If TRUE, add extra background and hand-drawn border to the track
+; preview screen. Otherwise, use the (minimally fixed up) C64 version.
+FANCY_TRACK_PREVIEW = FALSE
+
 ; *****************************************************************************
 ; MACROS
 ; *****************************************************************************
@@ -84,7 +87,7 @@ ENDMACRO
 
 BEEB_HAZEL_OFFSET = $0
 
-L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
+; L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
 
 L_D401 = $D401 + BEEB_HAZEL_OFFSET
 L_D402 = $D402 + BEEB_HAZEL_OFFSET
@@ -101,10 +104,10 @@ L_DAF3 = $DAF3 + BEEB_HAZEL_OFFSET
 L_DB1B = $DB1B + BEEB_HAZEL_OFFSET
 L_DB54 = $DB54 + BEEB_HAZEL_OFFSET
 L_DB58 = $DB58 + BEEB_HAZEL_OFFSET
-L_DBDA = $DBDA + BEEB_HAZEL_OFFSET
-L_DBDB = $DBDB + BEEB_HAZEL_OFFSET
-L_DBCC = $DBCC + BEEB_HAZEL_OFFSET
-L_DBCD = $DBCD + BEEB_HAZEL_OFFSET
+; L_DBDA = $DBDA + BEEB_HAZEL_OFFSET
+; L_DBDB = $DBDB + BEEB_HAZEL_OFFSET
+; L_DBCC = $DBCC + BEEB_HAZEL_OFFSET
+; L_DBCD = $DBCD + BEEB_HAZEL_OFFSET
 
 ; Believe these are high score tables
 L_DE00 = $DE00 + BEEB_HAZEL_OFFSET
@@ -361,7 +364,7 @@ ZP_6B	= $6B + BEEB_ZP_OFFSET		; 0=on track,$80=off track (sometimes $C0)
 ZP_6C	= $6C + BEEB_ZP_OFFSET		; end of game timer (either too much damage or lost to opponent)
 ZP_6D	= $6D + BEEB_ZP_OFFSET
 ZP_6E	= $6E + BEEB_ZP_OFFSET
-ZP_6F	= $6F + BEEB_ZP_OFFSET
+ZP_6F	= $6F + BEEB_ZP_OFFSET	; dashboard_sprites_enabled
 ZP_70	= $70
 ZP_71	= $71
 ZP_72	= $72
@@ -770,12 +773,12 @@ INCLUDE "game/core-data.asm"
 PRINT "--------"
 PRINT "CORE RAM"
 PRINT "--------"
-PRINT "Start =", ~core_start
-PRINT "End =", ~P%
-PRINT "Size =", ~(P% - core_start)
-PRINT "Free =", ~(boot_start - P%)
-PRINT "DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
-PRINT "Core Data Size =", ~(core_data_end - core_data_start)
+PRINT "  Start =", ~core_start
+PRINT "  End =", ~P%
+PRINT "  Size =", ~(P% - core_start)
+PRINT "  Free =", ~(boot_start - P%)
+PRINT "  DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
+PRINT "  Core Data Size =", ~(core_data_end - core_data_start)
 PRINT "--------"
 SAVE "Core", core_start, P%, 0
 PRINT "--------"
@@ -798,26 +801,31 @@ GUARD .disksys_loadto_addr
 	LDX #2
 	JSR osbyte
 
+	lda #15
+	ldx #0
+	ldy #0
+	jsr osbyte
+
 	; BEEB SET SCREEN MODE 4
 
-	LDA #22
-	JSR oswrch
-	LDA #BEEB_SCREEN_MODE
-	JSR oswrch
+	; LDA #22
+	; JSR oswrch
+	; LDA #BEEB_SCREEN_MODE
+	; JSR oswrch
 
-	LDA #10: STA &FE00		; turn off cursor
-	LDA #32: STA &FE01
+	; LDA #10: STA &FE00		; turn off cursor
+	; LDA #32: STA &FE01
 
-	; BEEB SET SCREEN TO 8K
+	; ; BEEB SET SCREEN TO 8K
 
-	LDA #6:STA &FE00		; R6 = vertical displayed
-	LDA #25:STA &FE01		; 25 rows = 200 scanlines
+	; LDA #6:STA &FE00		; R6 = vertical displayed
+	; LDA #25:STA &FE01		; 25 rows = 200 scanlines
 
-	LDA #12:STA &FE00
-	LDA #HI(screen1_address/8):STA &FE01
+	; LDA #12:STA &FE00
+	; LDA #HI(screen1_address/8):STA &FE01
 
-	LDA #13:STA &FE00
-	LDA #LO(screen1_address/8):STA &FE01
+	; LDA #13:STA &FE00
+	; LDA #LO(screen1_address/8):STA &FE01
 
 \ Ensure HAZEL RAM is writeable - assume this says writable throughout?
 
@@ -1057,16 +1065,16 @@ GUARD .disksys_loadto_addr
 		sta L_D200,X	;41F1 9D 00 D2
 		lda L_7F00,X	;41F4 BD 00 7F
 		sta L_D300,X	;41F7 9D 00 D3
-		lda L_4F00,X	;41FA BD 00 4F
-		sta L_D400,X	;41FD 9D 00 D4
-		lda L_5000,X	;4200 BD 00 50
-		sta L_D500,X	;4203 9D 00 D5
-		lda L_5100,X	;4206 BD 00 51
-		sta L_D600,X	;4209 9D 00 D6
-		lda L_5200,X	;420C BD 00 52
-		sta L_D700,X	;420F 9D 00 D7
-		lda L_5300,X	;4212 BD 00 53
-		sta L_D800,X	;4215 9D 00 D8
+		; lda L_4F00,X	;41FA BD 00 4F
+		; sta L_D400,X	;41FD 9D 00 D4
+		; lda L_5000,X	;4200 BD 00 50
+		; sta L_D500,X	;4203 9D 00 D5
+		; lda L_5100,X	;4206 BD 00 51
+		; sta L_D600,X	;4209 9D 00 D6
+		; lda L_5200,X	;420C BD 00 52
+		; sta L_D700,X	;420F 9D 00 D7
+		; lda L_5300,X	;4212 BD 00 53
+		; sta L_D800,X	;4215 9D 00 D8
 		lda L_5400,X	;4218 BD 00 54
 		sta L_D900,X	;421B 9D 00 D9
 		lda L_5500,X	;421E BD 00 55
@@ -1101,9 +1109,6 @@ GUARD .disksys_loadto_addr
 		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
 	; BEEB LATE INIT
-
-	JSR beeb_plot_font_init
-
 	; Shadow copy
 
 	{
@@ -1154,6 +1159,10 @@ GUARD .disksys_loadto_addr
 
     CLI
 
+	; Sort out display.
+	jsr set_up_beeb_display
+	
+
 		jmp game_start		;425A 4C 22 3B
 
         ; ^^^ JUMP TO GAME START
@@ -1166,6 +1175,40 @@ GUARD .disksys_loadto_addr
 .L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
 }
 
+.set_up_beeb_display
+{
+; show main RAM, not shadow RAM.
+lda $fe34:and #$fe:sta $fe34
+
+; set up Mode 4 + palette.
+jsr beeb_set_mode_4
+
+; set up CRTC.
+ldx #13
+.loop
+lda crtc,x:stx $fe00:sta $fe01
+dex:bpl loop
+
+rts
+
+.crtc
+;    R0  R1  R2  R3  R4  R5  R6  R7  R8  R9  R10 R11
+equb $3f,$28,$31,$42,$26,$00,$19,$22,$01,$07,$20,$08
+equb HI(screen1_address/8) 		; R12
+equb LO(screen1_address/8)		; R13
+
+	; ; BEEB SET SCREEN TO 8K
+
+	; LDA #6:STA &FE00		; R6 = vertical displayed
+	; LDA #25:STA &FE01		; 25 rows = 200 scanlines
+
+	; LDA #12:STA &FE00
+	; LDA #HI(screen1_address/8):STA &FE01
+
+	; LDA #13:STA &FE00
+	; LDA #LO(screen1_address/8):STA &FE01
+}
+
 .convert_c64_pixels
 {
 lda $f4:pha
@@ -1175,6 +1218,8 @@ lda ZP_20+1:pha
 ldx #0
 
 .convert_table_entry
+
+cpx #endtable-table:beq done
 
 ldy #0
 
@@ -1203,7 +1248,9 @@ lda ZP_20+0:cmp table+2,x:bne convert_byte
 lda ZP_20+1:cmp table+3,x:bne convert_byte
 
 inx:inx:inx:inx:inx
-cpx #endtable-table:bne convert_table_entry
+jmp convert_table_entry
+
+.done
 
 pla:sta ZP_20+1
 pla:sta ZP_20+0
@@ -1219,24 +1266,26 @@ rts
 ; equw L_6000,L_6000+25*320
 ; equb BEEB_CART_SLOT
 
-; core-data.asm - HUD damage stuff mixed in with the font data. See
-; L_F668.
-equw L_80C8+0,L_80C8+48
-equb BEEB_CART_SLOT
+; ; core-data.asm - HUD damage stuff mixed in with the font data. See
+; ; L_F668.
+; equw L_80C8+$00,L_80C8+$40
+; equb BEEB_CART_SLOT
 
-; Front end header graphic.
-;
-; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
-equw L_4F00+64,L_4F00+64+$4e8
-equb BEEB_CART_SLOT
+; ; Front end header graphic.
+; ;
+; ; Starts 64 bytes in - see sysctl_copy_menu_header_graphic.
+; equw L_4F00+64,L_4F00+64+$4e8
+; equb BEEB_CART_SLOT
 
+if NOT(FANCY_TRACK_PREVIEW)
 ; cart-ram.asm - track preview border.
 equw track_preview_border_start,track_preview_border_end
 equb BEEB_CART_SLOT
+endif
 
-; cart-ram.asm - wheel stuff.
-equw wheel_data_begin,wheel_data_end
-equb BEEB_CART_SLOT
+; ; cart-ram.asm - wheel stuff.
+; equw wheel_data_begin,wheel_data_end
+; equb BEEB_CART_SLOT
 
 .endtable
 }
@@ -1298,12 +1347,12 @@ INCLUDE "lib/disksys.asm"
 PRINT "---------"
 PRINT "BOOT CODE"
 PRINT "---------"
-PRINT "Start =", ~boot_start
-PRINT "End =", ~boot_end
-PRINT "Size =", ~(boot_end - boot_start)
-PRINT "Entry =", ~scr_entry
+PRINT "  Start =", ~boot_start
+PRINT "  End =", ~boot_end
+PRINT "  Size =", ~(boot_end - boot_start)
+PRINT "  Entry =", ~scr_entry
 PRINT "--------"
-SAVE "Loader", boot_start, boot_end, scr_entry
+SAVE "Loader2", boot_start, boot_end, scr_entry
 PRINT "--------"
 
 ; *****************************************************************************
@@ -1424,7 +1473,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
-ORG &4F00
+ORG &5400
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 
@@ -1435,9 +1484,9 @@ INCLUDE "game/boot-data.asm"
 PRINT "---------"
 PRINT "BOOT DATA"
 PRINT "---------"
-PRINT "Start =", ~boot_data_start
-PRINT "End =", ~boot_data_end
-PRINT "Size =", ~(boot_data_end - boot_data_start)
+PRINT "  Start =", ~boot_data_start
+PRINT "  End =", ~boot_data_end
+PRINT "  Size =", ~(boot_data_end - boot_data_start)
 PRINT "--------"
 SAVE "Data", boot_data_start, boot_data_end, 0
 PRINT "--------"
@@ -1473,10 +1522,10 @@ INCLUDE "game/cart-ram.asm"
 PRINT "--------"
 PRINT "CART RAM"
 PRINT "--------"
-PRINT "Start =", ~cart_start
-PRINT "End =", ~cart_end
-PRINT "Size =", ~(cart_end - cart_start)
-PRINT "Free =", ~(&C000 - cart_end)
+PRINT "  Start =", ~cart_start
+PRINT "  End =", ~cart_end
+PRINT "  Size =", ~(cart_end - cart_start)
+PRINT "  Free =", ~(&C000 - cart_end)
 PRINT "--------"
 SAVE "Cart", cart_start, cart_end, 0
 PRINT "--------"
@@ -1490,10 +1539,10 @@ include "game/beeb-graphics.asm"
 PRINT "--------"
 PRINT "Beeb graphics RAM"
 PRINT "--------"
-PRINT "Start =", ~beeb_graphics_start
-PRINT "End =", ~beeb_graphics_end
-PRINT "Size =", ~(beeb_graphics_end - beeb_graphics_start)
-PRINT "Free =", ~(&C000 - beeb_graphics_end)
+PRINT "  Start =", ~beeb_graphics_start
+PRINT "  End =", ~beeb_graphics_end
+PRINT "  Size =", ~(beeb_graphics_end - beeb_graphics_start)
+PRINT "  Free =", ~(&C000 - beeb_graphics_end)
 PRINT "--------"
 SAVE "Beebgfx", beeb_graphics_start, beeb_graphics_end, 0
 PRINT "--------"
@@ -1522,10 +1571,10 @@ INCLUDE "game/hazel-ram.asm"
 PRINT "---------"
 PRINT "HAZEL RAM"
 PRINT "---------"
-PRINT "Start =", ~hazel_start
-PRINT "End =", ~hazel_end
-PRINT "Size =", ~(hazel_end - hazel_start)
-PRINT "Free =", ~(&E000 - hazel_end)
+PRINT "  Start =", ~hazel_start
+PRINT "  End =", ~hazel_end
+PRINT "  Size =", ~(hazel_end - hazel_start)
+PRINT "  Free =", ~(&E000 - hazel_end)
 ; print "data_start =",~boot_data_start
 ; print "end of HAZEL data when loaded =", ~(disksys_loadto_addr+(hazel_end-hazel_start))
 PRINT "--------"
@@ -1566,10 +1615,77 @@ INCLUDE "game/kernel-ram.asm"
 PRINT "-----------"
 PRINT "KERNEL RAM"
 PRINT "-----------"
-PRINT "Start =", ~kernel_start
-PRINT "End =", ~kernel_end
-PRINT "Size =", ~(kernel_end - kernel_start)
-PRINT "Free =", ~(&C000 - kernel_end)
+PRINT "  Start =", ~kernel_start
+PRINT "  End =", ~kernel_end
+PRINT "  Size =", ~(kernel_end - kernel_start)
+PRINT "  Free =", ~(&C000 - kernel_end)
 PRINT "-------"
 SAVE "Kernel", kernel_start, kernel_end, 0
+PRINT "-------"
+
+; *****************************************************************************
+; Title screen
+; *****************************************************************************
+CLEAR $0,$8000
+ORG $3000
+GUARD $8000
+INCBIN "build/scr-beeb-title-screen.dat"
+SAVE "Title",$3000,$8000,0
+
+; *****************************************************************************
+; Title screen loader
+; *****************************************************************************
+CLEAR $0,$8000
+ORG $1900
+
+.title_screen_loader_start
+{
+lda #0:ldx #$ff:jsr osbyte		; query machine type
+cpx #3:beq type_ok				; Master 128
+cpx #5:beq type_ok				; Master Compact
+
+ldx #master_required-text
+.print
+lda text,x:jsr osasci:cmp #13:beq done:inx:bne print
+.done:rts
+
+.type_ok
+lda #$ea:ldx #0:ldy #255:jsr osbyte ; query Tube presence
+cpx #0:beq tube_ok
+ldx #disable_tube-text:jmp print
+
+.tube_ok
+lda #22:jsr oswrch
+lda #2:jsr oswrch
+
+lda #10:sta $fe00:lda #32:sta $fe01 ; disable cursor
+
+lda #108:ldx #1:jsr osbyte		; page in shadow memory
+
+ldx #LO(load_title):ldy #HI(load_title):jsr oscli
+
+lda #108:ldx #0:jsr osbyte		; page in main memory
+lda #113:ldx #2:jsr osbyte		; display shadow memory
+
+ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
+
+.load_title:equs "LOAD Title":equb 13
+.run_loader2:equs "RUN Loader2":equb 13
+
+.text
+.master_required:equs "Master required",13
+.disable_tube:equs "Please disable the Tube",13
+
+}
+.title_screen_loader_end
+
+PRINT "-----------"
+PRINT "Title Screen Loader"
+PRINT "-----------"
+PRINT "  Start =", ~title_screen_loader_start
+PRINT "  End =", ~title_screen_loader_end
+PRINT "  Size =", ~(title_screen_loader_end - title_screen_loader_start)
+PRINT "  Free =", ~(&3000 - title_screen_loader_end)
+PRINT "-------"
+SAVE "Loader",title_screen_loader_start,title_screen_loader_end
 PRINT "-------"

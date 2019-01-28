@@ -20,17 +20,19 @@ def main(options):
         print>>sys.stderr,'FATAL: invalid mode: %d'%options.mode
         sys.exit(1)
 
-    if options.mode!=5:
-        print>>sys.stderr,'FATAL: only mode 5 for now...'
-        sys.exit(1)
-
     if options.mode in [0,3,4,6]:
         palette=[0,7]
+        pixels_per_byte=8
+        pack=bbc.pack_1bpp
     elif options.mode in [1,5]:
         palette=[0,1,3,7]
+        pixels_per_byte=4
+        pack=bbc.pack_2bpp
     elif options.mode==2:
-        palette=[0,1,2,3,4,5,6,7,
-                 0,1,2,3,4,5,6,7]
+        # this palette is indeed only 8 entries...
+        palette=[0,1,2,3,4,5,6,7]
+        pixels_per_byte=2
+        pack=bbc.pack_4bpp
     
     if options.palette is not None:
         if len(options.palette)!=len(palette):
@@ -56,8 +58,8 @@ def main(options):
                        -1 if options.transparent_output else None,
                        options.transparent_rgb)
 
-    if len(image[0])%4!=0:
-        print>>sys.stderr,'FATAL: image height must be a multiple of 4'
+    if len(image[0])%pixels_per_byte!=0:
+        print>>sys.stderr,'FATAL: Mode %d image width must be a multiple of %d'%(options.mode,pixels_per_byte)
         sys.exit(1)
         
     if len(image)%8!=0:
@@ -100,18 +102,18 @@ def main(options):
     mask_data=[]
     assert len(bbc_lidxs)==len(bbc_mask)
     for y in range(0,len(bbc_lidxs),8):
-        for x in range(0,len(bbc_lidxs[y]),4):
+        for x in range(0,len(bbc_lidxs[y]),pixels_per_byte):
             assert len(bbc_lidxs[y])==len(bbc_mask[y])
             for line in range(8):
                 assert y+line<len(bbc_lidxs)
                 assert x<len(bbc_lidxs[y+line]),(x,len(bbc_lidxs[y+line]),y,line)
-                xs=bbc_lidxs[y+line][x+0:x+4]
-                assert len(xs)==4,(x,y,line)
-                pixel_data.append(bbc.pack_2bpp(xs))
+                xs=bbc_lidxs[y+line][x+0:x+pixels_per_byte]
+                assert len(xs)==pixels_per_byte,(pixels_per_byte,x,y,line)
+                pixel_data.append(pack(xs))
 
-                xs=bbc_mask[y+line][x+0:x+4]
-                assert len(xs)==4,(x,y,line)
-                mask_data.append(bbc.pack_2bpp(xs))
+                xs=bbc_mask[y+line][x+0:x+pixels_per_byte]
+                assert len(xs)==pixels_per_byte,(pixels_per_byte,x,y,line)
+                mask_data.append(pack(xs))
 
     # print '%d bytes BBC data'%len(data)
 

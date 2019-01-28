@@ -241,9 +241,6 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 .vsync_counter
 EQUB 0
 
-.prev_vsync
-EQUB 0
-
 .old_irqv
 EQUW 0
 
@@ -327,35 +324,6 @@ EQUW 0
 	EQUB &10 + PAL_black
 	EQUB &00 + PAL_black
 }
-
-IF _DEBUG
-.beeb_debug_framerate
-{
-    LDA #0
-    STA beeb_writeptr
-    CLC
-    LDA ZP_12
-    ADC #HI(screen1_address)
-    STA beeb_writeptr+1
-
-    SEC
-    LDA vsync_counter
-    TAX
-    SBC prev_vsync
-    CMP #10
-    BCC ok
-
-    LDA #9
-    .ok
-    STX prev_vsync
-
-    CLC
-    ADC #1  ; glyph 1 = '0'
-    JSR beeb_plot_font_glyph
-
-    RTS
-}
-ENDIF
 
 .beeb_set_mode_5_full
 {

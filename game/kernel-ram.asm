@@ -958,10 +958,11 @@
 		txa				;0F9C 8A
 		pha				;0F9D 48
 		jsr L_1144_with_color_ram		;0F9E 20 44 11
-		ldy #$02		;0FA1 A0 02
-		ldx #$03		;0FA3 A2 03
-		lda #$80		;0FA5 A9 80
-		jsr L_121F		;0FA7 20 1F 12
+		jsr dash_update_best_lap_time
+		; ldy #$02		;0FA1 A0 02
+		; ldx #$03		;0FA3 A2 03
+		; lda #$80		;0FA5 A9 80
+		; jsr L_121F		;0FA7 20 1F 12
 		pla				;0FAA 68
 		tax				;0FAB AA
 		rts				;0FAC 60
@@ -1003,9 +1004,13 @@
 		sta ZP_82		;0FEE 85 82
 		jsr L_1078		;0FF0 20 78 10
 .L_0FF3	stx ZP_C6		;0FF3 86 C6
-		lda L_C378		;0FF5 AD 78 C3
-		ldx #$04		;0FF8 A2 04
-		jsr L_1426		;0FFA 20 26 14
+
+		jsr dash_update_lap
+		
+		; lda L_C378		;0FF5 AD 78 C3
+		; ldx #$04		;0FF8 A2 04
+		; jsr L_1426		;0FFA 20 26 14
+		
 		ldx ZP_C6		;0FFD A6 C6
 .L_0FFF	lda L_C378,X	;0FFF BD 78 C3
 		cmp #$01		;1002 C9 01
@@ -1070,12 +1075,14 @@
 {
 		txa				;1078 8A
 		pha				;1079 48
-		ldx #$02		;107A A2 02
-		ldy #$00		;107C A0 00
-		lda ZP_82		;107E A5 82
-		beq L_1084		;1080 F0 02
-		lda #$80		;1082 A9 80
-.L_1084	jsr L_121F		;1084 20 1F 12
+		; ldx #$02		;107A A2 02
+		; ldy #$00		;107C A0 00
+		; lda ZP_82		;107E A5 82
+		; beq L_1084		;1080 F0 02
+		; lda #$80		;1082 A9 80
+		jsr dash_update_current_lap_time
+; .L_1084	jsr L_121F		;1084 20 1F 12
+
 		pla				;1087 68
 		tax				;1088 AA
 		rts				;1089 60
@@ -1174,24 +1181,29 @@
 .L_1143	rts				;1143 60
 }
 
+; switch best lap icon on/off
 .L_1144_with_color_ram		; in kernel
+		lda L_C395
 		ldy #$0B		;1144 A0 0B
 		lda L_C395		;1146 AD 95 C3
 		bne L_114D_with_color_ram		;1149 D0 02
 		ldy #$07		;114B A0 07
 .L_114D_with_color_ram
-		sty L_DBDA		;114D 8C DA DB		; COLOR RAM
-		sty L_DBDB		;1150 8C DB DB		; COLOR RAM
+	    jsr dash_update_stopwatch_icon
+		; sty L_DBDA		;114D 8C DA DB		; COLOR RAM
+		; sty L_DBDB		;1150 8C DB DB		; COLOR RAM
 		rts				;1153 60
 
+; switch checquered flag icon on/off
 .L_1154_with_color_ram		; in kernel
 		ldy #$0B		;1154 A0 0B
 		jsr L_F5E9		;1156 20 E9 F5
 		bpl L_115D_with_color_ram		;1159 10 02
 		ldy #$07		;115B A0 07
 .L_115D_with_color_ram
-		sty L_DBCC		;115D 8C CC DB		; COLOR RAM
-		sty L_DBCD		;1160 8C CD DB		; COLOR RAM
+	    jsr dash_update_flag_icon
+		; sty L_DBCC		;115D 8C CC DB		; COLOR RAM
+		; sty L_DBCD		;1160 8C CD DB		; COLOR RAM
 		rts				;1163 60
 
 .update_distance_to_ai_car_readout
@@ -1251,24 +1263,28 @@
 		sta ZP_17		;11C7 85 17
 		stx ZP_15		;11C9 86 15
 		sty ZP_16		;11CB 84 16
-		lda #$F0		;11CD A9 F0
-		bit L_C36A		;11CF 2C 6A C3
-		bpl L_11D6		;11D2 10 02
-		lda #$FD		;11D4 A9 FD
-.L_11D6	ldx #$22		;11D6 A2 22
-		jsr L_142E		;11D8 20 2E 14
-		lda ZP_18		;11DB A5 18
-		ldx #$23		;11DD A2 23
-		jsr L_142E		;11DF 20 2E 14
-		lda ZP_16		;11E2 A5 16
-		ldx #$61		;11E4 A2 61
-		jsr L_142E		;11E6 20 2E 14
-		lda ZP_15		;11E9 A5 15
-		ldx #$62		;11EB A2 62
-		jsr L_142E		;11ED 20 2E 14
-		lda ZP_17		;11F0 A5 17
-		ldx #$63		;11F2 A2 63
-		jsr L_142E		;11F4 20 2E 14
+
+		jsr dash_update_distance_to_ai_car
+
+; 		lda #$F0		;11CD A9 F0
+; 		bit L_C36A		;11CF 2C 6A C3
+; 		bpl L_11D6		;11D2 10 02
+; 		lda #$FD		;11D4 A9 FD
+; .L_11D6	ldx #$22		;11D6 A2 22
+; 		jsr L_142E		;11D8 20 2E 14
+; 		lda ZP_18		;11DB A5 18
+; 		ldx #$23		;11DD A2 23
+; 		jsr L_142E		;11DF 20 2E 14
+; 		lda ZP_16		;11E2 A5 16
+; 		ldx #$61		;11E4 A2 61
+; 		jsr L_142E		;11E6 20 2E 14
+; 		lda ZP_15		;11E9 A5 15
+; 		ldx #$62		;11EB A2 62
+; 		jsr L_142E		;11ED 20 2E 14
+; 		lda ZP_17		;11F0 A5 17
+; 		ldx #$63		;11F2 A2 63
+; 		jsr L_142E		;11F4 20 2E 14
+		
 		lda L_C364		;11F7 AD 64 C3
 		bne L_11FF		;11FA D0 03
 		jsr L_1154_with_color_ram		;11FC 20 54 11
@@ -1297,80 +1313,84 @@
 
 ; Something to do with plotting the dashboard sprite?
 
-.L_121F			; in kernel
-{
-		sty ZP_C7		;121F 84 C7
-		sta L_C3CC		;1221 8D CC C3
-		lda L_1296,X	;1224 BD 96 12
-		sta ZP_C6		;1227 85 C6
-		tax				;1229 AA
-		lda L_8398,Y	;122A B9 98 83
-		and #$0F		;122D 29 0F
-		jsr L_1422		;122F 20 22 14
-		ldy ZP_C7		;1232 A4 C7
-		ldx ZP_C6		;1234 A6 C6
-		inx				;1236 E8
-		lda L_82B0,Y	;1237 B9 B0 82
-		lsr A			;123A 4A
-		lsr A			;123B 4A
-		lsr A			;123C 4A
-		lsr A			;123D 4A
-		jsr L_1426		;123E 20 26 14
-		jsr L_1411		;1241 20 11 14
-		ldy ZP_C7		;1244 A4 C7
-		ldx ZP_C6		;1246 A6 C6
-		inx				;1248 E8
-		inx				;1249 E8
-		lda L_82B0,Y	;124A B9 B0 82
-		and #$0F		;124D 29 0F
-		jsr L_142A		;124F 20 2A 14
-		ldy ZP_C7		;1252 A4 C7
-		lda ZP_C6		;1254 A5 C6
-		clc				;1256 18
-		adc #$41		;1257 69 41
-		tax				;1259 AA
-		lda L_8298,Y	;125A B9 98 82
-		lsr A			;125D 4A
-		lsr A			;125E 4A
-		lsr A			;125F 4A
-		lsr A			;1260 4A
-		bit L_C3CC		;1261 2C CC C3
-		bmi L_1268		;1264 30 02
-		lda #$F0		;1266 A9 F0
-.L_1268	jsr L_142E		;1268 20 2E 14
-		lda #$02		;126B A9 02
-		sta L_3FF6,X	;126D 9D F6 3F
-		ldy ZP_C7		;1270 A4 C7
-		lda ZP_C6		;1272 A5 C6
-		clc				;1274 18
-		adc #$42		;1275 69 42
-		tax				;1277 AA
-		lda L_8298,Y	;1278 B9 98 82
-		and #$0F		;127B 29 0F
-		bit L_C3CC		;127D 2C CC C3
-		bmi L_1284		;1280 30 02
-		lda #$F0		;1282 A9 F0
-.L_1284	jsr L_1422		;1284 20 22 14
-		lda ZP_6F		;1287 A5 6F
-		ldx ZP_C6		;1289 A6 C6
-		bpl L_1291		;128B 10 04
-		ora #$0C		;128D 09 0C
-		bne L_1293		;128F D0 02
-.L_1291	ora #$03		;1291 09 03
-.L_1293	sta ZP_6F		;1293 85 6F
-		rts				;1295 60
+; .L_121F			; in kernel
+; {
+; 		sty ZP_C7		;121F 84 C7
+; 		sta L_C3CC		;1221 8D CC C3
+; 		lda L_1296,X	;1224 BD 96 12
+; 		sta ZP_C6		;1227 85 C6
+; 		tax				;1229 AA
+; 		lda L_8398,Y	;122A B9 98 83
+; 		and #$0F		;122D 29 0F
+; 		jsr L_1422		;122F 20 22 14
+; 		ldy ZP_C7		;1232 A4 C7
+; 		ldx ZP_C6		;1234 A6 C6
+; 		inx				;1236 E8
+; 		lda L_82B0,Y	;1237 B9 B0 82
+; 		lsr A			;123A 4A
+; 		lsr A			;123B 4A
+; 		lsr A			;123C 4A
+; 		lsr A			;123D 4A
+; 		jsr L_1426		;123E 20 26 14
+; 		jsr L_1411		;1241 20 11 14
+; 		ldy ZP_C7		;1244 A4 C7
+; 		ldx ZP_C6		;1246 A6 C6
+; 		inx				;1248 E8
+; 		inx				;1249 E8
+; 		lda L_82B0,Y	;124A B9 B0 82
+; 		and #$0F		;124D 29 0F
+; 		jsr L_142A		;124F 20 2A 14
+; 		ldy ZP_C7		;1252 A4 C7
+; 		lda ZP_C6		;1254 A5 C6
+; 		clc				;1256 18
+; 		adc #$41		;1257 69 41
+; 		tax				;1259 AA
+; 		lda L_8298,Y	;125A B9 98 82
+; 		lsr A			;125D 4A
+; 		lsr A			;125E 4A
+; 		lsr A			;125F 4A
+; 		lsr A			;1260 4A
+; 		bit L_C3CC		;1261 2C CC C3
+; 		bmi L_1268		;1264 30 02
+; 		lda #$F0		;1266 A9 F0
+; .L_1268	jsr L_142E		;1268 20 2E 14
+; 		lda #$02		;126B A9 02
+; 		sta L_3FF6,X	;126D 9D F6 3F
+; 		ldy ZP_C7		;1270 A4 C7
+; 		lda ZP_C6		;1272 A5 C6
+; 		clc				;1274 18
+; 		adc #$42		;1275 69 42
+; 		tax				;1277 AA
+; 		lda L_8298,Y	;1278 B9 98 82
+; 		and #$0F		;127B 29 0F
+; 		bit L_C3CC		;127D 2C CC C3
+; 		bmi L_1284		;1280 30 02
+; 		lda #$F0		;1282 A9 F0
+; .L_1284	jsr L_1422		;1284 20 22 14
+; 		lda ZP_6F		;1287 A5 6F
+; 		ldx ZP_C6		;1289 A6 C6
+; 		bpl L_1291		;128B 10 04
+; 		ora #$0C		;128D 09 0C
+; 		bne L_1293		;128F D0 02
+; .L_1291	ora #$03		;1291 09 03
+; .L_1293	sta ZP_6F		;1293 85 6F
+; 		rts				;1295 60
 
-.L_1296	equb $03,$21,$83,$A1
-}
+; .L_1296	equb $03,$21,$83,$A1
+; }
 
 .initialise_hud_sprites
 {
-		ldx #$03		;129A A2 03
-		lda #$1C		;129C A9 1C
-		jsr L_1426		;129E 20 26 14
-		ldx #$43		;12A1 A2 43
-		lda #$12		;12A3 A9 12
-		jsr L_142E		;12A5 20 2E 14
+
+jsr dash_reset
+
+		; ldx #$03		;129A A2 03
+		; lda #$1C		;129C A9 1C
+		; jsr L_1426		;129E 20 26 14
+		; ldx #$43		;12A1 A2 43
+		; lda #$12		;12A3 A9 12
+		; jsr L_142E		;12A5 20 2E 14
+
 		rts				;12A8 60
 }
 
@@ -6499,11 +6519,14 @@ L_EBDD	= L_EBE7 - $A			;!
 		bpl L_F3BB		;F3BF 10 FA
 		ldx #$00		;F3C1 A2 00
 		lda #$FF		;F3C3 A9 FF
-.L_F3C5	sta L_52E0,X	;F3C5 9D E0 52
-		sta L_5420,X	;F3C8 9D 20 54
-		sta L_5560,X	;F3CB 9D 60 55
+.L_F3C5	sta $52E0,X	    ;F3C5 9D E0 52
+		sta $5420,X	    ;F3C8 9D 20 54
+		sta $5560,X	    ;F3CB 9D 60 55
 		dex				;F3CE CA
 		bne L_F3C5		;F3CF D0 F4
+if FANCY_TRACK_PREVIEW
+		jsr preview_fix_up_cleared_screen
+endif		
 		jsr ensure_screen_enabled		;F3D1 20 9E 3F
 		lda #$0B		;F3D4 A9 0B
 		sta L_262B		;F3D6 8D 2B 26	_SELF_MOD to L_25EA in Core
@@ -6515,7 +6538,9 @@ L_EBDD	= L_EBE7 - $A			;!
 		dex				;F3E5 CA
 		bpl L_F3DB		;F3E6 10 F3
 		jsr draw_track_preview		;F3E8 20 F6 F2
-
+if FANCY_TRACK_PREVIEW
+		jsr preview_add_background
+endif
 		lda #$08		;F3EB A9 08
 		sta L_262B		;F3ED 8D 2B 26	_SELF_MOD to L_25EA in Core
 		ldx #$00		;F3F0 A2 00
@@ -6791,16 +6816,20 @@ L_EBDD	= L_EBE7 - $A			;!
 ;L_F634	= *-1			;!
 		cld				;F635 D8
 		sta boost_reserve		;F636 8D 6A C7
-		lsr A			;F639 4A
-		lsr A			;F63A 4A
-		lsr A			;F63B 4A
-		lsr A			;F63C 4A
-		ldx #$44		;F63D A2 44
-		jsr L_142E		;F63F 20 2E 14
-		lda boost_reserve		;F642 AD 6A C7
-		and #$0F		;F645 29 0F
-		ldx #$45		;F647 A2 45
-		jsr L_142E		;F649 20 2E 14
+
+		jsr dash_update_boost
+		
+		; lsr A			;F639 4A
+		; lsr A			;F63A 4A
+		; lsr A			;F63B 4A
+		; lsr A			;F63C 4A
+		; ldx #$44		;F63D A2 44
+		; jsr L_142E		;F63F 20 2E 14
+		; lda boost_reserve		;F642 AD 6A C7
+		; and #$0F		;F645 29 0F
+		; ldx #$45		;F647 A2 45
+		; jsr L_142E		;F649 20 2E 14
+
 .L_F64C	lda #$80		;F64C A9 80
 		sta ZP_72		;F64E 85 72
 		lda ZP_6E		;F650 A5 6E
@@ -6817,30 +6846,97 @@ L_EBDD	= L_EBE7 - $A			;!
 		rts				;F667 60
 }
 
-.L_F668 ldx #$10		;F668 A2 10
+; update damage holes.
+;
+; Y on entry = dest offset to copy to (???)
+
+.L_F668
+
+; Copy hole graphic.
+
+; Copy 8 bytes starting from +$10, dest mask = %11111111
+  	   	ldx #$10		;F668 A2 10
 		jsr L_F67E		;F66A 20 7E F6
+
+
+; Copy 8 bytes starting from +$18, dest mask = %00111111
 		ldx #$18		;F66D A2 18
-.L_F66F	lda #$3F		;F66F A9 3F
+		
+.L_F66F
+
+; Copy 8 bytes starting from +X, dest mask = %00111111
+		lda #%01110111	;F66F A9 3F
 		bne L_F680		;F671 D0 0D
-.L_F673 ldx #$30		;F673 A2 30
+		
+.L_F673
+
+; Copy hole-with-highlight graphic.
+
+; Copy 8 bytes starting from +$30, dest mask = %11111111
+		ldx #$30		;F673 A2 30
 		jsr L_F67E		;F675 20 7E F6
+
+; Copy 8 bytes starting from +$38, dest mask = %00111111
+
 		ldx #$38		;F678 A2 38
 		bne L_F66F		;F67A D0 F3
-.L_F67C	ldx #$20		;F67C A2 20
-.L_F67E	lda #$00		;F67E A9 00
-.L_F680	sta ZP_16		;F680 85 16
+		
+; .L_F67C
+
+; ; Copy original pattern??
+
+; ; Copy 8 bytes starting from $20, dest mask = %00000000
+; 		ldx #$20		;F67C A2 20
+
+.L_F67E
+
+; Copy 8 bytes starting from +X, dest mask = %00000000
+		lda #%00000000	;F67E A9 00
+
+.L_F680
+
+; save destination mask.
+
+  		sta ZP_16		;F680 85 16
+
+; copy 8 bytes starting from +X.
+
 		lda #$08		;F682 A9 08
 		bne L_F68A		;F684 D0 04
-.L_F686	ldx #$00		;F686 A2 00
-		lda #$10		;F688 A9 10
-.L_F68A	sta ZP_14		;F68A 85 14
+		
+; .L_F686
+
+; ; Copy original pattern??
+
+; ; copy 16 bytes starting from +0.
+;         ldx #$00		;F686 A2 00
+; 		lda #$10		;F688 A9 10
+		
+.L_F68A
+
+; ZP_14 = number of bytes to copy
+		sta ZP_14		;F68A 85 14
+
+; ZP_15 = ???
 		sty ZP_15		;F68C 84 15
-.L_F68E	lda original_top_of_hud_data,Y
+
+
+.L_F68E
+
+; Copy one byte, masked.
+
+		lda original_top_of_hud_data,Y
+		and ZP_16		;F691 25 16
+		ora L_80C8,X	;F693 1D C8 80
 		sta L_6028,Y	;F696 99 28 60
+		
 		iny				;F699 C8
 		inx				;F69A E8
 		dec ZP_14		;F69B C6 14
 		bne L_F68E		;F69D D0 EF
+
+.update_top_of_hud_done
+; divide dest offset by 8 to get a column value.
 		lda ZP_15		;F69F A5 15
 		lsr A			;F6A1 4A
 		lsr A			;F6A2 4A
@@ -6848,24 +6944,62 @@ L_EBDD	= L_EBE7 - $A			;!
 		tax				;F6A4 AA
 		rts				;F6A5 60
 
+; The top row is arranged in 10 groups of 3 columns, with a pattern
+; like ABAABA (etc), copied out of a table that contains 2/3 of that
+; pattern. So there's these two routines, one that copies 1/3 (8
+; bytes) and one that copies 2/3 (16 bytes), and they're called in an
+; alternating fashion. They were originally part of the above, as the
+; patterns are part of the same table as the damage holes.
+;
+; I didn't change any of the overall logic of this, but these two
+; routines need to work a bit differently (the BBC version takes a
+; copy of the entire top row as-is)
+.L_F686
+ldx #16
+bne copy_original_top_of_hud
+
+.L_F67C
+ldx #8
+.copy_original_top_of_hud
+{
+sty ZP_15
+.loop
+lda original_top_of_hud_data,Y:sta L_6028,Y
+iny:dex:bne loop
+jmp update_top_of_hud_done
+}
+
 .L_F6A6
 {
+; Color RAM stuff.
+
 		ldx #$1D		;F6A6 A2 1D
 .L_F6A8	lda #$0A		;F6A8 A9 0A
 ; COLOR RAM
 ;		sta L_D805,X	;F6AA 9D 05 D8
 		dex				;F6AD CA
 		bpl L_F6A8		;F6AE 10 F8
+
+; Copy original frame data, starting from the left edge. The columns
+; alternate.
+
 		ldy #$00		;F6B0 A0 00
 		lda L_C719		;F6B2 AD 19 C7
 		sta ZP_08		;F6B5 85 08
-.L_F6B7	jsr L_F67C		;F6B7 20 7C F6
+		
+.L_F6B7
+		jsr L_F67C		;F6B7 20 7C F6
 		dec ZP_08		;F6BA C6 08
 		bmi L_F6C6		;F6BC 30 08
+
 		jsr L_F686		;F6BE 20 86 F6
 .L_F6C1	cpy #$F0		;F6C1 C0 F0
 		bcc L_F6B7		;F6C3 90 F2
+		
 		rts				;F6C5 60
+
+; Copy damage hole.
+
 .L_F6C6	jsr L_F67C		;F6C6 20 7C F6
 		jsr L_F67C		;F6C9 20 7C F6
 		tya				;F6CC 98

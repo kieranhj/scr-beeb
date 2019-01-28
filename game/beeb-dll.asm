@@ -573,11 +573,6 @@ ENDIF
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 .cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
 .cart_print_track_title DLL_CALL_CART print_track_title, 70
-.beeb_plot_font_init DLL_CALL_CART BEEB_PLOT_FONT_INIT, 71
-.beeb_plot_font_glyph DLL_CALL_CART BEEB_PLOT_FONT_GLYPH, 72
-.beeb_plot_font_string DLL_CALL_CART BEEB_PLOT_FONT_STRING, 73
-.beeb_plot_font_bcd DLL_CALL_CART BEEB_PLOT_FONT_BCD, 74
-
 
 ; *****************************************************************************
 \\ Function addresses
@@ -659,11 +654,6 @@ ENDIF
 	EQUB LO(set_text_cursor)
 	EQUB LO(print_number_unpadded)
 	EQUB LO(print_track_title)
-	EQUB LO(BEEB_PLOT_FONT_INIT)
-	EQUB LO(BEEB_PLOT_FONT_GLYPH)
-	EQUB LO(BEEB_PLOT_FONT_STRING)
-	EQUB LO(BEEB_PLOT_FONT_BCD)
-	EQUB LO(_graphics_draw_flames)
 }
 
 .cart_table_HI
@@ -742,11 +732,6 @@ ENDIF
 	EQUB HI(set_text_cursor)
 	EQUB HI(print_number_unpadded)
 	EQUB HI(print_track_title)
-	EQUB HI(BEEB_PLOT_FONT_INIT)
-	EQUB HI(BEEB_PLOT_FONT_GLYPH)
-	EQUB HI(BEEB_PLOT_FONT_STRING)
-	EQUB HI(BEEB_PLOT_FONT_BCD)
-	EQUB HI(_graphics_draw_flames)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
@@ -840,6 +825,7 @@ IF _STORE_STATUS
 	STA DLL_REG_STATUS
 ENDIF
 
+
     \\ Restore original bank
     PLA
     STA &F4:STA &FE30
@@ -865,8 +851,24 @@ ENDIF
 
 .graphics_draw_flames DLL_CALL_GRAPHICS _graphics_draw_flames, 0
 .graphics_erase_flames DLL_CALL_GRAPHICS _graphics_erase_flames, 1
-
-.graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 2
+.graphics_copy_menu_header_graphic BRK	;DLL_CALL_GRAPHICS _graphics_copy_menu_header_graphic, 2
+.graphics_draw_left_wheel DLL_CALL_GRAPHICS _graphics_draw_left_wheel, 3
+.graphics_draw_right_wheel DLL_CALL_GRAPHICS _graphics_draw_right_wheel, 4
+.dash_reset DLL_CALL_GRAPHICS _dash_reset, 5
+.dash_update_lap DLL_CALL_GRAPHICS _dash_update_lap, 6
+.dash_update_boost DLL_CALL_GRAPHICS _dash_update_boost, 7
+.dash_update_distance_to_ai_car DLL_CALL_GRAPHICS _dash_update_distance_to_ai_car, 8
+.dash_update_current_lap_time DLL_CALL_GRAPHICS _dash_update_current_lap_time, 9
+.dash_update_best_lap_time DLL_CALL_GRAPHICS _dash_update_best_lap_time, 10
+.dash_update_flag_icon DLL_CALL_GRAPHICS _dash_update_flag_icon, 11
+.dash_update_stopwatch_icon DLL_CALL_GRAPHICS _dash_update_stopwatch_icon, 12
+if FANCY_TRACK_PREVIEW
+.preview_draw_border DLL_CALL_GRAPHICS _preview_draw_border, 13
+.preview_fix_up_cleared_screen DLL_CALL_GRAPHICS _preview_fix_up_cleared_screen, 14
+.preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
+endif
+.graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
+.graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 17
 
 ; *****************************************************************************
 \\ Function addresses
@@ -874,18 +876,46 @@ ENDIF
 
 .graphics_table_LO
 {
-	EQUB LO(_graphics_draw_flames)
-	EQUB LO(_graphics_erase_flames)
-
-	EQUB LO(_graphics_unpack_menu_screen)
+	EQUB LO(_graphics_draw_flames)				; 0
+	EQUB LO(_graphics_erase_flames)				; 1
+	EQUB 0	;LO(_graphics_copy_menu_header_graphic) ; 2
+	EQUB LO(_graphics_draw_left_wheel)			; 3
+	EQUB LO(_graphics_draw_right_wheel)			; 4
+	EQUB LO(_dash_reset)						; 5
+	EQUB LO(_dash_update_lap)					; 6
+	EQUB LO(_dash_update_boost)					; 7
+	EQUB LO(_dash_update_distance_to_ai_car)	; 8
+	EQUB LO(_dash_update_current_lap_time)		; 9
+	EQUB LO(_dash_update_best_lap_time)			; 10
+	EQUB LO(_dash_update_flag_icon)				; 11
+	EQUB LO(_dash_update_stopwatch_icon)		; 12
+	EQUB LO(_preview_draw_border)				; 13
+	EQUB LO(_preview_fix_up_cleared_screen)		; 14
+	EQUB LO(_preview_add_background)			; 15
+	EQUB LO(_graphics_draw_debug_framerate)		; 16
+	EQUB LO(_graphics_unpack_menu_screen)		; 17
 }
 
 .graphics_table_HI
 {
-	EQUB HI(_graphics_draw_flames)
-	EQUB HI(_graphics_erase_flames)
-
-	EQUB HI(_graphics_unpack_menu_screen)
+	EQUB HI(_graphics_draw_flames)				; 0
+	EQUB HI(_graphics_erase_flames)				; 1
+	EQUB 0	;HI(_graphics_copy_menu_header_graphic) ; 2
+	EQUB HI(_graphics_draw_left_wheel)			; 3
+	EQUB HI(_graphics_draw_right_wheel)			; 4
+	EQUB HI(_dash_reset)						; 5
+	EQUB HI(_dash_update_lap)					; 6
+	EQUB HI(_dash_update_boost)					; 7
+	EQUB HI(_dash_update_distance_to_ai_car)	; 8
+	EQUB HI(_dash_update_current_lap_time)		; 9
+	EQUB HI(_dash_update_best_lap_time)			; 10
+	EQUB HI(_dash_update_flag_icon)				; 11
+	EQUB HI(_dash_update_stopwatch_icon)		; 12
+	EQUB HI(_preview_draw_border)				; 13
+	EQUB HI(_preview_fix_up_cleared_screen)		; 14
+	EQUB HI(_preview_add_background)			; 15
+	EQUB HI(_graphics_draw_debug_framerate)		; 16
+	EQUB HI(_graphics_unpack_menu_screen)		; 17
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

@@ -7,9 +7,24 @@ build:
 
 	python bin/png2bbc.py -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
 
+	python bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./graphics/scr-beeb-header.png 5
+
+	python bin/png2bbc.py -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
+
 	python bin/flames.py > build/flames-tables.asm
 
+	python bin/wheels.py > build/wheels-tables.asm
+
+	python bin/hud_font.py > build/hud-font-tables.asm
+
+	python bin/dash_icons.py > build/dash-icons.asm
+
+	python bin/track_preview.py > build/track-preview.asm
+
 	beebasm -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
+
+	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'align lost' | grep -vi 'safe to load to' | grep -Evi '^-+'
+
 	python bin/crc32.py scr-beeb.ssd
 
 ##########################################################################
