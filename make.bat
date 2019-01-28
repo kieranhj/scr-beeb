@@ -7,6 +7,8 @@ set PYTHON=C:\Home\Python27\python.exe
 
 	%PYTHON% bin/png2bbc.py -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
 
+	%PYTHON% bin/png2bbc.py -o build/scr-beeb-menu.dat --palette 0143 ./graphics/scr-beeb-menu.png 1
+
 	%PYTHON% bin/flames.py > build/flames-tables.asm
 
 	%PYTHON% bin/wheels.py > build/wheels-tables.asm
@@ -15,7 +17,7 @@ set PYTHON=C:\Home\Python27\python.exe
 
 	%PYTHON% bin/track_preview.py > build/track-preview.asm
 
-	bin\pucrunch.exe -d -c0 -l0x1000 "graphics\scr-beeb-temp.bin" build\scr-beeb-menu.pu
+	bin\pucrunch.exe -d -c0 -l0x1000 "build\scr-beeb-menu.dat" build\scr-beeb-menu.pu
 
 ..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
 %PYTHON% bin\crc32.py scr-beeb.ssd

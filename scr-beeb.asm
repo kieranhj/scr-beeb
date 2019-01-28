@@ -64,7 +64,7 @@ KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
 
 ; If TRUE, add extra background and hand-drawn border to the track
 ; preview screen. Otherwise, use the (minimally fixed up) C64 version.
-FANCY_TRACK_PREVIEW = FALSE
+FANCY_TRACK_PREVIEW = TRUE
 
 ; *****************************************************************************
 ; MACROS
@@ -1109,7 +1109,11 @@ GUARD .disksys_loadto_addr
 		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
 	; BEEB LATE INIT
-	; Shadow copy
+
+	\\ Need to copy data from &3000 - &3FFF into SHADOW RAM as this may be
+	\\ accessed by the frontend system whilst the MODE 1 SHADOW screen is
+	\\ paged in. As we're in the loader above $3000 we need to copy some
+	\\ code down to spare RAM ($300) to copy a page at a time w/ bank swaps.
 
 	{
 		LDX #0
