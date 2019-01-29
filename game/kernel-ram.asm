@@ -6647,13 +6647,13 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_F3BB	sta L_C640,X	;F3BB 9D 40 C6
 		dex				;F3BE CA
 		bpl L_F3BB		;F3BF 10 FA
-		ldx #$00		;F3C1 A2 00
-		lda #$FF		;F3C3 A9 FF
-.L_F3C5	sta $52E0,X	    ;F3C5 9D E0 52
-		sta $5420,X	    ;F3C8 9D 20 54
-		sta $5560,X	    ;F3CB 9D 60 55
-		dex				;F3CE CA
-		bne L_F3C5		;F3CF D0 F4
+; 		ldx #$00		;F3C1 A2 00
+; 		lda #$FF		;F3C3 A9 FF
+; .L_F3C5	sta $52E0,X	    ;F3C5 9D E0 52
+; 		sta $5420,X	    ;F3C8 9D 20 54
+; 		sta $5560,X	    ;F3CB 9D 60 55
+; 		dex				;F3CE CA
+; 		bne L_F3C5		;F3CF D0 F4
 		jsr ensure_screen_enabled		;F3D1 20 9E 3F
 		lda #$0B		;F3D4 A9 0B
 		sta L_262B		;F3D6 8D 2B 26	_SELF_MOD to L_25EA in Core
