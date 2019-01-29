@@ -1131,30 +1131,31 @@ ENDIF
 
 \\ READING FROM COLOUR RAM IN IO
 
-.L_88B2	lda L_D800,X	;88B2 BD 00 D8
-;		sta L_6DE0,X	;88B5 9D E0 6D
-		lda L_D900,X	;88B8 BD 00 D9
-;		sta L_6F20,X	;88BB 9D 20 6F
-		lda L_DA00,X	;88BE BD 00 DA
-;		sta L_7060,X	;88C1 9D 60 70
-		lda L_DB00,X	;88C4 BD 00 DB
-;		sta L_71A0,X	;88C7 9D A0 71
-		dex				;88CA CA
-		bne L_88B2		;88CB D0 E5
+; .L_88B2	lda L_D800,X	;88B2 BD 00 D8
+; ;		sta L_6DE0,X	;88B5 9D E0 6D
+; 		lda L_D900,X	;88B8 BD 00 D9
+; ;		sta L_6F20,X	;88BB 9D 20 6F
+; 		lda L_DA00,X	;88BE BD 00 DA
+; ;		sta L_7060,X	;88C1 9D 60 70
+; 		lda L_DB00,X	;88C4 BD 00 DB
+; ;		sta L_71A0,X	;88C7 9D A0 71
+; 		dex				;88CA CA
+; 		bne L_88B2		;88CB D0 E5
 		rts				;88CD 60
 
 \\ WRITING TO COLOUR RAM IN IO
 
-.L_88CE	lda L_6DE0,X	;88CE BD E0 6D
-;		sta L_D800,X	;88D1 9D 00 D8
-		lda L_6F20,X	;88D4 BD 20 6F
-;		sta L_D900,X	;88D7 9D 00 D9
-		lda L_7060,X	;88DA BD 60 70
-;		sta L_DA00,X	;88DD 9D 00 DA
-		lda L_71A0,X	;88E0 BD A0 71
-;		sta L_DB00,X	;88E3 9D 00 DB
-		dex				;88E6 CA
-		bne L_88CE		;88E7 D0 E5
+.L_88CE
+; 		lda L_6DE0,X	;88CE BD E0 6D
+; ;		sta L_D800,X	;88D1 9D 00 D8
+; 		lda L_6F20,X	;88D4 BD 20 6F
+; ;		sta L_D900,X	;88D7 9D 00 D9
+; 		lda L_7060,X	;88DA BD 60 70
+; ;		sta L_DA00,X	;88DD 9D 00 DA
+; 		lda L_71A0,X	;88E0 BD A0 71
+; ;		sta L_DB00,X	;88E3 9D 00 DB
+; 		dex				;88E6 CA
+; 		bne L_88CE		;88E7 D0 E5
 
 		lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00
 		sta VIC_IRQMASK		;88EB 8D 1A D0
@@ -1162,19 +1163,19 @@ ENDIF
 		lda #C64_NO_IO_NO_KERNAL		;88EF A9 34
 		sta RAM_SELECT		;88F1 85 01
 
-		ldx #$00		;88F3 A2 00
-.L_88F5	lda L_D000,X	;88F5 BD 00 D0
-		sta L_7C00,X	;88F8 9D 00 7C
-		lda L_D100,X	;88FB BD 00 D1
-		sta L_7D00,X	;88FE 9D 00 7D
-		lda L_D200,X	;8901 BD 00 D2
-		sta L_7E00,X	;8904 9D 00 7E
-		lda L_D300,X	;8907 BD 00 D3
-		sta L_7F00,X	;890A 9D 00 7F
-		lda L_DD00,X	;890D BD 00 DD
-		sta L_7B00,X	;8910 9D 00 7B
-		dex				;8913 CA
-		bne L_88F5		;8914 D0 DF
+; 		ldx #$00		;88F3 A2 00
+; .L_88F5	lda L_D000,X	;88F5 BD 00 D0
+; 		sta L_7C00,X	;88F8 9D 00 7C
+; 		lda L_D100,X	;88FB BD 00 D1
+; 		sta L_7D00,X	;88FE 9D 00 7D
+; 		lda L_D200,X	;8901 BD 00 D2
+; 		sta L_7E00,X	;8904 9D 00 7E
+; 		lda L_D300,X	;8907 BD 00 D3
+; 		sta L_7F00,X	;890A 9D 00 7F
+; 		lda L_DD00,X	;890D BD 00 DD
+; 		sta L_7B00,X	;8910 9D 00 7B
+; 		dex				;8913 CA
+; 		bne L_88F5		;8914 D0 DF
 
 		lda #C64_IO_NO_KERNAL		;8916 A9 35
 		sta RAM_SELECT		;8918 85 01

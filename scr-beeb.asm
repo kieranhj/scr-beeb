@@ -1049,24 +1049,17 @@ GUARD .disksys_loadto_addr
 	; C64 copy 14x pages to $D000 through $DD00
 
 .L_41E0	ldx #$00		;41E0 A2 00
-.L_41E2	lda L_7C00,X	;41E2 BD 00 7C
-		sta L_D000,X	;41E5 9D 00 D0
-		lda L_7D00,X	;41E8 BD 00 7D
-		sta L_D100,X	;41EB 9D 00 D1
-		lda L_7E00,X	;41EE BD 00 7E
-		sta L_D200,X	;41F1 9D 00 D2
-		lda L_7F00,X	;41F4 BD 00 7F
-		sta L_D300,X	;41F7 9D 00 D3
-		; lda L_4F00,X	;41FA BD 00 4F
-		; sta L_D400,X	;41FD 9D 00 D4
-		; lda L_5000,X	;4200 BD 00 50
-		; sta L_D500,X	;4203 9D 00 D5
-		; lda L_5100,X	;4206 BD 00 51
-		; sta L_D600,X	;4209 9D 00 D6
-		; lda L_5200,X	;420C BD 00 52
-		; sta L_D700,X	;420F 9D 00 D7
-		; lda L_5300,X	;4212 BD 00 53
-		; sta L_D800,X	;4215 9D 00 D8
+.L_41E2	
+		lda #0:sta _L_D000,X	; d0
+		lda #0:sta _L_D100,X	; d1
+		lda #0:sta _L_D200,X	; d2
+		lda #0:sta _L_D300,X	; d3
+		lda #0:sta _L_D400,x	; d4
+		lda #0:sta _L_D500,x	; d5
+		lda #0:sta _L_D600,x	; d6
+		lda #0:sta _L_D700,x	; d7
+		lda #0:sta _L_D800,x	; d8
+		
 		lda L_5400,X	;4218 BD 00 54
 		sta L_D900,X	;421B 9D 00 D9
 		lda L_5500,X	;421E BD 00 55
