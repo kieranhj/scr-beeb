@@ -85,21 +85,21 @@ BEEB_HAZEL_OFFSET = $0
 
 ; L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
 
-L_D401 = $D401 + BEEB_HAZEL_OFFSET
-L_D402 = $D402 + BEEB_HAZEL_OFFSET
-L_D440 = $D440 + BEEB_HAZEL_OFFSET
+; L_D401 = $D401 + BEEB_HAZEL_OFFSET
+; L_D402 = $D402 + BEEB_HAZEL_OFFSET
+; L_D440 = $D440 + BEEB_HAZEL_OFFSET
 
-L_D805 = $D805 + BEEB_HAZEL_OFFSET
-L_DAB6 = $DAB6 + BEEB_HAZEL_OFFSET
-L_DAAC = $DAAC + BEEB_HAZEL_OFFSET
-L_DACB = $DACB + BEEB_HAZEL_OFFSET
-L_DAD4 = $DAD4 + BEEB_HAZEL_OFFSET
-L_DAFC = $DAFC + BEEB_HAZEL_OFFSET
-L_DAF3 = $DAF3 + BEEB_HAZEL_OFFSET
+; L_D805 = $D805 + BEEB_HAZEL_OFFSET
+; L_DAB6 = $DAB6 + BEEB_HAZEL_OFFSET
+; L_DAAC = $DAAC + BEEB_HAZEL_OFFSET
+; L_DACB = $DACB + BEEB_HAZEL_OFFSET
+; L_DAD4 = $DAD4 + BEEB_HAZEL_OFFSET
+; L_DAFC = $DAFC + BEEB_HAZEL_OFFSET
+; L_DAF3 = $DAF3 + BEEB_HAZEL_OFFSET
 
-L_DB1B = $DB1B + BEEB_HAZEL_OFFSET
-L_DB54 = $DB54 + BEEB_HAZEL_OFFSET
-L_DB58 = $DB58 + BEEB_HAZEL_OFFSET
+; L_DB1B = $DB1B + BEEB_HAZEL_OFFSET
+; L_DB54 = $DB54 + BEEB_HAZEL_OFFSET
+; L_DB58 = $DB58 + BEEB_HAZEL_OFFSET
 ; L_DBDA = $DBDA + BEEB_HAZEL_OFFSET
 ; L_DBDB = $DBDB + BEEB_HAZEL_OFFSET
 ; L_DBCC = $DBCC + BEEB_HAZEL_OFFSET
@@ -916,11 +916,11 @@ GUARD .disksys_loadto_addr
 		dex				;40AD CA
 		bpl L_40A7		;40AE 10 F7         ; copy $80 bytes from $5780 to $C280
 
-		ldx #$0B		;40B0 A2 0B
-.L_40B2	lda L_DAB6,X	;40B2 BD B6 DA
-		sta L_C6C0,X	;40B5 9D C0 C6
-		dex				;40B8 CA
-		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
+; 		ldx #$0B		;40B0 A2 0B
+; .L_40B2	lda L_DAB6,X	;40B2 BD B6 DA
+; 		sta L_C6C0,X	;40B5 9D C0 C6
+; 		dex				;40B8 CA
+; 		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
 
 ; Blats $1F to a load of locations around $5CXX - screen RAM?
 
@@ -953,11 +953,11 @@ GUARD .disksys_loadto_addr
 
 ; More setup weirdness for COLOR RAM
 
-.L_411F	ldx #$0F		;411F A2 0F
-.L_4121	lda #$08		;4121 A9 08
-		sta L_DB54,X	;4123 9D 54 DB
-		dex				;4126 CA
-		bpl L_4121		;4127 10 F8     ; write 16 bytes COLOR RAM
+; .L_411F	ldx #$0F		;411F A2 0F
+; .L_4121	lda #$08		;4121 A9 08
+; 		sta L_DB54,X	;4123 9D 54 DB
+; 		dex				;4126 CA
+; 		bpl L_4121		;4127 10 F8     ; write 16 bytes COLOR RAM
 		
         lda #$21		;4129 A9 21
 		sta L_5EAC		;412B 8D AC 5E
@@ -967,11 +967,11 @@ GUARD .disksys_loadto_addr
 		sta L_5EF3		;4137 8D F3 5E
 		sta L_5F1B		;413A 8D 1B 5F  ; setup screen RAM?
 
-		lda #$0C		;413D A9 0C
-		sta L_DAD4		;413F 8D D4 DA
-		sta L_DAFC		;4142 8D FC DA
-		sta L_DAF3		;4145 8D F3 DA
-		sta L_DB1B		;4148 8D 1B DB  ; COLOR RAM
+		; lda #$0C		;413D A9 0C
+		; sta L_DAD4		;413F 8D D4 DA
+		; sta L_DAFC		;4142 8D FC DA
+		; sta L_DAF3		;4145 8D F3 DA
+		; sta L_DB1B		;4148 8D 1B DB  ; COLOR RAM
 
 		ldx #$00		;414B A2 00
 .L_414D	lda L_72E0,X	;414D BD E0 72
@@ -1060,10 +1060,8 @@ GUARD .disksys_loadto_addr
 		lda #0:sta _L_D700,x	; d7
 		lda #0:sta _L_D800,x	; d8
 		lda #0:sta _L_D900,x	; d9
-		lda L_5500,X	;421E BD 00 55
-		sta L_DA00,X	;4221 9D 00 DA
-		lda L_5600,X	;4224 BD 00 56
-		sta L_DB00,X	;4227 9D 00 DB
+		lda #0:sta _L_DA00,x	; da
+		lda #0:sta _L_DB00,x	; db
 		lda L_AE00,X	;422A BD 00 AE
 		sta L_DC00,X	;422D 9D 00 DC
 		lda L_7B00,X	;4230 BD 00 7B
@@ -1379,7 +1377,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
-ORG &5500
+ORG &5700
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 

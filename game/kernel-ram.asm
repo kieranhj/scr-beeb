@@ -2261,9 +2261,9 @@ jsr dash_reset
 \\
 .update_colour_map_always
 		jsr update_colour_map_with_sysctl		;3F70 20 30 2C
-		lda #$0C		;3F73 A9 0C
-		sta L_DAAC		;3F75 8D AC DA
-		sta L_DACB		;3F78 8D CB DA
+		; lda #$0C		;3F73 A9 0C
+		; sta L_DAAC		;3F75 8D AC DA
+		; sta L_DACB		;3F78 8D CB DA
 		lda #$00		;3F7B A9 00
 		sta L_C37A		;3F7D 8D 7A C3
 		sta L_C37B		;3F80 8D 7B C3

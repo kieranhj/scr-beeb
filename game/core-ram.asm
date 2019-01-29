@@ -430,11 +430,14 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 
 .L_3046_from_main_loop
 {
-		ldx #$0B		;3046 A2 0B
-.L_3048	lda L_C6C0,X	;3048 BD C0 C6
-		sta L_DAB6,X	;304B 9D B6 DA		; COLOR RAM
-		dex				;304E CA
-		bpl L_3048		;304F 10 F7
+; 		ldx #$0B		;3046 A2 0B
+; .L_3048
+; 		lda L_C6C0,X	;3048 BD C0 C6
+; 		sta L_DAB6,X	;304B 9D B6 DA		; COLOR RAM
+; 		dex				;304E CA
+; 		bpl L_3048		;304F 10 F7
+		
+		ldx #$ff
 		rts				;3051 60
 }
 
