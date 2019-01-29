@@ -1176,7 +1176,7 @@ jmp preview_restore_zp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-if TRUE
+if FALSE
 
 ._preview_add_background
 {
@@ -1191,29 +1191,43 @@ jsr preview_save_zp
 
 jsr clear_C600
 
+; Unpack background to top left of buffer 2.
+lda #$a0:sta preview_ZP_dest+0
+lda #$62:sta preview_ZP_dest+1
+
+ldy #0
+.unpack_loop
+sty y
+
+ldx preview_ZP_dest+0:ldy preview_ZP_dest+1:jsr PUCRUNCH_SET_OUTPOS
+
+ldy y
+ldx track_preview_bg_rows_LO,y
+lda track_preview_bg_rows_HI,y:tay
+jsr PUCRUNCH_UNPACK_TO_OUTPOS
+
+clc
+lda preview_ZP_dest+0:adc #$40:sta preview_ZP_dest+0
+lda preview_ZP_dest+1:adc #$01:sta preview_ZP_dest+1
+
+ldy y
+iny
+cpy #track_preview_bg_num_rows
+bne unpack_loop
+
 ldy #64
 
 .one_row
 
 sty y
 
-lda y
-sec:sbc #64
-lsr a:lsr a:lsr a
-pha
-
-lda y
-and #7
+; address of source row.
 clc
-adc #LO(preview_area_background_data)
-sta preview_ZP_src+0
+tya:adc Q_pointers_LO,y:sta preview_ZP_src+0
+lda Q_pointers_HI,y:adc #$20:sta preview_ZP_src+1
 
-pla
-adc #HI(preview_area_background_data)
-sta preview_ZP_src+1
-
+; address of left edge of preview area.
 clc
-; Point to left edge of preview area.
 tya:adc Q_pointers_LO,y:sta preview_ZP_dest+0
 lda Q_pointers_HI,y:adc #0:sta preview_ZP_dest+1
 
@@ -1264,7 +1278,7 @@ bne one_byte
 
 ldy y
 iny
-cpy #64+preview_area_background_height
+cpy #64+8*track_preview_bg_num_rows
 beq done
 jmp one_row
 .done

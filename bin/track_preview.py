@@ -64,7 +64,7 @@ def main(options):
     # Find last solid yellow line.
     while area[bg_height-1].count(3)==len(area[bg_height-1]): bg_height-=1
 
-    print 'bg_height=%d'%bg_height
+    # print 'bg_height=%d'%bg_height
 
     # Round up to an even number of rows.
     # bg_height=(bg_height+7)//8*8
@@ -101,7 +101,8 @@ def main(options):
     print '.track_preview_screen'
     print 'incbin "%s.pu"'%path
 
-    for row in range((bg_height+7)//8):
+    num_rows=(bg_height+7)//8
+    for row in range(num_rows):
         path='./build/beeb-preview-bg-%d.dat'%row
         
         with open(path,'wb') as f:
@@ -111,6 +112,12 @@ def main(options):
 
         print '.track_preview_bg_row_%d'%row
         print 'incbin "%s.pu"'%path
+
+    print 'track_preview_bg_num_rows=%d'%num_rows
+    for func in ['LO','HI']:
+        print '.track_preview_bg_rows_%s'%func
+        for row in range(num_rows):
+            print 'equb %s(track_preview_bg_row_%d)'%(func,row)
 
 ##########################################################################
 ##########################################################################
