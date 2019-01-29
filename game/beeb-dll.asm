@@ -121,8 +121,8 @@ ENDIF
 \\ Functions residing in Kernel module originally from Kernel RAM
 ; *****************************************************************************
 
-.kernel_L_E0F9_with_sysctl	DLL_CALL_KERNEL L_E0F9_with_sysctl, 0
-.kernel_L_E104 DLL_CALL_KERNEL L_E104, 1
+.kernel_silence_all_voices_with_sysctl	DLL_CALL_KERNEL silence_all_voices_with_sysctl, 0
+.kernel_L_E104_with_sid DLL_CALL_KERNEL L_E104_with_sid, 1
 .kernel_L_E195 DLL_CALL_KERNEL L_E195, 2
 .kernel_L_E1B1 DLL_CALL_KERNEL L_E1B1, 3
 .kernel_L_E4DA DLL_CALL_KERNEL L_E4DA, 4
@@ -201,7 +201,7 @@ ENDIF
 .kernel_accurate_sin BRK      ; only called from Kernel?
 .kernel_square_ay_32bit BRK    ; only called from Cart?
 .kernel_shift_16bit DLL_CALL_KERNEL shift_16bit, 69
-.kernel_L_CF68 DLL_CALL_KERNEL L_CF68, 70
+.kernel_play_sound_effect DLL_CALL_KERNEL play_sound_effect, 70
 .kernel_L_CF73 BRK      ; only called from Cart?
 .kernel_L_CFB7 DLL_CALL_KERNEL L_CFB7, 72
 .kernel_to_next_road_section DLL_CALL_KERNEL to_next_road_section, 73
@@ -217,8 +217,8 @@ ENDIF
 
 .kernel_table_LO
 {
-	EQUB LO(L_E0F9_with_sysctl)
-	EQUB LO(L_E104)
+	EQUB LO(silence_all_voices_with_sysctl)
+	EQUB LO(L_E104_with_sid)
 	EQUB LO(L_E195)
 	EQUB LO(L_E1B1)
 	EQUB LO(L_E4DA)
@@ -289,7 +289,7 @@ ENDIF
 	EQUB 0	; only called from Cart?
 	EQUB 0  ; only called from Cart?
 	EQUB LO(shift_16bit)
-	EQUB LO(L_CF68)
+	EQUB LO(play_sound_effect)
 	EQUB 0  ; only called from Cart?
 	EQUB LO(L_CFB7)
 	EQUB LO(to_next_road_section)
@@ -302,8 +302,8 @@ ENDIF
 
 .kernel_table_HI
 {
-	EQUB HI(L_E0F9_with_sysctl)
-	EQUB HI(L_E104)
+	EQUB HI(silence_all_voices_with_sysctl)
+	EQUB HI(L_E104_with_sid)
 	EQUB HI(L_E195)
 	EQUB HI(L_E1B1)
 	EQUB HI(L_E4DA)
@@ -374,7 +374,7 @@ ENDIF
 	EQUB 0	; only called from Cart?
 	EQUB 0	; only called from Cart?
 	EQUB HI(shift_16bit)
-	EQUB HI(L_CF68)
+	EQUB HI(play_sound_effect)
 	EQUB 0  ; only called from Cart?
 	EQUB HI(L_CFB7)
 	EQUB HI(to_next_road_section)
@@ -501,8 +501,8 @@ ENDIF
 
 .cart_write_char DLL_CALL_CART write_char, 0
 .cart_getch DLL_CALL_CART getch, 1
-.cart_sid_process DLL_CALL_CART sid_process, 2	; only called from Kernel
-.cart_sid_update DLL_CALL_CART sid_update, 3	; only called from Kernel
+.cart_sid_play_sound DLL_CALL_CART sid_play_sound, 2	; only called from Kernel
+.cart_sid_update_voice_2 DLL_CALL_CART sid_update_voice_2, 3	; only called from Kernel
 .cart_sysctl DLL_CALL_CART sysctl, 4
 .cart_print_3space DLL_CALL_CART print_3space, 5	; not required in DLL
 .cart_print_2space DLL_CALL_CART print_2space, 6
@@ -582,8 +582,8 @@ ENDIF
 {
 	EQUB LO(write_char)
 	EQUB LO(getch)
-	EQUB LO(sid_process)
-	EQUB LO(sid_update)
+	EQUB LO(sid_play_sound)
+	EQUB LO(sid_update_voice_2)
 	EQUB LO(sysctl)
 	EQUB LO(print_3space)
 	EQUB LO(print_2space)
@@ -660,8 +660,8 @@ ENDIF
 {
 	EQUB HI(write_char)
 	EQUB HI(getch)
-	EQUB HI(sid_process)
-	EQUB HI(sid_update)
+	EQUB HI(sid_play_sound)
+	EQUB HI(sid_update_voice_2)
 	EQUB HI(sysctl)
 	EQUB HI(print_3space)
 	EQUB HI(print_2space)

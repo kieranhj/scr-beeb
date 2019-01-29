@@ -546,7 +546,7 @@
 		lda L_C3BC		;0C66 AD BC C3
 		beq L_0C70		;0C69 F0 05
 		lda #$03		;0C6B A9 03
-		jsr L_CF68		;0C6D 20 68 CF
+		jsr play_sound_effect		;0C6D 20 68 CF
 .L_0C70	rts				;0C70 60
 }
 
@@ -1210,11 +1210,11 @@
 		lda #$40		;112B A9 40
 		sta L_C302		;112D 8D 02 C3
 .L_1130	lda #$20		;1130 A9 20
-		sta L_AF8C		;1132 8D 8C AF
+		sta sid_sfx1_freq_high		;1132 8D 8C AF
 		lda #$01		;1135 A9 01
 		bne L_113B		;1137 D0 02
 .L_1139	lda #$04		;1139 A9 04
-.L_113B	jsr L_CF68		;113B 20 68 CF
+.L_113B	jsr play_sound_effect		;113B 20 68 CF
 		lda #$00		;113E A9 00
 		sta L_C352		;1140 8D 52 C3
 .L_1143	rts				;1143 60
@@ -1787,7 +1787,7 @@ jsr dash_reset
 		dex				;21D5 CA
 		bpl L_21BA		;21D6 10 E2
 		lda #$02		;21D8 A9 02
-		jsr L_CF68		;21DA 20 68 CF
+		jsr play_sound_effect		;21DA 20 68 CF
 .L_21DD	rts				;21DD 60
 }
 
@@ -3760,7 +3760,12 @@ jsr dash_reset
 		rts				;CD5B 60
 }
 
-.L_CD5C			; in kernel
+; *****************************************************************************
+; C64 Interrupt Handler
+; *****************************************************************************
+
+IF _NOT_BEEB
+.irq_handler_cont			; in kernel
 {
 		lsr A			;CD5C 4A
 		bcc L_CD72		;CD5D 90 13
@@ -3794,11 +3799,6 @@ jsr dash_reset
 .L_CD9F	jmp set_raster_interrupt_line		;CD9F 4C 49 CF
 }
 
-; *****************************************************************************
-; C64 Interrupt Handler
-; *****************************************************************************
-
-IF _NOT_BEEB
 .irq_handler_done
 		lda CIA1_CIAICR		;CDA2 AD 0D DC
 		lda CIA2_C2DDRA		;CDA5 AD 0D DD
@@ -3817,7 +3817,7 @@ IF _NOT_BEEB
 
 		lda irq_mode		;CDB6 AD F8 3D
 		beq irq_handler_return		;CDB9 F0 ED
-		bpl L_CD5C		;CDBB 10 9F
+		bpl irq_handler_cont		;CDBB 10 9F
 
 		lda VIC_RASTER		;CDBD AD 12 D0
 		bpl L_CDC5		;CDC0 10 03
@@ -3932,7 +3932,6 @@ IF _NOT_BEEB
 		sta L_C37B		;CEAD 8D 7B C3
 		lda #$D7		;CEB0 A9 D7
 		jmp set_raster_interrupt_line		;CEB2 4C 49 CF
-ENDIF
 
 .place_dashboard_sprites
 {
@@ -3991,7 +3990,7 @@ ENDIF
 		sta SID_FRELO1		;CF2D 8D 00 D4	; SID
 		ror A			;CF30 6A
 		sta SID_FRELO3		;CF31 8D 0E D4	; SID
-		jsr cart_sid_update		;CF34 20 EF 86
+		jsr cart_sid_update_voice_2		;CF34 20 EF 86
 		lda ZP_5F		;CF37 A5 5F
 		clc				;CF39 18
 		adc ZP_5D		;CF3A 65 5D
@@ -4014,6 +4013,7 @@ ENDIF
 		pla				;CF54 68
 		rti				;CF55 40
 }
+ENDIF
 
 \\ Dashboard sprite positions
 .L_140D	equb $3C
@@ -4029,15 +4029,16 @@ ENDIF
 .L_CF60	equb $6B,$6C,$6E,$5F,$6F,$FD
 .L_CF66	equb $C8,$C9
 
-.L_CF68
+; A=index into SFX data
+.play_sound_effect
 {
 		asl A			;CF68 0A
 		asl A			;CF69 0A
 		asl A			;CF6A 0A
-		adc #LO(L_AF80)		;CF6B 69 80
+		adc #LO(sid_sound_data)		;CF6B 69 80
 		tax				;CF6D AA
-		ldy #HI(L_AF80)		;CF6E A0 AF
-		jmp cart_sid_process		;CF70 4C 55 86
+		ldy #HI(sid_sound_data)		;CF6E A0 AF
+		jmp cart_sid_play_sound		;CF70 4C 55 86
 }
 
 .L_CFB7
@@ -4103,7 +4104,7 @@ ENDIF
 
 \\ Data removed
 
-.L_E0F9_with_sysctl
+.silence_all_voices_with_sysctl
 {
 		ldx #$02		;E0F9 A2 02
 .L_E0FB	lda #$15		;E0FB A9 15
@@ -4113,7 +4114,7 @@ ENDIF
 		rts				;E103 60
 }
 
-.L_E104
+.L_E104_with_sid
 {
 		lda ZP_6A		;E104 A5 6A
 		bne L_E116		;E106 D0 0E
@@ -4172,7 +4173,11 @@ ENDIF
 		lda #$FF		;E16E A9 FF
 .L_E170	sta ZP_11		;E170 85 11
 		stx ZP_10		;E172 86 10
-.L_E174	jsr rndQ		;E174 20 B9 29
+.L_E174
+
+\\ Update Pulse Width for voices 1 & 3 - engine note
+
+		jsr rndQ		;E174 20 B9 29
 		and #$3F		;E177 29 3F
 		sta SID_PWLO1		;E179 8D 02 D4	; SID
 		sta SID_PWLO3		;E17C 8D 10 D4
@@ -4185,7 +4190,16 @@ ENDIF
 		adc #$20		;E189 69 20
 		cmp #$6E		;E18B C9 6E
 		bcs L_E191		;E18D B0 02
+
 		lda #$6E		;E18F A9 6E
+
+	\\ Filter Resonance Control Register
+	; Bit 0:  Filter the output of voice 1?  1=yes
+	; Bit 1:  Filter the output of voice 2?  1=yes
+	; Bit 2:  Filter the output of voice 3?  1=yes
+	; Bit 3:  Filter the output from the external input?  1=yes
+	; Bits 4-7:  Select filter resonance 0-15
+	
 .L_E191	sta SID_CUTHI		;E191 8D 16 D4
 		rts				;E194 60
 }

@@ -230,12 +230,42 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 
     INC irq_part
 
+    \\ An audio test...
+    TXA:PHA:TYA:PHA
+    JSR irq_audio_update
+    PLA:TAY:PLA:TAX
+
     .irq_return
     LDA &FC
     RTI
 
     .irq_part
     EQUB 0
+}
+
+.irq_audio_update
+{
+		lda ZP_09		;CF0F A5 09
+		clc				;CF11 18
+		adc ZP_10		;CF12 65 10
+		tax				;CF14 AA
+		lda ZP_0A		;CF15 A5 0A
+		adc ZP_11		;CF17 65 11
+		bpl L_CF1E		;CF19 10 03
+		lda #$00		;CF1B A9 00
+		tax				;CF1D AA
+.L_CF1E	sta ZP_0A		;CF1E 85 0A
+		sta SID_FREHI1		;CF20 8D 01 D4	; SID
+		stx ZP_09		;CF23 86 09
+		lsr A			;CF25 4A
+		sta SID_FREHI3		;CF26 8D 0F D4	; SID
+		lda ZP_09		;CF29 A5 09
+		and #$FE		;CF2B 29 FE
+		sta SID_FRELO1		;CF2D 8D 00 D4	; SID
+		ror A			;CF30 6A
+		sta SID_FRELO3		;CF31 8D 0E D4	; SID
+		jsr sid_update_voice_2		;CF34 20 EF 86
+        rts
 }
 
 .vsync_counter

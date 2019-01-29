@@ -374,13 +374,21 @@ L_AEC1 = L_AEC0 + 1
 		equb "HIGH JUMP       "
 		equb "ROLLER COASTER  "
 
-\\ This data is unknown so far! - used by sid_process
-.L_AF80
-		equb $01,$41,$05,$00,$50,$98,$04,$80,$01,$81,$0F,$E0
-.L_AF8C	equb $64,$08,$1E,$80,$01,$81,$0F,$E0,$14,$08,$1E,$80,$01,$81,$00,$F0
-		equb $03,$08,$03,$80,$01,$41,$02,$00,$64,$98,$01,$80,$02,$00,$00,$FF
-		equb $50,$07,$FF,$80,$00,$00,$00,$CF,$50,$07,$FF,$80,$FF,$20,$E0,$FF
-		equb $4C,$D8,$AE,$20
+\\ This data is unknown so far! - used by sid_play_sound
+;L_AF80
+.sid_sound_data
+		equb $01,$41,$05,$00,$50,$98,$04,$80		; sfx #0 - confirm?
+		equb $01,$81,$0F,$E0
+.sid_sfx1_freq_high	\\ Used in crash effect
+		equb $64,$08,$1E,$80						; sfx #1 - crash?
+
+		equb $01,$81,$0F,$E0,$14,$08,$1E,$80		; sfx #2 - game update?
+		equb $01,$81,$00,$F0,$03,$08,$03,$80		; sfx #3 - game update?
+		equb $01,$41,$02,$00,$64,$98,$01,$80		; sfx #4 - damage?
+		equb $02,$00,$00,$FF,$50,$07,$FF,$80		; sfx #5 - pause?
+		equb $00,$00,$00,$CF,$50,$07,$FF,$80		; sfx #6 - pause?
+		equb $FF,$20,$E0,$FF,$4C,$D8,$AE,$20		; not valid sound data
+
 .L_AFC0	equb $16,$14,$02
 .L_AFC3	equb $18,$0F,$04
 .L_AFC6	equb $17,$15,$03

@@ -728,103 +728,114 @@ ENDIF
 ; SID
 ; *****************************************************************************
 
-.sid_process				; only called from Kernel? Fandal says sound effects
+.sid_play_sound				; only called from Kernel? Fandal says sound effects
 {
-IF _NOT_BEEB
+	\\ Address of SID data (e.g. L_AF80)
 		stx ZP_F8		;8655 86 F8
 		sty ZP_F9		;8657 84 F9
+
+	\\ Byte 0 = voice# for this data
 		ldy #$00		;8659 A0 00
 		lda (ZP_F8),Y	;865B B1 F8
 		tax				;865D AA
-		sta L_86C6		;865E 8D C6 86
+		sta sid_current_voice		;865E 8D C6 86
+
+	\\ Set flag to not update voice in vsync handler
 		lda #$80		;8661 A9 80
-		sta L_86C8_sid,X	;8663 9D C8 86
-		lda L_86DC_sid,X	;8666 BD DC 86
+		sta sid_voice_flags,X	;8663 9D C8 86
+
+	\\ SID register offset for voice#
+		lda sid_vcreg_offset,X	;8666 BD DC 86
 		tax				;8669 AA
+
+	\\ Byte 1 = SID voice control register 
+	; Bit 0:  Gate Bit:  1=Start attack/decay/sustain, 0=Start release
+	; Bit 1:  Sync Bit:  1=Synchronize Oscillator with Oscillator 3 frequency
+	; Bit 2:  Ring Modulation:  1=Ring modulate Oscillators 1 and 3
+	; Bit 3:  Test Bit:  1=Disable Oscillator 1
+	; Bit 4:  Select triangle waveform
+	; Bit 5:  Select sawtooth waveform
+	; Bit 6:  Select pulse waveform
+	; Bit 7:  Select random noise waveform
+
 		ldy #$01		;866A A0 01
 		lda (ZP_F8),Y	;866C B1 F8
+		; Mask out Gate bit
 		and #$FE		;866E 29 FE
 		sta SID_VCREG1,X	;8670 9D 04 D4	; SID
+
+	\\ Byte 2 = Attack/Decay Register
+	; Bits 0-3:  Select decay cycle duration (0-15)
+	; Bits 4-7:  Select attack cycle duration (0-15)
+
 		ldy #$02		;8673 A0 02
 		lda (ZP_F8),Y	;8675 B1 F8
 		sta SID_ATDCY1,X	;8677 9D 05 D4	; SID
+
+	\\ Byte 3 = Sustain/Release Control Register
+	; Bits 0-3:  Select release cycle duration (0-15)
+	; Bits 4-7:  Select sustain volume level (0-15)
 		iny				;867A C8
 		lda (ZP_F8),Y	;867B B1 F8
 		sta SID_SUREL1,X	;867D 9D 06 D4	; SID
+
+	\\ Zero Pulse Waveform Width (low byte)
+	\\ Zero Frequency Control (low byte)
 		lda #$00		;8680 A9 00
 		sta SID_PWLO1,X	;8682 9D 02 D4	; SID
 		sta SID_FRELO1,X	;8685 9D 00 D4	; SID
+
+	\\ Byte 5 = Pulse Waveform Width (high nybble)
 		ldy #$05		;8688 A0 05
 		lda (ZP_F8),Y	;868A B1 F8
-		sta L_86C5		;868C 8D C5 86
+		sta sid_pulse_waveform_width		;868C 8D C5 86
 		and #$0F		;868F 29 0F
 		sta SID_PWHI1,X	;8691 9D 03 D4	; SID
+
+	\\ Byte 4 = Frequency Control (high byte)
 		ldy #$04		;8694 A0 04
 		lda (ZP_F8),Y	;8696 B1 F8
 		sta SID_FREHI1,X	;8698 9D 01 D4	; SID
+
+	\\ Byte 1 = SID voice control register 
+	; Keep Gate bit masked in
 		ldy #$01		;869B A0 01
 		lda (ZP_F8),Y	;869D B1 F8
 		sta SID_VCREG1,X	;869F 9D 04 D4	; SID
-		ldx L_86C6		;86A2 AE C6 86
+
+	\\ Remember current voice 1/2
+		ldx sid_current_voice		;86A2 AE C6 86
 		and #$FE		;86A5 29 FE
-		sta L_86D8_sid,X	;86A7 9D D8 86
+		sta sid_voice_control,X	;86A7 9D D8 86
+
+	\\ Byte 4 = Frequency Control (high byte)
 		ldy #$04		;86AA A0 04
 		lda (ZP_F8),Y	;86AC B1 F8
-		sta L_86CC_sid,X	;86AE 9D CC 86
+		sta sid_voice_freq_control,X	;86AE 9D CC 86
+
+	\\ Byte 3 = Sustain/Release Control Register
+	; Bits 0-3:  Select release cycle duration (0-15)
 		dey				;86B1 88
 		lda (ZP_F8),Y	;86B2 B1 F8
 		and #$0F		;86B4 29 0F
 		tay				;86B6 A8
-		lda L_86DF,Y	;86B7 B9 DF 86
-		sta L_86DO_sid,X	;86BA 9D D0 86
+		lda sid_release_cycle_to_vsyncs,Y	;86B7 B9 DF 86
+		sta sid_voice_release_time,X	;86BA 9D D0 86
+
 		ldy #$06		;86BD A0 06
 		lda (ZP_F8),Y	;86BF B1 F8
-		sta L_86C8_sid,X	;86C1 9D C8 86
-ENDIF
+		sta sid_voice_flags,X	;86C1 9D C8 86
 		rts				;86C4 60
 
-.L_86C5	equb $00
-.L_86C6	equb $00,$00
+.sid_pulse_waveform_width
+	equb $00
 
-.L_86DF	equb $01,$02,$03,$03,$06,$09,$0B,$0C,$0F,$26,$4B,$78,$96,$FF,$FF,$FF
-}
+.sid_current_voice
+	equb $00,$00
 
-.L_86C8_sid	equb $00,$00,$00,$00
-.L_86CC_sid	equb $00,$00,$00,$00
-.L_86DO_sid	equb $00,$00,$00,$00
-.L_86D4_sid	equb $00,$00,$00,$00
-.L_86D8_sid	equb $00,$00,$00,$00
-.L_86DC_sid	equb $00,$07,$0E
-
-.sid_update			; only called from Kernel?
-{
-		ldx #$01		;86EF A2 01
-		lda L_86C8_sid,X	;86F1 BD C8 86
-		beq L_870C		;86F4 F0 16
-		bmi L_8724		;86F6 30 2C
-		dec L_86C8_sid,X	;86F8 DE C8 86
-		bne L_8724		;86FB D0 27
-		ldy L_86DC_sid,X	;86FD BC DC 86
-		lda L_86D8_sid,X	;8700 BD D8 86
-		sta SID_VCREG1,Y	;8703 99 04 D4	; SID
-		lda L_86DO_sid,X	;8706 BD D0 86
-		sta L_86D4_sid,X	;8709 9D D4 86
-.L_870C	lda L_86D4_sid,X	;870C BD D4 86
-		beq L_8724		;870F F0 13
-		dec L_86D4_sid,X	;8711 DE D4 86
-		bne L_8724		;8714 D0 0E
+.sid_release_cycle_to_vsyncs
+	equb $01,$02,$03,$03,$06,$09,$0B,$0C,$0F,$26,$4B,$78,$96,$FF,$FF,$FF
 }
-\\
-.silence_channel		; in Cart - only called from sysctl
-{
-		ldy L_86DC_sid,X	;8716 BC DC 86
-		lda #$00		;8719 A9 00
-		sta L_86C8_sid,X	;871B 9D C8 86
-		sta SID_SUREL1,Y	;871E 99 06 D4	; SID
-		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
-}
-\\
-.L_8724	rts				;8724 60
 
 ; *****************************************************************************
 ; LIBRARIES ETC.
@@ -942,7 +953,7 @@ ENDIF
 .not_81
 		cmp #$15		;876D C9 15
 		bne not_15
-		jmp silence_channel
+		jmp sid_silence_voice
 .not_15
 		cmp #$32		;8771 C9 32
 		bne not_32
@@ -2901,7 +2912,7 @@ rts
 		jmp L_97B7		;97FC 4C B7 97
 .L_97FF	sta control_keys,Y	;97FF 99 07 F8
 .L_9802	lda #$00		;9802 A9 00
-		jsr kernel_L_CF68		;9804 20 68 CF
+		jsr kernel_play_sound_effect		;9804 20 68 CF
 .L_9807	ldx ZP_17		;9807 A6 17
 		jsr poll_key_with_sysctl		;9809 20 C9 C7
 		beq L_9807		;980C F0 F9
@@ -6385,12 +6396,12 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 {
 		clc				;2CAB 18
 		adc #$02		;2CAC 69 02
-		sta L_AF8C		;2CAE 8D 8C AF
+		sta sid_sfx1_freq_high		;2CAE 8D 8C AF
 		stx ZP_2C		;2CB1 86 2C
 		lda ZP_6A		;2CB3 A5 6A
 		beq L_2C64		;2CB5 F0 AD
 		lda #$01		;2CB7 A9 01
-		jsr kernel_L_CF68		;2CB9 20 68 CF
+		jsr kernel_play_sound_effect		;2CB9 20 68 CF
 		ldx ZP_2C		;2CBC A6 2C
 .L_2CBE	jsr L_2D3D		;2CBE 20 3D 2D
 		bne L_2CDD		;2CC1 D0 1A

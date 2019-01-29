@@ -1252,14 +1252,14 @@ NEXT
 		ldy #$03		;3CF7 A0 03
 		jsr delay_approx_Y_25ths_sec		;3CF9 20 EB 3F
 		jsr ensure_screen_enabled		;3CFC 20 9E 3F
-		jsr L_3F27_with_SID		;3CFF 20 27 3F
+		jsr restore_sound_after_pauseQ		;3CFF 20 27 3F
 		jsr L_3046_from_main_loop		;3D02 20 46 30
 
 .inner_loop
 		dec L_C30C		;3D05 CE 0C C3
 		jsr cart_L_1C64_with_keys		;3D08 20 64 1C
 		jsr kernel_game_update		;3D0B 20 41 08
-		jsr kernel_L_E104		;3D0E 20 04 E1
+		jsr kernel_L_E104_with_sid		;3D0E 20 04 E1
 		jsr cart_draw_trackQ		;3D11 20 7A 16
 		jsr cart_L_2C6F_from_main_loop		;3D14 20 6F 2C
 		jsr cart_L_14D0_from_main_loop		;3D17 20 D0 14
@@ -1323,7 +1323,7 @@ NEXT
 		inc L_C368		;3D85 EE 68 C3
 		lda ZP_6C		;3D88 A5 6C			; End of game Timer
 		bne L_3D95		;3D8A D0 09
-		jsr kernel_L_E0F9_with_sysctl		;3D8C 20 F9 E0
+		jsr kernel_silence_all_voices_with_sysctl		;3D8C 20 F9 E0
 		ldx L_C309		;3D8F AE 09 C3
 		jmp setup_car		;3D92 4C C6 3C
 
@@ -1347,7 +1347,7 @@ NEXT
 		lda #$00		;3DBA A9 00
 		sta irq_mode		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
-		jsr kernel_L_E0F9_with_sysctl		;3DC2 20 F9 E0
+		jsr kernel_silence_all_voices_with_sysctl		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7
 		bpl L_3DE7		;3DC8 10 1D
 		lda L_31A1		;3DCA AD A1 31
@@ -1441,7 +1441,7 @@ NEXT
 		sta ZP_33		;3E6E 85 33
 		lda #$78		;3E70 A9 78
 		sta ZP_3C		;3E72 85 3C
-		jsr kernel_L_E0F9_with_sysctl		;3E74 20 F9 E0
+		jsr kernel_silence_all_voices_with_sysctl		;3E74 20 F9 E0
 		lda #$04		;3E77 A9 04
 		sta L_C354		;3E79 8D 54 C3
 		ldy #$09		;3E7C A0 09
@@ -1507,7 +1507,7 @@ NEXT
 		beq L_3EED		;3EEA F0 01
 .L_3EEC	rts				;3EEC 60
 
-.L_3EED	jsr kernel_L_E0F9_with_sysctl		;3EED 20 F9 E0
+.L_3EED	jsr kernel_silence_all_voices_with_sysctl		;3EED 20 F9 E0
 		lda #$00		;3EF0 A9 00
 		sta ZP_10		;3EF2 85 10
 		sta ZP_11		;3EF4 85 11
@@ -1532,21 +1532,34 @@ NEXT
 		tay				;3F1C A8 <<reinstate last text sprite>>
 		pla				;3F1D 68
 		sta L_C355		;3F1E 8D 55 C3
-		bpl L_3F27_with_SID		;3F21 10 04
+		bpl restore_sound_after_pauseQ		;3F21 10 04
 		txa				;3F23 8A
 		jsr kernel_set_up_text_sprite		;3F24 20 A9 12
 }
 \\
-.L_3F27_with_SID
+.restore_sound_after_pauseQ
 {
 		lda #$06		;3F27 A9 06
-		jsr kernel_L_CF68		;3F29 20 68 CF
+		jsr kernel_play_sound_effect		;3F29 20 68 CF
 		lda #$05		;3F2C A9 05
-		jsr kernel_L_CF68		;3F2E 20 68 CF
-		jsr kernel_L_E104		;3F31 20 04 E1
+		jsr kernel_play_sound_effect		;3F2E 20 68 CF
+		jsr kernel_L_E104_with_sid		;3F31 20 04 E1
+
+	\\ Voice 1 Control Register
+	; Bit 0:  Gate Bit:  1=Start attack/decay/sustain, 0=Start release
+	; Bit 6:  Select pulse waveform
+
 		lda #$41		;3F34 A9 41
 		sta SID_VCREG1		;3F36 8D 04 D4	; SID
 		sta SID_VCREG3		;3F39 8D 12 D4
+
+	\\ Volume and Filter Select Register
+	; Bits 0-3:  Select output volume (0-15)
+	; Bit 4:  Select low-pass filter, 1=low-pass on
+	; Bit 5:  Select band-pass filter, 1=band-pass on
+	; Bit 6:  Select high-pass filter, 1=high-pass on
+	; Bit 7:  Disconnect output of voice 4, 1=voice 3 off
+
 		lda #$F5		;3F3C A9 F5
 		sta SID_SIGVOL		;3F3E 8D 18 D4
 		rts				;3F41 60
@@ -1655,7 +1668,7 @@ ENDIF
 }
 
 \\ Moved from Cart RAM
-
+IF 0
 .nmi_handler		; C64 only
 {
 		pha				;9A32 48
@@ -1663,6 +1676,7 @@ ENDIF
 		pla				;9A36 68
 		rti				;9A37 40
 }
+ENDIF
 
 \\ Moved from Hazel RAM
 
@@ -1683,5 +1697,46 @@ ENDIF
 		rts				;C7D6 60
 }
 \\ NB. can't be put in DLL as sets flag on exit
+
+.sid_voice_flags	equb $00,$00,$00,$00
+.sid_voice_freq_control	equb $00,$00,$00,$00
+.sid_voice_release_time	equb $00,$00,$00,$00
+.sid_voice_release_timer	equb $00,$00,$00,$00
+.sid_voice_control	equb $00,$00,$00,$00
+.sid_vcreg_offset	equb $00,$07,$0E	; VCREG1, VCREG2, VCREG3
+
+.sid_update_voice_2			; only called from Kernel?
+{
+		ldx #$01		;86EF A2 01
+		lda sid_voice_flags,X	;86F1 BD C8 86
+		beq L_870C		;86F4 F0 16
+		bmi sid_return		;86F6 30 2C
+
+		dec sid_voice_flags,X	;86F8 DE C8 86
+		bne sid_return		;86FB D0 27
+
+		ldy sid_vcreg_offset,X	;86FD BC DC 86
+		lda sid_voice_control,X	;8700 BD D8 86
+		sta SID_VCREG1,Y	;8703 99 04 D4	; SID
+
+		lda sid_voice_release_time,X	;8706 BD D0 86
+		sta sid_voice_release_timer,X	;8709 9D D4 86
+
+.L_870C	lda sid_voice_release_timer,X	;870C BD D4 86
+		beq sid_return		;870F F0 13
+		dec sid_voice_release_timer,X	;8711 DE D4 86
+		bne sid_return		;8714 D0 0E
+}
+\\
+.sid_silence_voice		; in Cart - only called from sysctl
+{
+		ldy sid_vcreg_offset,X	;8716 BC DC 86
+		lda #$00		;8719 A9 00
+		sta sid_voice_flags,X	;871B 9D C8 86
+		sta SID_SUREL1,Y	;871E 99 06 D4	; SID
+		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
+}
+\\
+.sid_return	rts				;8724 60
 
 .core_end
