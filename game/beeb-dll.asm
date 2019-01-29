@@ -553,7 +553,7 @@ ENDIF
 
 .cart_L_2C64 DLL_CALL_CART L_2C64, 50
 .cart_L_2C6F_from_main_loop DLL_CALL_CART L_2C6F_from_main_loop, 51
-.cart_draw_track_preview_border DLL_CALL_CART draw_track_preview_border, 52
+; 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
 .cart_do_end_of_race_screen DLL_CALL_CART do_end_of_race_screen, 55	; not required in DLL
@@ -566,7 +566,7 @@ ENDIF
 .cart_prep_menu_graphics DLL_CALL_CART prep_menu_graphics, 62
 .cart_set_up_colour_map_for_track_preview DLL_CALL_CART set_up_colour_map_for_track_preview, 63
 
-.cart_start_of_frame DLL_CALL_CART start_of_frame, 64
+.start_of_frame_track_preview DLL_CALL_CART _start_of_frame_track_preview, 64
 .cart_print_single_digit DLL_CALL_CART print_single_digit, 65
 .cart_print_msg_1 DLL_CALL_CART print_msg_1, 66
 .cart_print_msg_4 DLL_CALL_CART print_msg_4, 67
@@ -634,7 +634,7 @@ ENDIF
 
 	EQUB LO(L_2C64)
 	EQUB LO(L_2C6F_from_main_loop)
-	EQUB LO(draw_track_preview_border)
+	EQUB 0 ; 52
 	EQUB LO(draw_track_preview_track_name)
 	EQUB LO(do_initial_screen)
 	EQUB LO(do_end_of_race_screen)
@@ -647,7 +647,7 @@ ENDIF
 	EQUB LO(prep_menu_graphics)
 	EQUB LO(set_up_colour_map_for_track_preview)
 
-	EQUB LO(start_of_frame)
+	EQUB LO(_start_of_frame_track_preview)
 	EQUB LO(print_single_digit)
 	EQUB LO(print_msg_1)
 	EQUB LO(print_msg_4)
@@ -712,7 +712,7 @@ ENDIF
 
 	EQUB HI(L_2C64)
 	EQUB HI(L_2C6F_from_main_loop)
-	EQUB HI(draw_track_preview_border)
+	EQUB 0 ; 52
 	EQUB HI(draw_track_preview_track_name)
 	EQUB HI(do_initial_screen)
 	EQUB HI(do_end_of_race_screen)
@@ -725,7 +725,7 @@ ENDIF
 	EQUB HI(prep_menu_graphics)
 	EQUB HI(set_up_colour_map_for_track_preview)
 
-	EQUB HI(start_of_frame)
+	EQUB HI(_start_of_frame_track_preview)
 	EQUB HI(print_single_digit)
 	EQUB HI(print_msg_1)
 	EQUB HI(print_msg_4)
@@ -862,8 +862,7 @@ ENDIF
 .dash_update_best_lap_time DLL_CALL_GRAPHICS _dash_update_best_lap_time, 10
 .dash_update_flag_icon DLL_CALL_GRAPHICS _dash_update_flag_icon, 11
 .dash_update_stopwatch_icon DLL_CALL_GRAPHICS _dash_update_stopwatch_icon, 12
-.preview_draw_border DLL_CALL_GRAPHICS _preview_draw_border, 13
-.preview_fix_up_cleared_screen DLL_CALL_GRAPHICS _preview_fix_up_cleared_screen, 14
+.preview_draw_screen DLL_CALL_GRAPHICS _preview_draw_screen, 13
 .preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
 .graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
 .graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 17
@@ -887,8 +886,8 @@ ENDIF
 	EQUB LO(_dash_update_best_lap_time)			; 10
 	EQUB LO(_dash_update_flag_icon)				; 11
 	EQUB LO(_dash_update_stopwatch_icon)		; 12
-	EQUB LO(_preview_draw_border)				; 13
-	EQUB LO(_preview_fix_up_cleared_screen)		; 14
+	EQUB LO(_preview_draw_screen)				; 13
+	EQUB 0										; 14
 	EQUB LO(_preview_add_background)			; 15
 	EQUB LO(_graphics_draw_debug_framerate)		; 16
 	EQUB LO(_graphics_unpack_menu_screen)		; 17
@@ -909,8 +908,8 @@ ENDIF
 	EQUB HI(_dash_update_best_lap_time)			; 10
 	EQUB HI(_dash_update_flag_icon)				; 11
 	EQUB HI(_dash_update_stopwatch_icon)		; 12
-	EQUB HI(_preview_draw_border)				; 13
-	EQUB HI(_preview_fix_up_cleared_screen)		; 14
+	EQUB HI(_preview_draw_screen)				; 13
+	EQUB 0										; 14
 	EQUB HI(_preview_add_background)			; 15
 	EQUB HI(_graphics_draw_debug_framerate)		; 16
 	EQUB HI(_graphics_unpack_menu_screen)		; 17

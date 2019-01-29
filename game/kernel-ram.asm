@@ -6641,7 +6641,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta ZP_12		;F3AE 85 12
 		lda #$B8		;F3B0 A9 B8
 		sta ZP_33		;F3B2 85 33
-		jsr cart_start_of_frame		;F3B4 20 4D 16
+		jsr start_of_frame_track_preview		;F3B4 20 4D 16
 		ldx #$7F		;F3B7 A2 7F
 		lda #$C0		;F3B9 A9 C0
 .L_F3BB	sta L_C640,X	;F3BB 9D 40 C6
@@ -6654,7 +6654,6 @@ L_EBDD	= L_EBE7 - $A			;!
 		sta $5560,X	    ;F3CB 9D 60 55
 		dex				;F3CE CA
 		bne L_F3C5		;F3CF D0 F4
-		jsr preview_fix_up_cleared_screen
 		jsr ensure_screen_enabled		;F3D1 20 9E 3F
 		lda #$0B		;F3D4 A9 0B
 		sta L_262B		;F3D6 8D 2B 26	_SELF_MOD to L_25EA in Core

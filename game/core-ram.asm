@@ -1178,7 +1178,7 @@ NEXT
 		; lda #$03		;3C57 A9 03			; 'MODE 3'
 		; jsr cart_sysctl		;3C59 20 25 87
 		jsr cart_set_up_colour_map_for_track_preview		;3C5C 20 77 3A
-		jsr cart_draw_track_preview_border		;3C5F 20 03 2F
+		; jsr cart_draw_track_preview_border		;3C5F 20 03 2F
 		jsr cart_draw_track_preview_track_name		;3C62 20 CE 2F
 		jsr L_3EA8		;3C65 20 A8 3E
 		ldx current_track		;3C68 AE 7D C7

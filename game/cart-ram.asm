@@ -4062,7 +4062,23 @@ rts
 .L_1643	equb $B1,$86,$77,$8F,$8D
 .L_1648	equb $B1,$65,$3B,$17,$3B
 
-.start_of_frame		; in Cart
+; .start_of_frame_in_game			; in Cart
+; {
+; jsr start_of_frame_clear_tables
+; jsr clear_screen_with_sysctl
+; jmp start_of_frame_finish
+; }
+
+._start_of_frame_track_preview
+{
+jsr start_of_frame_clear_tables
+jsr preview_draw_screen
+jmp start_of_frame_finish
+}
+
+; It's possible these two little routines could be merged, but L_F1DC
+; is a bit involved, and I'm not feeling very daring...
+.start_of_frame_clear_tables
 {
 		ldx #$3F		;164D A2 3F
 .L_164F	lda L_C280,X	;164F BD 80 C2
@@ -4074,7 +4090,11 @@ rts
 		sta L_02C0,X	;1660 9D C0 02
 		dex				;1663 CA
 		bpl L_164F		;1664 10 E9
-		jsr clear_screen_with_sysctl		;1666 20 23 2C
+		rts
+}
+
+.start_of_frame_finish
+{
 		jsr kernel_L_F1DC		;1669 20 DC F1
 		lda #$00		;166C A9 00
 		sta L_C3A9		;166E 8D A9 C3
@@ -4089,7 +4109,9 @@ rts
 
 .draw_trackQ		; HAS DLL
 {
-		jsr start_of_frame		;167A 20 4D 16
+		jsr start_of_frame_clear_tables
+		jsr clear_screen_with_sysctl
+		jsr start_of_frame_finish
 		lda ZP_2F		;167D A5 2F
 		bne L_1688		;167F D0 07
 		bit ZP_6B		;1681 24 6B
@@ -6489,11 +6511,6 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		sta ZP_1F		;2D84 85 1F
 		lda (ZP_1E),Y	;2D86 B1 1E
 		rts				;2D88 60
-}
-
-.draw_track_preview_border			; called from game_start
-{
-jmp preview_draw_border
 }
 
 .draw_track_preview_track_name			; called from game_start

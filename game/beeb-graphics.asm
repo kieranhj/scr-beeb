@@ -1160,71 +1160,15 @@ rts
 rts
 }
 
-.preview_copy_horizontal
-{
-ldy #255
-
-jsr copy
-inc preview_ZP_src+1:inc preview_ZP_dest+1
-
-jsr copy
-inc preview_ZP_src+1:inc preview_ZP_dest+1
-
-ldy #127
-.copy
-.copy128_loop
-lda (preview_ZP_src),y:sta (preview_ZP_dest),y
-dey:cpy #$ff:bne copy128_loop
-rts
-}
-
-.preview_copy_vertical
-{
-ldx #16
-.rows_loop
-ldy #31
-.row_loop
-lda (preview_ZP_src),y:sta (preview_ZP_dest),y
-dey:bpl row_loop
-
-clc
-lda preview_ZP_src+0:adc #32:sta preview_ZP_src+0:bcc src_done:inc preview_ZP_src+1:.src_done
-
-clc
-lda preview_ZP_dest+0:adc #$40:sta preview_ZP_dest+0
-lda preview_ZP_dest+1:adc #$01:sta preview_ZP_dest+1
-
-dex:bne rows_loop
-rts
-}
-
-._preview_draw_border
+._preview_draw_screen
 {
 jsr preview_save_zp
 
-lda #LO(top_border_data):sta preview_ZP_src+0
-lda #HI(top_border_data):sta preview_ZP_src+1
-lda #$00:sta preview_ZP_dest+0
-lda #$40:sta preview_ZP_dest+1
-jsr preview_copy_horizontal
+lda #$40
+ldx #LO(track_preview_screen)
+ldy #HI(track_preview_screen)
 
-lda #LO(bottom_border_data):sta preview_ZP_src+0
-lda #HI(bottom_border_data):sta preview_ZP_src+1
-lda #$80:sta preview_ZP_dest+0
-lda #$56:sta preview_ZP_dest+1
-jsr preview_copy_horizontal
-
-lda #LO(left_border_data):sta preview_ZP_src+0
-lda #HI(left_border_data):sta preview_ZP_src+1
-lda #$80:sta preview_ZP_dest+0
-lda #$42:sta preview_ZP_dest+1
-jsr preview_copy_vertical
-
-lda #LO(right_border_data):sta preview_ZP_src+0
-lda #HI(right_border_data):sta preview_ZP_src+1
-lda #$a0:sta preview_ZP_dest+0
-lda #$43:sta preview_ZP_dest+1
-jsr preview_copy_vertical
+jsr PUCRUNCH_UNPACK
 
 jmp preview_restore_zp
 }
@@ -1232,20 +1176,14 @@ jmp preview_restore_zp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-._preview_fix_up_cleared_screen
-{
-ldx #0
-.clear_lines_loop
-lda #0
-sta $42a0,x
-sta $5567,x
-clc:txa:adc #8:tax:bne clear_lines_loop
+if TRUE
 
-jmp preview_initialise_corners
+._preview_add_background
+{
+rts
 }
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+else
 
 ._preview_add_background
 {
@@ -1352,6 +1290,8 @@ rts
 .src_index:equb 0
 .x:equb 0
 }
+
+endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
