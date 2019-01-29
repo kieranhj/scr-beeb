@@ -210,6 +210,8 @@ ENDIF
 
 .kernel_select_track DLL_CALL_KERNEL select_track, 76
 .kernel_print_division_table DLL_CALL_KERNEL print_division_table, 77
+.kernel_set_up_screen_for_frontend DLL_CALL_KERNEL set_up_screen_for_frontend, 78
+.kernel_L_3EB6_from_main_loop DLL_CALL_KERNEL L_3EB6_from_main_loop, 79
 
 ; *****************************************************************************
 \\ Function addresses
@@ -298,6 +300,8 @@ ENDIF
 
 	EQUB LO(select_track)
 	EQUB LO(print_division_table)
+	EQUB LO(set_up_screen_for_frontend)
+	EQUB LO(L_3EB6_from_main_loop)
 }
 
 .kernel_table_HI
@@ -383,6 +387,8 @@ ENDIF
 
 	EQUB HI(select_track)
 	EQUB HI(print_division_table)
+	EQUB HI(set_up_screen_for_frontend)
+	EQUB HI(L_3EB6_from_main_loop)
 }
 
 PRINT "KERNEL Jump Table Entries =", kernel_table_HI-kernel_table_LO, "(", P%-kernel_table_HI, ")"

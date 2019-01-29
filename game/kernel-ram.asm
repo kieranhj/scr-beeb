@@ -8439,4 +8439,42 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 .original_top_of_hud_data
 skip $f0
 
+.set_up_screen_for_frontend
+{
+		lda #$00		;3504 A9 00
+		jsr vic_set_border_colour		;3506 20 BB 3F
+		lda #$01		;350C A9 01		; 'MODE 1'
+		jsr cart_sysctl		;350E 20 25 87
+		lda #$41		;3511 A9 41
+		sta irq_mode		;3513 8D F8 3D
+		jsr cart_draw_menu_header		;3509 20 49 1C
+		jsr cart_prep_menu_graphics		;3516 20 F1 39
+		jsr set_up_screen_for_menu		;3519 20 1F 35
+		jmp ensure_screen_enabled		;351C 4C 9E 3F
+}
+
+; only called from game_main_loop
+.L_3EB6_from_main_loop		; can be moved to Cart
+{
+		ldx #$80		;3EB6 A2 80
+.L_3EB8	ldy #$00		;3EB8 A0 00
+		txa				;3EBA 8A
+		and #$07		;3EBB 29 07
+		cmp #$07		;3EBD C9 07
+		bne L_3EC3		;3EBF D0 02
+		ldy #$80		;3EC1 A0 80
+.L_3EC3	tya				;3EC3 98
+		sta L_C440,X	;3EC4 9D 40 C4
+		dex				;3EC7 CA
+		bpl L_3EB8		;3EC8 10 EE
+		lda #$C0		;3ECA A9 C0
+		sta L_C43F		;3ECC 8D 3F C4
+		ldx L_31A1		;3ECF AE A1 31
+		beq L_3EDD		;3ED2 F0 09
+		ldx L_31A4		;3ED4 AE A4 31
+		lda L_83B0,X	;3ED7 BD B0 83
+		sta L_C719		;3EDA 8D 19 C7
+.L_3EDD	jmp kernel_L_F6A6		;3EDD 4C A6 F6
+}
+
 .kernel_end

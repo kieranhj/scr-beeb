@@ -255,17 +255,70 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 		lda #$00		;CF1B A9 00
 		tax				;CF1D AA
 .L_CF1E	sta ZP_0A		;CF1E 85 0A
+
+    \\ Voice 1 Frequency Control
+    ; 
+    ; Together, these two locations control the frequency or pitch of the
+    ; musical output of voice 1.  Some frequency must be selected in order
+    ; for voice 1 to be heard.  This frequency may be changed in the middle
+    ; of a note to achieve special effects.  The 16-bit range of the
+    ; Frequency Control Register covers over eight full octaves, and allows
+    ; you to vary the pitch from 0 (very low) to about 4000 Hz (very high),
+    ; in 65536 steps.  The exact frequency of the output can be determined
+    ; by the equation
+    ; 
+    ; FREQUENCY=(REGISTER VALUE*CLOCK/16777216)Hz
+    ; 
+    ; where CLOCK equals the system clock frequency, 1022730 for American
+    ; (NTSC) systems, 985250 for European (PAL), and REGISTER VALUE is the
+    ; combined value of these frequency registers.  That combined value
+    ; equals the value of the low byte plus 256 times the value of the high
+    ; byte.  Using the American (NTSC) clock value, the equation works out
+    ; to
+    ; 
+    ; FREQUENCY=REGISTER VALUE*.060959458 Hz
+
+    \\ Voice 1 Frequency Control (high byte)
+
 		sta SID_FREHI1		;CF20 8D 01 D4	; SID
 		stx ZP_09		;CF23 86 09
 		lsr A			;CF25 4A
+
+    \\ Voice 3 Frequency Control (high byte)
+
 		sta SID_FREHI3		;CF26 8D 0F D4	; SID
 		lda ZP_09		;CF29 A5 09
 		and #$FE		;CF2B 29 FE
+
+    \\ Voice 1 Frequency Control (low byte)
+
 		sta SID_FRELO1		;CF2D 8D 00 D4	; SID
 		ror A			;CF30 6A
+
+    \\ Voice 3 Frequency Control (low byte)
+
 		sta SID_FRELO3		;CF31 8D 0E D4	; SID
 		jsr sid_update_voice_2		;CF34 20 EF 86
         rts
+}
+
+.psg_strobe
+{
+	ldy #255
+	sty $fe43
+	
+	sta $fe41
+	lda #0
+	sta $fe40
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	lda #$08
+	sta $fe40
+    rts
 }
 
 .vsync_counter

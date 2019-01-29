@@ -7446,6 +7446,40 @@ ENDIF
 		rts				;85C4 60
 }
 
+; A=width in chars; X,Y pixel coords
+.plot_preview_line_colour_3
+{
+		sta ZP_14		;3A4F 85 14
+		lda #BEEB_PIXELS_COLOUR3		;3A51 A9 FF
+		sta ZP_16		;3A53 85 16
+
+	.loop
+		jsr get_menu_screen_ptr		;3A55 20 D1 39
+		lda ZP_16		;3A58 A5 16
+		sta (ZP_1E),Y	;3A5A 91 1E
+		txa				;3A5C 8A
+		clc				;3A5D 18
+		adc #$04		;3A5E 69 04
+		tax				;3A60 AA
+		dec ZP_14		;3A61 C6 14
+		bne loop		;3A63 D0 F0
+		rts				;3A65 60
+}
+
+; A=width in chars; X,Y pixel coords
+.plot_preview_vertical_line
+{
+		sta ZP_14		;3A66 85 14
+.L_3A68	jsr get_menu_screen_ptr		;3A68 20 D1 39
+		lda (ZP_1E),Y	;3A6B B1 1E
+		ora ZP_15		;3A6D 05 15
+		sta (ZP_1E),Y	;3A6F 91 1E
+		dey				;3A71 88
+		dec ZP_14		;3A72 C6 14
+		bne L_3A68		;3A74 D0 F2
+		rts				;3A76 60
+}
+
 PAGE_ALIGN
 .L_A800	equb $01,$01,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$02,$02
 		equb $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02

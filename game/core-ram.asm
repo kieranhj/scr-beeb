@@ -432,7 +432,7 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 {
 		ldx #$0B		;3046 A2 0B
 .L_3048	lda L_C6C0,X	;3048 BD C0 C6
-		sta L_DAB6,X	;304B 9D B6 DA		; COLOR RAM
+		sta L_DAB6,X	;304B 9D B6 DA
 		dex				;304E CA
 		bpl L_3048		;304F 10 F7
 		rts				;3051 60
@@ -477,20 +477,6 @@ ENDIF
 {
 		jsr vic_reset_border_colour		;3500 20 BE 3F	; does VIC stuff
 		rts				;3503 60
-}
-
-.set_up_screen_for_frontend
-{
-		lda #$00		;3504 A9 00
-		jsr vic_set_border_colour		;3506 20 BB 3F
-		lda #$01		;350C A9 01		; 'MODE 1'
-		jsr cart_sysctl		;350E 20 25 87
-		lda #$41		;3511 A9 41
-		sta irq_mode		;3513 8D F8 3D
-		jsr cart_draw_menu_header		;3509 20 49 1C
-		jsr cart_prep_menu_graphics		;3516 20 F1 39
-		jsr set_up_screen_for_menu		;3519 20 1F 35
-		jmp ensure_screen_enabled		;351C 4C 9E 3F
 }
 
 .set_up_screen_for_menu
@@ -988,40 +974,6 @@ FOR y,0,24,1
 EQUB HI(screen1_address + y*$280)
 NEXT
 
-; A=width in chars; X,Y pixel coords
-.plot_preview_line_colour_3
-{
-		sta ZP_14		;3A4F 85 14
-		lda #BEEB_PIXELS_COLOUR3		;3A51 A9 FF
-		sta ZP_16		;3A53 85 16
-
-	.loop
-		jsr cart_get_menu_screen_ptr		;3A55 20 D1 39
-		lda ZP_16		;3A58 A5 16
-		sta (ZP_1E),Y	;3A5A 91 1E
-		txa				;3A5C 8A
-		clc				;3A5D 18
-		adc #$04		;3A5E 69 04
-		tax				;3A60 AA
-		dec ZP_14		;3A61 C6 14
-		bne loop		;3A63 D0 F0
-		rts				;3A65 60
-}
-
-; A=width in chars; X,Y pixel coords
-.plot_preview_vertical_line
-{
-		sta ZP_14		;3A66 85 14
-.L_3A68	jsr cart_get_menu_screen_ptr		;3A68 20 D1 39
-		lda (ZP_1E),Y	;3A6B B1 1E
-		ora ZP_15		;3A6D 05 15
-		sta (ZP_1E),Y	;3A6F 91 1E
-		dey				;3A71 88
-		dec ZP_14		;3A72 C6 14
-		bne L_3A68		;3A74 D0 F2
-		rts				;3A76 60
-}
-
 ; *****************************************************************************
 ; GAME START
 ; *****************************************************************************
@@ -1040,7 +992,7 @@ NEXT
 
 		jsr page_in_IO_and_enable_ints		;3B33 20 FC 33
 		jsr kernel_L_E85B		;3B36 20 5B E8
-		jsr set_up_screen_for_frontend		;3B39 20 04 35
+		jsr kernel_set_up_screen_for_frontend		;3B39 20 04 35
 		jsr cart_do_initial_screen		;3B3C 20 52 30
 		jsr kernel_print_division_table		;3B3F 20 AD 36
 		jsr cart_save_rndQ_stateQ		;3B42 20 2C 16
@@ -1053,7 +1005,7 @@ NEXT
 		jsr do_track_preview		;3B50 20 36 3C
 		jsr reset_border_colour		;3B53 20 00 35
 		jsr game_main_loop		;3B56 20 99 3C
-		jsr set_up_screen_for_frontend		;3B59 20 04 35
+		jsr kernel_set_up_screen_for_frontend		;3B59 20 04 35
 		jmp L_3B45		;3B5C 4C 45 3B
 
 .L_3B5F	lda #$C0		;3B5F A9 C0
@@ -1111,7 +1063,7 @@ NEXT
 		lda #$00		;3BD2 A9 00
 		jsr cart_copy_track_records_Q		;3BD4 20 19 93
 		jsr kernel_L_E87F		;3BD7 20 7F E8
-		jsr set_up_screen_for_frontend		;3BDA 20 04 35
+		jsr kernel_set_up_screen_for_frontend		;3BDA 20 04 35
 		lda L_C305		;3BDD AD 05 C3
 		beq L_3BEA		;3BE0 F0 08
 		jsr L_357E		;3BE2 20 7E 35
@@ -1221,7 +1173,7 @@ NEXT
 		jsr cart_sysctl		;3CA7 20 25 87
 		lda #$02		;3CAA A9 02		; 'MODE 2'
 		jsr cart_sysctl		;3CAC 20 25 87
-		jsr L_3EB6_from_main_loop		;3CAF 20 B6 3E
+		jsr kernel_L_3EB6_from_main_loop		;3CAF 20 B6 3E
 		ldx players_start_section		;3CB2 AE 65 C7
 		stx L_C375		;3CB5 8E 75 C3
 		lda #$04		;3CB8 A9 04
@@ -1472,30 +1424,6 @@ NEXT
 		dex				;3EB2 CA
 		bpl L_3EAA		;3EB3 10 F5
 		rts				;3EB5 60
-}
-
-; only called from game_main_loop
-.L_3EB6_from_main_loop		; can be moved to Cart
-{
-		ldx #$80		;3EB6 A2 80
-.L_3EB8	ldy #$00		;3EB8 A0 00
-		txa				;3EBA 8A
-		and #$07		;3EBB 29 07
-		cmp #$07		;3EBD C9 07
-		bne L_3EC3		;3EBF D0 02
-		ldy #$80		;3EC1 A0 80
-.L_3EC3	tya				;3EC3 98
-		sta L_C440,X	;3EC4 9D 40 C4
-		dex				;3EC7 CA
-		bpl L_3EB8		;3EC8 10 EE
-		lda #$C0		;3ECA A9 C0
-		sta L_C43F		;3ECC 8D 3F C4
-		ldx L_31A1		;3ECF AE A1 31
-		beq L_3EDD		;3ED2 F0 09
-		ldx L_31A4		;3ED4 AE A4 31
-		lda L_83B0,X	;3ED7 BD B0 83
-		sta L_C719		;3EDA 8D 19 C7
-.L_3EDD	jmp kernel_L_F6A6		;3EDD 4C A6 F6
 }
 
 .update_pause_status		; can be moved to Kernel
