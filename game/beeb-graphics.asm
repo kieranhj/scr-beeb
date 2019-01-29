@@ -20,6 +20,12 @@ include "build/track-preview.asm"
 
 include "build/dash-icons.asm"
 
+.track_preview_screen
+incbin "build/scr-beeb-preview.pu"
+
+.track_preview_bg
+incbin "build/scr-beeb-preview-bg.pu"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1162,58 +1168,33 @@ rts
 
 ._preview_draw_screen
 {
-jsr preview_save_zp
-
 lda #$40
 ldx #LO(track_preview_screen)
 ldy #HI(track_preview_screen)
 
-jsr PUCRUNCH_UNPACK
-
-jmp preview_restore_zp
+jmp PUCRUNCH_UNPACK
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-if FALSE
-
-._preview_add_background
+._preview_unpack_background
 {
-rts
+ldx #$80:ldy #$62
+jsr PUCRUNCH_SET_OUTPOS
+
+ldx #LO(track_preview_bg):ldy #HI(track_preview_bg)
+jmp PUCRUNCH_UNPACK_TO_OUTPOS
 }
 
-else
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ._preview_add_background
 {
 jsr preview_save_zp
 
 jsr clear_C600
-
-; Unpack background to top left of buffer 2.
-lda #$a0:sta preview_ZP_dest+0
-lda #$62:sta preview_ZP_dest+1
-
-ldy #0
-.unpack_loop
-sty y
-
-ldx preview_ZP_dest+0:ldy preview_ZP_dest+1:jsr PUCRUNCH_SET_OUTPOS
-
-ldy y
-ldx track_preview_bg_rows_LO,y
-lda track_preview_bg_rows_HI,y:tay
-jsr PUCRUNCH_UNPACK_TO_OUTPOS
-
-clc
-lda preview_ZP_dest+0:adc #$40:sta preview_ZP_dest+0
-lda preview_ZP_dest+1:adc #$01:sta preview_ZP_dest+1
-
-ldy y
-iny
-cpy #track_preview_bg_num_rows
-bne unpack_loop
 
 ldy #64
 
@@ -1278,7 +1259,7 @@ bne one_byte
 
 ldy y
 iny
-cpy #64+8*track_preview_bg_num_rows
+cpy #64+track_preview_bg_height
 beq done
 jmp one_row
 .done
@@ -1304,8 +1285,6 @@ rts
 .src_index:equb 0
 .x:equb 0
 }
-
-endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

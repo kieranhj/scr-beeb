@@ -1184,6 +1184,7 @@ NEXT
 		ldx current_track		;3C68 AE 7D C7
 		jsr kernel_set_road_data1		;3C6B 20 34 EA
 		jsr cart_update_per_track_stuff		;3C6E 20 18 1D
+		jsr preview_unpack_background
 		jsr kernel_update_track_preview		;3C71 20 86 F3
 
 .L_3C74	ldx #$27		;3C74 A2 27

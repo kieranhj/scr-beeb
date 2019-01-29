@@ -23,14 +23,6 @@ def pack(image,x,y,w,h):
 
     return ''.join([chr(x) for x in data])
 
-def equb(data,stride):
-    n=0
-    for i in range(0,len(data),stride):
-        print 'equb %s ; %d, +%d '%(','.join(['$%02x'%byte for byte in data[i:i+stride]]),
-                                    n,
-                                    i)
-        n+=1
-
 def pucrunch(path,options):
     cmd='"%s" -5 -d -c0 -l0x1000 "%s" "%s.pu"'%(options.pucrunch,
                                                 path,
@@ -42,6 +34,8 @@ def pucrunch(path,options):
         
 def main(options):
     image=bbc.load_png('./graphics/scr-beeb-preview.png',5,True)
+
+    with open('./build/scr-beeb-hud.dat','rb') as f: hud=f.read()
 
     if len(image)!=160 or len(image[0])!=160:
         raise Exception('image not 160x160')
@@ -64,11 +58,6 @@ def main(options):
     # Find last solid yellow line.
     while area[bg_height-1].count(3)==len(area[bg_height-1]): bg_height-=1
 
-    # print 'bg_height=%d'%bg_height
-
-    # Round up to an even number of rows.
-    # bg_height=(bg_height+7)//8*8
-
     # Fill the original image's background area with yellow.
     # Skip row 0, as it's known to be all black.
     for y in range(1,bg_height):
@@ -90,34 +79,27 @@ def main(options):
         # print 'y=%d x0=%d x1=%d'%(y,x0,x1)
         for x in range(x0,x1): line[x]=3
 
-    # print '; bg height=%d'%area_height
-
-    path='./build/beeb-preview.dat'
+    path='./build/scr-beeb-preview.dat'
     with open(path,'wb') as f:
         f.write(pack(image,0,0,len(image[0]),len(image)))
 
-    pucrunch(path,options)
-    
-    print '.track_preview_screen'
-    print 'incbin "%s.pu"'%path
+    print 'track_preview_bg_height=%d'%bg_height
 
-    num_rows=(bg_height+7)//8
-    for row in range(num_rows):
-        path='./build/beeb-preview-bg-%d.dat'%row
-        
-        with open(path,'wb') as f:
-            f.write(pack(area,0,row*8,len(area[0]),8))
+    # Merge track preview background and HUD, so there's just one block to
+    # unpack, that can overwrite the HUD.
+    # 
+    # (This is about 300 bytes packed, and basically no code to
+    # decompress, compared to 352 bytes, plus a little loop, and a
+    # table, to carefully unpack each row of the background into the
+    # right place without touching anything.)
+    bg2=''
+    for row in range((bg_height+7)//8):
+        i=0x280+row*320
+        bg2+=hud[i:i+32]
+        bg2+=pack(area,0,row*8,len(area[0]),8)
+        bg2+=hud[i+288:i+320]
 
-        pucrunch(path,options)
-
-        print '.track_preview_bg_row_%d'%row
-        print 'incbin "%s.pu"'%path
-
-    print 'track_preview_bg_num_rows=%d'%num_rows
-    for func in ['LO','HI']:
-        print '.track_preview_bg_rows_%s'%func
-        for row in range(num_rows):
-            print 'equb %s(track_preview_bg_row_%d)'%(func,row)
+    with open('./build/scr-beeb-preview-bg.dat','wb') as f: f.write(bg2)
 
 ##########################################################################
 ##########################################################################

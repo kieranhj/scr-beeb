@@ -863,6 +863,7 @@ ENDIF
 .dash_update_flag_icon DLL_CALL_GRAPHICS _dash_update_flag_icon, 11
 .dash_update_stopwatch_icon DLL_CALL_GRAPHICS _dash_update_stopwatch_icon, 12
 .preview_draw_screen DLL_CALL_GRAPHICS _preview_draw_screen, 13
+.preview_unpack_background DLL_CALL_GRAPHICS _preview_unpack_background, 14
 .preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
 .graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
 .graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 17
@@ -887,7 +888,7 @@ ENDIF
 	EQUB LO(_dash_update_flag_icon)				; 11
 	EQUB LO(_dash_update_stopwatch_icon)		; 12
 	EQUB LO(_preview_draw_screen)				; 13
-	EQUB 0										; 14
+	EQUB LO(_preview_unpack_background)			; 14
 	EQUB LO(_preview_add_background)			; 15
 	EQUB LO(_graphics_draw_debug_framerate)		; 16
 	EQUB LO(_graphics_unpack_menu_screen)		; 17
@@ -909,7 +910,7 @@ ENDIF
 	EQUB HI(_dash_update_flag_icon)				; 11
 	EQUB HI(_dash_update_stopwatch_icon)		; 12
 	EQUB HI(_preview_draw_screen)				; 13
-	EQUB 0										; 14
+	EQUB HI(_preview_unpack_background)			; 14
 	EQUB HI(_preview_add_background)			; 15
 	EQUB HI(_graphics_draw_debug_framerate)		; 16
 	EQUB HI(_graphics_unpack_menu_screen)		; 17
