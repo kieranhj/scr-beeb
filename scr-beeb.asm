@@ -1059,9 +1059,7 @@ GUARD .disksys_loadto_addr
 		lda #0:sta _L_D600,x	; d6
 		lda #0:sta _L_D700,x	; d7
 		lda #0:sta _L_D800,x	; d8
-		
-		lda L_5400,X	;4218 BD 00 54
-		sta L_D900,X	;421B 9D 00 D9
+		lda #0:sta _L_D900,x	; d9
 		lda L_5500,X	;421E BD 00 55
 		sta L_DA00,X	;4221 9D 00 DA
 		lda L_5600,X	;4224 BD 00 56
@@ -1381,7 +1379,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
-ORG &5400
+ORG &5500
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 

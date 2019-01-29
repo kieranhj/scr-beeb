@@ -5,34 +5,6 @@
 
 .boot_data_start
 
-\\ Page $5400 is copied to $D900 at boot
-
-.L_5400
-; used to be compressed header graphic
-skip $28
-
-if P%<>L_5400+$28
-error "oops"
-endif
-
-; copied to L_7C00 by sysctl_copy_menu_header_graphic
-
-.L_5428
-		EQUB $E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1
-		EQUB $E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1
-		EQUB $E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$EF,$FC
-		EQUB $E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1
-		EQUB $E1,$E1,$E1,$E1,$E1,$EF,$EF,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1
-		EQUB $E1,$E1,$E1,$E1,$E1,$EF,$F1,$F1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1
-		EQUB $E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$EA,$9A,$A9
-		EQUB $AC,$E6,$E6,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$EF,$FC,$FC
-		EQUB $E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$EF
-		EQUB $EA,$EA,$E1,$E1,$A1,$F1,$61,$31,$2A,$62,$E6,$E1,$E1,$E1,$E1,$E1
-		EQUB $E1,$E1,$E1,$E1,$EF,$FC,$FC,$FC,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$E1
-		EQUB $E1,$E1,$E1,$E1,$E1,$E1,$E1,$E6,$69,$29,$29,$92,$9C,$6C,$9A,$E6
-		EQUB $92,$62,$6A,$E6,$E1,$E1,$E1,$E1,$E1,$E1,$E1,$EF,$EF,$FC,$FC,$FC
-		EQUB $E1,$E1,$EF,$EF,$EF,$EF,$EF,$EF,$EF,$EF,$EF,$EF,$EF,$EF,$EF,$EF
-
 \\ Page $5500 is copied to $DA00 at boot
 
 .L_5500	EQUB $CF,$EF,$EF,$EF,$EF,$EF,$AF,$9F,$9F,$F9,$6F,$9F,$EF,$EF,$EF,$EF

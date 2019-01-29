@@ -1035,36 +1035,36 @@ rts
 	JMP graphics_unpack_menu_screen
 
 IF 0
-jsr graphics_copy_menu_header_graphic
+; jsr graphics_copy_menu_header_graphic
 
-ldx #0
-.loop1
-lda L_D900+$28,x				; relocated from L_5428
-sta L_7C00,x
+; ldx #0
+; .loop1
+; lda L_D900+$28,x				; relocated from L_5428
+; sta L_7C00,x
 
-lda L_DA00+$68,x				; relocated from L_5568
-sta L_0400,x
+; lda L_DA00+$68,x				; relocated from L_5568
+; sta L_0400,x
 
-cpx #$40:bcs next
+; cpx #$40:bcs next
 
-; each block is $140 bytes.
+; ; each block is $140 bytes.
 
-lda L_D900+$28+$100,x:sta L_7D00,x
-lda L_DA00+$68+$100,x:sta L_0500,x
+; lda L_D900+$28+$100,x:sta L_7D00,x
+; lda L_DA00+$68+$100,x:sta L_0500,x
 
-.next
+; .next
 
-inx:bne loop1
+; inx:bne loop1
 
-		lda #$11		;883C A9 11
-		sta ZP_52		;883E 85 52
+; 		lda #$11		;883C A9 11
+; 		sta ZP_52		;883E 85 52
 		
-		ldy #HI(L_4A00)		;8840 A0 4A
-		ldx #LO(L_4A00)		;8842 A2 00
-		lda #$00		;8844 A9 00
-		jsr fill_64s		;8846 20 21 89
+; 		ldy #HI(L_4A00)		;8840 A0 4A
+; 		ldx #LO(L_4A00)		;8842 A2 00
+; 		lda #$00		;8844 A9 00
+; 		jsr fill_64s		;8846 20 21 89
 
-rts
+; rts
 
 ; this is how the data at L_0400 is consumed - so maybe it doesn't
 ; need to be copied?
