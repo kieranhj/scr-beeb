@@ -299,7 +299,77 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 
 		sta SID_FRELO3		;CF31 8D 0E D4	; SID
 		jsr sid_update_voice_2		;CF34 20 EF 86
+
+        LDA SID_FRELO1
+        ASL A
+        ROL SID_FREHI1
+        ASL A
+        ROL SID_FREHI1
+
+        LDA SID_FREHI1
+        TAX
+        STX watch_X
+
+        LDA freq_table_LO, X
+        JSR psg_strobe
+
+        LDA freq_table_HI, X
+        JSR psg_strobe
+
         rts
+
+        .watch_X
+        EQUB 0
+}
+
+.freq_table_LO
+{
+    FOR r,0,255,1
+
+    sid_reg = r << 7
+    sid_freq = sid_reg * 0.060959458 * 4
+
+    beeb_div = (32.0 * sid_freq)
+    IF beeb_div > 0
+        IF (4000000.0 / beeb_div) > &3FF
+            beeb_reg = &3FF
+        ELSE
+            beeb_reg = 4000000.0 / beeb_div
+        ENDIF
+    ELSE
+        beeb_reg = 0
+    ENDIF
+
+    PRINT "r=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg
+
+    EQUB %11000000 OR (beeb_reg AND &F)     ; tone 1 freq LO
+
+    NEXT
+}
+
+.freq_table_HI
+{
+    FOR r,0,255,1
+
+    sid_reg = r << 7
+    sid_freq = sid_reg * 0.060959458 * 4
+
+    beeb_div = (32.0 * sid_freq)
+    IF beeb_div > 0
+        IF (4000000.0 / beeb_div) > &3FF
+            beeb_reg = &3FF
+        ELSE
+            beeb_reg = 4000000.0 / beeb_div
+        ENDIF
+    ELSE
+        beeb_reg = 0
+    ENDIF
+
+;    PRINT "r=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg
+
+    EQUB beeb_reg >> 4              ; tone 1 freq HI
+
+    NEXT
 }
 
 .psg_strobe

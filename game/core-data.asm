@@ -2,6 +2,8 @@
 \\ Data moved from Cart RAM to Core
 ; *****************************************************************************
 
+_JUST_ONE_TRACK_FOR_SAVING_RAM = TRUE
+
 .core_data_start
 
 PAGE_ALIGN
@@ -789,6 +791,16 @@ L_AEC1 = L_AEC0 + 1
 .L_BA58 equb $00,$40
 		equb $01,$41,$02,$42,$03,$43,$F3,$94
 
+IF _JUST_ONE_TRACK_FOR_SAVING_RAM
+.stepping_stones_data
+.hump_back_data
+.big_ramp_data
+.ski_jump_data
+.draw_bridge_data
+.high_jump_data
+.roller_coaster_data
+ENDIF
+
 .little_ramp_data		; L_BA62
 		equb $2C		; number.of.road.sections
 		equb $0F		; players.start.section
@@ -804,6 +816,7 @@ L_AEC1 = L_AEC0 + 1
 		equb $FE,$00,$17,$EF,$1B,$1A,$8D,$DF,$06,$05,$22,$2F,$02,$02,$21,$46
 		equb $03,$58,$01,$22
 
+IF _JUST_ONE_TRACK_FOR_SAVING_RAM = FALSE
 .stepping_stones_data
 		equb $38,$2A,$2A,$0E,$00,$0F,$A0,$CF,$00,$9F,$3B,$3C
 		equb $3C,$25,$13,$48,$49,$00,$32,$80,$2F,$04,$64,$86,$1F,$65,$66,$57
@@ -894,6 +907,7 @@ L_AEC1 = L_AEC0 + 1
 		equb $04,$60,$F9,$2B,$3F,$00,$00,$00,$4C,$FD,$46,$FE,$16,$17,$17,$EF
 		equb $1B,$1A,$8D,$DF,$03,$03,$50,$59,$07,$00,$06,$2A,$07,$29,$0E,$36
 		equb $1A,$54,$1B,$4A,$4D,$52,$4C,$5A
+ENDIF
 
 ; data after this point exists in Amiga source...
 		equb $00,$00,$00,$00,$00,$00,$00,$00

@@ -508,7 +508,7 @@ ENDIF
 .cart_write_char DLL_CALL_CART write_char, 0
 .cart_getch DLL_CALL_CART getch, 1
 .cart_sid_play_sound DLL_CALL_CART sid_play_sound, 2	; only called from Kernel
-.cart_sid_update_voice_2 DLL_CALL_CART sid_update_voice_2, 3	; only called from Kernel
+.cart_sid_update_voice_2 BRK
 .cart_sysctl DLL_CALL_CART sysctl, 4
 .cart_print_3space DLL_CALL_CART print_3space, 5	; not required in DLL
 .cart_print_2space DLL_CALL_CART print_2space, 6
@@ -589,7 +589,7 @@ ENDIF
 	EQUB LO(write_char)
 	EQUB LO(getch)
 	EQUB LO(sid_play_sound)
-	EQUB LO(sid_update_voice_2)
+	EQUB 0;LO(sid_update_voice_2)
 	EQUB LO(sysctl)
 	EQUB LO(print_3space)
 	EQUB LO(print_2space)
@@ -667,7 +667,7 @@ ENDIF
 	EQUB HI(write_char)
 	EQUB HI(getch)
 	EQUB HI(sid_play_sound)
-	EQUB HI(sid_update_voice_2)
+	EQUB 0;HI(sid_update_voice_2)
 	EQUB HI(sysctl)
 	EQUB HI(print_3space)
 	EQUB HI(print_2space)
