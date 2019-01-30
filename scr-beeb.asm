@@ -737,6 +737,22 @@ L_5800 = $5800
 L_5900 = $5900
 L_5A00 = $5A00
 L_5B00 = $5B00
+L_5C00 = $5C00
+L_5D00 = $5D00
+L_5E00 = $5E00
+L_5F00 = $5f00
+
+; this is where the VIC fetches the sprite pointers from, so I've left
+; the addresses as-is for now. But these 8 bytes could go pretty much
+; anywhere, really...
+vic_sprite_ptr0=$5ff8
+vic_sprite_ptr1=$5ff9
+vic_sprite_ptr2=$5ffa
+vic_sprite_ptr3=$5ffb
+vic_sprite_ptr4=$5ffc
+vic_sprite_ptr5=$5ffd
+vic_sprite_ptr6=$5ffe
+vic_sprite_ptr7=$5fff
 
 ; *****************************************************************************
 ; CORE RAM: $0800 - $4000
@@ -929,32 +945,32 @@ GUARD .disksys_loadto_addr
 
 ; Blats $1F to a load of locations around $5CXX - screen RAM?
 
-		ldx #$1F		;40BB A2 1F
-		ldy #$00		;40BD A0 00
-.L_40BF	lda #$0F		;40BF A9 0F
-		sta ZP_08		;40C1 85 08
-		lda #HI(vic_screen_mem_page0)		;40C3 A9 5C
-		sta ZP_1F		;40C5 85 1F
-		txa				;40C7 8A
-		clc				;40C8 18
-		adc #$54		;40C9 69 54
-		sta ZP_1E		;40CB 85 1E
-.L_40CD	lda ZP_08		;40CD A5 08
-		cmp L_40EF,X	;40CF DD EF 40
-		bcc L_40E9		;40D2 90 15
-		lda #$1E		;40D4 A9 1E
-		sta (ZP_1E),Y	;40D6 91 1E
-		lda ZP_1E		;40D8 A5 1E
-		clc				;40DA 18
-		adc #$28		;40DB 69 28
-		sta ZP_1E		;40DD 85 1E
-		lda ZP_1F		;40DF A5 1F
-		adc #$00		;40E1 69 00
-		sta ZP_1F		;40E3 85 1F
-		dec ZP_08		;40E5 C6 08
-		bpl L_40CD		;40E7 10 E4
-.L_40E9	dex				;40E9 CA
-		bpl L_40BF		;40EA 10 D3
+; 		ldx #$1F		;40BB A2 1F
+; 		ldy #$00		;40BD A0 00
+; .L_40BF	lda #$0F		;40BF A9 0F
+; 		sta ZP_08		;40C1 85 08
+; 		lda #HI(vic_screen_mem_page0)		;40C3 A9 5C
+; 		sta ZP_1F		;40C5 85 1F
+; 		txa				;40C7 8A
+; 		clc				;40C8 18
+; 		adc #$54		;40C9 69 54
+; 		sta ZP_1E		;40CB 85 1E
+; .L_40CD	lda ZP_08		;40CD A5 08
+; 		cmp L_40EF,X	;40CF DD EF 40
+; 		bcc L_40E9		;40D2 90 15
+; 		lda #$1E		;40D4 A9 1E
+; 		sta (ZP_1E),Y	;40D6 91 1E
+; 		lda ZP_1E		;40D8 A5 1E
+; 		clc				;40DA 18
+; 		adc #$28		;40DB 69 28
+; 		sta ZP_1E		;40DD 85 1E
+; 		lda ZP_1F		;40DF A5 1F
+; 		adc #$00		;40E1 69 00
+; 		sta ZP_1F		;40E3 85 1F
+; 		dec ZP_08		;40E5 C6 08
+; 		bpl L_40CD		;40E7 10 E4
+; .L_40E9	dex				;40E9 CA
+; 		bpl L_40BF		;40EA 10 D3
 
 ; More setup weirdness for COLOR RAM
 
@@ -964,13 +980,13 @@ GUARD .disksys_loadto_addr
 ; 		dex				;4126 CA
 ; 		bpl L_4121		;4127 10 F8     ; write 16 bytes COLOR RAM
 		
-        lda #$21		;4129 A9 21
-		sta L_5EAC		;412B 8D AC 5E
-		sta L_5ED4		;412E 8D D4 5E
-		sta L_5EFC		;4131 8D FC 5E
-		sta L_5ECB		;4134 8D CB 5E
-		sta L_5EF3		;4137 8D F3 5E
-		sta L_5F1B		;413A 8D 1B 5F  ; setup screen RAM?
+        ; lda #$21		;4129 A9 21
+		; sta L_5EAC		;412B 8D AC 5E
+		; sta L_5ED4		;412E 8D D4 5E
+		; sta L_5EFC		;4131 8D FC 5E
+		; sta L_5ECB		;4134 8D CB 5E
+		; sta L_5EF3		;4137 8D F3 5E
+		; sta L_5F1B		;413A 8D 1B 5F  ; setup screen RAM?
 
 		; lda #$0C		;413D A9 0C
 		; sta L_DAD4		;413F 8D D4 DA
@@ -979,20 +995,40 @@ GUARD .disksys_loadto_addr
 		; sta L_DB1B		;4148 8D 1B DB  ; COLOR RAM
 
 		ldx #$00		;414B A2 00
-.L_414D	lda L_72E0,X	;414D BD E0 72
-.L_4150	sta L_C000,X	;4150 9D 00 C0
+.L_414D
+
+; top row of engine
+
+		lda L_72E0,X	;414D BD E0 72
+		sta L_C000,X	;4150 9D 00 C0
+
+; next row of engine
+
 		lda L_7420,X	;4153 BD 20 74
 		sta L_C100,X	;4156 9D 00 C1
 		dex				;4159 CA
 		bne L_414D		;415A D0 F1     ; copy 2x pages from $72E0 to $C000
 
 		ldx #$17		;415C A2 17
-.L_415E	lda L_75A0,X	;415E BD A0 75
+.L_415E
+
+; gap between left exhausts and left side of engine
+
+		lda L_75A0,X	;415E BD A0 75
 		sta L_C200,X	;4161 9D 00 C2
+
+; gap between right exhausts and right side of engine
+
 		lda L_7608,X	;4164 BD 08 76
 		sta L_C218,X	;4167 9D 18 C2
+
+; left edge of screen and left half of left exhausts
+
 		lda L_7560,X	;416A BD 60 75
 		sta L_C230,X	;416D 9D 30 C2
+
+; right edge of screen and right half of right exhausts
+
 		lda L_7648,X	;4170 BD 48 76
 		sta L_C248,X	;4173 9D 48 C2
 		dex				;4176 CA
@@ -1037,18 +1073,18 @@ GUARD .disksys_loadto_addr
 
 \\ Think this is screen RAM area
 
-		lda #$00		;41BE A9 00
-		ldx #$03		;41C0 A2 03
-.L_41C2	sta L_5C26,X	;41C2 9D 26 5C
-		sta L_5C4E,X	;41C5 9D 4E 5C
-		sta L_5C76,X	;41C8 9D 76 5C
-		sta L_5C9E,X	;41CB 9D 9E 5C
-		sta L_5CC6,X	;41CE 9D C6 5C
-		sta L_5CEE,X	;41D1 9D EE 5C
-		sta L_5D16,X	;41D4 9D 16 5D
-		sta L_5D3E,X	;41D7 9D 3E 5D
-		dex				;41DA CA
-		bpl L_41C2		;41DB 10 E5     ; wipe 4*8 = 32 bytes in $5XXX
+; 		lda #$00		;41BE A9 00
+; 		ldx #$03		;41C0 A2 03
+; .L_41C2	sta L_5C26,X	;41C2 9D 26 5C
+; 		sta L_5C4E,X	;41C5 9D 4E 5C
+; 		sta L_5C76,X	;41C8 9D 76 5C
+; 		sta L_5C9E,X	;41CB 9D 9E 5C
+; 		sta L_5CC6,X	;41CE 9D C6 5C
+; 		sta L_5CEE,X	;41D1 9D EE 5C
+; 		sta L_5D16,X	;41D4 9D 16 5D
+; 		sta L_5D3E,X	;41D7 9D 3E 5D
+; 		dex				;41DA CA
+; 		bpl L_41C2		;41DB 10 E5     ; wipe 4*8 = 32 bytes in $5XXX
 
 	; C64 page in RAM over IO space at $D000
 	; jsr L_33F1 (disable_ints_and_page_in_RAM)
@@ -1069,6 +1105,10 @@ GUARD .disksys_loadto_addr
 		lda #0:sta L_5900,x
 		lda #0:sta L_5A00,x
 		lda #0:sta L_5B00,x
+		lda #0:sta L_5C00,x
+		lda #0:sta L_5D00,x
+		lda #0:sta L_5E00,x
+		lda #0:sta L_5F00,x
 
 ; HAZEL.
 
@@ -1175,11 +1215,11 @@ GUARD .disksys_loadto_addr
 
         ; ^^^ JUMP TO GAME START
 
-.L_40EF	EQUB $00,$00,$00,$01,$01,$01,$02,$02,$00,$00,$01,$01,$01,$02,$02,$01,$01
-    	EQUB $02,$02,$01,$01,$01,$00,$00,$02,$02,$01,$01,$01
-    	EQUB $00
-    	EQUB $00
-    	EQUB $00
+; .L_40EF	EQUB $00,$00,$00,$01,$01,$01,$02,$02,$00,$00,$01,$01,$01,$02,$02,$01,$01
+;     	EQUB $02,$02,$01,$01,$01,$00,$00,$02,$02,$01,$01,$01
+;     	EQUB $00
+;     	EQUB $00
+;     	EQUB $00
 .L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
 
 ; Was part of boot-data, but it's only needed on startup, so it can go
@@ -1415,7 +1455,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
-ORG &5c00
+ORG &6000
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 

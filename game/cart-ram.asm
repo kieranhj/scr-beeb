@@ -83,8 +83,8 @@
 		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)
 		jsr vic_memory_setup		;8404 20 D6 83
 		lda L_8415		;8407 AD 15 84
-		ora #$0E		;840A 09 0E
-		jsr clear_colour_mapQ		;840C 20 16 84
+		; ora #$0E		;840A 09 0E
+		; jsr clear_colour_mapQ		;840C 20 16 84
 		lda #$01		;840F A9 01
 		jsr L_8428_in_cart		;8411 20 28 84
 		rts				;8414 60
@@ -92,17 +92,17 @@
 .L_8415	equb $00
 }
 
-.clear_colour_mapQ			; in Cart
-{
-		ldx #$00		;8416 A2 00
-.L_8418	sta vic_screen_mem_page0,X	;8418 9D 00 5C
-		sta vic_screen_mem_page1,X	;841B 9D 00 5D
-		sta vic_screen_mem_page2,X	;841E 9D 00 5E
-		sta vic_screen_mem_page3,X	;8421 9D 00 5F
-		dex				;8424 CA
-		bne L_8418		;8425 D0 F1
-		rts				;8427 60
-}
+; .clear_colour_mapQ			; in Cart
+; {
+; 		ldx #$00		;8416 A2 00
+; .L_8418	sta vic_screen_mem_page0,X	;8418 9D 00 5C
+; 		sta vic_screen_mem_page1,X	;841B 9D 00 5D
+; 		sta vic_screen_mem_page2,X	;841E 9D 00 5E
+; 		sta vic_screen_mem_page3,X	;8421 9D 00 5F
+; 		dex				;8424 CA
+; 		bne L_8418		;8425 D0 F1
+; 		rts				;8427 60
+; }
 
 .L_8428_in_cart
 {
