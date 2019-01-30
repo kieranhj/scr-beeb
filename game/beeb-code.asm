@@ -243,6 +243,8 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
     EQUB 0
 }
 
+SID_MSB_SHIFT = 3
+
 .irq_audio_update
 {
 		lda ZP_09		;CF0F A5 09
@@ -301,10 +303,10 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 		jsr sid_update_voice_2		;CF34 20 EF 86
 
         LDA SID_FRELO1
+        FOR n,1,SID_MSB_SHIFT,1
         ASL A
         ROL SID_FREHI1
-        ASL A
-        ROL SID_FREHI1
+        NEXT
 
         LDA SID_FREHI1
         TAX
@@ -322,14 +324,18 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
         EQUB 0
 }
 
+SID_TO_FREQ = 0.0587254762649536; =PAL; NTSC=0.060959458
+FREQ_TO_NOISE = 7.5
+
 .freq_table_LO
 {
     FOR r,0,255,1
 
-    sid_reg = r << 7
-    sid_freq = sid_reg * 0.060959458 * 4
+    sid_reg = r << (8 - SID_MSB_SHIFT)
+    sid_freq = sid_reg * SID_TO_FREQ
+    beeb_freq = sid_freq * FREQ_TO_NOISE
 
-    beeb_div = (32.0 * sid_freq)
+    beeb_div = (32.0 * beeb_freq)
     IF beeb_div > 0
         IF (4000000.0 / beeb_div) > &3FF
             beeb_reg = &3FF
@@ -340,7 +346,7 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
         beeb_reg = 0
     ENDIF
 
-    PRINT "r=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg
+    PRINT "r=",r," sid reg=",~sid_reg," sid freq=",sid_freq, " beeb freq=",beeb_freq," beeb reg=",~beeb_reg
 
     EQUB %11000000 OR (beeb_reg AND &F)     ; tone 1 freq LO
 
@@ -351,10 +357,11 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 {
     FOR r,0,255,1
 
-    sid_reg = r << 7
-    sid_freq = sid_reg * 0.060959458 * 4
+    sid_reg = r << (8 - SID_MSB_SHIFT)
+    sid_freq = sid_reg * SID_TO_FREQ
+    beeb_freq = sid_freq * FREQ_TO_NOISE
 
-    beeb_div = (32.0 * sid_freq)
+    beeb_div = (32.0 * beeb_freq)
     IF beeb_div > 0
         IF (4000000.0 / beeb_div) > &3FF
             beeb_reg = &3FF
