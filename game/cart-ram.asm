@@ -7080,9 +7080,9 @@ ENDIF
 		jmp L_3A8B		;3A95 4C 8B 3A
 .L_3A98	cmp #$FF		;3A98 C9 FF
 		bne L_3AA5		;3A9A D0 09
-		lda #$0E		;3A9C A9 0E
-		sta L_7C53		;3A9E 8D 53 7C
-		sta L_7C74		;3AA1 8D 74 7C
+		; lda #$0E		;3A9C A9 0E
+		; sta L_7C53		;3A9E 8D 53 7C
+		; sta L_7C74		;3AA1 8D 74 7C
 		rts				;3AA4 60
 .L_3AA5	sec				;3AA5 38
 		sbc #$C8		;3AA6 E9 C8
