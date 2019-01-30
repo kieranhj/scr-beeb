@@ -733,6 +733,11 @@ L_07F0	= $07F0
 L_07F1	= $07F1
 L_07F2	= $07F2
 
+L_5800 = $5800
+L_5900 = $5900
+L_5A00 = $5A00
+L_5B00 = $5B00
+
 ; *****************************************************************************
 ; CORE RAM: $0800 - $4000
 ;
@@ -1176,6 +1181,21 @@ GUARD .disksys_loadto_addr
     	EQUB $00
     	EQUB $00
 .L_410F	EQUB $2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$2D,$09,$00,$00,$00
+
+; Was part of boot-data, but it's only needed on startup, so it can go
+; here.
+;
+; It's the initial horizon table when in game.
+.L_5780	EQUB $BC,$BC,$BC,$BC,$BC,$BC,$BC,$BA,$B9,$B9,$B9,$B9,$B9,$B9,$B7,$B5
+		EQUB $B4,$B4,$B4,$B4,$B4,$B2,$B1,$B0
+		EQUB $B0,$B0,$B0,$AE,$AD,$AD,$AD,$AD,$AF,$BD,$BF,$C0,$C0,$BF,$BE,$BC
+		EQUB $B8,$B8,$B8,$B7,$B6,$B6,$B5,$B5,$B2,$B1,$AF,$AC,$AB,$AB,$AB,$AB
+		EQUB $AB,$AB,$AB,$AC,$B4,$B4,$B4,$B1
+		EQUB $B1,$B4,$B4,$B4,$AC,$AB,$AB,$AB
+		EQUB $AB,$AB,$AB,$AB,$AC,$AD,$AF,$B1
+		EQUB $B5,$B5,$B5,$B6,$B7,$B8,$B8,$B8,$BC,$BD,$BE,$BF,$C0,$BF,$BD,$AF
+		EQUB $AD,$AD,$AD,$AD,$AE,$B0,$B0,$B0,$B0,$B1,$B2,$B4,$B4,$B4,$B4,$B4
+		EQUB $B5,$B7,$B9,$B9,$B9,$B9,$B9,$B9,$BA,$BC,$BC,$BC,$BC,$BC,$BC,$BC
 }
 
 .set_up_beeb_display
@@ -1395,7 +1415,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
-ORG &5700
+ORG &5c00
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 
