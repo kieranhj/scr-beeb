@@ -1277,7 +1277,7 @@ NEXT
 		jsr L_10D9		;3D23 20 D9 10
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
-
+		jsr graphics_draw_in_game_text_sprites
 		IF _DEBUG
 		JSR graphics_draw_debug_framerate
 		ENDIF
@@ -1302,7 +1302,7 @@ NEXT
 
 .L_3D50	ldy #$3C		;3D50 A0 3C PRESS FIRE
 		lda #$04		;3D52 A9 04
-		jsr kernel_set_up_text_sprite		;3D54 20 A9 12
+		jsr set_up_text_sprite		;3D54 20 A9 12
 		lda #$FF		;3D57 A9 FF
 		sta ZP_11		;3D59 85 11
 		lda #$F8		;3D5B A9 F8
@@ -1527,7 +1527,7 @@ NEXT
 		pha				;3F01 48
 		ldy #$4C		;3F02 A0 4C PAUSED
 		lda #$02		;3F04 A9 02
-		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
+		jsr set_up_text_sprite		;3F06 20 A9 12
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
 		ldx #KEY_DEF_CONTINUE		;3F0C A2 34
 		jsr poll_key_with_sysctl		;3F0E 20 C9 C7
@@ -1542,7 +1542,7 @@ NEXT
 		sta L_C355		;3F1E 8D 55 C3
 		bpl L_3F27_with_SID		;3F21 10 04
 		txa				;3F23 8A
-		jsr kernel_set_up_text_sprite		;3F24 20 A9 12
+		jsr set_up_text_sprite		;3F24 20 A9 12
 }
 \\
 .L_3F27_with_SID

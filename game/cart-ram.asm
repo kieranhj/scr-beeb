@@ -2873,7 +2873,7 @@ rts
 		rts				;97B6 60
 .L_97B7	ldy #$64		;97B7 A0 64 DEFINE KEYS
 		lda #$04		;97B9 A9 04
-		jsr kernel_set_up_text_sprite		;97BB 20 A9 12
+		jsr set_up_text_sprite		;97BB 20 A9 12
 		lda #$01		;97BE A9 01
 		sta L_983B		;97C0 8D 3B 98
 .L_97C3	ldy #$28		;97C3 A0 28
@@ -2882,7 +2882,7 @@ rts
 .L_97CA	stx L_983A		;97CA 8E 3A 98
 		ldy L_9841,X	;97CD BC 41 98
 		lda #$04		;97D0 A9 04
-		jsr kernel_set_up_text_sprite		;97D2 20 A9 12
+		jsr set_up_text_sprite		;97D2 20 A9 12
 .L_97D5	ldx #KEY_DEF_CANCEL		;97D5 A2 3F
 .L_97D7	stx ZP_17		;97D7 86 17
 		jsr poll_key_with_sysctl		;97D9 20 C9 C7
@@ -2896,7 +2896,7 @@ rts
 		beq L_9802		;97EE F0 12
 		ldy #$D4		;97F0 A0 D4 FAULT FOUND
 		lda #$04		;97F2 A9 04
-		jsr kernel_set_up_text_sprite		;97F4 20 A9 12
+		jsr set_up_text_sprite		;97F4 20 A9 12
 		ldy #$28		;97F7 A0 28
 		jsr delay_approx_Y_25ths_sec		;97F9 20 EB 3F
 		jmp L_97B7		;97FC 4C B7 97
@@ -2920,11 +2920,11 @@ rts
 		bmi L_9832		;9826 30 0A
 		ldy #$C4		;9828 A0 C4 VERIFY KEYS
 		lda #$04		;982A A9 04
-		jsr kernel_set_up_text_sprite		;982C 20 A9 12
+		jsr set_up_text_sprite		;982C 20 A9 12
 		jmp L_97C3		;982F 4C C3 97
 .L_9832	ldy #$4C		;9832 A0 4C PAUSED
 		lda #$02		;9834 A9 02
-		jsr kernel_set_up_text_sprite		;9836 20 A9 12
+		jsr set_up_text_sprite		;9836 20 A9 12
 		rts				;9839 60
 
 .L_983A	equb $00
@@ -3958,7 +3958,7 @@ rts
 		sta ZP_6C		;1584 85 6C
 		lda #$02		;1586 A9 02
 		ldy #$00		;1588 A0 00 WRECK
-		jsr kernel_set_up_text_sprite		;158A 20 A9 12
+		jsr set_up_text_sprite		;158A 20 A9 12
 .L_158D	rts				;158D 60
 }
 

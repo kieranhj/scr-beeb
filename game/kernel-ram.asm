@@ -1433,191 +1433,6 @@ jsr dash_reset
 		rts				;12A8 60
 }
 
-; 252 bytes that aren't otherwise needed when in game.
-text_sprite_buffer=$5800
-
-; Y = offset into text_sprite_data
-; A = # 4-byte blocks at the given offset
-.set_up_text_sprite
-{
-		sty L_1327		;12A9 8C 27 13 data offset
-		sta L_1328		;12AC 8D 28 13
-		sta ZP_A0		;12AF 85 A0
-		txa				;12B1 8A
-		pha				;12B2 48
-		ldx #$7f		;12B3 A2 7F
-
-; reset the < flag.
-
-		lda #$00		;12B5 A9 00
-		sta ZP_18		;12B7 85 18
-
-; clear sprite contents.
-
-.L_12B9	sta L_7F80,X	;12B9 9D 80 7F
-		dex				;12BC CA
-		bpl L_12B9		;12BD 10 FA
-
-.L_12BF
-
-; fetch first byte of block - dest offset in sprite data.
-;
-; the values actually used are:
-;
-; $03 - left sprite, row 3
-; $43 - right sprite, row 3
-; $21 - left sprite, row 11
-; $61 - right sprite, row 11
-
-		ldx text_sprite_data,Y	;12BF BE 29 13
-		iny				;12C2 C8
-
-; ZP_08 = column counter - each sprite is 24 px/3 chars wide.
-
-		lda #$03		;12C3 A9 03
-		sta ZP_08		;12C5 85 08
-		
-.L_12C7
-		lda text_sprite_data,Y	;12C7 B9 29 13
-
-		cmp #$3C		;12CA C9 3C
-		bne L_12D2		;12CC D0 04 taken if not '<'
-
-; ZP_18 set if a < was seen - shift this row left 4 pixels.
-
-		stx ZP_18		;12CE 86 18 store offset of data to shift
-		lda #$20		;12D0 A9 20 pretend it was a space
-		
-.L_12D2
-
-; convert ASCII->char index
-
-        sec				;12D2 38
-		sbc #$30		;12D3 E9 30
-
-; save X+Y.
-
-		sty ZP_C7		;12D5 84 C7
-		stx ZP_C6		;12D7 86 C6
-
-; L_1469 = get address of B&W data for font char in ZP_1E
-
-		jsr L_1469		;12D9 20 69 14
-		
-.L_12DC
-
-; copy font char byte into sprite data.
-
-		lda (ZP_1E),Y	;12DC B1 1E
-		sta L_7F80,X	;12DE 9D 80 7F
-
-; advance to next row of sprite
-
-		inx				;12E1 E8
-		inx				;12E2 E8
-		inx				;12E3 E8
-
-; next byte of font data - and so on.
-
-		iny				;12E4 C8
-		cpy #$07		;12E5 C0 07
-		bne L_12DC		;12E7 D0 F3
-
-; restore X+Y.
-
-		ldy ZP_C7		;12E9 A4 C7
-		ldx ZP_C6		;12EB A6 C6
-
-; next text sprite data byte
-
-		iny				;12ED C8
-
-; ??? next sprite column ???
-
-		inx				;12EE E8
-
-; 3 columns.
-
-		dec ZP_08		;12EF C6 08
-		bne L_12C7		;12F1 D0 D4
-
-; repeat for all blocks of 4 bytes
-
-		dec ZP_A0		;12F3 C6 A0
-		bne L_12BF		;12F5 D0 C8
-
-; Check for a row shift offset.
-
-		lda ZP_18		;12F7 A5 18
-		beq L_131F		;12F9 F0 24
-
-; < flag was set.
-
-		lda #$06		;12FB A9 06
-		sta ZP_08		;12FD 85 08 shift 6 rows
-		
-		ldx ZP_18		;12FF A6 18
-
-; shift row left, 4 times.
-
-.L_1301	ldy #$04				;1301 A0 04
-.L_1303	asl L_7F80+64+2,X		;1303 1E C2 7F
-		rol L_7F80+64+1,X		;1306 3E C1 7F
-		rol L_7F80+64,X			;1309 3E C0 7F
-		rol L_7F80+2,X			;130C 3E 82 7F
-		rol L_7F80+1,X			;130F 3E 81 7F
-		rol L_7F80+0,X			;1312 3E 80 7F
-		dey				;1315 88
-		bne L_1303		;1316 D0 EB
-		inx				;1318 E8
-		inx				;1319 E8
-		inx				;131A E8
-		dec ZP_08		;131B C6 08
-		bne L_1301		;131D D0 E2
-		
-.L_131F
-
-; convert 1bpp -> 2bpp.
-
-;   		lda #LO(text_sprite_buffer):sta ZP_1E
-; 		lda #HI(text_sprite_buffer):sta ZP_1F
-; 		ldx #0
-; .convert_text_sprite_loop
-; 		lda 
-
-
-; indicate there's a text sprite set up - looks like the IRQ handler
-; checks this.
-
-		lda #$80		;131F A9 80
-		sta L_C355		;1321 8D 55 C3
-		pla				;1324 68
-		tax				;1325 AA
-		rts				;1326 60
-
-; There doesn't appear to be any way to make defines for the offsets
-; in BeebAsm :(
-.text_sprite_data
-		equb $03,"<WR",$43,"ECK"					   ; +0   +$00
-
-; the "T" part looks like a bug - when used, A is set to 4 - see
-; L_1057.
-		equb $03," RA",$43,"CE ",$21,"< W",$61,"ON ",$61,"T  " ; +8   +$08
-		equb $03," RA",$43,"CE ",$21," LO",$61,"ST "		   ; +28  +$1C
-		equb $03," DR",$43,"OP ",$21,"<ST",$61,"ART"		   ; +44  +$2C
-		equb $03,"<PR",$43,"ESS",$21," FI",$61,"RE "		   ; +60  +$3C
-		equb $03,"PAU",$43,"SED",""					 ; +76  +$4C
-		equb $03," LA",$43,"PS ",$21," OV",$61,"ER "		   ; +84  +$54
-		equb $03,"DEF",$43,"INE",$21," KE",$61,"YS "		   ; +100 +$64
-		equb $03,"<ST",$43,"EER",$21," LE",$61,"FT "		   ; +116 +$74
-		equb $03," ST",$43,"EER",$21," RI",$61,"GHT"		   ; +132 +$84
-		equb $03,"<AH",$43,"EAD",$21,"+BO",$61,"OST"		   ; +148 +$94
-		equb $03," BA",$43,"CK ",$21,"+BO",$61,"OST"		   ; +164 +$A4
-		equb $03," BA",$43,"CK ",$21,"   ",$61,"   "		   ; +180 +$B4
-		equb $03,"VER",$43,"IFY",$21," KE",$61,"YS "		   ; +196 +$C4
-		equb $03," FA",$43,"ULT",$21," FO",$61,"UND"		   ; +212 +$D4
-}
-
 ; .L_1411				; only called from Kernel?
 ; {
 ; 		lda L_3FFA,X	;1411 BD FA 3F
@@ -1678,26 +1493,26 @@ text_sprite_buffer=$5800
 ; 		rts				;1468 60
 ; }
 
-.L_1469				; only called from Kernel?
-{
-		ldy #$00		;1469 A0 00
-		sty ZP_14		;146B 84 14
-		clc				;146D 18
-		adc #$30		;146E 69 30
-		asl A			;1470 0A
-		asl A			;1471 0A
-		rol ZP_14		;1472 26 14
-		asl A			;1474 0A
-		rol ZP_14		;1475 26 14
-		clc				;1477 18
-		adc #LO(font_data-64)	;1478 69 C0
-		sta ZP_1E		;147A 85 1E
-		lda ZP_14		;147C A5 14
-		adc #HI(font_data-64)	;147E 69 7F
-		sta ZP_1F		;1480 85 1F
-		iny				;1482 C8
-		rts				;1483 60
-}
+; .L_1469				; only called from Kernel?
+; {
+; 		ldy #$00		;1469 A0 00
+; 		sty ZP_14		;146B 84 14
+; 		clc				;146D 18
+; 		adc #$30		;146E 69 30
+; 		asl A			;1470 0A
+; 		asl A			;1471 0A
+; 		rol ZP_14		;1472 26 14
+; 		asl A			;1474 0A
+; 		rol ZP_14		;1475 26 14
+; 		clc				;1477 18
+; 		adc #LO(font_data-64)	;1478 69 C0
+; 		sta ZP_1E		;147A 85 1E
+; 		lda ZP_14		;147C A5 14
+; 		adc #HI(font_data-64)	;147E 69 7F
+; 		sta ZP_1F		;1480 85 1F
+; 		iny				;1482 C8
+; 		rts				;1483 60
+; }
 
 .find_track_segment_index		; only called from Kernel?
 {
