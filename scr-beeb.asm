@@ -995,39 +995,40 @@ GUARD .disksys_loadto_addr
 
 \\ Think this is sprite data
 
-		ldx #$00		;4179 A2 00
-.L_417B	lda L_63E0,X	;417B BD E0 63
-		sta L_5800,X	;417E 9D 00 58
-		lda L_6520,X	;4181 BD 20 65
-		sta L_5900,X	;4184 9D 00 59
-		dex				;4187 CA
-		bne L_417B		;4188 D0 F1     ; copy 2x pages from $63E0 to $5800
+; 		ldx #$00		;4179 A2 00
+; .L_417B
+; 		lda #0;L_63E0,X	;417B BD E0 63
+; 		sta L_5800,X	;417E 9D 00 58
+; 		lda #0;L_6520,X	;4181 BD 20 65
+; 		sta L_5900,X	;4184 9D 00 59
+; 		dex				;4187 CA
+; 		bne L_417B		;4188 D0 F1     ; copy 2x pages from $63E0 to $5800
 
 \\ Think this is sprite data
 
-		ldx #$3F		;418A A2 3F
-.L_418C	lda L_66E0,X	;418C BD E0 66
-		sta L_5A00,X	;418F 9D 00 5A
-		lda L_6920,X	;4192 BD 20 69
-		sta L_5A40,X	;4195 9D 40 5A
-		lda L_6B60,X	;4198 BD 60 6B
-		sta L_7F40,X	;419B 9D 40 7F
-		lda L_6BA0,X	;419E BD A0 6B
-		sta L_57C0,X	;41A1 9D C0 57
-		dex				;41A4 CA
-		bpl L_418C		;41A5 10 E5     ; copy $40*4 = 256 bytes from $6XX0 to $5XX0
+; 		ldx #$3F		;418A A2 3F
+; .L_418C	lda #0;L_66E0,X	;418C BD E0 66
+; 		sta L_5A00,X	;418F 9D 00 5A
+; 		lda #0;L_6920,X	;4192 BD 20 69
+; 		sta L_5A40,X	;4195 9D 40 5A
+; 		; lda L_6B60,X	;4198 BD 60 6B
+; 		; sta L_7F40,X	;419B 9D 40 7F
+; 		; lda #0;L_6BA0,X	;419E BD A0 6B
+; 		; sta L_57C0,X	;41A1 9D C0 57
+; 		dex				;41A4 CA
+; 		bpl L_418C		;41A5 10 E5     ; copy $40*4 = 256 bytes from $6XX0 to $5XX0
 
 \\ Think this is sprite data
 
-		ldx #$7F		;41A7 A2 7F
-.L_41A9	lda L_6D20,X	;41A9 BD 20 6D
-		sta L_5A80,X	;41AC 9D 80 5A
-		lda L_6A20,X	;41AF BD 20 6A
-		sta L_5B00,X	;41B2 9D 00 5B
-		lda L_6DE0,X	;41B5 BD E0 6D
-		sta L_5B80,X	;41B8 9D 80 5B
-		dex				;41BB CA
-		bpl L_41A9		;41BC 10 EB     ; copy $80*3 = 384 bytes from $6DX0 to $5XX0
+; 		ldx #$7F		;41A7 A2 7F
+; .L_41A9	lda #0;L_6D20,X	;41A9 BD 20 6D
+; 		sta L_5A80,X	;41AC 9D 80 5A
+; 		lda #0;L_6A20,X	;41AF BD 20 6A
+; 		sta L_5B00,X	;41B2 9D 00 5B
+; 		lda #0;L_6DE0,X	;41B5 BD E0 6D
+; 		sta L_5B80,X	;41B8 9D 80 5B
+; 		dex				;41BB CA
+; 		bpl L_41A9		;41BC 10 EB     ; copy $80*3 = 384 bytes from $6DX0 to $5XX0
 
 \\ Think this is screen RAM area
 
@@ -1049,7 +1050,23 @@ GUARD .disksys_loadto_addr
 	; C64 copy 14x pages to $D000 through $DD00
 
 .L_41E0	ldx #$00		;41E0 A2 00
-.L_41E2	
+.L_41E2
+
+; Anything in this loop that's filled with 0 is unused (hopefully!)
+; and could be left as-is - it's initialised explicitly so it's easy
+; to spot in a hex view.
+
+; These areas are display RAM during the track preview screen, and
+; invisible during game. C64 version uses them to hold sprite data
+; while in game.
+
+		lda #0:sta L_5800,x
+		lda #0:sta L_5900,x
+		lda #0:sta L_5A00,x
+		lda #0:sta L_5B00,x
+
+; HAZEL.
+
 		lda #0:sta _L_D000,X	; d0
 		lda #0:sta _L_D100,X	; d1
 		lda #0:sta _L_D200,X	; d2
@@ -1062,12 +1079,13 @@ GUARD .disksys_loadto_addr
 		lda #0:sta _L_D900,x	; d9
 		lda #0:sta _L_DA00,x	; da
 		lda #0:sta _L_DB00,x	; db
+		
 		lda L_AE00,X	;422A BD 00 AE
 		sta L_DC00,X	;422D 9D 00 DC
 		lda L_7B00,X	;4230 BD 00 7B
 		sta L_DD00,X	;4233 9D 00 DD
 		dex				;4236 CA
-		bne L_41E2		;4237 D0 A9     ; copy 14x pages to $D000
+		bne L_41E2		;4237 D0 A9
 
 	\\ Copy blank entries for high score tables
 

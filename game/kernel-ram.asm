@@ -1433,6 +1433,9 @@ jsr dash_reset
 		rts				;12A8 60
 }
 
+; 252 bytes that aren't otherwise needed when in game.
+text_sprite_buffer=$5800
+
 ; Y = offset into text_sprite_data
 ; A = # 4-byte blocks at the given offset
 .set_up_text_sprite
@@ -1442,7 +1445,7 @@ jsr dash_reset
 		sta ZP_A0		;12AF 85 A0
 		txa				;12B1 8A
 		pha				;12B2 48
-		ldx #$7F		;12B3 A2 7F
+		ldx #$7f		;12B3 A2 7F
 
 ; reset the < flag.
 
@@ -1557,13 +1560,13 @@ jsr dash_reset
 
 ; shift row left, 4 times.
 
-.L_1301	ldy #$04		;1301 A0 04
-.L_1303	asl L_7FC2,X	;1303 1E C2 7F
-		rol L_7FC1,X	;1306 3E C1 7F
-		rol L_7FC0,X	;1309 3E C0 7F
-		rol L_7F82,X	;130C 3E 82 7F
-		rol L_7F81,X	;130F 3E 81 7F
-		rol L_7F80,X	;1312 3E 80 7F
+.L_1301	ldy #$04				;1301 A0 04
+.L_1303	asl L_7F80+64+2,X		;1303 1E C2 7F
+		rol L_7F80+64+1,X		;1306 3E C1 7F
+		rol L_7F80+64,X			;1309 3E C0 7F
+		rol L_7F80+2,X			;130C 3E 82 7F
+		rol L_7F80+1,X			;130F 3E 81 7F
+		rol L_7F80+0,X			;1312 3E 80 7F
 		dey				;1315 88
 		bne L_1303		;1316 D0 EB
 		inx				;1318 E8
@@ -1573,6 +1576,15 @@ jsr dash_reset
 		bne L_1301		;131D D0 E2
 		
 .L_131F
+
+; convert 1bpp -> 2bpp.
+
+;   		lda #LO(text_sprite_buffer):sta ZP_1E
+; 		lda #HI(text_sprite_buffer):sta ZP_1F
+; 		ldx #0
+; .convert_text_sprite_loop
+; 		lda 
+
 
 ; indicate there's a text sprite set up - looks like the IRQ handler
 ; checks this.
@@ -1678,10 +1690,10 @@ jsr dash_reset
 		asl A			;1474 0A
 		rol ZP_14		;1475 26 14
 		clc				;1477 18
-		adc #LO(L_7FC0)		;1478 69 C0
+		adc #LO(font_data-64)	;1478 69 C0
 		sta ZP_1E		;147A 85 1E
 		lda ZP_14		;147C A5 14
-		adc #HI(L_7FC0)		;147E 69 7F
+		adc #HI(font_data-64)	;147E 69 7F
 		sta ZP_1F		;1480 85 1F
 		iny				;1482 C8
 		rts				;1483 60

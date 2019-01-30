@@ -1190,11 +1190,15 @@ NEXT
 		jsr preview_unpack_background
 		jsr kernel_update_track_preview		;3C71 20 86 F3
 
-.L_3C74	ldx #$27		;3C74 A2 27
-		lda #$3B		;3C76 A9 3B
-.L_3C78	sta L_7FC0,X	;3C78 9D C0 7F
-		dex				;3C7B CA
-		bpl L_3C78		;3C7C 10 FA
+.L_3C74
+
+; What is this bit of code for?!
+
+; 		ldx #$27		;3C74 A2 27
+; 		lda #$3B		;3C76 A9 3B
+; .L_3C78	sta L_7FC0,X	;3C78 9D C0 7F
+; 		dex				;3C7B CA
+; 		bpl L_3C78		;3C7C 10 FA
 		
 		ldx #$2C		;3C7E A2 2C	; "steer to rotate view or fire to continue"
 		jsr cart_print_msg_4		;3C80 20 27 30
@@ -1217,8 +1221,8 @@ NEXT
 .game_main_loop			; aka L_3C99
 {
 		ldx #$80		;3C99 A2 80
-		lda #$34		;3C9B A9 34		; 'copy stuff'
-		jsr cart_sysctl		;3C9D 20 25 87
+		; lda #$34		;3C9B A9 34		; 'copy stuff'
+		; jsr cart_sysctl		;3C9D 20 25 87
 		jsr initialise_game_vars		;3CA0 20 F9 3D
 		ldx #$80		;3CA3 A2 80
 		lda #$10		;3CA5 A9 10		; 
@@ -1371,8 +1375,8 @@ NEXT
 		sta L_C719		;3DEA 8D 19 C7
 .L_3DED	jsr cart_save_rndQ_stateQ		;3DED 20 2C 16
 		ldx #$00		;3DF0 A2 00
-		lda #$34		;3DF2 A9 34
-		jsr cart_sysctl		;3DF4 20 25 87
+		; lda #$34		;3DF2 A9 34
+		; jsr cart_sysctl		;3DF4 20 25 87
 		rts				;3DF7 60
 }
 

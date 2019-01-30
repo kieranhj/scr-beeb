@@ -950,8 +950,8 @@ ENDIF
 .not_32
 		cmp #$55		;8775 C9 55
 		beq sysctl_fill_55_thunk;8777 F0 21
-		cmp #$34		;8779 C9 34
-		beq L_879D		;877B F0 20
+		; cmp #$34		;8779 C9 34
+		; beq L_879D		;877B F0 20
 		cmp #$48
 		beq fill_in_game_sky_thunk
 		cmp #$49
@@ -981,7 +981,7 @@ ENDIF
 .L_8793	
 
 .sysctl_fill_55_thunk lda #BEEB_PIXELS_COLOUR1:jmp fill_64s
-.L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
+;.L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
 .fill_in_game_sky_thunk jmp fill_in_game_sky
 .draw_flames_thunk jmp sysctl_draw_flames
 .erase_flames_thunk jmp sysctl_erase_flames
@@ -1089,45 +1089,45 @@ ENDIF
 
 ; If X bit	7 set, copy $62A0->$57C0, $6DE0->$D800
 ; If X bit	7 reset, copy $57C0->$62A0, $D800->$6DE0, $D000(RAM)
-.copy_stuff			; in Cart
+; .copy_stuff			; in Cart
 {
-		stx ZP_16		;886A 86 16
-		lda #HI(L_57C0)		;886C A9 57
-		sta ZP_1F		;886E 85 1F
-		lda #LO(L_57C0)		;8870 A9 C0
-		sta ZP_1E		;8872 85 1E
-		lda #HI(L_62A0)		;8874 A9 62
-		sta ZP_21		;8876 85 21
-		lda #LO(L_62A0)		;8878 A9 A0
-		sta ZP_20		;887A 85 20
-		ldx #$08		;887C A2 08
-.L_887E	ldy #$FF		;887E A0 FF
-.L_8880	bit ZP_16		;8880 24 16
-		bmi L_888B		;8882 30 07
-		lda (ZP_1E),Y	;8884 B1 1E
-		sta (ZP_20),Y	;8886 91 20
-		jmp L_888F		;8888 4C 8F 88
-.L_888B	lda (ZP_20),Y	;888B B1 20
-		sta (ZP_1E),Y	;888D 91 1E
-.L_888F	dey				;888F 88
-		cpy #$FF		;8890 C0 FF
-		bne L_8880		;8892 D0 EC
-		lda ZP_20		;8894 A5 20
-		clc				;8896 18
-		adc #$40		;8897 69 40
-		sta ZP_20		;8899 85 20
-		lda ZP_21		;889B A5 21
-		adc #$01		;889D 69 01
-		sta ZP_21		;889F 85 21
-		inc ZP_1F		;88A1 E6 1F
-		dex				;88A3 CA
-		bmi L_88AC		;88A4 30 06
-		bne L_887E		;88A6 D0 D6
-		ldy #$3F		;88A8 A0 3F
-		bne L_8880		;88AA D0 D4
-.L_88AC	ldx #$00		;88AC A2 00
-		bit ZP_16		;88AE 24 16
-		bmi L_88CE		;88B0 30 1C
+; 		stx ZP_16		;886A 86 16
+; 		lda #HI(L_57C0)		;886C A9 57
+; 		sta ZP_1F		;886E 85 1F
+; 		lda #LO(L_57C0)		;8870 A9 C0
+; 		sta ZP_1E		;8872 85 1E
+; 		lda #HI(L_62A0)		;8874 A9 62
+; 		sta ZP_21		;8876 85 21
+; 		lda #LO(L_62A0)		;8878 A9 A0
+; 		sta ZP_20		;887A 85 20
+; 		ldx #$08		;887C A2 08
+; .L_887E	ldy #$FF		;887E A0 FF
+; .L_8880	bit ZP_16		;8880 24 16
+; 		bmi L_888B		;8882 30 07
+; 		lda (ZP_1E),Y	;8884 B1 1E
+; 		sta (ZP_20),Y	;8886 91 20
+; 		jmp L_888F		;8888 4C 8F 88
+; .L_888B	lda (ZP_20),Y	;888B B1 20
+; 		sta (ZP_1E),Y	;888D 91 1E
+; .L_888F	dey				;888F 88
+; 		cpy #$FF		;8890 C0 FF
+; 		bne L_8880		;8892 D0 EC
+; 		lda ZP_20		;8894 A5 20
+; 		clc				;8896 18
+; 		adc #$40		;8897 69 40
+; 		sta ZP_20		;8899 85 20
+; 		lda ZP_21		;889B A5 21
+; 		adc #$01		;889D 69 01
+; 		sta ZP_21		;889F 85 21
+; 		inc ZP_1F		;88A1 E6 1F
+; 		dex				;88A3 CA
+; 		bmi L_88AC		;88A4 30 06
+; 		bne L_887E		;88A6 D0 D6
+; 		ldy #$3F		;88A8 A0 3F
+; 		bne L_8880		;88AA D0 D4
+; .L_88AC	ldx #$00		;88AC A2 00
+; 		bit ZP_16		;88AE 24 16
+; 		bmi L_88CE		;88B0 30 1C
 
 \\ READING FROM COLOUR RAM IN IO
 
@@ -1145,7 +1145,7 @@ ENDIF
 
 \\ WRITING TO COLOUR RAM IN IO
 
-.L_88CE
+; .L_88CE
 ; 		lda L_6DE0,X	;88CE BD E0 6D
 ; ;		sta L_D800,X	;88D1 9D 00 D8
 ; 		lda L_6F20,X	;88D4 BD 20 6F
@@ -1157,11 +1157,11 @@ ENDIF
 ; 		dex				;88E6 CA
 ; 		bne L_88CE		;88E7 D0 E5
 
-		lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00
-		sta VIC_IRQMASK		;88EB 8D 1A D0
-		sei				;88EE 78
-		lda #C64_NO_IO_NO_KERNAL		;88EF A9 34
-		sta RAM_SELECT		;88F1 85 01
+		; lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00
+		; sta VIC_IRQMASK		;88EB 8D 1A D0
+		; sei				;88EE 78
+		; lda #C64_NO_IO_NO_KERNAL		;88EF A9 34
+		; sta RAM_SELECT		;88F1 85 01
 
 ; 		ldx #$00		;88F3 A2 00
 ; .L_88F5	lda L_D000,X	;88F5 BD 00 D0
@@ -1177,12 +1177,12 @@ ENDIF
 ; 		dex				;8913 CA
 ; 		bne L_88F5		;8914 D0 DF
 
-		lda #C64_IO_NO_KERNAL		;8916 A9 35
-		sta RAM_SELECT		;8918 85 01
-		cli				;891A 58
-		lda #C64_VIC_IRQ_RASTERCMP		;891B A9 01
-		sta VIC_IRQMASK		;891D 8D 1A D0
-		rts				;8920 60
+; 		lda #C64_IO_NO_KERNAL		;8916 A9 35
+; 		sta RAM_SELECT		;8918 85 01
+; 		cli				;891A 58
+; 		lda #C64_VIC_IRQ_RASTERCMP		;891B A9 01
+; 		sta VIC_IRQMASK		;891D 8D 1A D0
+; 		rts				;8920 60
 }
 
 ; fill scanlines
