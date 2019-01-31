@@ -9,78 +9,17 @@
 
 ; Engine screen data (copied at boot time from elsewhere)
 
-.L_C000
-;.L_72E0
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FD,$FD,$FF,$FF,$FF,$FF,$FF,$55,$02,$00
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FD,$FD,$FD,$F4,$FF,$FF,$FF,$55,$00,$55,$00,$00
-		EQUB $FF,$FF,$FF,$57,$01,$55,$05,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$D5,$40,$55,$50,$80
-		EQUB $FF,$FF,$FF,$55,$00,$55,$00,$00,$FF,$FF,$FF,$FF,$7F,$5F,$5F,$07
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD
-		EQUB $FF,$FF,$FF,$FF,$FF,$55,$80,$00,$FF,$FF,$FF,$FF,$FF,$FF,$7F,$7F
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+.hazel_start
 
-.L_C100
-;.L_7420
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD,$FC,$F4
-		EQUB $FF,$FF,$FF,$FF,$69,$00,$00,$00,$FD,$F4,$D0,$C0,$50,$18,$08,$02
-		EQUB $54,$06,$02,$00,$00,$00,$00,$00,$00,$00,$00,$80,$82,$99,$85,$85
-		EQUB $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD,$FF,$FF,$FF,$FF,$FF,$F9,$A5,$94
-		EQUB $F5,$D4,$40,$50,$55,$55,$40,$00,$AA,$00,$00,$00,$AA,$55,$00,$00
-		EQUB $AA,$29,$02,$0A,$A9,$63,$28,$0B,$FF,$FC,$FC,$FC,$54,$A8,$00,$54
-		EQUB $FF,$7F,$7F,$7F,$55,$40,$40,$55,$AA,$68,$40,$60,$EA,$C2,$28,$E0
-		EQUB $AA,$00,$00,$00,$AA,$55,$00,$00,$57,$15,$01,$05,$55,$56,$00,$00
-		EQUB $FF,$FF,$FF,$FF,$FF,$67,$59,$16,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$7F
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD,$FD,$FD,$FD,$FD,$FD,$FD,$FD
-		EQUB $00,$00,$00,$82,$82,$66,$52,$92,$15,$90,$80,$00,$00,$00,$00,$80
-		EQUB $7F,$1F,$07,$03,$05,$24,$20,$80,$FF,$FF,$FF,$FF,$55,$00,$00,$00
-		EQUB $FF,$FF,$FF,$FF,$FF,$7F,$3F,$1F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-		EQUB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-
-.L_C200
-;.L_75A0
-		EQUB $7F,$7F,$7F,$7F,$BF,$AF,$2F,$5B,$FF,$FF,$FF,$FF,$FE,$FD,$F5,$E5
-		EQUB $F9,$E9,$25,$AA,$92,$99,$59,$A9
-
-.L_C218
-;.L_7608
-		EQUB $65,$79,$98,$96,$E2,$E7,$E9,$F9,$FF,$FF,$FF,$FF,$7F,$5F,$5B,$12
-		EQUB $FD,$FD,$FD,$FD,$FD,$F5,$FA,$EA
-
-.L_C230
-;.L_7560
-		EQUB $FF,$FF,$FF,$FF,$00,$00,$00,$00,$FF,$FF,$FE,$FC,$08,$00,$10,$10
-		EQUB $FF,$59,$00,$00,$00,$00,$00,$00
-
-.L_C248
-;.L_7648
-		EQUB $FF,$65,$00,$00,$00,$00,$00,$00,$FF,$FF,$BF,$3F,$20,$04,$04,$04
-		EQUB $FF,$FF,$FF,$FF,$00,$00,$00,$00
-
+.L_C000	skip $100
+.L_C100	skip $100
+.L_C200 skip $18
+.L_C218 skip $18
+.L_C230 skip $18
+.L_C248 skip $18
 .L_C260 skip &20
-
-\\ Manually moved from boot loader
-.L_C280
-;.L_5780
-		EQUB $BC,$BC,$BC,$BC,$BC,$BC,$BC,$BA,$B9,$B9,$B9,$B9,$B9,$B9,$B7,$B5
-		EQUB $B4,$B4,$B4,$B4,$B4,$B2,$B1,$B0,$B0,$B0,$B0,$AE,$AD,$AD,$AD,$AD
-		EQUB $AF,$BD,$BF,$C0,$C0,$BF,$BE,$BC,$B8,$B8,$B8,$B7,$B6,$B6,$B5,$B5
-		EQUB $B2,$B1,$AF,$AC,$AB,$AB,$AB,$AB,$AB,$AB,$AB,$AC,$B4,$B4,$B4,$B1
-.L_C2C0
-		EQUB $B1,$B4,$B4,$B4,$AC,$AB,$AB,$AB,$AB,$AB,$AB,$AB,$AC,$AD,$AF,$B1
-		EQUB $B5,$B5,$B5,$B6,$B7,$B8,$B8,$B8,$BC,$BD,$BE,$BF,$C0,$BF,$BD,$AF
-		EQUB $AD,$AD,$AD,$AD,$AE,$B0,$B0,$B0,$B0,$B1,$B2,$B4,$B4,$B4,$B4,$B4
-		EQUB $B5,$B7,$B9,$B9,$B9,$B9,$B9,$B9,$BA,$BC,$BC,$BC,$BC,$BC,$BC,$BC
+.L_C280	skip $40
+.L_C2C0 skip $40
 
 .L_C300	skip 1
 .L_C301	skip 1
@@ -235,8 +174,6 @@
 .L_C680	skip &40
 .L_C6C0	skip &40	; stash $B bytes from $DAB6
 
-.hazel_start
-
 .L_C700	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .L_C70B	equb $00
 .L_C70C	equb $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -301,6 +238,8 @@ skip &7C
 ; *****************************************************************************
 \\ Data moved from Cart RAM to Hazel
 ; *****************************************************************************
+
+.hazel_data_start
 
 \\ Suspect these are transformed vertices somehow?
 .L_A200	skip &180
@@ -525,9 +464,10 @@ ENDIF
 		equb $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
 		equb $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
 
-.hazel_end
+.hazel_data_end
 
-ORG &D000
+; These are free
+
 ._L_D000:skip 256
 ._L_D100:skip 256
 ._L_D200:skip 256
@@ -540,48 +480,28 @@ ORG &D000
 ._L_D900:skip 256
 ._L_DA00:skip 256
 ._L_DB00:skip 256
-.L_DC00
-;L_AE00
-		EQUB $20
-;L_AE01
-		EQUB $48,$6F,$74,$20,$52,$6F,$64,$20,$20,$20,$20,$20,$20,$B1,$8B,$20
-		EQUB $57,$68,$69,$7A,$7A,$20,$4B,$69,$64,$20,$20,$20,$20,$F0,$36,$20
-		EQUB $42,$61,$64,$20,$47,$75,$79,$20,$20,$20,$20,$20,$20,$14,$60,$20
-		EQUB $54,$68,$65,$20,$44,$6F,$64,$67,$65,$72,$20,$20,$20,$41,$04
-;L_AE40
-		EQUB $20,$42,$69,$67,$20,$45,$64,$20,$20,$20,$20,$20,$20,$20,$61,$72
-		EQUB $20,$4D,$61,$78,$20,$42,$6F,$6F,$73,$74,$20,$20,$20,$20,$02,$A8
-		EQUB $20,$44,$61,$72,$65,$20,$44,$65,$76,$69,$6C,$20,$20,$20,$00,$86
-		EQUB $20,$48,$69,$67,$68,$20,$46,$6C,$79,$65,$72,$20,$20,$20,$23,$C9
-		EQUB $20,$42,$75,$6C,$6C,$79,$20,$42,$6F,$79,$20,$20,$20,$20,$0A,$0A
-		EQUB $20,$4A,$75,$6D,$70,$69,$6E,$67,$20,$4A,$61,$63,$6B,$20,$F4,$C8
-		EQUB $20,$52,$6F,$61,$64,$20,$48,$6F,$67,$20,$20,$20,$20,$20,$64,$20
-		EQUB $20
-;L_AEB1
-		EQUB $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$40,$60,$A9
-;L_AEC1	
-		EQUB $00,$A4,$18,$4C,$EA,$AE,$4C,$43,$AE,$A9,$00,$F0,$0A,$4C,$0E,$8C
-		EQUB $20,$EC,$AD,$D0,$F8,$A5,$36,$A0,$00,$F0,$0E,$A4,$1B,$B1,$19
-;opponent_attributes
-.L_DCE0	
-		EQUB $22,$20,$62,$20,$3E,$04,$30,$14,$4A,$10,$08,$00,$84,$2B,$A9,$00
-		EQUB $85,$2C,$85,$2D,$A9,$40,$60,$A5,$1E,$4C,$D8,$AE,$A5,$00,$A4,$01
 
-.L_DD00
-;L_7B00
-		EQUB $00,$00,$10,$20,$20,$20,$55,$55,$00,$00,$00,$00,$82,$82,$55,$55
-		EQUB $00,$00,$04,$08,$08,$08,$55,$55,$00,$00,$00,$00,$20,$20,$54,$54
-		EQUB $00,$00,$55,$55,$15,$15,$15,$15,$2A,$00,$40,$55,$55,$55,$55,$55
-		EQUB $AA,$2A,$00,$40,$55,$55,$55,$55,$AA,$AA,$2A,$00,$40,$55,$55,$55
-		EQUB $55,$55,$55,$15,$00,$80,$AA,$AA,$55,$55,$55,$55,$55,$00,$80,$AA
-		EQUB $AA,$55,$55,$55,$55,$55,$00,$C0,$AA,$AA,$55,$55,$55,$55,$55,$00
-		EQUB $55,$55,$55,$A9,$A9,$A9,$A9,$A1,$5A,$5A,$5A,$5A,$5A,$5A,$5A,$5A
-		EQUB $29,$29,$29,$29,$29,$29,$29,$29,$55,$55,$55,$55,$55,$55,$55,$55
-		EQUB $55,$55,$55,$55,$56,$56,$56,$56,$54,$54,$54,$54,$54,$54,$54,$54
-		EQUB $A5,$A5,$A5,$A5,$A5,$A5,$A5,$A5,$40,$50,$50,$50,$50,$58,$58,$58
-		EQUB $00,$00,$01,$05,$05,$05,$05,$05,$00,$00,$55,$55,$55,$55,$55,$55
-		EQUB $00,$00,$55,$55,$55,$55,$55,$55,$00,$00,$55,$55,$55,$55,$55,$55
-		EQUB $00,$00,$55,$55,$55,$55,$55,$55,$00,$00,$55,$55,$55,$55,$55,$55
-		EQUB $00,$00,$50,$54,$54,$54,$54,$54,$56,$16,$16,$16,$16,$16,$16,$16
-		EQUB $00,$00,$00,$01,$01,$01,$00,$01,$40,$40,$00,$50,$00,$50,$10,$50
-		EQUB $00,$00,$00,$00,$00,$00,$00,$00,$10,$10,$00,$54,$44,$54,$44,$54
+; These are used as temporary storage for some reason
+; Not sure if still valid in Master memory map but...
+
+.L_DC00	skip $E0
+.L_DCE0	skip $20
+.L_DD00 skip $100
+
+; Believe these are high score tables
+
+.L_DE00 skip 1	; = $DE00 + BEEB_HAZEL_OFFSET
+.L_DE01	skip 1	; = $DE01 + BEEB_HAZEL_OFFSET
+.L_DE02 skip $A	; = $DE02 + BEEB_HAZEL_OFFSET
+.L_DE0C	skip 1	; = $DE0C + BEEB_HAZEL_OFFSET
+.L_DE0D	skip 1	; = $DE0D + BEEB_HAZEL_OFFSET
+.L_DE0E	skip $F2	; = $DE0E + BEEB_HAZEL_OFFSET
+
+.L_DF00	skip 1	; = $DF00 + BEEB_HAZEL_OFFSET
+.L_DF01	skip 1	; = $DF01 + BEEB_HAZEL_OFFSET
+.L_DF02	skip $A	; = $DF02 + BEEB_HAZEL_OFFSET
+.L_DF0C	skip 1	; = $DF0C + BEEB_HAZEL_OFFSET
+.L_DF0D	skip 1	; = $DF0D + BEEB_HAZEL_OFFSET
+.L_DF0E	skip $F2	; = $DF0E + BEEB_HAZEL_OFFSET
+
+.hazel_end

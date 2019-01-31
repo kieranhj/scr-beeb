@@ -78,49 +78,6 @@ MACRO SWR_SELECT_SLOT bank
 ENDMACRO
 
 ; *****************************************************************************
-; C64 MEMORY DEFINES
-; *****************************************************************************
-
-BEEB_HAZEL_OFFSET = $0
-
-; L_CFFF = $CFFF + BEEB_HAZEL_OFFSET
-
-; L_D401 = $D401 + BEEB_HAZEL_OFFSET
-; L_D402 = $D402 + BEEB_HAZEL_OFFSET
-; L_D440 = $D440 + BEEB_HAZEL_OFFSET
-
-; L_D805 = $D805 + BEEB_HAZEL_OFFSET
-; L_DAB6 = $DAB6 + BEEB_HAZEL_OFFSET
-; L_DAAC = $DAAC + BEEB_HAZEL_OFFSET
-; L_DACB = $DACB + BEEB_HAZEL_OFFSET
-; L_DAD4 = $DAD4 + BEEB_HAZEL_OFFSET
-; L_DAFC = $DAFC + BEEB_HAZEL_OFFSET
-; L_DAF3 = $DAF3 + BEEB_HAZEL_OFFSET
-
-; L_DB1B = $DB1B + BEEB_HAZEL_OFFSET
-; L_DB54 = $DB54 + BEEB_HAZEL_OFFSET
-; L_DB58 = $DB58 + BEEB_HAZEL_OFFSET
-; L_DBDA = $DBDA + BEEB_HAZEL_OFFSET
-; L_DBDB = $DBDB + BEEB_HAZEL_OFFSET
-; L_DBCC = $DBCC + BEEB_HAZEL_OFFSET
-; L_DBCD = $DBCD + BEEB_HAZEL_OFFSET
-
-; Believe these are high score tables
-L_DE00 = $DE00 + BEEB_HAZEL_OFFSET
-L_DE01 = $DE01 + BEEB_HAZEL_OFFSET
-L_DE02 = $DE02 + BEEB_HAZEL_OFFSET
-L_DE0C = $DE0C + BEEB_HAZEL_OFFSET
-L_DE0D = $DE0D + BEEB_HAZEL_OFFSET
-L_DE0E = $DE0E + BEEB_HAZEL_OFFSET
-
-L_DF00 = $DF00 + BEEB_HAZEL_OFFSET
-L_DF01 = $DF01 + BEEB_HAZEL_OFFSET
-L_DF02 = $DF02 + BEEB_HAZEL_OFFSET
-L_DF0C = $DF0C + BEEB_HAZEL_OFFSET
-L_DF0D = $DF0D + BEEB_HAZEL_OFFSET
-L_DF0E = $DF0E + BEEB_HAZEL_OFFSET
-
-; *****************************************************************************
 ; C64 KERNEL DEFINES
 ; *****************************************************************************
 
@@ -802,7 +759,7 @@ PRINT "--------"
 
 CLEAR &3f00, &8000
 ORG $3f00
-GUARD .disksys_loadto_addr
+GUARD disksys_loadto_addr
 
 .boot_start
 
@@ -908,8 +865,8 @@ GUARD .disksys_loadto_addr
 	\\ Now copy data from screen1 up to Hazel
 
 	LDA #HI(disksys_loadto_addr)
-	LDX #HI(hazel_start)
-	LDY #HI(hazel_end - hazel_start + &FF)
+	LDX #HI(hazel_data_start)
+	LDY #HI(hazel_data_end - hazel_data_start + &FF)
 	JSR disksys_copy_block
 
 	\\ FS is now unusable as HAZEL has been trashed
@@ -1555,16 +1512,17 @@ PRINT "---------"
 PRINT "  Start =", ~hazel_start
 PRINT "  End =", ~hazel_end
 PRINT "  Size =", ~(hazel_end - hazel_start)
+PRINT "  Data Size =", ~(hazel_data_end - hazel_data_start)
 PRINT "  Free =", ~(&E000 - hazel_end)
 ; print "data_start =",~boot_data_start
 ; print "end of HAZEL data when loaded =", ~(disksys_loadto_addr+(hazel_end-hazel_start))
 PRINT "--------"
-SAVE "Hazel", hazel_start, hazel_end, 0
+SAVE "Hazel", hazel_data_start, hazel_data_end, 0
 PRINT "--------"
 
 ; Manual guard, as hazel_end and hazel_start are forward references
 ; above.
-IF disksys_loadto_addr+(hazel_end-hazel_start)>boot_data_start
+IF disksys_loadto_addr+(hazel_data_end-hazel_data_start)>boot_data_start
 ERROR "Hazel data too large"
 ENDIF
 
