@@ -121,7 +121,7 @@ ENDIF
 \\ Functions residing in Kernel module originally from Kernel RAM
 ; *****************************************************************************
 
-.kernel_L_E0F9_with_sysctl	DLL_CALL_KERNEL L_E0F9_with_sysctl, 0
+.silence_sound DLL_CALL_KERNEL _silence_sound, 0
 .kernel_L_E104 DLL_CALL_KERNEL L_E104, 1
 .kernel_L_E195 DLL_CALL_KERNEL L_E195, 2
 .kernel_L_E1B1 DLL_CALL_KERNEL L_E1B1, 3
@@ -217,7 +217,7 @@ ENDIF
 
 .kernel_table_LO
 {
-	EQUB LO(L_E0F9_with_sysctl)
+	EQUB LO(_silence_sound)
 	EQUB LO(L_E104)
 	EQUB LO(L_E195)
 	EQUB LO(L_E1B1)
@@ -302,7 +302,7 @@ ENDIF
 
 .kernel_table_HI
 {
-	EQUB HI(L_E0F9_with_sysctl)
+	EQUB HI(_silence_sound)
 	EQUB HI(L_E104)
 	EQUB HI(L_E195)
 	EQUB HI(L_E1B1)
@@ -868,6 +868,8 @@ ENDIF
 .graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
 .graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 17
 .set_up_text_sprite DLL_CALL_GRAPHICS _set_up_text_sprite, 18
+.graphics_pause_save_screen DLL_CALL_GRAPHICS graphics_pause_save_screen,19
+.graphics_pause_show_text_sprite DLL_CALL_GRAPHICS graphics_pause_show_text_sprite,20
 
 ; *****************************************************************************
 \\ Function addresses
@@ -894,6 +896,8 @@ ENDIF
 	EQUB LO(_graphics_draw_debug_framerate)		 ; 16
 	EQUB LO(_graphics_unpack_menu_screen)		 ; 17
 	EQUB LO(_set_up_text_sprite)				 ; 18
+	EQUB LO(_graphics_pause_save_screen)		 ; 19
+	EQUB LO(_graphics_pause_show_text_sprite)	 ; 20
 }
 
 .graphics_table_HI
@@ -917,6 +921,8 @@ ENDIF
 	EQUB HI(_graphics_draw_debug_framerate)		 ; 16
 	EQUB HI(_graphics_unpack_menu_screen)		 ; 17
 	EQUB HI(_set_up_text_sprite)				 ; 18
+	EQUB HI(_graphics_pause_save_screen)		 ; 19
+	EQUB HI(_graphics_pause_show_text_sprite)	 ; 20
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

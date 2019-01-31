@@ -3930,10 +3930,10 @@ ENDIF
 
 \\ Data removed
 
-.L_E0F9_with_sysctl
+._silence_sound
 {
 		ldx #$02		;E0F9 A2 02
-.L_E0FB	lda #$15		;E0FB A9 15
+.L_E0FB	lda #$15		;E0FB A9 15 silence SID channel - X=channel
 		jsr cart_sysctl		;E0FD 20 25 87
 		dex				;E100 CA
 		bpl L_E0FB		;E101 10 F8

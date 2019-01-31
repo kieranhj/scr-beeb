@@ -1604,12 +1604,69 @@ RBOTS=$90
 		equb LTOPN," LA",RTOPN,"PS ",LBOTN," OV",RBOTN,"ER " ; +84  +$54
 		equb LTOPN,"DEF",RTOPN,"INE",LBOTN," KE",RBOTN,"YS " ; +100 +$64
 		equb LTOPS,"<ST",RTOPS,"EER",LBOTN," LE",RBOTN,"FT " ; +116 +$74
-		equb LTOPN," ST",RTOPN,"EER",LBOTN," RI",RBOTN,"GHT" ; +132 +84
+		equb LTOPS," ST",RTOPS,"EER",LBOTS," RI",RBOTS,"GHT" ; +132 +84
 		equb LTOPS,"<AH",RTOPS,"EAD",LBOTN,"+BO",RBOTN,"OST" ; +148 +$94
 		equb LTOPN," BA",RTOPN,"CK ",LBOTN,"+BO",RBOTN,"OST" ; +164 +$A4
 		equb LTOPN," BA",RTOPN,"CK ",LBOTN,"   ",RBOTN,"   " ; +180 +$B4
 		equb LTOPN,"VER",RTOPN,"IFY",LBOTN," KE",RBOTN,"YS " ; +196 +$C4
 		equb LTOPN," FA",RTOPN,"ULT",LBOTN," FO",RBOTN,"UND" ; +212 +$D4
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Pause mode isn't like in-game mode, but the differences aren't too
+; hard to work around...
+
+; Copies contents of front buffer to back buffer, or vice versa, so the 
+._graphics_pause_save_screen
+{
+sec								; front->back
+}
+.graphics_pause_copy_screen
+{
+php
+
+clc
+lda #$42:adc ZP_12				; read from back buffer
+plp:bcc src_msb_ok
+eor #$20						; read from front buffer
+.src_msb_ok
+sta read+2
+eor #$20
+sta write+2
+
+lda #$a0
+sta read+1
+sta write+1
+
+ldy #12
+.copy_1_row
+ldx #0
+.copy_1_byte
+.read:lda $ffff,x
+.write:sta $ffff,x
+inx
+bne copy_1_byte
+inc read+2
+inc write+2
+dey
+bne copy_1_row
+rts
+}
+
+; Sets up text sprite, restores old screen, draws text sprite (but
+; after fiddling with ZP_12, so the drawing temporarily goes to the
+; front buffer...).
+._graphics_pause_show_text_sprite
+{
+jsr _set_up_text_sprite
+clc:jsr graphics_pause_copy_screen ; back->front
+
+lda ZP_12:eor #$20:sta ZP_12
+jsr _graphics_draw_in_game_text_sprites
+lda ZP_12:eor #$20:sta ZP_12
+rts
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

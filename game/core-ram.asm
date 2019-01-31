@@ -1277,13 +1277,30 @@ NEXT
 		jsr L_10D9		;3D23 20 D9 10
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
+
+; Handle pause mode. There's a tiny amount of mucking about to ensure
+; that when pause mode is entered, there's no text sprite on screen,
+; because pause mode just draws on top of whatever's there already.
+
+  		ldx #KEY_DEF_PAUSE
+		jsr poll_key_with_sysctl
+		php						; Z=1 if entering pause.
+
+		beq in_game_text_sprites_drawn
 		jsr graphics_draw_in_game_text_sprites
+.in_game_text_sprites_drawn
+		
 		IF _DEBUG
 		JSR graphics_draw_debug_framerate
 		ENDIF
-		
+
 		jsr flip_display_page		;3D2C 20 42 3F
-		jsr update_pause_status		;3D2F 20 E0 3E
+
+		plp
+		bne pause_mode_done
+		jsr pause_loop
+.pause_mode_done
+
 		lda L_C351		;3D32 AD 51 C3
 		and L_C306		;3D35 2D 06 C3
 		bpl L_3D69		;3D38 10 2F
@@ -1331,7 +1348,7 @@ NEXT
 		inc L_C368		;3D85 EE 68 C3
 		lda ZP_6C		;3D88 A5 6C			; End of game Timer
 		bne L_3D95		;3D8A D0 09
-		jsr kernel_L_E0F9_with_sysctl		;3D8C 20 F9 E0
+		jsr silence_sound		;3D8C 20 F9 E0
 		ldx L_C309		;3D8F AE 09 C3
 		jmp setup_car		;3D92 4C C6 3C
 
@@ -1355,7 +1372,7 @@ NEXT
 		lda #$00		;3DBA A9 00
 		sta irq_mode		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
-		jsr kernel_L_E0F9_with_sysctl		;3DC2 20 F9 E0
+		jsr silence_sound		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7
 		bpl L_3DE7		;3DC8 10 1D
 		lda L_31A1		;3DCA AD A1 31
@@ -1449,7 +1466,7 @@ NEXT
 		sta ZP_33		;3E6E 85 33
 		lda #$78		;3E70 A9 78
 		sta ZP_3C		;3E72 85 3C
-		jsr kernel_L_E0F9_with_sysctl		;3E74 20 F9 E0
+		jsr silence_sound		;3E74 20 F9 E0
 		lda #$04		;3E77 A9 04
 		sta L_C354		;3E79 8D 54 C3
 		ldy #$09		;3E7C A0 09
@@ -1506,16 +1523,25 @@ NEXT
 .L_3EDD	jmp kernel_L_F6A6		;3EDD 4C A6 F6
 }
 
-.update_pause_status		; can be moved to Kernel
-{
-		lda L_C306		;3EE0 AD 06 C3
-		bpl L_3EEC		;3EE3 10 07
-		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
-		jsr poll_key_with_sysctl		;3EE7 20 C9 C7
-		beq L_3EED		;3EEA F0 01
-.L_3EEC	rts				;3EEC 60
+; .update_pause_status		; can be moved to Kernel
+; {
 
-.L_3EED	jsr kernel_L_E0F9_with_sysctl		;3EED 20 F9 E0
+; (Only enter pause mode when displaying one of the buffers? Not sure
+; what the problem with that might have been, but the BBC version can
+; handle it, so there's no corresponding check any more.)
+
+; 		; lda L_C306		;3EE0 AD 06 C3
+; 		; bpl L_3EEC		;3EE3 10 07
+		
+; 		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
+; 		jsr poll_key_with_sysctl		;3EE7 20 C9 C7
+; 		beq pause_loop ;3EEA F0 01
+; .L_3EEC	rts				;3EEC 60
+
+.pause_loop
+{
+		jsr silence_sound		;3EED 20 F9 E0
+		jsr graphics_pause_save_screen
 		lda #$00		;3EF0 A9 00
 		sta ZP_10		;3EF2 85 10
 		sta ZP_11		;3EF4 85 11
@@ -1527,7 +1553,7 @@ NEXT
 		pha				;3F01 48
 		ldy #$4C		;3F02 A0 4C PAUSED
 		lda #$02		;3F04 A9 02
-		jsr set_up_text_sprite		;3F06 20 A9 12
+		jsr graphics_pause_show_text_sprite
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
 		ldx #KEY_DEF_CONTINUE		;3F0C A2 34
 		jsr poll_key_with_sysctl		;3F0E 20 C9 C7
@@ -1542,7 +1568,7 @@ NEXT
 		sta L_C355		;3F1E 8D 55 C3
 		bpl L_3F27_with_SID		;3F21 10 04
 		txa				;3F23 8A
-		jsr set_up_text_sprite		;3F24 20 A9 12
+		jsr graphics_pause_show_text_sprite
 }
 \\
 .L_3F27_with_SID
