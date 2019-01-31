@@ -466,21 +466,6 @@ ENDIF
 
 .hazel_data_end
 
-; These are free
-
-._L_D000:skip 256
-._L_D100:skip 256
-._L_D200:skip 256
-._L_D300:skip 256
-._L_D400:skip 256
-._L_D500:skip 256
-._L_D600:skip 256
-._L_D700:skip 256
-._L_D800:skip 256
-._L_D900:skip 256
-._L_DA00:skip 256
-._L_DB00:skip 256
-
 ; These are used as temporary storage for some reason
 ; Not sure if still valid in Master memory map but...
 
@@ -505,3 +490,20 @@ ENDIF
 .L_DF0E	skip $F2	; = $DF0E + BEEB_HAZEL_OFFSET
 
 .hazel_end
+
+; These are free
+
+._L_D000:skip 256
+._L_D100:skip 256
+._L_D200:skip 256
+._L_D300:skip 256
+._L_D400:skip 256
+._L_D500:skip 256
+._L_D600:skip 256
+._L_D700:skip 256
+
+; Claimed back for MOS FS workspace
+;._L_D800:skip 256
+;._L_D900:skip 256
+;._L_DA00:skip 256
+;._L_DB00:skip 256

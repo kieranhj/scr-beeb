@@ -847,18 +847,18 @@ GUARD disksys_loadto_addr
 	LDA #HI(boot_data_start)
 	JSR disksys_load_file
 
-	\\ Clear Hazel RAM
+	\\ Clear Hazel RAM for BSS
 
 	{
 		ldx #0
 		lda #0
 		.clear_loop
-		sta &C000, X
+		sta hazel_start, X
 		inx
 		bne clear_loop
 		inc clear_loop+2
 		ldy clear_loop+2
-		cpy #&D0
+		cpy #HI(hazel_end) + 1
 		bcc clear_loop
 	}
 
@@ -1077,10 +1077,12 @@ GUARD disksys_loadto_addr
 		lda #0:sta _L_D500,x	; d5
 		lda #0:sta _L_D600,x	; d6
 		lda #0:sta _L_D700,x	; d7
-		lda #0:sta _L_D800,x	; d8
-		lda #0:sta _L_D900,x	; d9
-		lda #0:sta _L_DA00,x	; da
-		lda #0:sta _L_DB00,x	; db
+
+; Claimed back for MOS FS workspace
+;		lda #0:sta _L_D800,x	; d8
+;		lda #0:sta _L_D900,x	; d9
+;		lda #0:sta _L_DA00,x	; da
+;		lda #0:sta _L_DB00,x	; db
 		
 		lda L_AE00,X	;422A BD 00 AE
 		sta L_DC00,X	;422D 9D 00 DC
@@ -1497,8 +1499,10 @@ PRINT "--------"
 ; Engine screen data (copied at boot time from elsewhere)
 
 CLEAR &C000, &E000
-ORG &C000
-GUARD &E000
+\\ Need to keep PAGES $C000 - $C300 free for MOS DFS workspace
+ORG &C300
+\\ Need to keep PAGE $DF00 free for MOS FS workspace
+GUARD &DF00
 
 INCLUDE "game/hazel-ram.asm"
 
@@ -1513,7 +1517,7 @@ PRINT "  Start =", ~hazel_start
 PRINT "  End =", ~hazel_end
 PRINT "  Size =", ~(hazel_end - hazel_start)
 PRINT "  Data Size =", ~(hazel_data_end - hazel_data_start)
-PRINT "  Free =", ~(&E000 - hazel_end)
+PRINT "  Free =", ~(&DF00 - hazel_end)
 ; print "data_start =",~boot_data_start
 ; print "end of HAZEL data when loaded =", ~(disksys_loadto_addr+(hazel_end-hazel_start))
 PRINT "--------"
