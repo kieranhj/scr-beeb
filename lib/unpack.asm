@@ -10,8 +10,13 @@ LZPOS=beeb_readptr
 
 	; processor 6502
 	; ORG $c000
-.PUCRUNCH_UNPACK
 {
+.*PUCRUNCH_SET_OUTPOS
+stx OUTPOS+0
+sty OUTPOS+1
+rts
+
+.*PUCRUNCH_UNPACK
 	; A=HI of output address
 	; Call with X = LO of packed data, Y = HI of packed data
 	; Returns exec address in X = HI and Y = LO
@@ -21,6 +26,10 @@ LZPOS=beeb_readptr
 	STA OUTPOS+1
 	LDA #0
 	STA OUTPOS
+.*PUCRUNCH_UNPACK_TO_OUTPOS
+    lda LZPOS+1:pha
+	lda LZPOS+0:pha
+	lda bitstr:pha
 
 	; Setup read pointer
 	stx INPOS
@@ -98,7 +107,6 @@ ENDIF
 	lda bitstr
 	ror a
 	rts
-
 
 .newesc:ldy esc+1	; remember the old code (top bits for escaped byte)
 .escB0:	ldx #2		; ** PARAMETER	0..8
@@ -183,6 +191,9 @@ ENDIF
 \ Don't care about EXEC address
 \.hi:	ldx #0
 \.lo:	ldy #0
+    pla:sta bitstr
+	pla:sta LZPOS+0
+	pla:sta LZPOS+1
 	rts
 
 

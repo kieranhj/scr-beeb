@@ -83,8 +83,8 @@
 		; $F0=screen at +15K (+$3C00), bitmap at 0K (+$0000)
 		jsr vic_memory_setup		;8404 20 D6 83
 		lda L_8415		;8407 AD 15 84
-		ora #$0E		;840A 09 0E
-		jsr clear_colour_mapQ		;840C 20 16 84
+		; ora #$0E		;840A 09 0E
+		; jsr clear_colour_mapQ		;840C 20 16 84
 		lda #$01		;840F A9 01
 		jsr L_8428_in_cart		;8411 20 28 84
 		rts				;8414 60
@@ -92,17 +92,17 @@
 .L_8415	equb $00
 }
 
-.clear_colour_mapQ			; in Cart
-{
-		ldx #$00		;8416 A2 00
-.L_8418	sta vic_screen_mem_page0,X	;8418 9D 00 5C
-		sta vic_screen_mem_page1,X	;841B 9D 00 5D
-		sta vic_screen_mem_page2,X	;841E 9D 00 5E
-		sta vic_screen_mem_page3,X	;8421 9D 00 5F
-		dex				;8424 CA
-		bne L_8418		;8425 D0 F1
-		rts				;8427 60
-}
+; .clear_colour_mapQ			; in Cart
+; {
+; 		ldx #$00		;8416 A2 00
+; .L_8418	sta vic_screen_mem_page0,X	;8418 9D 00 5C
+; 		sta vic_screen_mem_page1,X	;841B 9D 00 5D
+; 		sta vic_screen_mem_page2,X	;841E 9D 00 5E
+; 		sta vic_screen_mem_page3,X	;8421 9D 00 5F
+; 		dex				;8424 CA
+; 		bne L_8418		;8425 D0 F1
+; 		rts				;8427 60
+; }
 
 .L_8428_in_cart
 {
@@ -961,8 +961,8 @@ ENDIF
 .not_32
 		cmp #$55		;8775 C9 55
 		beq sysctl_fill_55_thunk;8777 F0 21
-		cmp #$34		;8779 C9 34
-		beq L_879D		;877B F0 20
+		; cmp #$34		;8779 C9 34
+		; beq L_879D		;877B F0 20
 		cmp #$48
 		beq fill_in_game_sky_thunk
 		cmp #$49
@@ -992,7 +992,7 @@ ENDIF
 .L_8793	
 
 .sysctl_fill_55_thunk lda #BEEB_PIXELS_COLOUR1:jmp fill_64s
-.L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
+;.L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
 .fill_in_game_sky_thunk jmp fill_in_game_sky
 .draw_flames_thunk jmp sysctl_draw_flames
 .erase_flames_thunk jmp sysctl_erase_flames
@@ -1046,36 +1046,36 @@ rts
 	JMP graphics_unpack_menu_screen
 
 IF 0
-jsr graphics_copy_menu_header_graphic
+; jsr graphics_copy_menu_header_graphic
 
-ldx #0
-.loop1
-lda L_D900+$28,x				; relocated from L_5428
-sta L_7C00,x
+; ldx #0
+; .loop1
+; lda L_D900+$28,x				; relocated from L_5428
+; sta L_7C00,x
 
-lda L_DA00+$68,x				; relocated from L_5568
-sta L_0400,x
+; lda L_DA00+$68,x				; relocated from L_5568
+; sta L_0400,x
 
-cpx #$40:bcs next
+; cpx #$40:bcs next
 
-; each block is $140 bytes.
+; ; each block is $140 bytes.
 
-lda L_D900+$28+$100,x:sta L_7D00,x
-lda L_DA00+$68+$100,x:sta L_0500,x
+; lda L_D900+$28+$100,x:sta L_7D00,x
+; lda L_DA00+$68+$100,x:sta L_0500,x
 
-.next
+; .next
 
-inx:bne loop1
+; inx:bne loop1
 
-		lda #$11		;883C A9 11
-		sta ZP_52		;883E 85 52
+; 		lda #$11		;883C A9 11
+; 		sta ZP_52		;883E 85 52
 		
-		ldy #HI(L_4A00)		;8840 A0 4A
-		ldx #LO(L_4A00)		;8842 A2 00
-		lda #$00		;8844 A9 00
-		jsr fill_64s		;8846 20 21 89
+; 		ldy #HI(L_4A00)		;8840 A0 4A
+; 		ldx #LO(L_4A00)		;8842 A2 00
+; 		lda #$00		;8844 A9 00
+; 		jsr fill_64s		;8846 20 21 89
 
-rts
+; rts
 
 ; this is how the data at L_0400 is consumed - so maybe it doesn't
 ; need to be copied?
@@ -1100,99 +1100,100 @@ ENDIF
 
 ; If X bit	7 set, copy $62A0->$57C0, $6DE0->$D800
 ; If X bit	7 reset, copy $57C0->$62A0, $D800->$6DE0, $D000(RAM)
-.copy_stuff			; in Cart
+; .copy_stuff			; in Cart
 {
-		stx ZP_16		;886A 86 16
-		lda #HI(L_57C0)		;886C A9 57
-		sta ZP_1F		;886E 85 1F
-		lda #LO(L_57C0)		;8870 A9 C0
-		sta ZP_1E		;8872 85 1E
-		lda #HI(L_62A0)		;8874 A9 62
-		sta ZP_21		;8876 85 21
-		lda #LO(L_62A0)		;8878 A9 A0
-		sta ZP_20		;887A 85 20
-		ldx #$08		;887C A2 08
-.L_887E	ldy #$FF		;887E A0 FF
-.L_8880	bit ZP_16		;8880 24 16
-		bmi L_888B		;8882 30 07
-		lda (ZP_1E),Y	;8884 B1 1E
-		sta (ZP_20),Y	;8886 91 20
-		jmp L_888F		;8888 4C 8F 88
-.L_888B	lda (ZP_20),Y	;888B B1 20
-		sta (ZP_1E),Y	;888D 91 1E
-.L_888F	dey				;888F 88
-		cpy #$FF		;8890 C0 FF
-		bne L_8880		;8892 D0 EC
-		lda ZP_20		;8894 A5 20
-		clc				;8896 18
-		adc #$40		;8897 69 40
-		sta ZP_20		;8899 85 20
-		lda ZP_21		;889B A5 21
-		adc #$01		;889D 69 01
-		sta ZP_21		;889F 85 21
-		inc ZP_1F		;88A1 E6 1F
-		dex				;88A3 CA
-		bmi L_88AC		;88A4 30 06
-		bne L_887E		;88A6 D0 D6
-		ldy #$3F		;88A8 A0 3F
-		bne L_8880		;88AA D0 D4
-.L_88AC	ldx #$00		;88AC A2 00
-		bit ZP_16		;88AE 24 16
-		bmi L_88CE		;88B0 30 1C
+; 		stx ZP_16		;886A 86 16
+; 		lda #HI(L_57C0)		;886C A9 57
+; 		sta ZP_1F		;886E 85 1F
+; 		lda #LO(L_57C0)		;8870 A9 C0
+; 		sta ZP_1E		;8872 85 1E
+; 		lda #HI(L_62A0)		;8874 A9 62
+; 		sta ZP_21		;8876 85 21
+; 		lda #LO(L_62A0)		;8878 A9 A0
+; 		sta ZP_20		;887A 85 20
+; 		ldx #$08		;887C A2 08
+; .L_887E	ldy #$FF		;887E A0 FF
+; .L_8880	bit ZP_16		;8880 24 16
+; 		bmi L_888B		;8882 30 07
+; 		lda (ZP_1E),Y	;8884 B1 1E
+; 		sta (ZP_20),Y	;8886 91 20
+; 		jmp L_888F		;8888 4C 8F 88
+; .L_888B	lda (ZP_20),Y	;888B B1 20
+; 		sta (ZP_1E),Y	;888D 91 1E
+; .L_888F	dey				;888F 88
+; 		cpy #$FF		;8890 C0 FF
+; 		bne L_8880		;8892 D0 EC
+; 		lda ZP_20		;8894 A5 20
+; 		clc				;8896 18
+; 		adc #$40		;8897 69 40
+; 		sta ZP_20		;8899 85 20
+; 		lda ZP_21		;889B A5 21
+; 		adc #$01		;889D 69 01
+; 		sta ZP_21		;889F 85 21
+; 		inc ZP_1F		;88A1 E6 1F
+; 		dex				;88A3 CA
+; 		bmi L_88AC		;88A4 30 06
+; 		bne L_887E		;88A6 D0 D6
+; 		ldy #$3F		;88A8 A0 3F
+; 		bne L_8880		;88AA D0 D4
+; .L_88AC	ldx #$00		;88AC A2 00
+; 		bit ZP_16		;88AE 24 16
+; 		bmi L_88CE		;88B0 30 1C
 
 \\ READING FROM COLOUR RAM IN IO
 
-.L_88B2	lda L_D800,X	;88B2 BD 00 D8
-;		sta L_6DE0,X	;88B5 9D E0 6D
-		lda L_D900,X	;88B8 BD 00 D9
-;		sta L_6F20,X	;88BB 9D 20 6F
-		lda L_DA00,X	;88BE BD 00 DA
-;		sta L_7060,X	;88C1 9D 60 70
-		lda L_DB00,X	;88C4 BD 00 DB
-;		sta L_71A0,X	;88C7 9D A0 71
-		dex				;88CA CA
-		bne L_88B2		;88CB D0 E5
+; .L_88B2	lda L_D800,X	;88B2 BD 00 D8
+; ;		sta L_6DE0,X	;88B5 9D E0 6D
+; 		lda L_D900,X	;88B8 BD 00 D9
+; ;		sta L_6F20,X	;88BB 9D 20 6F
+; 		lda L_DA00,X	;88BE BD 00 DA
+; ;		sta L_7060,X	;88C1 9D 60 70
+; 		lda L_DB00,X	;88C4 BD 00 DB
+; ;		sta L_71A0,X	;88C7 9D A0 71
+; 		dex				;88CA CA
+; 		bne L_88B2		;88CB D0 E5
 		rts				;88CD 60
 
 \\ WRITING TO COLOUR RAM IN IO
 
-.L_88CE	lda L_6DE0,X	;88CE BD E0 6D
-;		sta L_D800,X	;88D1 9D 00 D8
-		lda L_6F20,X	;88D4 BD 20 6F
-;		sta L_D900,X	;88D7 9D 00 D9
-		lda L_7060,X	;88DA BD 60 70
-;		sta L_DA00,X	;88DD 9D 00 DA
-		lda L_71A0,X	;88E0 BD A0 71
-;		sta L_DB00,X	;88E3 9D 00 DB
-		dex				;88E6 CA
-		bne L_88CE		;88E7 D0 E5
+; .L_88CE
+; 		lda L_6DE0,X	;88CE BD E0 6D
+; ;		sta L_D800,X	;88D1 9D 00 D8
+; 		lda L_6F20,X	;88D4 BD 20 6F
+; ;		sta L_D900,X	;88D7 9D 00 D9
+; 		lda L_7060,X	;88DA BD 60 70
+; ;		sta L_DA00,X	;88DD 9D 00 DA
+; 		lda L_71A0,X	;88E0 BD A0 71
+; ;		sta L_DB00,X	;88E3 9D 00 DB
+; 		dex				;88E6 CA
+; 		bne L_88CE		;88E7 D0 E5
 
-		lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00
-		sta VIC_IRQMASK		;88EB 8D 1A D0
-		sei				;88EE 78
-		lda #C64_NO_IO_NO_KERNAL		;88EF A9 34
-		sta RAM_SELECT		;88F1 85 01
+		; lda #C64_VIC_IRQ_DISABLE		;88E9 A9 00
+		; sta VIC_IRQMASK		;88EB 8D 1A D0
+		; sei				;88EE 78
+		; lda #C64_NO_IO_NO_KERNAL		;88EF A9 34
+		; sta RAM_SELECT		;88F1 85 01
 
-		ldx #$00		;88F3 A2 00
-.L_88F5	lda L_D000,X	;88F5 BD 00 D0
-		sta L_7C00,X	;88F8 9D 00 7C
-		lda L_D100,X	;88FB BD 00 D1
-		sta L_7D00,X	;88FE 9D 00 7D
-		lda L_D200,X	;8901 BD 00 D2
-		sta L_7E00,X	;8904 9D 00 7E
-		lda L_D300,X	;8907 BD 00 D3
-		sta L_7F00,X	;890A 9D 00 7F
-		lda L_DD00,X	;890D BD 00 DD
-		sta L_7B00,X	;8910 9D 00 7B
-		dex				;8913 CA
-		bne L_88F5		;8914 D0 DF
+; 		ldx #$00		;88F3 A2 00
+; .L_88F5	lda L_D000,X	;88F5 BD 00 D0
+; 		sta L_7C00,X	;88F8 9D 00 7C
+; 		lda L_D100,X	;88FB BD 00 D1
+; 		sta L_7D00,X	;88FE 9D 00 7D
+; 		lda L_D200,X	;8901 BD 00 D2
+; 		sta L_7E00,X	;8904 9D 00 7E
+; 		lda L_D300,X	;8907 BD 00 D3
+; 		sta L_7F00,X	;890A 9D 00 7F
+; 		lda L_DD00,X	;890D BD 00 DD
+; 		sta L_7B00,X	;8910 9D 00 7B
+; 		dex				;8913 CA
+; 		bne L_88F5		;8914 D0 DF
 
-		lda #C64_IO_NO_KERNAL		;8916 A9 35
-		sta RAM_SELECT		;8918 85 01
-		cli				;891A 58
-		lda #C64_VIC_IRQ_RASTERCMP		;891B A9 01
-		sta VIC_IRQMASK		;891D 8D 1A D0
-		rts				;8920 60
+; 		lda #C64_IO_NO_KERNAL		;8916 A9 35
+; 		sta RAM_SELECT		;8918 85 01
+; 		cli				;891A 58
+; 		lda #C64_VIC_IRQ_RASTERCMP		;891B A9 01
+; 		sta VIC_IRQMASK		;891D 8D 1A D0
+; 		rts				;8920 60
 }
 
 ; fill scanlines
@@ -2883,7 +2884,7 @@ rts
 		rts				;97B6 60
 .L_97B7	ldy #$64		;97B7 A0 64 DEFINE KEYS
 		lda #$04		;97B9 A9 04
-		jsr kernel_set_up_text_sprite		;97BB 20 A9 12
+		jsr graphics_pause_show_text_sprite
 		lda #$01		;97BE A9 01
 		sta L_983B		;97C0 8D 3B 98
 .L_97C3	ldy #$28		;97C3 A0 28
@@ -2892,7 +2893,7 @@ rts
 .L_97CA	stx L_983A		;97CA 8E 3A 98
 		ldy L_9841,X	;97CD BC 41 98
 		lda #$04		;97D0 A9 04
-		jsr kernel_set_up_text_sprite		;97D2 20 A9 12
+		jsr graphics_pause_show_text_sprite
 .L_97D5	ldx #KEY_DEF_CANCEL		;97D5 A2 3F
 .L_97D7	stx ZP_17		;97D7 86 17
 		jsr poll_key_with_sysctl		;97D9 20 C9 C7
@@ -2906,7 +2907,7 @@ rts
 		beq L_9802		;97EE F0 12
 		ldy #$D4		;97F0 A0 D4 FAULT FOUND
 		lda #$04		;97F2 A9 04
-		jsr kernel_set_up_text_sprite		;97F4 20 A9 12
+		jsr graphics_pause_show_text_sprite
 		ldy #$28		;97F7 A0 28
 		jsr delay_approx_Y_25ths_sec		;97F9 20 EB 3F
 		jmp L_97B7		;97FC 4C B7 97
@@ -2930,11 +2931,11 @@ rts
 		bmi L_9832		;9826 30 0A
 		ldy #$C4		;9828 A0 C4 VERIFY KEYS
 		lda #$04		;982A A9 04
-		jsr kernel_set_up_text_sprite		;982C 20 A9 12
+		jsr graphics_pause_show_text_sprite
 		jmp L_97C3		;982F 4C C3 97
 .L_9832	ldy #$4C		;9832 A0 4C PAUSED
 		lda #$02		;9834 A9 02
-		jsr kernel_set_up_text_sprite		;9836 20 A9 12
+		jsr graphics_pause_show_text_sprite
 		rts				;9839 60
 
 .L_983A	equb $00
@@ -3968,7 +3969,7 @@ rts
 		sta ZP_6C		;1584 85 6C
 		lda #$02		;1586 A9 02
 		ldy #$00		;1588 A0 00 WRECK
-		jsr kernel_set_up_text_sprite		;158A 20 A9 12
+		jsr set_up_text_sprite		;158A 20 A9 12
 .L_158D	rts				;158D 60
 }
 
@@ -4073,7 +4074,23 @@ rts
 .L_1643	equb $B1,$86,$77,$8F,$8D
 .L_1648	equb $B1,$65,$3B,$17,$3B
 
-.start_of_frame		; in Cart
+; .start_of_frame_in_game			; in Cart
+; {
+; jsr start_of_frame_clear_tables
+; jsr clear_screen_with_sysctl
+; jmp start_of_frame_finish
+; }
+
+._start_of_frame_track_preview
+{
+jsr start_of_frame_clear_tables
+jsr preview_draw_screen
+jmp start_of_frame_finish
+}
+
+; It's possible these two little routines could be merged, but L_F1DC
+; is a bit involved, and I'm not feeling very daring...
+.start_of_frame_clear_tables
 {
 		ldx #$3F		;164D A2 3F
 .L_164F	lda L_C280,X	;164F BD 80 C2
@@ -4085,7 +4102,11 @@ rts
 		sta L_02C0,X	;1660 9D C0 02
 		dex				;1663 CA
 		bpl L_164F		;1664 10 E9
-		jsr clear_screen_with_sysctl		;1666 20 23 2C
+		rts
+}
+
+.start_of_frame_finish
+{
 		jsr kernel_L_F1DC		;1669 20 DC F1
 		lda #$00		;166C A9 00
 		sta L_C3A9		;166E 8D A9 C3
@@ -4100,7 +4121,9 @@ rts
 
 .draw_trackQ		; HAS DLL
 {
-		jsr start_of_frame		;167A 20 4D 16
+		jsr start_of_frame_clear_tables
+		jsr clear_screen_with_sysctl
+		jsr start_of_frame_finish
 		lda ZP_2F		;167D A5 2F
 		bne L_1688		;167F D0 07
 		bit ZP_6B		;1681 24 6B
@@ -6502,11 +6525,6 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		rts				;2D88 60
 }
 
-.draw_track_preview_border			; called from game_start
-{
-jmp preview_draw_border
-}
-
 .draw_track_preview_track_name			; called from game_start
 {
 		jsr set_write_char_half_row_flag		;2FCE 20 84 38
@@ -7073,9 +7091,9 @@ ENDIF
 		jmp L_3A8B		;3A95 4C 8B 3A
 .L_3A98	cmp #$FF		;3A98 C9 FF
 		bne L_3AA5		;3A9A D0 09
-		lda #$0E		;3A9C A9 0E
-		sta L_7C53		;3A9E 8D 53 7C
-		sta L_7C74		;3AA1 8D 74 7C
+		; lda #$0E		;3A9C A9 0E
+		; sta L_7C53		;3A9E 8D 53 7C
+		; sta L_7C74		;3AA1 8D 74 7C
 		rts				;3AA4 60
 .L_3AA5	sec				;3AA5 38
 		sbc #$C8		;3AA6 E9 C8

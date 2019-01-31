@@ -185,7 +185,7 @@ ENDIF
 .kernel_update_distance_to_ai_car_readout DLL_CALL_KERNEL update_distance_to_ai_car_readout, 56
 .kernel_draw_tachometer_in_game DLL_CALL_KERNEL draw_tachometer_in_game, 57
 .kernel_initialise_hud_sprites DLL_CALL_KERNEL initialise_hud_sprites, 58
-.kernel_set_up_text_sprite DLL_CALL_KERNEL set_up_text_sprite, 59
+; .kernel_set_up_text_sprite DLL_CALL_KERNEL set_up_text_sprite, 59
 
 ; *****************************************************************************
 \\ Functions in Kernel module moved from Hazel RAM
@@ -279,7 +279,7 @@ ENDIF
 	EQUB LO(update_distance_to_ai_car_readout)
 	EQUB LO(draw_tachometer_in_game)
 	EQUB LO(initialise_hud_sprites)
-	EQUB LO(set_up_text_sprite)
+	EQUB 0 ; LO(set_up_text_sprite)
 
 	EQUB LO(mul_8_8_16bit)
 	EQUB 0	; poll_key_with_sysctl
@@ -366,7 +366,7 @@ ENDIF
 	EQUB HI(update_distance_to_ai_car_readout)
 	EQUB HI(draw_tachometer_in_game)
 	EQUB HI(initialise_hud_sprites)
-	EQUB HI(set_up_text_sprite)
+	EQUB 0 ; HI(set_up_text_sprite)
 
 	EQUB HI(mul_8_8_16bit)
 	EQUB 0	; poll_key_with_sysctl
@@ -559,7 +559,7 @@ ENDIF
 
 .cart_L_2C64 DLL_CALL_CART L_2C64, 50
 .cart_L_2C6F_from_main_loop DLL_CALL_CART L_2C6F_from_main_loop, 51
-.cart_draw_track_preview_border DLL_CALL_CART draw_track_preview_border, 52
+; 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
 .cart_do_end_of_race_screen DLL_CALL_CART do_end_of_race_screen, 55	; not required in DLL
@@ -572,7 +572,7 @@ ENDIF
 .cart_prep_menu_graphics DLL_CALL_CART prep_menu_graphics, 62
 .cart_set_up_colour_map_for_track_preview DLL_CALL_CART set_up_colour_map_for_track_preview, 63
 
-.cart_start_of_frame DLL_CALL_CART start_of_frame, 64
+.start_of_frame_track_preview DLL_CALL_CART _start_of_frame_track_preview, 64
 .cart_print_single_digit DLL_CALL_CART print_single_digit, 65
 .cart_print_msg_1 DLL_CALL_CART print_msg_1, 66
 .cart_print_msg_4 DLL_CALL_CART print_msg_4, 67
@@ -640,7 +640,7 @@ ENDIF
 
 	EQUB LO(L_2C64)
 	EQUB LO(L_2C6F_from_main_loop)
-	EQUB LO(draw_track_preview_border)
+	EQUB 0 ; 52
 	EQUB LO(draw_track_preview_track_name)
 	EQUB LO(do_initial_screen)
 	EQUB LO(do_end_of_race_screen)
@@ -653,7 +653,7 @@ ENDIF
 	EQUB LO(prep_menu_graphics)
 	EQUB LO(set_up_colour_map_for_track_preview)
 
-	EQUB LO(start_of_frame)
+	EQUB LO(_start_of_frame_track_preview)
 	EQUB LO(print_single_digit)
 	EQUB LO(print_msg_1)
 	EQUB LO(print_msg_4)
@@ -718,7 +718,7 @@ ENDIF
 
 	EQUB HI(L_2C64)
 	EQUB HI(L_2C6F_from_main_loop)
-	EQUB HI(draw_track_preview_border)
+	EQUB 0 ; 52
 	EQUB HI(draw_track_preview_track_name)
 	EQUB HI(do_initial_screen)
 	EQUB HI(do_end_of_race_screen)
@@ -731,7 +731,7 @@ ENDIF
 	EQUB HI(prep_menu_graphics)
 	EQUB HI(set_up_colour_map_for_track_preview)
 
-	EQUB HI(start_of_frame)
+	EQUB HI(_start_of_frame_track_preview)
 	EQUB HI(print_single_digit)
 	EQUB HI(print_msg_1)
 	EQUB HI(print_msg_4)
@@ -857,7 +857,7 @@ ENDIF
 
 .graphics_draw_flames DLL_CALL_GRAPHICS _graphics_draw_flames, 0
 .graphics_erase_flames DLL_CALL_GRAPHICS _graphics_erase_flames, 1
-.graphics_copy_menu_header_graphic BRK	;DLL_CALL_GRAPHICS _graphics_copy_menu_header_graphic, 2
+.graphics_draw_in_game_text_sprites DLL_CALL_GRAPHICS _graphics_draw_in_game_text_sprites, 2
 .graphics_draw_left_wheel DLL_CALL_GRAPHICS _graphics_draw_left_wheel, 3
 .graphics_draw_right_wheel DLL_CALL_GRAPHICS _graphics_draw_right_wheel, 4
 .dash_reset DLL_CALL_GRAPHICS _dash_reset, 5
@@ -868,11 +868,14 @@ ENDIF
 .dash_update_best_lap_time DLL_CALL_GRAPHICS _dash_update_best_lap_time, 10
 .dash_update_flag_icon DLL_CALL_GRAPHICS _dash_update_flag_icon, 11
 .dash_update_stopwatch_icon DLL_CALL_GRAPHICS _dash_update_stopwatch_icon, 12
-.preview_draw_border DLL_CALL_GRAPHICS _preview_draw_border, 13
-.preview_fix_up_cleared_screen DLL_CALL_GRAPHICS _preview_fix_up_cleared_screen, 14
+.preview_draw_screen DLL_CALL_GRAPHICS _preview_draw_screen, 13
+.preview_unpack_background DLL_CALL_GRAPHICS _preview_unpack_background, 14
 .preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
 .graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
 .graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 17
+.set_up_text_sprite DLL_CALL_GRAPHICS _set_up_text_sprite, 18
+.graphics_pause_save_screen DLL_CALL_GRAPHICS graphics_pause_save_screen,19
+.graphics_pause_show_text_sprite DLL_CALL_GRAPHICS graphics_pause_show_text_sprite,20
 
 ; *****************************************************************************
 \\ Function addresses
@@ -880,46 +883,52 @@ ENDIF
 
 .graphics_table_LO
 {
-	EQUB LO(_graphics_draw_flames)				; 0
-	EQUB LO(_graphics_erase_flames)				; 1
-	EQUB 0	;LO(_graphics_copy_menu_header_graphic) ; 2
-	EQUB LO(_graphics_draw_left_wheel)			; 3
-	EQUB LO(_graphics_draw_right_wheel)			; 4
-	EQUB LO(_dash_reset)						; 5
-	EQUB LO(_dash_update_lap)					; 6
-	EQUB LO(_dash_update_boost)					; 7
-	EQUB LO(_dash_update_distance_to_ai_car)	; 8
-	EQUB LO(_dash_update_current_lap_time)		; 9
-	EQUB LO(_dash_update_best_lap_time)			; 10
-	EQUB LO(_dash_update_flag_icon)				; 11
-	EQUB LO(_dash_update_stopwatch_icon)		; 12
-	EQUB LO(_preview_draw_border)				; 13
-	EQUB LO(_preview_fix_up_cleared_screen)		; 14
-	EQUB LO(_preview_add_background)			; 15
-	EQUB LO(_graphics_draw_debug_framerate)		; 16
-	EQUB LO(_graphics_unpack_menu_screen)		; 17
+	EQUB LO(_graphics_draw_flames)				 ; 0
+	EQUB LO(_graphics_erase_flames)				 ; 1
+	EQUB LO(_graphics_draw_in_game_text_sprites) ; 2
+	EQUB LO(_graphics_draw_left_wheel)			 ; 3
+	EQUB LO(_graphics_draw_right_wheel)			 ; 4
+	EQUB LO(_dash_reset)						 ; 5
+	EQUB LO(_dash_update_lap)					 ; 6
+	EQUB LO(_dash_update_boost)					 ; 7
+	EQUB LO(_dash_update_distance_to_ai_car)	 ; 8
+	EQUB LO(_dash_update_current_lap_time)		 ; 9
+	EQUB LO(_dash_update_best_lap_time)			 ; 10
+	EQUB LO(_dash_update_flag_icon)				 ; 11
+	EQUB LO(_dash_update_stopwatch_icon)		 ; 12
+	EQUB LO(_preview_draw_screen)				 ; 13
+	EQUB LO(_preview_unpack_background)			 ; 14
+	EQUB LO(_preview_add_background)			 ; 15
+	EQUB LO(_graphics_draw_debug_framerate)		 ; 16
+	EQUB LO(_graphics_unpack_menu_screen)		 ; 17
+	EQUB LO(_set_up_text_sprite)				 ; 18
+	EQUB LO(_graphics_pause_save_screen)		 ; 19
+	EQUB LO(_graphics_pause_show_text_sprite)	 ; 20
 }
 
 .graphics_table_HI
 {
-	EQUB HI(_graphics_draw_flames)				; 0
-	EQUB HI(_graphics_erase_flames)				; 1
-	EQUB 0	;HI(_graphics_copy_menu_header_graphic) ; 2
-	EQUB HI(_graphics_draw_left_wheel)			; 3
-	EQUB HI(_graphics_draw_right_wheel)			; 4
-	EQUB HI(_dash_reset)						; 5
-	EQUB HI(_dash_update_lap)					; 6
-	EQUB HI(_dash_update_boost)					; 7
-	EQUB HI(_dash_update_distance_to_ai_car)	; 8
-	EQUB HI(_dash_update_current_lap_time)		; 9
-	EQUB HI(_dash_update_best_lap_time)			; 10
-	EQUB HI(_dash_update_flag_icon)				; 11
-	EQUB HI(_dash_update_stopwatch_icon)		; 12
-	EQUB HI(_preview_draw_border)				; 13
-	EQUB HI(_preview_fix_up_cleared_screen)		; 14
-	EQUB HI(_preview_add_background)			; 15
-	EQUB HI(_graphics_draw_debug_framerate)		; 16
-	EQUB HI(_graphics_unpack_menu_screen)		; 17
+	EQUB HI(_graphics_draw_flames)				 ; 0
+	EQUB HI(_graphics_erase_flames)				 ; 1
+	EQUB HI(_graphics_draw_in_game_text_sprites) ; 2
+	EQUB HI(_graphics_draw_left_wheel)			 ; 3
+	EQUB HI(_graphics_draw_right_wheel)			 ; 4
+	EQUB HI(_dash_reset)						 ; 5
+	EQUB HI(_dash_update_lap)					 ; 6
+	EQUB HI(_dash_update_boost)					 ; 7
+	EQUB HI(_dash_update_distance_to_ai_car)	 ; 8
+	EQUB HI(_dash_update_current_lap_time)		 ; 9
+	EQUB HI(_dash_update_best_lap_time)			 ; 10
+	EQUB HI(_dash_update_flag_icon)				 ; 11
+	EQUB HI(_dash_update_stopwatch_icon)		 ; 12
+	EQUB HI(_preview_draw_screen)				 ; 13
+	EQUB HI(_preview_unpack_background)			 ; 14
+	EQUB HI(_preview_add_background)			 ; 15
+	EQUB HI(_graphics_draw_debug_framerate)		 ; 16
+	EQUB HI(_graphics_unpack_menu_screen)		 ; 17
+	EQUB HI(_set_up_text_sprite)				 ; 18
+	EQUB HI(_graphics_pause_save_screen)		 ; 19
+	EQUB HI(_graphics_pause_show_text_sprite)	 ; 20
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

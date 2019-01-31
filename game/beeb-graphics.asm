@@ -20,6 +20,12 @@ include "build/track-preview.asm"
 
 include "build/dash-icons.asm"
 
+.track_preview_screen
+incbin "build/scr-beeb-preview.pu"
+
+.track_preview_bg
+incbin "build/scr-beeb-preview-bg.pu"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1160,88 +1166,25 @@ rts
 rts
 }
 
-.preview_copy_horizontal
+._preview_draw_screen
 {
-ldy #255
+lda #$40
+ldx #LO(track_preview_screen)
+ldy #HI(track_preview_screen)
 
-jsr copy
-inc preview_ZP_src+1:inc preview_ZP_dest+1
-
-jsr copy
-inc preview_ZP_src+1:inc preview_ZP_dest+1
-
-ldy #127
-.copy
-.copy128_loop
-lda (preview_ZP_src),y:sta (preview_ZP_dest),y
-dey:cpy #$ff:bne copy128_loop
-rts
-}
-
-.preview_copy_vertical
-{
-ldx #16
-.rows_loop
-ldy #31
-.row_loop
-lda (preview_ZP_src),y:sta (preview_ZP_dest),y
-dey:bpl row_loop
-
-clc
-lda preview_ZP_src+0:adc #32:sta preview_ZP_src+0:bcc src_done:inc preview_ZP_src+1:.src_done
-
-clc
-lda preview_ZP_dest+0:adc #$40:sta preview_ZP_dest+0
-lda preview_ZP_dest+1:adc #$01:sta preview_ZP_dest+1
-
-dex:bne rows_loop
-rts
-}
-
-._preview_draw_border
-{
-jsr preview_save_zp
-
-lda #LO(top_border_data):sta preview_ZP_src+0
-lda #HI(top_border_data):sta preview_ZP_src+1
-lda #$00:sta preview_ZP_dest+0
-lda #$40:sta preview_ZP_dest+1
-jsr preview_copy_horizontal
-
-lda #LO(bottom_border_data):sta preview_ZP_src+0
-lda #HI(bottom_border_data):sta preview_ZP_src+1
-lda #$80:sta preview_ZP_dest+0
-lda #$56:sta preview_ZP_dest+1
-jsr preview_copy_horizontal
-
-lda #LO(left_border_data):sta preview_ZP_src+0
-lda #HI(left_border_data):sta preview_ZP_src+1
-lda #$80:sta preview_ZP_dest+0
-lda #$42:sta preview_ZP_dest+1
-jsr preview_copy_vertical
-
-lda #LO(right_border_data):sta preview_ZP_src+0
-lda #HI(right_border_data):sta preview_ZP_src+1
-lda #$a0:sta preview_ZP_dest+0
-lda #$43:sta preview_ZP_dest+1
-jsr preview_copy_vertical
-
-jmp preview_restore_zp
+jmp PUCRUNCH_UNPACK
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-._preview_fix_up_cleared_screen
+._preview_unpack_background
 {
-ldx #0
-.clear_lines_loop
-lda #0
-sta $42a0,x
-sta $5567,x
-clc:txa:adc #8:tax:bne clear_lines_loop
+ldx #$80:ldy #$62
+jsr PUCRUNCH_SET_OUTPOS
 
-jmp preview_initialise_corners
+ldx #LO(track_preview_bg):ldy #HI(track_preview_bg)
+jmp PUCRUNCH_UNPACK_TO_OUTPOS
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1259,23 +1202,13 @@ ldy #64
 
 sty y
 
-lda y
-sec:sbc #64
-lsr a:lsr a:lsr a
-pha
-
-lda y
-and #7
+; address of source row.
 clc
-adc #LO(preview_area_background_data)
-sta preview_ZP_src+0
+tya:adc Q_pointers_LO,y:sta preview_ZP_src+0
+lda Q_pointers_HI,y:adc #$20:sta preview_ZP_src+1
 
-pla
-adc #HI(preview_area_background_data)
-sta preview_ZP_src+1
-
+; address of left edge of preview area.
 clc
-; Point to left edge of preview area.
 tya:adc Q_pointers_LO,y:sta preview_ZP_dest+0
 lda Q_pointers_HI,y:adc #0:sta preview_ZP_dest+1
 
@@ -1326,7 +1259,7 @@ bne one_byte
 
 ldy y
 iny
-cpy #64+preview_area_background_height
+cpy #64+track_preview_bg_height
 beq done
 jmp one_row
 .done
@@ -1392,5 +1325,351 @@ rts
 .prev_vsync:equb 0
 }
 ENDIF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Might as well keep this out of main RAM...
+text_sprite_buffer_size=2*12*8+16
+.text_sprite_buffer:skip text_sprite_buffer_size
+
+._graphics_draw_in_game_text_sprites
+{
+address=$4570
+
+bit L_C355:bpl done
+
+clc
+lda #LO(address):sta ZP_1E
+lda #HI(address):adc ZP_12:sta ZP_1F
+ldx #0
+jsr copy
+
+ldx #4
+jsr copy
+
+ldx #96
+jsr copy
+
+ldx #100
+.copy
+ldy #0
+.copy_loop
+jsr copy_byte
+jsr copy_byte
+jsr copy_byte
+jsr copy_byte
+inx:inx:inx:inx
+cpy #96
+bne copy_loop
+clc
+lda ZP_1E:adc #$40:sta ZP_1E
+lda ZP_1F:adc #$01:sta ZP_1F
+.done
+rts
+
+.copy_byte
+lda text_sprite_buffer+8,x
+eor #$ff
+and #$0f						; red
+sta value0+1
+sta value1+1
+
+lda (ZP_1E),y
+and text_sprite_buffer+8,x
+.value0:ora #$ff
+sta (ZP_1E),y
+iny
+
+lda (ZP_1E),y
+and text_sprite_buffer+8,x
+.value1:ora #$ff
+sta (ZP_1E),y
+iny
+
+inx
+
+rts
+}
+
+; Moved here from kernel-ram.asm. Keep all the text sprite stuff in
+; the same place...
+; 
+; Y = offset into text_sprite_data
+; A = # 4-byte blocks at the given offset
+._set_up_text_sprite
+{
+; dest offset values used on the C64:
+;
+; LTOP = $03 - left sprite, row 3
+; RTOP = $43 - right sprite, row 3
+; LBOT = $21 - left sprite, row 11
+; RBOT = $61 - right sprite, row 11
+
+; total BBC buffer size is 2*12*8. < can be handled just by changing
+; the offsets, as on the BBC there's a convenient 4 pixels per byte.
+
+; No shift.
+LTOPN=$08
+RTOPN=$38
+LBOTN=$68
+RBOTN=$98
+
+; Shift left 4 pixels.
+LTOPS=$00
+RTOPS=$30
+LBOTS=$60
+RBOTS=$90
+
+		sty L_1327		;12A9 8C 27 13 data offset
+		sta L_1328		;12AC 8D 28 13
+		sta ZP_A0		;12AF 85 A0
+		txa				;12B1 8A
+		pha				;12B2 48
+		;ldx #$7f		;12B3 A2 7F
+
+; reset the < flag.
+
+		; lda #$00		;12B5 A9 00
+		; sta ZP_18		;12B7 85 18
+
+; clear sprite contents.
+
+  		ldx #text_sprite_buffer_size
+		lda #$ff
+.L_12B9	sta text_sprite_buffer-1,X ;12B9 9D 80 7F
+		dex						 ;12BC CA
+		bne L_12B9				 ;12BD 10 FA
+
+.L_12BF
+
+; fetch first byte of block - dest offset in sprite data.
+
+		ldx text_sprite_data,Y	;12BF BE 29 13
+		iny				;12C2 C8
+
+; ZP_08 = column counter - each sprite is 24 px/3 chars wide.
+
+		lda #$03		;12C3 A9 03
+		sta ZP_08		;12C5 85 08
+
+.L_12C7
+		lda text_sprite_data,Y	;12C7 B9 29 13
+
+		cmp #$3C		;12CA C9 3C
+		bne L_12D2		;12CC D0 04 taken if not '<'
+
+; ; If a < was seen, shift this row left 4 pixels.
+
+;   		sec
+; 		txa:sbc #8:tax
+
+		lda #$20		;12D0 A9 20 pretend it was a space
+		
+.L_12D2
+
+; convert ASCII->char index
+
+        sec				;12D2 38
+		sbc #$20		;12D3 E9 30
+
+; save X+Y.
+
+		sty ZP_C7		;12D5 84 C7
+		stx ZP_C6		;12D7 86 C6
+
+; L_1469 = get address of B&W data for font char in ZP_1E
+
+		; jsr L_1469		;12D9 20 69 14
+
+		asl A					; *2
+		asl A:rol ZP_14			; *4
+		asl A:rol ZP_14			; *8
+		clc
+		adc #LO(font_data):sta ZP_1E
+		lda ZP_14:and #3:adc #HI(font_data):sta ZP_1F
+		ldy #0
+		
+.L_12DC
+
+; copy font char byte into sprite data.
+
+; Do left half.
+
+        lda (ZP_1E),y			 ; abcdefgh
+		lsr a:lsr a:lsr a:lsr a	 ; 0000abcd
+		sta left_or+1
+		lda (ZP_1E),y			 ; abcdefgh
+		and #$f0				 ; abcd0000
+.left_or:ora #$ff				 ; abcdabcd
+        eor #$ff
+		sta text_sprite_buffer,x
+		
+; Do right half.
+
+  	    lda (ZP_1E),y			   ; abcdefgh
+		asl a:asl a:asl a:asl a	   ; efgh0000
+		sta right_or+1
+		lda (ZP_1E),y			   ; abcdefgh
+		and #$0f				   ; 0000efgh
+.right_or:ora #$ff				   ; efghefgh
+        eor #$ff
+		sta text_sprite_buffer+8,x
+
+; advance to next row of sprite
+
+  		inx
+
+; next byte of font data - and so on.
+
+		iny				;12E4 C8
+		cpy #$08		;12E5 C0 07
+		bne L_12DC		;12E7 D0 F3
+
+; restore X+Y.
+
+		ldy ZP_C7		;12E9 A4 C7
+		ldx ZP_C6		;12EB A6 C6
+
+; next text sprite data byte
+
+		iny				;12ED C8
+
+; next sprite column
+
+  	   	clc
+		txa:adc #16:tax
+
+; 3 columns.
+
+		dec ZP_08		;12EF C6 08
+		bne L_12C7		;12F1 D0 D4
+
+; repeat for all blocks of 4 bytes
+
+		dec ZP_A0		;12F3 C6 A0
+		bne L_12BF		;12F5 D0 C8
+
+; Check for a row shift offset.
+
+; 		lda ZP_18		;12F7 A5 18
+; 		beq L_131F		;12F9 F0 24
+
+; ; < flag was set.
+
+; 		lda #$06		;12FB A9 06
+; 		sta ZP_08		;12FD 85 08 shift 6 rows
+		
+; 		ldx ZP_18		;12FF A6 18
+
+; ; shift row left, 4 times.
+
+; .L_1301	ldy #$04				;1301 A0 04
+; .L_1303	asl L_7F80+64+2,X		;1303 1E C2 7F
+; 		rol L_7F80+64+1,X		;1306 3E C1 7F
+; 		rol L_7F80+64,X			;1309 3E C0 7F
+; 		rol L_7F80+2,X			;130C 3E 82 7F
+; 		rol L_7F80+1,X			;130F 3E 81 7F
+; 		rol L_7F80+0,X			;1312 3E 80 7F
+; 		dey				;1315 88
+; 		bne L_1303		;1316 D0 EB
+; 		inx				;1318 E8
+; 		inx				;1319 E8
+; 		inx				;131A E8
+; 		dec ZP_08		;131B C6 08
+; 		bne L_1301		;131D D0 E2
+		
+; .L_131F
+
+; indicate there's a text sprite set up.
+
+		lda #$80		;131F A9 80
+		sta L_C355		;1321 8D 55 C3
+		pla				;1324 68
+		tax				;1325 AA
+		rts				;1326 60
+
+; There doesn't appear to be any way to make defines for the offsets
+; in BeebAsm :(
+.text_sprite_data
+		equb LTOPS,"<WR",RTOPS,"ECK" ; +0   +$00
+
+; the "T" part looks like a bug - when used, A is set to 4 - see
+; L_1057.
+		equb LTOPN," RA",RTOPN,"CE ",LBOTS,"< W",RBOTS,"ON ",RBOTS,"T  " ; +8 +$08
+		equb LTOPN," RA",RTOPN,"CE ",LBOTN," LO",RBOTN,"ST " ; +28  +$1C
+		equb LTOPN," DR",RTOPN,"OP ",LBOTS,"<ST",RBOTS,"ART" ; +44  +$2C
+		equb LTOPS,"<PR",RTOPS,"ESS",LBOTN," FI",RBOTN,"RE " ; +60  +$3C
+		equb LTOPN,"PAU",RTOPN,"SED",""	; +76  +$4C
+		equb LTOPN," LA",RTOPN,"PS ",LBOTN," OV",RBOTN,"ER " ; +84  +$54
+		equb LTOPN,"DEF",RTOPN,"INE",LBOTN," KE",RBOTN,"YS " ; +100 +$64
+		equb LTOPS,"<ST",RTOPS,"EER",LBOTN," LE",RBOTN,"FT " ; +116 +$74
+		equb LTOPS," ST",RTOPS,"EER",LBOTS," RI",RBOTS,"GHT" ; +132 +84
+		equb LTOPS,"<AH",RTOPS,"EAD",LBOTN,"+BO",RBOTN,"OST" ; +148 +$94
+		equb LTOPN," BA",RTOPN,"CK ",LBOTN,"+BO",RBOTN,"OST" ; +164 +$A4
+		equb LTOPN," BA",RTOPN,"CK ",LBOTN,"   ",RBOTN,"   " ; +180 +$B4
+		equb LTOPN,"VER",RTOPN,"IFY",LBOTN," KE",RBOTN,"YS " ; +196 +$C4
+		equb LTOPN," FA",RTOPN,"ULT",LBOTN," FO",RBOTN,"UND" ; +212 +$D4
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Pause mode isn't like in-game mode, but the differences aren't too
+; hard to work around...
+
+; Copies contents of front buffer to back buffer, or vice versa, so the 
+._graphics_pause_save_screen
+{
+sec								; front->back
+}
+.graphics_pause_copy_screen
+{
+php
+
+clc
+lda #$42:adc ZP_12				; read from back buffer
+plp:bcc src_msb_ok
+eor #$20						; read from front buffer
+.src_msb_ok
+sta read+2
+eor #$20
+sta write+2
+
+lda #$a0
+sta read+1
+sta write+1
+
+ldy #12
+.copy_1_row
+ldx #0
+.copy_1_byte
+.read:lda $ffff,x
+.write:sta $ffff,x
+inx
+bne copy_1_byte
+inc read+2
+inc write+2
+dey
+bne copy_1_row
+rts
+}
+
+; Sets up text sprite, restores old screen, draws text sprite (but
+; after fiddling with ZP_12, so the drawing temporarily goes to the
+; front buffer...).
+._graphics_pause_show_text_sprite
+{
+jsr _set_up_text_sprite
+clc:jsr graphics_pause_copy_screen ; back->front
+
+lda ZP_12:eor #$20:sta ZP_12
+jsr _graphics_draw_in_game_text_sprites
+lda ZP_12:eor #$20:sta ZP_12
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .beeb_graphics_end

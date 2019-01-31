@@ -430,11 +430,14 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 
 .L_3046_from_main_loop
 {
-		ldx #$0B		;3046 A2 0B
-.L_3048	lda L_C6C0,X	;3048 BD C0 C6
-		sta L_DAB6,X	;304B 9D B6 DA
-		dex				;304E CA
-		bpl L_3048		;304F 10 F7
+; 		ldx #$0B		;3046 A2 0B
+; .L_3048
+; 		lda L_C6C0,X	;3048 BD C0 C6
+; 		sta L_DAB6,X	;304B 9D B6 DA		; COLOR RAM
+; 		dex				;304E CA
+; 		bpl L_3048		;304F 10 F7
+		
+		ldx #$ff
 		rts				;3051 60
 }
 
@@ -1130,19 +1133,24 @@ NEXT
 		; lda #$03		;3C57 A9 03			; 'MODE 3'
 		; jsr cart_sysctl		;3C59 20 25 87
 		jsr cart_set_up_colour_map_for_track_preview		;3C5C 20 77 3A
-		jsr cart_draw_track_preview_border		;3C5F 20 03 2F
+		; jsr cart_draw_track_preview_border		;3C5F 20 03 2F
 		jsr cart_draw_track_preview_track_name		;3C62 20 CE 2F
 		jsr L_3EA8		;3C65 20 A8 3E
 		ldx current_track		;3C68 AE 7D C7
 		jsr kernel_set_road_data1		;3C6B 20 34 EA
 		jsr cart_update_per_track_stuff		;3C6E 20 18 1D
+		jsr preview_unpack_background
 		jsr kernel_update_track_preview		;3C71 20 86 F3
 
-.L_3C74	ldx #$27		;3C74 A2 27
-		lda #$3B		;3C76 A9 3B
-.L_3C78	sta L_7FC0,X	;3C78 9D C0 7F
-		dex				;3C7B CA
-		bpl L_3C78		;3C7C 10 FA
+.L_3C74
+
+; What is this bit of code for?!
+
+; 		ldx #$27		;3C74 A2 27
+; 		lda #$3B		;3C76 A9 3B
+; .L_3C78	sta L_7FC0,X	;3C78 9D C0 7F
+; 		dex				;3C7B CA
+; 		bpl L_3C78		;3C7C 10 FA
 		
 		ldx #$2C		;3C7E A2 2C	; "steer to rotate view or fire to continue"
 		jsr cart_print_msg_4		;3C80 20 27 30
@@ -1165,8 +1173,8 @@ NEXT
 .game_main_loop			; aka L_3C99
 {
 		ldx #$80		;3C99 A2 80
-		lda #$34		;3C9B A9 34		; 'copy stuff'
-		jsr cart_sysctl		;3C9D 20 25 87
+		; lda #$34		;3C9B A9 34		; 'copy stuff'
+		; jsr cart_sysctl		;3C9D 20 25 87
 		jsr initialise_game_vars		;3CA0 20 F9 3D
 		ldx #$80		;3CA3 A2 80
 		lda #$10		;3CA5 A9 10		; 
@@ -1222,12 +1230,29 @@ NEXT
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
 
+; Handle pause mode. There's a tiny amount of mucking about to ensure
+; that when pause mode is entered, there's no text sprite on screen,
+; because pause mode just draws on top of whatever's there already.
+
+  		ldx #KEY_DEF_PAUSE
+		jsr poll_key_with_sysctl
+		php						; Z=1 if entering pause.
+
+		beq in_game_text_sprites_drawn
+		jsr graphics_draw_in_game_text_sprites
+.in_game_text_sprites_drawn
+		
 		IF _DEBUG
 		JSR graphics_draw_debug_framerate
 		ENDIF
-		
+
 		jsr flip_display_page		;3D2C 20 42 3F
-		jsr update_pause_status		;3D2F 20 E0 3E
+
+		plp
+		bne pause_mode_done
+		jsr pause_loop
+.pause_mode_done
+
 		lda L_C351		;3D32 AD 51 C3
 		and L_C306		;3D35 2D 06 C3
 		bpl L_3D69		;3D38 10 2F
@@ -1246,7 +1271,7 @@ NEXT
 
 .L_3D50	ldy #$3C		;3D50 A0 3C PRESS FIRE
 		lda #$04		;3D52 A9 04
-		jsr kernel_set_up_text_sprite		;3D54 20 A9 12
+		jsr set_up_text_sprite		;3D54 20 A9 12
 		lda #$FF		;3D57 A9 FF
 		sta ZP_11		;3D59 85 11
 		lda #$F8		;3D5B A9 F8
@@ -1319,8 +1344,8 @@ NEXT
 		sta L_C719		;3DEA 8D 19 C7
 .L_3DED	jsr cart_save_rndQ_stateQ		;3DED 20 2C 16
 		ldx #$00		;3DF0 A2 00
-		lda #$34		;3DF2 A9 34
-		jsr cart_sysctl		;3DF4 20 25 87
+		; lda #$34		;3DF2 A9 34
+		; jsr cart_sysctl		;3DF4 20 25 87
 		rts				;3DF7 60
 }
 
@@ -1428,16 +1453,25 @@ NEXT
 		rts				;3EB5 60
 }
 
-.update_pause_status		; can be moved to Kernel
-{
-		lda L_C306		;3EE0 AD 06 C3
-		bpl L_3EEC		;3EE3 10 07
-		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
-		jsr poll_key_with_sysctl		;3EE7 20 C9 C7
-		beq L_3EED		;3EEA F0 01
-.L_3EEC	rts				;3EEC 60
+; .update_pause_status		; can be moved to Kernel
+; {
 
-.L_3EED	jsr kernel_silence_all_voices_with_sysctl		;3EED 20 F9 E0
+; (Only enter pause mode when displaying one of the buffers? Not sure
+; what the problem with that might have been, but the BBC version can
+; handle it, so there's no corresponding check any more.)
+
+; 		; lda L_C306		;3EE0 AD 06 C3
+; 		; bpl L_3EEC		;3EE3 10 07
+		
+; 		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
+; 		jsr poll_key_with_sysctl		;3EE7 20 C9 C7
+; 		beq pause_loop ;3EEA F0 01
+; .L_3EEC	rts				;3EEC 60
+
+.pause_loop
+{
+		jsr kernel_silence_all_voices_with_sysctl		;3EED 20 F9 E0
+		jsr graphics_pause_save_screen
 		lda #$00		;3EF0 A9 00
 		sta ZP_10		;3EF2 85 10
 		sta ZP_11		;3EF4 85 11
@@ -1449,7 +1483,7 @@ NEXT
 		pha				;3F01 48
 		ldy #$4C		;3F02 A0 4C PAUSED
 		lda #$02		;3F04 A9 02
-		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
+		jsr graphics_pause_show_text_sprite
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
 		ldx #KEY_DEF_CONTINUE		;3F0C A2 34
 		jsr poll_key_with_sysctl		;3F0E 20 C9 C7
@@ -1464,7 +1498,7 @@ NEXT
 		sta L_C355		;3F1E 8D 55 C3
 		bpl sid_init_engine_note		;3F21 10 04
 		txa				;3F23 8A
-		jsr kernel_set_up_text_sprite		;3F24 20 A9 12
+		jsr graphics_pause_show_text_sprite
 }
 \\
 .sid_init_engine_note
