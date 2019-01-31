@@ -1204,7 +1204,7 @@ NEXT
 		ldy #$03		;3CF7 A0 03
 		jsr delay_approx_Y_25ths_sec		;3CF9 20 EB 3F
 		jsr ensure_screen_enabled		;3CFC 20 9E 3F
-		jsr restore_sound_after_pauseQ		;3CFF 20 27 3F
+		jsr sid_init_engine_note		;3CFF 20 27 3F
 		jsr L_3046_from_main_loop		;3D02 20 46 30
 
 .inner_loop
@@ -1377,6 +1377,8 @@ NEXT
 		sta L_2806		;3E4A 8D 06 28
 		lda #$00		;3E4D A9 00
 		sta VIC_SPENA		;3E4F 8D 15 D0
+
+	\\ Silence all channels, turn off all filters
 		sta SID_SIGVOL		;3E52 8D 18 D4
 		ldx #$02		;3E55 A2 02
 .L_3E57	lda #$09		;3E57 A9 09
@@ -1460,12 +1462,12 @@ NEXT
 		tay				;3F1C A8 <<reinstate last text sprite>>
 		pla				;3F1D 68
 		sta L_C355		;3F1E 8D 55 C3
-		bpl restore_sound_after_pauseQ		;3F21 10 04
+		bpl sid_init_engine_note		;3F21 10 04
 		txa				;3F23 8A
 		jsr kernel_set_up_text_sprite		;3F24 20 A9 12
 }
 \\
-.restore_sound_after_pauseQ
+.sid_init_engine_note
 {
 		lda #$06		;3F27 A9 06
 		jsr kernel_play_sound_effect		;3F29 20 68 CF
@@ -1488,8 +1490,28 @@ NEXT
 	; Bit 6:  Select high-pass filter, 1=high-pass on
 	; Bit 7:  Disconnect output of voice 4, 1=voice 3 off
 
+	\\ Volume = 5, all filters on, disconnect voice 3?
 		lda #$F5		;3F3C A9 F5
 		sta SID_SIGVOL		;3F3E 8D 18 D4
+
+	\\ BEEB audio init for engine note
+
+	\\ Set tone 1 to lowest
+
+		LDA #$CF
+		JSR psg_strobe
+
+		LDA #$3F
+		JSR psg_strobe
+
+	\\ Set noise channel to tone 1 freq at max vol
+
+        LDA #%11110000  ; noise volume max
+        JSR psg_strobe
+
+        LDA #%11100011   ; noise control freq 1
+        JSR psg_strobe
+
 		rts				;3F41 60
 }
 
@@ -1663,6 +1685,15 @@ ENDIF
 		sta sid_voice_flags,X	;871B 9D C8 86
 		sta SID_SUREL1,Y	;871E 99 06 D4	; SID
 		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
+
+	; silence Beeb voice
+		TXA
+		ASL A
+		CLC
+		ADC #$09
+		ASL A:ASL A:ASL A:ASL A
+		ORA #$0F
+		JSR psg_strobe
 }
 \\
 .sid_return	rts				;8724 60

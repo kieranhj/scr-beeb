@@ -1158,13 +1158,6 @@ GUARD .disksys_loadto_addr
 	; Sort out display.
 	jsr set_up_beeb_display
 	
-        LDA #%11110000  ; noise volume ma
-        JSR psg_strobe
-
-        LDA #%11100011   ; noise control freq 1
-        JSR psg_strobe
-
-
 		jmp game_start		;425A 4C 22 3B
 
         ; ^^^ JUMP TO GAME START

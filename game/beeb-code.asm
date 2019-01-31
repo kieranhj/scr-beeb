@@ -318,6 +318,14 @@ SID_MSB_SHIFT = 3
         LDA freq_table_HI, X
         JSR psg_strobe
 
+    \\ We can't twiddle the pulse width but we can just tickle the volume
+    \\ Gives a slight reverbaration effect to give some texture to the tone
+
+        LDA SID_PWLO1
+        AND #$01
+        ORA #%11110000
+        JSR psg_strobe
+
         rts
 
         .watch_X
