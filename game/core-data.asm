@@ -2,7 +2,7 @@
 \\ Data moved from Cart RAM to Core
 ; *****************************************************************************
 
-_JUST_ONE_TRACK_FOR_SAVING_RAM = TRUE
+_JUST_ONE_TRACK_FOR_SAVING_RAM = FALSE
 
 .core_data_start
 

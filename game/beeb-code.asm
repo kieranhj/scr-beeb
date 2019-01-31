@@ -332,61 +332,6 @@ SID_MSB_SHIFT = 3
         EQUB 0
 }
 
-SID_TO_FREQ = 0.060959458   ;PAL=0.0587254762649536; NTSC=
-FREQ_TO_NOISE = 7.5
-
-.freq_table_LO
-{
-    FOR r,0,255,1
-
-    sid_reg = r << (8 - SID_MSB_SHIFT)
-    sid_freq = sid_reg * SID_TO_FREQ
-    beeb_freq = sid_freq * FREQ_TO_NOISE
-
-    beeb_div = (32.0 * beeb_freq)
-    IF beeb_div > 0
-        IF (4000000.0 / beeb_div) > &3FF
-            beeb_reg = &3FF
-        ELSE
-            beeb_reg = 4000000.0 / beeb_div
-        ENDIF
-    ELSE
-        beeb_reg = 0
-    ENDIF
-
-    PRINT "r=",r," sid reg=",~sid_reg," sid freq=",sid_freq, " beeb freq=",beeb_freq," beeb reg=",~beeb_reg
-
-    EQUB %11000000 OR (beeb_reg AND &F)     ; tone 1 freq LO
-
-    NEXT
-}
-
-.freq_table_HI
-{
-    FOR r,0,255,1
-
-    sid_reg = r << (8 - SID_MSB_SHIFT)
-    sid_freq = sid_reg * SID_TO_FREQ
-    beeb_freq = sid_freq * FREQ_TO_NOISE
-
-    beeb_div = (32.0 * beeb_freq)
-    IF beeb_div > 0
-        IF (4000000.0 / beeb_div) > &3FF
-            beeb_reg = &3FF
-        ELSE
-            beeb_reg = 4000000.0 / beeb_div
-        ENDIF
-    ELSE
-        beeb_reg = 0
-    ENDIF
-
-;    PRINT "r=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg
-
-    EQUB beeb_reg >> 4              ; tone 1 freq HI
-
-    NEXT
-}
-
 .psg_strobe
 {
 	ldy #255

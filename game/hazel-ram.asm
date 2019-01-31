@@ -464,6 +464,66 @@ ENDIF
 		equb $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
 		equb $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
 
+; *****************************************************************************
+\\ Audio tables to convert SID registers into SN76489 register values
+; *****************************************************************************
+
+SID_TO_FREQ = 0.060959458   ;PAL=0.0587254762649536; NTSC=
+FREQ_TO_NOISE = 7.5
+
+.freq_table_LO
+{
+    FOR r,0,255,1
+
+    sid_reg = r << (8 - SID_MSB_SHIFT)
+    sid_freq = sid_reg * SID_TO_FREQ
+    beeb_freq = sid_freq * FREQ_TO_NOISE
+
+    beeb_div = (32.0 * beeb_freq)
+    IF beeb_div > 0
+        IF (4000000.0 / beeb_div) > &3FF
+            beeb_reg = &3FF
+        ELSE
+            beeb_reg = 4000000.0 / beeb_div
+        ENDIF
+    ELSE
+        beeb_reg = 0
+    ENDIF
+
+;    PRINT "r=",r," sid reg=",~sid_reg," sid freq=",sid_freq, " beeb freq=",beeb_freq," beeb reg=",~beeb_reg
+
+    EQUB %11000000 OR (beeb_reg AND &F)     ; tone 1 freq LO
+
+    NEXT
+}
+
+.freq_table_HI
+{
+    FOR r,0,255,1
+
+    sid_reg = r << (8 - SID_MSB_SHIFT)
+    sid_freq = sid_reg * SID_TO_FREQ
+    beeb_freq = sid_freq * FREQ_TO_NOISE
+
+    beeb_div = (32.0 * beeb_freq)
+    IF beeb_div > 0
+        IF (4000000.0 / beeb_div) > &3FF
+            beeb_reg = &3FF
+        ELSE
+            beeb_reg = 4000000.0 / beeb_div
+        ENDIF
+    ELSE
+        beeb_reg = 0
+    ENDIF
+
+;    PRINT "r=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg
+
+    EQUB beeb_reg >> 4              ; tone 1 freq HI
+
+    NEXT
+}
+
+
 .hazel_data_end
 
 ; These are used as temporary storage for some reason
@@ -499,8 +559,10 @@ ENDIF
 ._L_D300:skip 256
 ._L_D400:skip 256
 ._L_D500:skip 256
-._L_D600:skip 256
-._L_D700:skip 256
+
+; Claimed for SID>SN76489 frequency tables
+;._L_D600:skip 256
+;._L_D700:skip 256
 
 ; Claimed back for MOS FS workspace
 ;._L_D800:skip 256

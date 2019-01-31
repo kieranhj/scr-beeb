@@ -1075,8 +1075,10 @@ GUARD disksys_loadto_addr
 		lda #0:sta _L_D300,X	; d3
 		lda #0:sta _L_D400,x	; d4
 		lda #0:sta _L_D500,x	; d5
-		lda #0:sta _L_D600,x	; d6
-		lda #0:sta _L_D700,x	; d7
+
+; Claimed for SID>SN76489 frequency tables
+;		lda #0:sta _L_D600,x	; d6
+;		lda #0:sta _L_D700,x	; d7
 
 ; Claimed back for MOS FS workspace
 ;		lda #0:sta _L_D800,x	; d8
