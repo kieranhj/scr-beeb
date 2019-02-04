@@ -302,20 +302,25 @@ SID_MSB_SHIFT = 3
 		sta SID_FRELO3		;CF31 8D 0E D4	; SID
 		jsr sid_update_voice_2		;CF34 20 EF 86
 
+    \\ Select 8 bits from Voice 1 frequency high & low bytes
+
         LDA SID_FRELO1
         FOR n,1,SID_MSB_SHIFT,1
         ASL A
         ROL SID_FREHI1
         NEXT
 
+    \\ Use them to index our conversion table
+
         LDA SID_FREHI1
         TAX
-        STX watch_X
 
-        LDA freq_table_LO, X
+    \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
+
+        LDA sid_to_psg_freq_table_LO, X
         JSR psg_strobe
 
-        LDA freq_table_HI, X
+        LDA sid_to_psg_freq_table_HI, X
         JSR psg_strobe
 
     \\ We can't twiddle the pulse width but we can just tickle the volume
@@ -327,9 +332,6 @@ SID_MSB_SHIFT = 3
         JSR psg_strobe
 
         rts
-
-        .watch_X
-        EQUB 0
 }
 
 .psg_strobe
@@ -487,42 +489,6 @@ EQUW 0
 	DEX
 	BPL loop
     RTS
-}
-
-.beeb_mode1_crtc_regs
-{
-	EQUB 127				; R0  horizontal total
-	EQUB 80					; R1  horizontal displayed
-	EQUB 98					; R2  horizontal position
-	EQUB &28				; R3  sync width 40 = &28
-	EQUB 38					; R4  vertical total
-	EQUB 0					; R5  vertical total adjust
-	EQUB 25					; R6  vertical displayed
-	EQUB 35					; R7  vertical position; 35=top of screen
-	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
-	EQUB 7					; R9  scanlines per row
-	EQUB 32					; R10 cursor start
-	EQUB 8					; R11 cursor end
-	EQUB HI(screen1_address/8)	; R12 screen start address, high
-	EQUB LO(screen1_address/8)	; R13 screen start address, low
-}
-
-.beeb_mode5_crtc_regs
-{
-	EQUB 63				; R0  horizontal total
-	EQUB 40					; R1  horizontal displayed
-	EQUB 49					; R2  horizontal position
-	EQUB &24				; R3  sync width 40 = &28
-	EQUB 38					; R4  vertical total
-	EQUB 0					; R5  vertical total adjust
-	EQUB 25					; R6  vertical displayed
-	EQUB 35					; R7  vertical position; 35=top of screen
-	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
-	EQUB 7					; R9  scanlines per row
-	EQUB 32					; R10 cursor start
-	EQUB 8					; R11 cursor end
-	EQUB HI(screen1_address/8)	; R12 screen start address, high
-	EQUB LO(screen1_address/8)	; R13 screen start address, low
 }
 
 .beeb_code_end

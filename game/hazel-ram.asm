@@ -471,7 +471,7 @@ ENDIF
 SID_TO_FREQ = 0.060959458   ;PAL=0.0587254762649536; NTSC=
 FREQ_TO_NOISE = 7.5
 
-.freq_table_LO
+.sid_to_psg_freq_table_LO
 {
     FOR r,0,255,1
 
@@ -487,7 +487,7 @@ FREQ_TO_NOISE = 7.5
             beeb_reg = 4000000.0 / beeb_div
         ENDIF
     ELSE
-        beeb_reg = 0
+        beeb_reg = &3FF
     ENDIF
 
 ;    PRINT "r=",r," sid reg=",~sid_reg," sid freq=",sid_freq, " beeb freq=",beeb_freq," beeb reg=",~beeb_reg
@@ -497,7 +497,7 @@ FREQ_TO_NOISE = 7.5
     NEXT
 }
 
-.freq_table_HI
+.sid_to_psg_freq_table_HI
 {
     FOR r,0,255,1
 
@@ -513,7 +513,7 @@ FREQ_TO_NOISE = 7.5
             beeb_reg = 4000000.0 / beeb_div
         ENDIF
     ELSE
-        beeb_reg = 0
+        beeb_reg = &3FF
     ENDIF
 
 ;    PRINT "r=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg

@@ -12,6 +12,7 @@ INCLUDE "lib/bbc.h.asm"
 ; GLOBAL DEFINES
 ; *****************************************************************************
 
+bootstrap_address = $3f00
 disksys_loadto_addr = $4300     ; SCR only (TEMP)
 
 MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
@@ -726,8 +727,7 @@ vic_sprite_ptr7=$5fff
 ; *****************************************************************************
 
 ORG &E00
-; GUARD &3FFB		; C64 has spare bytes behind the screen - may be used as workspace!
-GUARD .boot_start
+GUARD bootstrap_address		; using .boot_start doesn't seem to guard?
 
 \\ Core Code
 
@@ -758,7 +758,7 @@ SAVE "Core", core_start, P%, 0
 PRINT "--------"
 
 CLEAR &3f00, &8000
-ORG $3f00
+ORG bootstrap_address
 GUARD disksys_loadto_addr
 
 .boot_start

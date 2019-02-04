@@ -1530,7 +1530,22 @@ NEXT
 
 	\\ BEEB audio init for engine note
 
-	\\ Set tone 1 to lowest
+	\\ Silence noise channel
+
+		LDA #$ff
+		JSR psg_strobe
+
+	\\ Silence tone 1
+
+		LDA #$df
+		JSR psg_strobe
+
+	\\ Set noise channel to tone 1 freq
+
+        LDA #%11100011   ; noise control freq 1
+        JSR psg_strobe
+
+	\\ Set tone 1 to lowest freq
 
 		LDA #$CF
 		JSR psg_strobe
@@ -1538,12 +1553,9 @@ NEXT
 		LDA #$3F
 		JSR psg_strobe
 
-	\\ Set noise channel to tone 1 freq at max vol
+	\\ Set noise channel to max vol
 
         LDA #%11110000  ; noise volume max
-        JSR psg_strobe
-
-        LDA #%11100011   ; noise control freq 1
         JSR psg_strobe
 
 		rts				;3F41 60
@@ -1721,15 +1733,13 @@ ENDIF
 		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
 
 	; silence Beeb voice
-		TXA
-		ASL A
-		CLC
-		ADC #$09
-		ASL A:ASL A:ASL A:ASL A
-		ORA #$0F
+
+		LDA psg_silence_voice, X
 		JSR psg_strobe
 }
 \\
 .sid_return	rts				;8724 60
+
+.psg_silence_voice EQUB $ff, $bf, $9f
 
 .core_end

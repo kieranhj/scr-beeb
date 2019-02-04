@@ -282,6 +282,42 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 		equb $1F,$12,$0E,"NAME?",$FF
 		equb " 2pts",$FF," 1pt",$FF," of ",$FF
 
+.beeb_mode1_crtc_regs
+{
+	EQUB 127				; R0  horizontal total
+	EQUB 80					; R1  horizontal displayed
+	EQUB 98					; R2  horizontal position
+	EQUB &28				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI(screen1_address/8)	; R12 screen start address, high
+	EQUB LO(screen1_address/8)	; R13 screen start address, low
+}
+
+.beeb_mode5_crtc_regs
+{
+	EQUB 63				; R0  horizontal total
+	EQUB 40					; R1  horizontal displayed
+	EQUB 49					; R2  horizontal position
+	EQUB &24				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI(screen1_address/8)	; R12 screen start address, high
+	EQUB LO(screen1_address/8)	; R13 screen start address, low
+}
+
 PAGE_ALIGN
 .L_AD00	equb $FF,$8F,$FF,$EF,$FF
 		equb $FF,$4E,$FE,$9D,$FC,$EC,$FB,$FA,$29,$F8,$6F,$FE,$AC,$FB,$DA,$F8
