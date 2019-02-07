@@ -318,6 +318,7 @@ SID_MSB_SHIFT = 3
     \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
 
         LDA sid_to_psg_freq_table_LO, X
+        ORA #$C0            ; tone 1
         JSR psg_strobe
 
         LDA sid_to_psg_freq_table_HI, X

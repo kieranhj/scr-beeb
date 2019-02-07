@@ -492,7 +492,8 @@ FREQ_TO_NOISE = 7.5
 
 ;    PRINT "r=",r," sid reg=",~sid_reg," sid freq=",sid_freq, " beeb freq=",beeb_freq," beeb reg=",~beeb_reg
 
-    EQUB %11000000 OR (beeb_reg AND &F)     ; tone 1 freq LO
+	; We can ORA in channel number at run time
+    EQUB (beeb_reg AND &F)     ; tone 1 freq LO
 
     NEXT
 }

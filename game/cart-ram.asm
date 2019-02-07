@@ -822,10 +822,45 @@ ENDIF
 		lda sid_release_cycle_to_vsyncs,Y	;86B7 B9 DF 86
 		sta sid_voice_release_time,X	;86BA 9D D0 86
 
+	\\ Byte 6 = voice flags
+
 		ldy #$06		;86BD A0 06
 		lda (ZP_F8),Y	;86BF B1 F8
 		sta sid_voice_flags,X	;86C1 9D C8 86
+
+	\\ BEEB AUDIO
+
+		CPX #1
+		BNE return
+
+	\\ Only handle SFX
+
+		LDA SID_VCREG1, X
+		AND #$40
+		BNE return
+
+	\\ Skip random for now - only handle pulse
+
+		LDA SID_FREHI1, X
+		ASL A:ASL A
+		TAX
+		STX watch_X
+
+        LDA sid_to_psg_freq_table_LO, X
+		ORA #$A0		; tone 2 freq
+        JSR psg_strobe
+
+        LDA sid_to_psg_freq_table_HI, X
+        JSR psg_strobe
+
+		LDA #$b0
+		JSR psg_strobe	; tone 2 max vol
+
+		.return
 		rts				;86C4 60
+
+.watch_X
+	equb 0
 
 .sid_pulse_waveform_width
 	equb $00

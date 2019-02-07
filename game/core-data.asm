@@ -415,16 +415,33 @@ L_AEC1 = L_AEC0 + 1
 \\ This data is unknown so far! - used by sid_play_sound
 ;L_AF80
 .sid_sound_data
+	\\ Byte 0 = voice# for this data
+	\\ Byte 1 = SID voice control register 
+	\\ Byte 2 = Attack/Decay Register
+	\\ Byte 3 = Sustain/Release Control Register
+	\\ Byte 4 = Frequency Control (high byte)
+	\\ Byte 5 = Pulse Waveform Width (high nybble)
+	\\ Byte 6 = voice flags
+
 		equb $01,$41,$05,$00,$50,$98,$04,$80		; sfx #0 - confirm?
+		; voice 2, pulse wave, decay 5/attack 0, sustain 0/release 0, freq $5000, pulse width $0400
+ 
 		equb $01,$81,$0F,$E0
 .sid_sfx1_freq_high	\\ Used in crash effect
 		equb $64,$08,$1E,$80						; sfx #1 - crash?
+		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $6400, pulse width $0800
 
 		equb $01,$81,$0F,$E0,$14,$08,$1E,$80		; sfx #2 - game update?
+		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $1400, pulse width $0800
+
 		equb $01,$81,$00,$F0,$03,$08,$03,$80		; sfx #3 - game update?
+		; voice 2, random wave, decay 0/attack 0, sustain 15/release 0, freq $0300, pulse width $0800
+
 		equb $01,$41,$02,$00,$64,$98,$01,$80		; sfx #4 - damage?
-		equb $02,$00,$00,$FF,$50,$07,$FF,$80		; sfx #5 - pause?
-		equb $00,$00,$00,$CF,$50,$07,$FF,$80		; sfx #6 - pause?
+		; voice 2, pulse wave, decay 2/attack 0, sustain 0/release 0, freq $6400, pulse width $0800
+
+		equb $02,$00,$00,$FF,$50,$07,$FF,$80		; configure engine tone voice 3
+		equb $00,$00,$00,$CF,$50,$07,$FF,$80		; configure engine tone voice 1
 		equb $FF,$20,$E0,$FF,$4C,$D8,$AE,$20		; not valid sound data
 
 .L_AFC0	equb $16,$14,$02
