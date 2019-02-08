@@ -476,9 +476,9 @@ IF _NOT_BEEB
 }
 ENDIF
 
-.reset_border_colour
+.menu_disable_screen
 {
-		jsr vic_reset_border_colour		;3500 20 BE 3F	; does VIC stuff
+		jsr disable_screen
 		rts				;3503 60
 }
 
@@ -1006,7 +1006,7 @@ NEXT
 		bmi L_3B69		;3B4E 30 19	     ; taken if	racing
 
 		jsr do_track_preview		;3B50 20 36 3C
-		jsr reset_border_colour		;3B53 20 00 35
+		jsr menu_disable_screen		;3B53 20 00 35
 		jsr game_main_loop		;3B56 20 99 3C
 		jsr kernel_set_up_screen_for_frontend		;3B59 20 04 35
 		jmp L_3B45		;3B5C 4C 45 3B
@@ -1057,7 +1057,7 @@ NEXT
 		jsr poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
 		jsr do_track_preview		;3BBF 20 36 3C
-		jsr reset_border_colour		;3BC2 20 00 35
+		jsr menu_disable_screen		;3BC2 20 00 35
 		lda #$80		;3BC5 A9 80
 		jsr cart_store_restore_control_keys		;3BC7 20 46 98
 		jsr game_main_loop		;3BCA 20 99 3C
@@ -1111,7 +1111,7 @@ NEXT
 .do_track_preview			; could be moved to Cart
 {
 		lda #$0B		;3C36 A9 0B
-		jsr vic_set_border_colour		;3C38 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3C38 20 BB 3F
 
 		lda #$03:jsr cart_sysctl ; 'mode 3'
 		
@@ -1160,7 +1160,7 @@ NEXT
 		jmp L_3C74		;3C8B 4C 74 3C
 
 .L_3C8E	lda #$00		;3C8E A9 00
-		jsr vic_set_border_colour		;3C90 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3C90 20 BB 3F
 		lda #$00		;3C93 A9 00
 		sta irq_mode		;3C95 8D F8 3D
 		rts				;3C98 60
@@ -1320,7 +1320,7 @@ NEXT
 		lda #$C0		;3DB0 A9 C0
 		sta L_C362		;3DB2 8D 62 C3
 .L_3DB5	lda #$00		;3DB5 A9 00
-		jsr vic_set_border_colour		;3DB7 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3DB7 20 BB 3F
 		lda #$00		;3DBA A9 00
 		sta irq_mode		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
@@ -1619,30 +1619,40 @@ ENDIF
 		
 .vic_border_colour	equb $00
 
-.vic_set_border_colour
+.disable_screen_and_change_border_colour
 {
 		sta vic_border_colour		;3FBB 8D BA 3F
 }
 \\
-.vic_reset_border_colour
+.disable_screen
 {
+; Not 100% sure about this initial bit - I think it waits until the
+; scanout is outside the visible area?
 		nop				;3FBE EA
 		ldy #$05		;3FBF A0 05
 		sty ZP_14		;3FC1 84 14
-.L_3FC3	lda VIC_RASTER		;3FC3 AD 12 D0
+.L_3FC3 lda VIC_RASTER		;3FC3 AD 12 D0
 		cmp #$0A		;3FC6 C9 0A
 		bcs L_3FCF		;3FC8 B0 05
 		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
 		bpl L_3FD6		;3FCD 10 07
-.L_3FCF	dec ZP_14		;3FCF C6 14
+.L_3FCF dec ZP_14		;3FCF C6 14
 		bne L_3FC3		;3FD1 D0 F0
 		dey				;3FD3 88
 		bne L_3FC3		;3FD4 D0 ED
-.L_3FD6	lda vic_border_colour		;3FD6 AD BA 3F
+.L_3FD6
+; Set border colour.
+		lda vic_border_colour		;3FD6 AD BA 3F
 		sta VIC_EXTCOL		;3FD9 8D 20 D0
+
+; Disable display.
+
 		lda VIC_SCROLY		;3FDC AD 11 D0
 		and #$EF		;3FDF 29 EF				; 0=blank screen
 		sta VIC_SCROLY		;3FE1 8D 11 D0
+
+; Wait a bit.
+
 		ldy #$01		;3FE4 A0 01
 		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
 }

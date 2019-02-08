@@ -1658,7 +1658,7 @@ jsr dash_reset
 		jsr clear_write_char_half_row_flag		;2B02 20 1F 36
 		jsr cart_save_rndQ_stateQ		;2B05 20 2C 16
 		lda #$00		;2B08 A9 00
-		jsr vic_set_border_colour		;2B0A 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;2B0A 20 BB 3F
 		lda #$01		;2B0D A9 01
 		jsr cart_L_93A8		;2B0F 20 A8 93
 		ldx #$00		;2B12 A2 00
@@ -1774,7 +1774,7 @@ jsr dash_reset
 .L_2BFC	lda L_C367		;2BFC AD 67 C3
 		bpl L_2C04		;2BFF 10 03
 		jsr cart_L_95EA		;2C01 20 EA 95
-.L_2C04	jsr vic_reset_border_colour		;2C04 20 BE 3F
+.L_2C04	jsr disable_screen	;2C04 20 BE 3F
 		sei				;2C07 78
 		lda #$2B		;2C08 A9 2B			; $2B=disable screen, 25 rows, bitmap graphics mode
 		sta VIC_SCROLY		;2C0A 8D 11 D0		; VIC
@@ -2190,7 +2190,7 @@ jsr dash_reset
 		bmi L_94E1		;94DA 30 05
 		lda L_C367		;94DC AD 67 C3
 		bmi L_9526		;94DF 30 45
-.L_94E1	jsr reset_border_colour		;94E1 20 00 35
+.L_94E1	jsr menu_disable_screen				;94E1 20 00 35
 		jsr set_up_screen_for_frontend		;94E4 20 04 35
 		lda #$01		;94E7 A9 01
 		sta ZP_19		;94E9 85 19
@@ -2248,7 +2248,7 @@ jsr dash_reset
 .do_hall_of_fame_screen		; only called from Kernel?
 {
 		lda #$06		;98D2 A9 06
-		jsr vic_set_border_colour		;98D4 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;98D4 20 BB 3F
 		jsr disable_ints_and_page_in_RAM		;98D7 20 F1 33
 		ldx #$7F		;98DA A2 7F
 		ldy #$7F		;98DC A0 7F
@@ -5890,11 +5890,11 @@ L_EBDD	= L_EBE7 - $A			;!
 		ldx #KEY_DEF_REDEFINE		;EF6A A2 20
 		jsr poll_key_with_sysctl		;EF6C 20 C9 C7
 		bne L_EF77		;EF6F D0 06
-		jsr reset_border_colour		;EF71 20 00 35
+		jsr menu_disable_screen		;EF71 20 00 35
 		jmp game_start		;EF74 4C 22 3B
 .L_EF77	lda L_31A1		;EF77 AD A1 31
 		bne L_EF86		;EF7A D0 0A
-		jsr vic_reset_border_colour		;EF7C 20 BE 3F
+		jsr disable_screen ;EF7C 20 BE 3F
 		lda #$80		;EF7F A9 80
 		jsr L_F6D7_in_kernel		;EF81 20 D7 F6
 		bcc L_EFF4		;EF84 90 6E
@@ -5944,7 +5944,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		dey				;EFEE 88
 		bne L_EFE8		;EFEF D0 F7
 .L_EFF1	jsr L_94D7		;EFF1 20 D7 94
-.L_EFF4	jsr reset_border_colour		;EFF4 20 00 35
+.L_EFF4	jsr menu_disable_screen		;EFF4 20 00 35
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
 		jsr print_division_table		;EFFA 20 AD 36
 .L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF
@@ -8268,7 +8268,7 @@ skip $f0
 .set_up_screen_for_frontend
 {
 		lda #$00		;3504 A9 00
-		jsr vic_set_border_colour		;3506 20 BB 3F
+		jsr disable_screen_and_change_border_colour		;3506 20 BB 3F
 		lda #$01		;350C A9 01		; 'MODE 1'
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
