@@ -68,7 +68,7 @@ KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
 ; *****************************************************************************
 
 MACRO PAGE_ALIGN
-    PRINT "ALIGN LOST ", ~LO(((P% AND &FF) EOR &FF)+1), " BYTES"
+    PRINT "  ALIGN LOST ", ~LO(((P% AND &FF) EOR &FF)+1), " BYTES"
     ALIGN &100
 ENDMACRO
 
@@ -726,6 +726,7 @@ vic_sprite_ptr7=$5fff
 ; $3F00 = System code? (page flip, VIC control, misc)
 ; *****************************************************************************
 
+PRINT "***"
 ORG &E00
 GUARD bootstrap_address		; using .boot_start doesn't seem to guard?
 
@@ -1415,6 +1416,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
+PRINT "***"
 ORG &6000
 GUARD &8000
 INCLUDE "game/boot-data.asm"
@@ -1451,6 +1453,7 @@ PRINT "--------"
 ; $A100 = Calculate camera sines
 ; *****************************************************************************
 
+PRINT "***"
 CLEAR &8000, &C000
 ORG &8000
 GUARD &8000 + MAX_LOADABLE_ROM_SIZE
@@ -1472,6 +1475,7 @@ PRINT "--------"
 SAVE "Cart", cart_start, cart_end, 0
 PRINT "--------"
 
+PRINT "***"
 CLEAR &8000,&C000
 ORG &8000
 GUARD &C000
@@ -1500,6 +1504,7 @@ PRINT "--------"
 
 ; Engine screen data (copied at boot time from elsewhere)
 
+PRINT "***"
 CLEAR &C000, &E000
 \\ Need to keep PAGES $C000 - $C300 free for MOS DFS workspace
 ORG &C300
@@ -1547,6 +1552,7 @@ ENDIF
 ; $FF00 = Vectors
 ; *****************************************************************************
 
+PRINT "***"
 CLEAR &8000,&C000
 ORG &8000
 GUARD &8000 + MAX_LOADABLE_ROM_SIZE
@@ -1580,6 +1586,7 @@ SAVE "Title",$3000,$8000,0
 ; *****************************************************************************
 ; Title screen loader
 ; *****************************************************************************
+PRINT "***"
 CLEAR $0,$8000
 ORG $1900
 
