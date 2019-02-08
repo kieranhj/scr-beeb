@@ -14,6 +14,15 @@ TIMER_PartC = 18*8*64 -2                ; character row 19, scanline 1
 TIMER_Preview = 8*21*64 - 1*64 -2              ; character row 20, scanline 1
 TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 
+CRTC_R8_DisplayEnableValue=%11000000
+;                           ^^^^^^^^
+;                           ||||||++ - 00 = non-interlaced sync mode
+;                           ||||++-- - <<unused bits>>
+;                           ||++---- - 00 = no display blanking delay
+;                           ||         11 = disable display
+;                           ++------ - 11 = disable cursor
+CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
+
 .irq_handler
 {
 	LDA &FE4D
@@ -30,6 +39,16 @@ TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
     INC vsync_counter
     LDA #0
     STA irq_part
+
+	lda #8:sta $fe00
+
+    ; space is a bit tight in main RAM, so save a few bytes with some
+    ; self-modifying code...
+.*irq_handler_load_r8_value
+	lda #CRTC_R8_DisplayEnableValue ;! _SELF_MOD
+									;_ensure_screen_enabled,
+									;_disable_screen
+	sta $fe01
 
     LDA &FC
     RTI

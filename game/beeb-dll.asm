@@ -871,6 +871,18 @@ ENDIF
 .graphics_pause_save_screen DLL_CALL_GRAPHICS graphics_pause_save_screen,19
 .graphics_pause_show_text_sprite DLL_CALL_GRAPHICS graphics_pause_show_text_sprite,20
 
+; Note that this routine has 2 names. I don't think the distinction is
+; relevant for the BBC.
+.disable_screen_and_change_border_colour
+.disable_screen DLL_CALL_GRAPHICS _disable_screen,21
+
+
+; Note that this routine has 2 names. I don't think the distinction is
+; relevant for the BBC.
+.enable_screen_and_set_irq50
+.ensure_screen_enabled DLL_CALL_GRAPHICS _ensure_screen_enabled,22
+
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -898,6 +910,8 @@ ENDIF
 	EQUB LO(_set_up_text_sprite)				 ; 18
 	EQUB LO(_graphics_pause_save_screen)		 ; 19
 	EQUB LO(_graphics_pause_show_text_sprite)	 ; 20
+	EQUB LO(_disable_screen)					 ; 21
+	EQUB LO(_ensure_screen_enabled)				 ; 22
 }
 
 .graphics_table_HI
@@ -923,6 +937,8 @@ ENDIF
 	EQUB HI(_set_up_text_sprite)				 ; 18
 	EQUB HI(_graphics_pause_save_screen)		 ; 19
 	EQUB HI(_graphics_pause_show_text_sprite)	 ; 20
+	EQUB HI(_disable_screen)					 ; 21
+	EQUB HI(_ensure_screen_enabled)				 ; 22
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

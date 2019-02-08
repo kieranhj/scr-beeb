@@ -1672,4 +1672,26 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+._ensure_screen_enabled
+{
+lda #CRTC_R8_DisplayEnableValue
+bne set_r8_value				; will always be non-zero due to the
+								; cursor bits
+}
+
+._disable_screen
+{
+lda #CRTC_R8_DisplayDisableValue
+}
+
+.set_r8_value
+{
+:sta irq_handler_load_r8_value+1
+lda vsync_counter:.loop:cmp vsync_counter:beq loop
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 .beeb_graphics_end

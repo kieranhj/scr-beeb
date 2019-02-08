@@ -1589,67 +1589,67 @@ NEXT
 		rts				;3F6A 60
 }
 
-.ensure_screen_enabled		RTS
-IF _NOT_BEEB
-{
-		lda VIC_SCROLY		;3F9E AD 11 D0
-		and #$10		;3FA1 29 10			; 1=enable screen
-		bne L_3FB4		;3FA3 D0 0F
-}
-ENDIF
-\\
-.enable_screen_and_set_irq50
-IF _NOT_BEEB
-		lda VIC_SCROLY		;3FA5 AD 11 D0
-		ora #$10		;3FA8 09 10			; 1=enable screen
-		and #$7F		;3FAA 29 7F			; 0=raster compare HI
-		sta VIC_SCROLY		;3FAC 8D 11 D0
-		lda #$32		;3FAF A9 32
-		sta VIC_RASTER		;3FB1 8D 12 D0
-.L_3FB4	lda #C64_VIC_IRQ_RASTERCMP		;3FB4 A9 01
-		sta VIC_IRQMASK		;3FB6 8D 1A D0
-ENDIF
-		rts				;3FB9 60
+; .ensure_screen_enabled		RTS
+; IF _NOT_BEEB
+; {
+; 		lda VIC_SCROLY		;3F9E AD 11 D0
+; 		and #$10		;3FA1 29 10			; 1=enable screen
+; 		bne L_3FB4		;3FA3 D0 0F
+; }
+; ENDIF
+; \\
+; .enable_screen_and_set_irq50
+; IF _NOT_BEEB
+; 		lda VIC_SCROLY		;3FA5 AD 11 D0
+; 		ora #$10		;3FA8 09 10			; 1=enable screen
+; 		and #$7F		;3FAA 29 7F			; 0=raster compare HI
+; 		sta VIC_SCROLY		;3FAC 8D 11 D0
+; 		lda #$32		;3FAF A9 32
+; 		sta VIC_RASTER		;3FB1 8D 12 D0
+; .L_3FB4	lda #C64_VIC_IRQ_RASTERCMP		;3FB4 A9 01
+; 		sta VIC_IRQMASK		;3FB6 8D 1A D0
+; ENDIF
+; 		rts				;3FB9 60
 		
-.vic_border_colour	equb $00
+; .vic_border_colour	equb $00
 
-.disable_screen_and_change_border_colour
-{
-		sta vic_border_colour		;3FBB 8D BA 3F
-}
-\\
-.disable_screen
-{
-; Not 100% sure about this initial bit - I think it waits until the
-; scanout is outside the visible area?
-		nop				;3FBE EA
-		ldy #$05		;3FBF A0 05
-		sty ZP_14		;3FC1 84 14
-.L_3FC3 lda VIC_RASTER		;3FC3 AD 12 D0
-		cmp #$0A		;3FC6 C9 0A
-		bcs L_3FCF		;3FC8 B0 05
-		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
-		bpl L_3FD6		;3FCD 10 07
-.L_3FCF dec ZP_14		;3FCF C6 14
-		bne L_3FC3		;3FD1 D0 F0
-		dey				;3FD3 88
-		bne L_3FC3		;3FD4 D0 ED
-.L_3FD6
-; Set border colour.
-		lda vic_border_colour		;3FD6 AD BA 3F
-		sta VIC_EXTCOL		;3FD9 8D 20 D0
+; .disable_screen_and_change_border_colour
+; {
+; 		sta vic_border_colour		;3FBB 8D BA 3F
+; }
+; \\
+; .disable_screen
+; {
+; ; Not 100% sure about this initial bit - I think it waits until the
+; ; scanout is outside the visible area?
+; 		nop				;3FBE EA
+; 		ldy #$05		;3FBF A0 05
+; 		sty ZP_14		;3FC1 84 14
+; .L_3FC3 lda VIC_RASTER		;3FC3 AD 12 D0
+; 		cmp #$0A		;3FC6 C9 0A
+; 		bcs L_3FCF		;3FC8 B0 05
+; 		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
+; 		bpl L_3FD6		;3FCD 10 07
+; .L_3FCF dec ZP_14		;3FCF C6 14
+; 		bne L_3FC3		;3FD1 D0 F0
+; 		dey				;3FD3 88
+; 		bne L_3FC3		;3FD4 D0 ED
+; .L_3FD6
+; ; Set border colour.
+; 		lda vic_border_colour		;3FD6 AD BA 3F
+; 		sta VIC_EXTCOL		;3FD9 8D 20 D0
 
-; Disable display.
+; ; Disable display.
 
-		lda VIC_SCROLY		;3FDC AD 11 D0
-		and #$EF		;3FDF 29 EF				; 0=blank screen
-		sta VIC_SCROLY		;3FE1 8D 11 D0
+; 		lda VIC_SCROLY		;3FDC AD 11 D0
+; 		and #$EF		;3FDF 29 EF				; 0=blank screen
+; 		sta VIC_SCROLY		;3FE1 8D 11 D0
 
-; Wait a bit.
+; ; Wait a bit.
 
-		ldy #$01		;3FE4 A0 01
-		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
-}
+; 		ldy #$01		;3FE4 A0 01
+; 		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
+; }
 
 .delay_approx_4_5ths_sec
 		ldy #$14		;3FE9 A0 14
