@@ -2190,7 +2190,7 @@ jsr dash_reset
 		bmi L_94E1		;94DA 30 05
 		lda L_C367		;94DC AD 67 C3
 		bmi L_9526		;94DF 30 45
-.L_94E1	jsr menu_disable_screen				;94E1 20 00 35
+.L_94E1	jsr disable_screen				;94E1 20 00 35
 		jsr set_up_screen_for_frontend		;94E4 20 04 35
 		lda #$01		;94E7 A9 01
 		sta ZP_19		;94E9 85 19
@@ -5890,7 +5890,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		ldx #KEY_DEF_REDEFINE		;EF6A A2 20
 		jsr poll_key_with_sysctl		;EF6C 20 C9 C7
 		bne L_EF77		;EF6F D0 06
-		jsr menu_disable_screen		;EF71 20 00 35
+		jsr disable_screen		;EF71 20 00 35
 		jmp game_start		;EF74 4C 22 3B
 .L_EF77	lda L_31A1		;EF77 AD A1 31
 		bne L_EF86		;EF7A D0 0A
@@ -5944,7 +5944,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		dey				;EFEE 88
 		bne L_EFE8		;EFEF D0 F7
 .L_EFF1	jsr L_94D7		;EFF1 20 D7 94
-.L_EFF4	jsr menu_disable_screen		;EFF4 20 00 35
+.L_EFF4	jsr disable_screen		;EFF4 20 00 35
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
 		jsr print_division_table		;EFFA 20 AD 36
 .L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF

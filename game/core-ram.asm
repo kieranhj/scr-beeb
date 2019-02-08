@@ -476,12 +476,6 @@ IF _NOT_BEEB
 }
 ENDIF
 
-.menu_disable_screen
-{
-		jsr disable_screen
-		rts				;3503 60
-}
-
 .set_up_screen_for_menu
 {
 		lda L_C718		;351F AD 18 C7
@@ -1006,7 +1000,7 @@ NEXT
 		bmi L_3B69		;3B4E 30 19	     ; taken if	racing
 
 		jsr do_track_preview		;3B50 20 36 3C
-		jsr menu_disable_screen		;3B53 20 00 35
+		jsr disable_screen			;3B53 20 00 35
 		jsr game_main_loop		;3B56 20 99 3C
 		jsr kernel_set_up_screen_for_frontend		;3B59 20 04 35
 		jmp L_3B45		;3B5C 4C 45 3B
@@ -1057,7 +1051,7 @@ NEXT
 		jsr poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
 		jsr do_track_preview		;3BBF 20 36 3C
-		jsr menu_disable_screen		;3BC2 20 00 35
+		jsr disable_screen			;3BC2 20 00 35
 		lda #$80		;3BC5 A9 80
 		jsr cart_store_restore_control_keys		;3BC7 20 46 98
 		jsr game_main_loop		;3BCA 20 99 3C
