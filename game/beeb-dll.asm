@@ -16,7 +16,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_kernel_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -30,19 +30,13 @@ ENDMACRO
 
 .beeb_dll_start
 
-.DLL_REG_A skip 1           \\ Move these to ZP when possible
-.DLL_REG_X skip 1
-IF _STORE_STATUS
-.DLL_REG_STATUS skip 1
-ENDIF
-
 .jump_to_kernel
 {
-    STA DLL_REG_A
+    sta reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA .reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -70,13 +64,13 @@ ENDIF
     STA kernel_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_kernel_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -91,11 +85,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+	sta reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA .reload_status+1
 ENDIF
 
     \\ Restore original bank
@@ -103,12 +97,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -409,7 +403,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_cart_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -422,11 +416,11 @@ ENDMACRO
 
 .jump_to_cart
 {
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -454,13 +448,13 @@ ENDIF
     STA cart_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_cart_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -475,11 +469,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Restore original bank
@@ -487,12 +481,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -758,7 +752,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_graphics_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -771,11 +765,11 @@ ENDMACRO
 
 .jump_to_graphics
 {
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -803,13 +797,13 @@ ENDIF
     STA graphics_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_graphics_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -824,11 +818,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+	STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
 
@@ -837,12 +831,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
