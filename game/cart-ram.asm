@@ -1320,7 +1320,7 @@ ENDIF
 		lsr A			;89FC 4A
 		tay				;89FD A8
 		ldx #$00		;89FE A2 00
-		lda #$C6		;8A00 A9 C6
+		lda #$C6		;8A00 A9 C6 ;c6 ok
 .L_8A02	clc				;8A02 18
 		adc L_8A0F,Y	;8A03 79 0F 8A
 		sta L_0740,X	;8A06 9D 40 07

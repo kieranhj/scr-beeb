@@ -150,6 +150,7 @@
 .L_C400	skip &3F
 .L_C43F	skip 1
 .L_C440	skip &C0
+if (P% and 255)<>0:error "oops":endif
 .L_C500	skip 2
 .L_C502	skip 3
 .L_C505	skip 2
@@ -169,6 +170,7 @@
 .L_C540	skip &40
 .L_C580	skip &40
 .L_C5C0	skip &40
+if (P% and 255)<>0:error "oops":endif
 .L_C600	skip &40
 .L_C640	skip &40
 .L_C680	skip &40

@@ -7250,8 +7250,8 @@ ENDIF
 L_F8CB	= *-2			;! _SELF_MOD
 		bcs L_F8E3		;F8CD B0 14
 		sta L_C600,X	;F8CF 9D 00 C6
-		cmp L_0240,X	;F8D2 DD 40 02
-		bcs L_F8DC		;F8D5 B0 05
+		cmp L_0240,X	;F8D2 DD 40 02 ;! _SELF_MOD from L_FCA2_in_kernel
+		bcs L_F8DC		;F8D5 B0 05 ;! _SELF_MOD from L_FC99_in_kernel
 		cmp L_C500,X	;F8D7 DD 00 C5
 		bcs L_F8E3		;F8DA B0 07
 .L_F8DC	lda (ZP_1E),Y	;F8DC B1 1E
@@ -7392,8 +7392,8 @@ L_F92B	= *-1			;! _SELF_MOD
 L_F9D2	= *-2			;! _SELF_MOD
 		bcs L_F9EA		;F9D4 B0 14
 		sta L_C600,X	;F9D6 9D 00 C6
-		cmp L_0240,X	;F9D9 DD 40 02
-		bcs L_F9E3		;F9DC B0 05
+		cmp L_0240,X	;F9D9 DD 40 02 ;! _SELF_MOD from L_FCA2_in_kernel
+		bcs L_F9E3		;F9DC B0 05 ;! _SELF_MOD from L_FC99_in_kernel
 		cmp L_C500,X	;F9DE DD 00 C5
 		bcs L_F9EA		;F9E1 B0 07
 .L_F9E3	lda (ZP_1E),Y	;F9E3 B1 1E
@@ -7532,8 +7532,8 @@ L_FA32	= *-1			;! _SELF_MOD
 L_FADA	= *-2			;! _SELF_MOD
 		bcs L_FAF2		;FADC B0 14
 		sta L_C600,X	;FADE 9D 00 C6
-		cmp L_0240,X	;FAE1 DD 40 02
-		bcs L_FAEB		;FAE4 B0 05
+		cmp L_0240,X	;FAE1 DD 40 02 ;! _SELF_MOD from L_FCA2_in_kernel
+		bcs L_FAEB		;FAE4 B0 05 ;! _SELF_MOD from L_FC99_in_kernel
 		cmp L_C500,X	;FAE6 DD 00 C5
 		bcs L_FAF2		;FAE9 B0 07
 .L_FAEB	lda (ZP_1E),Y	;FAEB B1 1E
@@ -7653,8 +7653,8 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 L_FBC1	= *-2			;! _SELF_MOD
 		bcs L_FBD9		;FBC3 B0 14
 		sta L_C600,X	;FBC5 9D 00 C6
-		cmp L_0240,X	;FBC8 DD 40 02
-		bcs L_FBD2		;FBCB B0 05
+		cmp L_0240,X	;FBC8 DD 40 02 ;! _SELF_MOD from L_FCA2_in_kernel
+		bcs L_FBD2		;FBCB B0 05 ;! _SELF_MOD from L_FC99_in_kernel
 		cmp L_C500,X	;FBCD DD 00 C5
 		bcs L_FBD9		;FBD0 B0 07
 .L_FBD2	lda (ZP_1E),Y	;FBD2 B1 1E
@@ -7744,51 +7744,66 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		bpl L_FC53		;FC64 10 ED
 		rts				;FC66 60
 
-\\ Code ($11 bytes) pasted into L_F8CB, L_F9D2, L_FADA, L_FBC1
-.L_FC67	cmp L_C600,X	;FC67 DD 00 C6
+\\ Various bits of code ($11 bytes) pasted into L_F8CB, L_F9D2,
+\\ L_FADA, L_FBC1
+;
+; Pasted in by L_FC23_in_kernel. The leading CMP isn't copied.
+.L_FC67	cmp L_C600,X			;FC67 + 00 01 02 - FC67 DD 00 C6
 		;bcs L_FC80		;FC6A B0 14
-		EQUB $B0,$14
-		sta L_C600,X	;FC6C 9D 00 C6
-		cmp L_0240,X	;FC6F DD 40 02
+		EQUB $B0,$14  			;FC67 + 03 04
+		sta L_C600,X			;FC67 + 05 06 07 - FC6C 9D 00 C6
+		cmp L_0240,X			;FC67 + 08 09 0a - FC6F DD 40 02
 		;bcs L_FC79		;FC72 B0 05
-		EQUB $B0,$05
-		cmp L_C500,X	;FC74 DD 00 C5
+		EQUB $B0,$05			;FC67 + 0b 0c
+		cmp L_C500,X			;0d 0e 0f - FC74 DD 00 C5
 		;bcs L_FC80		;FC77 B0 07
-		EQUB $B0,$07
+		EQUB $B0,$07			;FC67 + 10 11
 
-.L_FC79	nop				;FC79 EA
-		nop				;FC7A EA
-		nop				;FC7B EA
-		nop				;FC7C EA
-		nop				;FC7D EA
-		nop				;FC7E EA
-		nop				;FC7F EA
-.L_FC80	cmp L_0240,X	;FC80 DD 40 02
-		bcc L_FC88		;FC83 90 03
-		sta L_0240,X	;FC85 9D 40 02
-.L_FC88	cmp L_C600,X	;FC88 DD 00 C6
-		bcs L_FC99_in_kernel		;FC8B B0 0C
-		sta L_C500,X	;FC8D 9D 00 C5
-		bcs L_FC99_in_kernel		;FC90 B0 07
-		nop				;FC92 EA
-		nop				;FC93 EA
-		nop				;FC94 EA
-		nop				;FC95 EA
-		nop				;FC96 EA
-		nop				;FC97 EA
-		nop				;FC98 EA
+		nop						;FC67 + 12 - FC79 EA
+		nop						;FC67 + 13 - FC7A EA
+		nop						;FC67 + 14 - FC7B EA
+		nop						;FC67 + 15 - FC7C EA
+		nop						;FC67 + 16 - FC7D EA
+		nop						;FC67 + 17 - FC7E EA
+		nop						;FC67 + 18 - FC7F EA
+
+; Pasted in by L_FC31_in_kernel. The leading CMP isn't copied.
+  		cmp L_0240,X			;FC67 + 19 1a 1b - FC80 DD 40 02
+		bcc L_FC88				;FC67 + 1c 1d - FC83 90 03
+		sta L_0240,X			;FC67 + 1e 1f 20 - FC85 9D 40 02
+.L_FC88	cmp L_C600,X			;FC67 + 21 22 23 - FC88 DD 00 C6
+		equb $b0,$0c ;bcs L_FC99_in_kernel	;FC67 + 24 25 - FC8B B0 0C
+		sta L_C500,X			;FC67 + 26 27 28 - FC8D 9D 00 C5
+		equb $b0,$07 ;bcs L_FC99_in_kernel	;FC67 + 29 2a - FC90 B0 07
+		nop						;FC67 + 2b - FC92 EA
+		nop						;FC67 + 2c - FC93 EA
+		nop						;FC67 + 2d - FC94 EA
+		nop						;FC67 + 2e - FC95 EA
+		nop						;FC67 + 2f - FC96 EA
+		nop						;FC67 + 30 - FC97 EA
+		nop						;FC67 + 31 - FC98 EA
 \\
 .L_FC99_in_kernel
-		jsr L_FCA2_in_kernel		;FC99 20 A2 FC
-		lda #$E2		;FC9C A9 E2
-		ldx #$0B		;FC9E A2 0B
-		bne L_FCA6		;FCA0 D0 04
-.L_FCA2_in_kernel	lda #$C5		;FCA2 A9 C5		; CMP zp
-		ldx #$09		;FCA4 A2 09
-.L_FCA6	sta L_F8CB,X	;FCA6 9D CB F8
-		sta L_F9D2,X	;FCA9 9D D2 F9
-		sta L_FADA,X	;FCAC 9D DA FA
-		sta L_FBC1,X	;FCAF 9D C1 FB
+		jsr L_FCA2_in_kernel	;FC99 20 A2 FC
+
+; reroute from, e.g., bcs L_F8DC to bcs L_F8B9
+
+		lda #$E2				;FC9C A9 E2
+		ldx #$0B				;FC9E A2 0B
+		bne L_FCA6				;FCA0 D0 04
+.L_FCA2_in_kernel
+		lda #HI(L_C500)			;FCA2 A9 C5		; MSB of table
+		ldx #$09				;FCA4 A2 09
+		
+.L_FCA6
+; Enter with X=$09 to fix up MSB of CMP abs,x (comparing against a
+; horizon table I think). Enter with X=$0b to fix up branch target of
+; subsequent branch.
+
+		sta L_F8CB,X	;FCA6 9D CB F8  +9=f8d4 +b=f8d6 -
+		sta L_F9D2,X	;FCA9 9D D2 F9  +9=f9db +b=f9dd -
+		sta L_FADA,X	;FCAC 9D DA FA  +9=fae3 +b=fae3 ;
+		sta L_FBC1,X	;FCAF 9D C1 FB  +9=fbca +b=fbcc
 		rts				;FCB2 60
 
 .L_FCB3_in_kernel
