@@ -2318,9 +2318,9 @@ rts
 		ldx #$06		;922A A2 06
 		ldy #$14		;922C A0 14
 		jsr get_colour_map_ptr		;922E 20 FA 38
-		ldx #$14		;9231 A2 14
-		lda #$01		;9233 A9 01
-		jsr fill_colourmap_solid		;9235 20 16 39
+		; ldx #$14		;9231 A2 14
+		; lda #$01		;9233 A9 01
+		; jsr fill_colourmap_solid		;9235 20 16 39
 		ldx #$B8		;9238 A2 B8
 		ldy #BEEB_PIXELS_COLOUR2		;923A A0 05
 		lda #$03		;923C A9 03
