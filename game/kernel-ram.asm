@@ -5749,12 +5749,24 @@ L_EBDD	= L_EBE7 - $A			;!
 		bne L_EE5E		;EE51 D0 0B
 
 	\\ Colour of menu item when actually selected
-		lda #$5A		;EE53 A9 0A		; WAS $0A could be BEEB_PIXELS_COLOUR3?
+		lda #BEEB_PIXELS_COLOUR3 ; $5A		;EE53 A9 0A		; WAS $0A could be BEEB_PIXELS_COLOUR3?
 		ldy ZP_0F		;EE55 A4 0F
 		bne L_EE5B		;EE57 D0 02
 		lda #BEEB_PIXELS_COLOUR1		;EE59 A9 07		; WAS $07
 .L_EE5B	sta menu_option_colour		;EE5B 8D 53 39
 .L_EE5E	jsr plot_menu_option_2		;EE5E 20 58 38
+
+		; Menu item foreground is yellow.
+		lda #BEEB_PIXELS_COLOUR3
+		ldx menu_option_colour
+		cpx #BEEB_PIXELS_COLOUR3
+		bne got_text_colour
+		; If background is yellow, make foreground blue.
+		lda #BEEB_PIXELS_COLOUR2
+.got_text_colour
+		jsr set_write_char_colour_mask
+		stx reload_old_write_char_colour_mask+1
+		
 		lda #BEEB_PIXELS_COLOUR2		;EE61 A9 0F		; WAS $F0
 		sta menu_option_colour		;EE63 8D 53 39
 		lda ZP_17		;EE66 A5 17
@@ -5777,7 +5789,11 @@ L_EBDD	= L_EBE7 - $A			;!
 		clc				;EE8A 18
 		adc #$01		;EE8B 69 01
 		jsr cart_print_single_digit		;EE8D 20 8A 10
-.L_EE90	lda ZP_31		;EE90 A5 31
+.L_EE90
+.reload_old_write_char_colour_mask:lda #$ff
+        jsr set_write_char_colour_mask
+
+		lda ZP_31		;EE90 A5 31
 		cmp ZP_17		;EE92 C5 17
 		bcc L_EEB2		;EE94 90 1C
 		lda ZP_30		;EE96 A5 30

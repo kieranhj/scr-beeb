@@ -595,13 +595,6 @@ ENDIF
 		ldx #$EF		;3617 A2 EF		; " 1pt"
 		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
-\\
-.clear_write_char_half_row_flag
-{
-		ldx #$00		;361F A2 00
-		lda #$20		;3621 A9 20
-		jmp cart_sysctl		;3623 4C 25 87
-}
 
 .debounce_fire_and_wait_for_fire
 {
@@ -630,42 +623,6 @@ ENDIF
 		ldx #$0E		;384D A2 0E
 		lda #$01		;384F A9 01
 		jmp fill_colourmap_solid		;3851 4C 16 39
-
-.plot_menu_option_3
-		lda #$03		;3854 A9 03
-		bne plot_menu_option		;3856 D0 02
-
-.plot_menu_option_2
-		lda #$02		;3858 A9 02
-
-.plot_menu_option
-{
-		sta ZP_73		;385A 85 73
-		ldx ZP_19		;385C A6 19
-		ldy L_3837,X	;385E BC 37 38
-		sty ZP_74		;3861 84 74
-		sty ZP_7A		;3863 84 7A
-		jsr plot_menu_item_line		;3865 20 42 3A
-.L_3868	ldy ZP_74		;3868 A4 74
-		jsr colour_menu_option		;386A 20 48 38
-		inc ZP_74		;386D E6 74
-		dec ZP_73		;386F C6 73
-		bne L_3868		;3871 D0 F5
-		bit L_C356		;3873 2C 56 C3
-		bmi L_387B		;3876 30 03
-		jsr plot_menu_item_line		;3878 20 42 3A
-}
-\\ Fall through
-.L_387B	ldx #$05		;387B A2 05
-		ldy ZP_7A		;387D A4 7A
-		jsr cart_set_text_cursor		;387F 20 6B 10
-		inc ZP_19		;3882 E6 19
-
-\\ Fall through
-.set_write_char_half_row_flag
-		ldx #$80		;3884 A2 80
-		lda #$20		;3886 A9 20
-		jmp cart_sysctl		;3888 4C 25 87
 
 .print_driver_name
 {

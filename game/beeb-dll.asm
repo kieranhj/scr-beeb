@@ -544,7 +544,7 @@ ENDIF
 .cart_update_per_track_stuff DLL_CALL_CART update_per_track_stuff, 41
 .cart_L_1EE2_from_main_loop DLL_CALL_CART L_1EE2_from_main_loop, 42
 .cart_L_238E DLL_CALL_CART L_238E, 43
-.cart_L_25EA BRK
+.plot_menu_option_2 DLL_CALL_CART _plot_menu_option_2, 44
 .cart_pow36Q DLL_CALL_CART pow36Q, 45
 .cart_update_camera_roll_tables DLL_CALL_CART update_camera_roll_tables, 46
 .cart_L_2809 DLL_CALL_CART L_2809, 47
@@ -553,7 +553,7 @@ ENDIF
 
 .cart_L_2C64 DLL_CALL_CART L_2C64, 50
 .cart_L_2C6F_from_main_loop DLL_CALL_CART L_2C6F_from_main_loop, 51
-; 52
+.plot_menu_option_3 DLL_CALL_CART _plot_menu_option_3, 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
 .cart_do_end_of_race_screen DLL_CALL_CART do_end_of_race_screen, 55	; not required in DLL
@@ -573,6 +573,10 @@ ENDIF
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 .cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
 .cart_print_track_title DLL_CALL_CART print_track_title, 70
+.set_write_char_half_row_flag DLL_CALL_CART _set_write_char_half_row_flag, 71
+.plot_menu_option DLL_CALL_CART _plot_menu_option, 72
+.clear_write_char_half_row_flag DLL_CALL_CART _clear_write_char_half_row_flag, 73
+.set_write_char_colour_mask DLL_CALL_CART _set_write_char_colour_mask, 74
 
 ; *****************************************************************************
 \\ Function addresses
@@ -625,7 +629,7 @@ ENDIF
 	EQUB LO(update_per_track_stuff)
 	EQUB LO(L_1EE2_from_main_loop)
 	EQUB LO(L_238E)
-	EQUB 0
+	EQUB LO(_plot_menu_option_2)
 	EQUB LO(pow36Q)
 	EQUB LO(update_camera_roll_tables)
 	EQUB LO(L_2809)
@@ -634,7 +638,7 @@ ENDIF
 
 	EQUB LO(L_2C64)
 	EQUB LO(L_2C6F_from_main_loop)
-	EQUB 0 ; 52
+	EQUB LO(_plot_menu_option_3)
 	EQUB LO(draw_track_preview_track_name)
 	EQUB LO(do_initial_screen)
 	EQUB LO(do_end_of_race_screen)
@@ -654,6 +658,10 @@ ENDIF
 	EQUB LO(set_text_cursor)
 	EQUB LO(print_number_unpadded)
 	EQUB LO(print_track_title)
+	EQUB LO(_set_write_char_half_row_flag)
+	EQUB LO(_plot_menu_option)
+	EQUB LO(_clear_write_char_half_row_flag)
+	EQUB LO(_set_write_char_colour_mask)
 }
 
 .cart_table_HI
@@ -703,7 +711,7 @@ ENDIF
 	EQUB HI(update_per_track_stuff)
 	EQUB HI(L_1EE2_from_main_loop)
 	EQUB HI(L_238E)
-	EQUB 0
+	EQUB HI(_plot_menu_option_2)
 	EQUB HI(pow36Q)
 	EQUB HI(update_camera_roll_tables)
 	EQUB HI(L_2809)
@@ -712,7 +720,7 @@ ENDIF
 
 	EQUB HI(L_2C64)
 	EQUB HI(L_2C6F_from_main_loop)
-	EQUB 0 ; 52
+	EQUB HI(_plot_menu_option_3)
 	EQUB HI(draw_track_preview_track_name)
 	EQUB HI(do_initial_screen)
 	EQUB HI(do_end_of_race_screen)
@@ -732,6 +740,10 @@ ENDIF
 	EQUB HI(set_text_cursor)
 	EQUB HI(print_number_unpadded)
 	EQUB HI(print_track_title)
+	EQUB HI(_set_write_char_half_row_flag)
+	EQUB HI(_plot_menu_option)
+	EQUB HI(_clear_write_char_half_row_flag)
+	EQUB HI(_set_write_char_colour_mask)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
