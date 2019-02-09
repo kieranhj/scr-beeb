@@ -1994,6 +1994,8 @@ jsr dash_reset
 .L_303F	lda track_background_colours,X	;303F BD 30 37
 		sta L_C76B		;3042 8D 6B C7
 		rts				;3045 60
+		
+.track_background_colours	equb $08,$05,$0C,$05,$05,$08,$0C,$08
 }
 
 .L_3361_with_decimal

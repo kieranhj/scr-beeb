@@ -610,12 +610,6 @@ ENDIF
 }
 
 .track_order				equb $00,$02,$01,$03,$06,$07,$04,$05
-.track_background_colours	equb $08,$05,$0C,$05,$05,$08,$0C,$08
-
-.L_3834	equb $06,$04,$00
-; menu option y rows
-.L_3837	equb $0D,$10,$13,$16,$10,$13,$10,$0F,$14,$17,$0A,$0E,$12,$16
-.L_3845	equb $0E,$0B,$11
 
 .colour_menu_option
 		ldx #$04		;3848 A2 04
@@ -656,8 +650,8 @@ ENDIF
 		rts				;38B3 60
 }
 
-.L_38B4	equb $FE,$FD,$FB,$F7,$EF,$DF,$BF,$7F
-.L_38BC	equb $01,$02,$04,$08,$10,$20,$40,$80
+; .L_38B4	equb $FE,$FD,$FB,$F7,$EF,$DF,$BF,$7F
+; .L_38BC	equb $01,$02,$04,$08,$10,$20,$40,$80
 
 ; Initialise offscreen colour map pointer for reading or writing. X =
 ; X coordinate, Y = Y coordinate. On exit, access value with (ZP_1E),y
