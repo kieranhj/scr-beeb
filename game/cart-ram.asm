@@ -205,12 +205,32 @@
 .L_84B6	cmp #$7F		;84B6 C9 7F
 		bcc plot_glyph		;84B8 90 19
 		bne L_84D2		;84BA D0 16
+
+; Print a backspace.
+;
+; This only comes into play when entering the player name, so there's
+; a bit of a hack: print a solid character (code $21 in the font) in
+; blue (the background of the player name entry box), thus erasing
+; whatever was there before.
+;
+; (The C64 version did this by printing a space on top of the previous
+; char, but thanks to the separate colour RAM it could afford to do
+; the masking differently.)
+
 		dec write_char_x_pos		;84BC CE C5 85
 		lda #$80		;84BF A9 80
 		sta L_85D1		;84C1 8D D1 85
-		lda #$20		;84C4 A9 20
+
+		lda write_char_colour_mask:pha
+		lda #$f0:sta write_char_colour_mask
+
+		lda #$21		;84C4 A9 20
 		sta L_85C7		;84C6 8D C7 85
+		
 		jsr write_char_body		;84C9 20 85 84
+
+		pla:sta write_char_colour_mask
+
 		lsr L_85D1		;84CC 4E D1 85
 		dec write_char_x_pos		;84CF CE C5 85
 .L_84D2	rts				;84D2 60
@@ -369,24 +389,6 @@
 
 ; ZP_F8 contains screen address += 16
 
-		lda #$FF		;8556 A9 FF
-		sta write_char_next_col_mask		;8558 8D CB 85
-		lda #$00		;855B A9 00
-		ldx write_char_bit_offset		;855D AE CD 85
-		beq L_856A		;8560 F0 08
-
-; Rotate current column mask by bit offset
-
-.L_8562	sec				;8562 38
-		ror A			;8563 6A
-		ror write_char_next_col_mask		;8564 6E CB 85
-		dex				;8567 CA
-		bne L_8562		;8568 D0 F8
-
-; A contains bit mask for current column
-
-.L_856A	sta write_char_curr_col_mask		;856A 8D CA 85
-
 ; Start index into font glyph data
 
 		ldy #$00		;856D A0 00
@@ -394,110 +396,45 @@
 ; Zero next byte of glyph data to write
 
 .plot_glyph_loop
-		lda #$00		;856F A9 00
-		sta ZP_FB		;8571 85 FB
 
-; Load a byte of glyph data
+; Form 1bpp mask for this and next column, where 1=glyph and 0=screen.
 
-		lda (ZP_F0),Y	;8573 B1 F0
-		ldx write_char_bit_offset		;8575 AE CD 85
-		beq L_8580		;8578 F0 06
+		lda #0
+		sta write_char_next_col_mask
 
-; Rotate font data by bit offset into ZP_FB for next byte
+		lda (ZP_F0),y			; 0=screen, 1=glyph
+		ldx write_char_bit_offset
+		beq shift_done
 
-.L_857A	lsr A			;857A 4A
-		ror ZP_FB		;857B 66 FB
-		dex				;857D CA
-		bne L_857A		;857E D0 FA
+.shift_loop
+		lsr a
+		ror write_char_next_col_mask
+		dex
+		bne shift_loop
 
-; First byte of glyph data in ZP_FA
+.shift_done
+		sta write_char_curr_col_mask
 
-.L_8580	sta ZP_FA		;8580 85 FA
+; Screen byte 0 - top nibble of current column
+  		jsr handle_top_nibble
+		and (ZP_F4),y
+		ora write_char_value
+		sta (ZP_F4),y
 
-; Convert glyph data into beeb bytes
+; Screen byte 1 - bottom nibble of current column
+  		lda write_char_curr_col_mask
+  		jsr handle_bottom_nibble
+		and (ZP_F6),y
+		ora write_char_value
+		sta (ZP_F6),y
 
-	; top nibble only of second glyph byte
-		lda ZP_FB
-		lsr a:lsr a:lsr a:lsr a:tax
-		lda nibble_to_beeb_byte, X
-		sta ZP_FC
-
-	; bottom nibble of first glyph byte
-		lda ZP_FA
-		and #$0f:tax
-		lda nibble_to_beeb_byte, X
-		sta ZP_FB
-
-	; top nibble of first glyph byte
-		lda ZP_FA
-		lsr a:lsr a:lsr a:lsr a:tax
-		lda nibble_to_beeb_byte, X
-		sta ZP_FA
-
-; First byte column mask top nibble
-
-		lda write_char_curr_col_mask
-		lsr a:lsr a:lsr a:lsr a:tax
-
-; Load first screen byte
-
-		lda (ZP_F4),Y	;8582 B1 F4
-
-; Mask out bits we're going to write (on right)
-; Let's not mask this out as we're filling with colour anyway
-;		and nibble_to_beeb_byte, X		;8584 2D CA 85
-
-; Mask in glyph bits from first byte
-
-		ora ZP_FA		;8587 05 FA
-
-; Store first byte to screen
-
-		sta (ZP_F4),Y	;8589 91 F4
-
-; First byte column mask bottom nibble
-
-		lda write_char_curr_col_mask
-		and #$0f:tax
-
-; Load second screen byte
-
-		lda (ZP_F6),Y	;858B B1 F6
-
-; Mask out bits we're going to write (on left)
-; Let's not mask this out as we're filling with colour anyway
-;		and nibble_to_beeb_byte, X		;858D 2D CB 85
-
-; Mask in glyph bits from second byte
-
-		ora ZP_FB		;8590 05 FB
-
-; Store second byte to screen
-
-		sta (ZP_F6),Y	;8592 91 F6
-
-; Second byte column mask top nibble
-
-		lda write_char_next_col_mask
-		lsr a:lsr a:lsr a:lsr a:tax
-
-; Load third screen byte
-
-		lda (ZP_F8),Y	;858B B1 F6
-
-; Mask out bits we're going to write (on left)
-; Let's not mask this out as we're filling with colour anyway
-;		and nibble_to_beeb_byte, X		;858D 2D CB 85
-
-; Mask in glyph bits from second byte
-
-		ora ZP_FC		;8590 05 FB
-
-; Store second byte to screen
-
-		sta (ZP_F8),Y	;8592 91 F6
-
-
+; Screen byte 2 - top nibble of next column
+  		lda write_char_next_col_mask
+		jsr handle_top_nibble
+		and (ZP_F8),y
+		ora write_char_value
+		sta (ZP_F8),y
+		
 ; Check flag L_85D0
 
 		bit L_85D0		;8594 2C D0 85
@@ -548,6 +485,19 @@
 .L_85C1	sta write_char_x_pos		;85C1 8D C5 85
 		rts				;85C4 60
 
+.handle_top_nibble
+lsr a:lsr a:lsr a:lsr a
+.handle_bottom_nibble
+and #$0f
+tax
+lda nibble_to_beeb_byte,x
+pha
+and write_char_colour_mask
+sta write_char_value			; 0=screen, 1=glyph
+pla
+eor #$ff						; 0=glyph, 1=screen
+rts
+
 .nibble_to_beeb_byte equb $00,$11,$22,$33,$44,$55,$66,$77,$88,$99,$aa,$bb,$cc,$dd,$ee,$ff
 }
 
@@ -561,6 +511,13 @@
 .write_char_next_col_mask	equb $00
 .write_char_byte_offset	equb $00
 .write_char_bit_offset	equb $00
+
+.write_char_value equb 0
+
+; Mode 1 mask for glyph foreground colour. Glyph pixels are index 3
+; (set)/index 0 (reset) by default, ANDed with this value to select
+; whichever foreground colour necessary.
+.write_char_colour_mask equb $ff
 
 .L_85D1	equb $00
 

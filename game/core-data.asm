@@ -26,11 +26,8 @@ L_80A0	= L_8000 + $A0
 .font_data
 	equb $00,$00,$00,$00,$00,$00,$00,$00 ; 32
 .L_80C8
-; Car damage data.
 
-; Original pattern? (no longer used)
-
-	equb $95,$95,$95,$95,$AA,$EA,$EA,$EA ; 33 +$00
+	equb $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff ; 33 - backspace char
 	equb $15,$15,$15,$15,$15,$6A,$6A,$6A ; 34 +$08
 	
 ; Hole.
