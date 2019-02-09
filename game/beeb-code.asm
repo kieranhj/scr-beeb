@@ -510,4 +510,13 @@ EQUW 0
     RTS
 }
 
+if _DEBUG
+.brk_handler
+{
+lda $f4:pha
+lda #BEEB_GRAPHICS_SLOT:sta $f4:sta $fe30
+jmp graphics_debug_handle_brk
+}
+endif
+
 .beeb_code_end

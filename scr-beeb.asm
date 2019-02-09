@@ -1167,6 +1167,11 @@ GUARD disksys_loadto_addr
 	LDA #LO(irq_handler):STA IRQ1V
 	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
 
+if _DEBUG
+    lda #LO(brk_handler):sta BRKV+0
+	lda #HI(brk_handler):sta BRKV+1
+endif
+
     CLI
 
 	; Sort out display.
