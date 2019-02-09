@@ -5767,8 +5767,6 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda #BEEB_PIXELS_COLOUR2
 .got_text_colour
 		jsr set_write_char_colour_mask
-		stx reload_old_write_char_colour_mask+1
-		
 		lda #BEEB_PIXELS_COLOUR2		;EE61 A9 0F		; WAS $F0
 		sta menu_option_colour		;EE63 8D 53 39
 		lda ZP_17		;EE66 A5 17
@@ -5792,12 +5790,10 @@ L_EBDD	= L_EBE7 - $A			;!
 		adc #$01		;EE8B 69 01
 		jsr cart_print_single_digit		;EE8D 20 8A 10
 .L_EE90
-.reload_old_write_char_colour_mask:lda #$ff
-        jsr set_write_char_colour_mask
-
 		lda ZP_31		;EE90 A5 31
 		cmp ZP_17		;EE92 C5 17
 		bcc L_EEB2		;EE94 90 1C
+		
 		lda ZP_30		;EE96 A5 30
 		cmp #$1C		;EE98 C9 1C
 		bne L_EE4B		;EE9A D0 AF
@@ -5811,7 +5807,11 @@ L_EBDD	= L_EBE7 - $A			;!
 		ldx track_order,Y	;EEA9 BE 28 37
 		jsr print_track_name		;EEAC 20 92 38
 		jmp L_EE4B		;EEAF 4C 4B EE
-.L_EEB2	lda ZP_0F		;EEB2 A5 0F
+		
+.L_EEB2
+		lda #$ff:jsr set_write_char_colour_mask
+		
+		lda ZP_0F		;EEB2 A5 0F
 		beq L_EEC1		;EEB4 F0 0B
 		jsr clear_write_char_half_row_flag		;EEB6 20 1F 36
 		ldy #$07		;EEB9 A0 07
