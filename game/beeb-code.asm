@@ -45,7 +45,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     ; space is a bit tight in main RAM, so save a few bytes with some
     ; self-modifying code...
 .*irq_handler_load_r8_value
-	lda #CRTC_R8_DisplayEnableValue ;! _SELF_MOD
+	lda #CRTC_R8_DisplayDisableValue ;! _SELF_MOD
 									;_ensure_screen_enabled,
 									;_disable_screen
 	sta $fe01
