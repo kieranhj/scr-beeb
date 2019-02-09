@@ -18,7 +18,7 @@ equb "Stunt Car Racer Debug" ; ROM title
 .copyright
 equb 0,"(C)",0					; copyright message
 .svc
-cmp #9:bne not_help:jmp svc_help:.not_help
+cmp #4:bne not_cmd:jmp svc_cmd:.not_cmd
 .svc_done
 rts
 
@@ -64,7 +64,7 @@ lda #$80:sta brk_got_info
 cli								; stop screen going nuts.
 .halt:jmp halt
 
-.svc_help
+.svc_cmd
 {
 pha
 tya:pha
@@ -91,7 +91,7 @@ jsr osnewl
 bit brk_got_info:bmi print_brk_info
 .no_brk_info
 lda #'N':jsr oswrch
-ldx #'/':jsr oswrch
+lda #'/':jsr oswrch
 lda #'A':jsr oswrch
 jmp printed
 .print_brk_info
@@ -113,7 +113,10 @@ inx
 cpx brk_stack_size:bne print_stack_loop
 .printed
 jsr osnewl
-jmp done
+pla:pla							; discard old Y+A
+ldx $f4
+lda #0							; claim call
+rts
 }
 
 .print_reg
