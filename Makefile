@@ -29,11 +29,17 @@ build:
 
 	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
 
+	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-wrecked.dat --160 ./graphics/scr-beeb-wrecked.png 5 --palette 0143
+
+	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-winner.dat --160 ./graphics/scr-beeb-winner.png 5 --palette 0124
+
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-title-screen.dat" build/scr-beeb-title-screen.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-menu.dat" build/scr-beeb-menu.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-credits.dat" build/scr-beeb-credits.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-preview.dat" build/scr-beeb-preview.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-preview-bg.dat" build/scr-beeb-preview-bg.pu
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
 
 	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
 
