@@ -2232,7 +2232,7 @@ jsr dash_reset
 		ldy #$03		;98AC A0 03
 		lda L_C718		;98AE AD 18 C7
 		eor #$03		;98B1 49 03
-		ldx #$18		;98B3 A2 18
+		ldx #menu_screen_offsets_practise_division-menu_screen_offsets
 		jsr do_menu_screen		;98B5 20 36 EE
 		eor #$03		;98B8 49 03
 		sta L_31A7		;98BA 8D A7 31
@@ -2240,7 +2240,7 @@ jsr dash_reset
 		ldy #$02		;98C0 A0 02
 		lda L_C76C		;98C2 AD 6C C7
 		and #$01		;98C5 29 01
-		ldx #$1C		;98C7 A2 1C
+		ldx #menu_screen_offsets_practise_division_tracks-menu_screen_offsets ;98C7 A2 1C
 		jsr do_menu_screen		;98C9 20 36 EE
 		ldy #$00		;98CC A0 00
 		sty L_31A0		;98CE 8C A0 31
@@ -5736,22 +5736,31 @@ L_EBDD	= L_EBE7 - $A			;!
 .do_menu_screen
 {
 		dey				;EE36 88
-		sty ZP_31		;EE37 84 31
-		stx ZP_30		;EE39 86 30
-		sta ZP_0C		;EE3B 85 0C
+		sty ZP_31		;EE37 84 31 Y = num items
+		stx ZP_30		;EE39 86 30 X = base index
+		sta ZP_0C		;EE3B 85 0C A = selected item
 		jsr set_up_screen_for_menu		;EE3D 20 1F 35
 		ldx #$00		;EE40 A2 00		; "SELECT"
 		stx ZP_0F		;EE42 86 0F
-		jsr cart_print_msg_2		;EE44 20 CB A1
-.L_EE47	lda #$00		;EE47 A9 00
-		sta ZP_19		;EE49 85 19
-.L_EE4B	ldy ZP_19		;EE4B A4 19
-		sty ZP_17		;EE4D 84 17
-		cpy ZP_0C		;EE4F C4 0C
-		bne L_EE5E		;EE51 D0 0B
 
+; L_31A0 selects which menu screen this is.
+
+		jsr cart_print_msg_2	;EE44 20 CB A1 "SELECT"
+.L_EE47
+; ZP_19 = current item.
+		lda #$00				;EE47 A9 00
+		sta ZP_19				;EE49 85 19
+.L_EE4B
+; ZP_19 = ZP_17 = curent item.
+		ldy ZP_19				;EE4B A4 19
+		sty ZP_17				;EE4D 84 17
+		
+; Handle selected item.
+		cpy ZP_0C				;EE4F C4 0C
+		bne L_EE5E				;EE51 D0 0B
 	\\ Colour of menu item when actually selected
 		lda #BEEB_PIXELS_COLOUR3 ; $5A		;EE53 A9 0A		; WAS $0A could be BEEB_PIXELS_COLOUR3?
+		
 		ldy ZP_0F		;EE55 A4 0F
 		bne L_EE5B		;EE57 D0 02
 		lda #BEEB_PIXELS_COLOUR1		;EE59 A9 07		; WAS $07
@@ -5767,37 +5776,54 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda #BEEB_PIXELS_COLOUR2
 .got_text_colour
 		jsr set_write_char_colour_mask
+		
 		lda #BEEB_PIXELS_COLOUR2		;EE61 A9 0F		; WAS $F0
 		sta menu_option_colour		;EE63 8D 53 39
-		lda ZP_17		;EE66 A5 17
-		clc				;EE68 18
-		adc #$01		;EE69 69 01
-		jsr cart_print_single_digit		;EE6B 20 8A 10
-		lda #$2E		;EE6E A9 2E
-		jsr cart_write_char		;EE70 20 6F 84
+
+; Print option number. "1.", "2.", etc.
+		lda ZP_17					;EE66 A5 17
+		clc							;EE68 18
+		adc #$01					;EE69 69 01
+		jsr cart_print_single_digit	;EE6B 20 8A 10
+		lda #'.'					;EE6E A9 2E
+		jsr cart_write_char			;EE70 20 6F 84
 		jsr cart_print_space		;EE73 20 AF 91
-		lda ZP_17		;EE76 A5 17
-		clc				;EE78 18
-		adc ZP_30		;EE79 65 30
-		tay				;EE7B A8
-		ldx L_F001,Y	;EE7C BE 01 F0
-		jsr cart_print_msg_2		;EE7F 20 CB A1
-		lda ZP_30		;EE82 A5 30
-		cmp #$18		;EE84 C9 18
-		bne L_EE90		;EE86 D0 08
-		lda ZP_17		;EE88 A5 17
-		clc				;EE8A 18
-		adc #$01		;EE8B 69 01
-		jsr cart_print_single_digit		;EE8D 20 8A 10
-.L_EE90
-		lda ZP_31		;EE90 A5 31
-		cmp ZP_17		;EE92 C5 17
-		bcc L_EEB2		;EE94 90 1C
+
+; Get option index, add to base index, and fetch index of actual
+; string from table.
+		lda ZP_17				;EE76 A5 17
+		clc						;EE78 18
+		adc ZP_30				;EE79 65 30
+		tay						;EE7B A8
+		ldx menu_screen_offsets,Y ;EE7C BE 01 F0
+
+; Print message. (This will go off to print_msg_3 when L_31A0 bit 7 is
+; set.)
+; 
+		jsr cart_print_msg_2	;EE7F 20 CB A1
+
+		lda ZP_30			;EE82 A5 30 base index
+		cmp #menu_screen_offsets_practise_division-menu_screen_offsets
+		                    ;EE84 C9 18 is this the practice menu?
+		bne L_EE90			;EE86 D0 08 taken if not practice menu
+		lda ZP_17			;EE88 A5 17 get option index
+		clc					;EE8A 18
+		adc #$01			;EE8B 69 01 +1 - i.e., get division number
+		jsr cart_print_single_digit	;EE8D 20 8A 10 - print division string
 		
-		lda ZP_30		;EE96 A5 30
-		cmp #$1C		;EE98 C9 1C
-		bne L_EE4B		;EE9A D0 AF
-		ldx #$23		;EE9C A2 23		; "The "
+.L_EE90
+; L_EEB2 if all items done.
+		lda ZP_31				;EE90 A5 31
+		cmp ZP_17				;EE92 C5 17
+		bcc L_EEB2				;EE94 90 1C
+
+		lda ZP_30		;EE96 A5 30 base index
+		                
+		cmp #menu_screen_offsets_practise_division_tracks-menu_screen_offsets
+		                ;EE98 C9 1C base of practice division menu?
+		bne L_EE4B		;EE9A D0 AF taken if not a practice division menu
+		
+		ldx #$23		;EE9C A2 23 ; "The "
 		jsr cart_print_msg_4		;EE9E 20 27 30
 		lda L_31A7		;EEA1 AD A7 31
 		asl A			;EEA4 0A
@@ -5813,9 +5839,9 @@ L_EBDD	= L_EBE7 - $A			;!
 		
 		lda ZP_0F		;EEB2 A5 0F
 		beq L_EEC1		;EEB4 F0 0B
-		jsr clear_write_char_half_row_flag		;EEB6 20 1F 36
+		jsr clear_write_char_half_row_flag ;EEB6 20 1F 36
 		ldy #$07		;EEB9 A0 07
-		jsr delay_approx_Y_25ths_sec		;EEBB 20 EB 3F
+		jsr delay_approx_Y_25ths_sec ;EEBB 20 EB 3F
 		lda ZP_0C		;EEBE A5 0C
 		rts				;EEC0 60
 .L_EEC1	jsr check_game_keys		;EEC1 20 9E F7
@@ -5855,9 +5881,51 @@ L_EBDD	= L_EBE7 - $A			;!
 \\ Moved from further up RAM as only used in this function
 \\ Looks like menu string offsets?
 
-.L_F001	equb $EC,$0A,$14,$2C,$44,$49,$4E,$55,$5C,$6B,$55,$00,$7A,$87,$55,$00
-		equb $0A,$1F,$00,$00,$2B,$40,$00,$00,$49,$49,$49,$49,$0A,$0A,$55,$00
 }
+.menu_screen_offsets
+.menu_screen_offsets_main_menu
+equb frontend_strings_2_hall_of_fame-frontend_strings_2 ; $00
+equb frontend_strings_2_practise-frontend_strings_2		; $01
+equb frontend_strings_2_start_the_racing_season-frontend_strings_2 ; $02
+equb frontend_strings_2_load_save_replay-frontend_strings_2		   ; $03
+.menu_screen_offsets_load_save_replay
+equb frontend_strings_2_load-frontend_strings_2					   ; $04
+equb frontend_strings_2_save-frontend_strings_2					   ; $05
+equb frontend_strings_2_replay-frontend_strings_2				   ; $06
+equb frontend_strings_2_cancel-frontend_strings_2				   ; $07
+.menu_screen_offsets_load
+equb frontend_strings_2_load_from_tape-frontend_strings_2		   ; $08
+equb frontend_strings_2_load_from_disc-frontend_strings_2		   ; $09
+equb frontend_strings_2_cancel-frontend_strings_2				   ; $0a
+equb $00												; "select" $0b
+.menu_screen_offsets_save
+if menu_screen_offsets_save-menu_screen_offsets_load<>4
+error "please fix up code around EF97"
+endif
+equb frontend_strings_2_save_to_tape-frontend_strings_2 ; $0c
+equb frontend_strings_2_save_to_disc-frontend_strings_2 ; $0d
+equb frontend_strings_2_cancel-frontend_strings_2		; $0e
+equb $00												; "select" $0f
+.menu_screen_offsets_initial_menu
+equb frontend_strings_3_single_player_league-frontend_strings_3 ; $10
+equb frontend_strings_3_multiplayer-frontend_strings_3			; $11
+equb $00														; $12
+equb $00						; "select" $13
+.menu_screen_offsets_multiplayer_drivers
+equb frontend_strings_3_enter_another_driver-frontend_strings_3 ; $14
+equb frontend_strings_3_continue-frontend_strings_3				; $15
+equb $00														; $16
+equb $00														; $17
+.menu_screen_offsets_practise_division
+equb frontend_strings_3_tracks_in_division-frontend_strings_3	; $18
+equb frontend_strings_3_tracks_in_division-frontend_strings_3	; $19
+equb frontend_strings_3_tracks_in_division-frontend_strings_3	; $1a
+equb frontend_strings_3_tracks_in_division-frontend_strings_3	; $1b
+.menu_screen_offsets_practise_division_tracks
+equb frontend_strings_2_practise-frontend_strings_2				; $1c
+equb frontend_strings_2_practise-frontend_strings_2				; $1d
+equb frontend_strings_2_cancel-frontend_strings_2				; $1e
+equb $00														; $1f
 
 .L_EF06	tay				;EF06 A8
 		bne L_EF0F		;EF07 D0 06
@@ -5891,7 +5959,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		bpl L_EF48		;EF44 10 02
 		lda #$02		;EF46 A9 02
 .L_EF48	ldy #$03		;EF48 A0 03
-		ldx #$00		;EF4A A2 00
+		ldx #menu_screen_offsets_main_menu-menu_screen_offsets ;EF4A A2 00
 		jsr do_menu_screen		;EF4C 20 36 EE
 		cmp #$02		;EF4F C9 02
 		beq L_EF2C		;EF51 F0 D9
@@ -5899,7 +5967,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr delay_approx_4_5ths_sec		;EF55 20 E9 3F
 		ldy #$03		;EF58 A0 03
 		lda #$03		;EF5A A9 03
-		ldx #$04		;EF5C A2 04
+		ldx #menu_screen_offsets_load_save_replay-menu_screen_offsets ;EF5C A2 04
 		jsr do_menu_screen		;EF5E 20 36 EE
 		cmp #$02		;EF61 C9 02
 		bcc L_EF8C		;EF63 90 27
@@ -5922,7 +5990,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		asl A			;EF8F 0A
 		asl A			;EF90 0A
 		clc				;EF91 18
-		adc #$08		;EF92 69 08
+		adc #menu_screen_offsets_load-menu_screen_offsets ;EF92 69 08
 		tax				;EF94 AA
 		ldy #$00		;EF95 A0 00
 .L_EF97	lda L_8000,Y	;EF97 B9 00 80

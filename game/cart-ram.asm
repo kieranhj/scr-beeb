@@ -2321,14 +2321,14 @@ rts
 		; ldx #$14		;9231 A2 14
 		; lda #$01		;9233 A9 01
 		; jsr fill_colourmap_solid		;9235 20 16 39
-		ldx #$B8		;9238 A2 B8
+		ldx #frontend_strings_3_track_record-frontend_strings_3 ;9238 A2 B8
 		ldy #BEEB_PIXELS_COLOUR2		;923A A0 05
 		lda #$03		;923C A9 03
 		sta ZP_19		;923E 85 19
 		lda L_C305		;9240 AD 05 C3
 		and #$01		;9243 29 01
 		beq L_924F		;9245 F0 08
-		ldx #$E3		;9247 A2 E3			; "New track record"
+		ldx #frontend_strings_3_new_track_record-frontend_strings_3
 		ldy #BEEB_PIXELS_COLOUR1		;9249 A0 07
 		lda #$10		;924B A9 10
 		sta ZP_19		;924D 85 19
@@ -2338,7 +2338,7 @@ rts
 		and #$C0		;9258 29 C0
 		cmp #$C0		;925A C9 C0
 		bne L_9263		;925C D0 05
-		ldx #$6F		;925E A2 6F			; "s"
+		ldx #frontend_strings_3_s-frontend_strings_3 ;925E A2 6F ; "s"
 		jsr print_msg_3		;9260 20 DC A1
 .L_9263	jsr plot_menu_option_3		;9263 20 54 38
 		lda #BEEB_PIXELS_COLOUR2		;9266 A9 0F
@@ -2347,7 +2347,7 @@ rts
 		bpl L_9282		;926E 10 12
 		ldx #$23		;9270 A2 23			; "Race Time: "
 		jsr print_msg_1		;9272 20 A5 32
-		ldx #$D6		;9275 A2 D6			; "------------" (driver 1)
+		ldx #frontend_strings_3_driver_1-frontend_strings_3 ;9275 A2 D6 ; "------------" (driver 1)
 		jsr print_msg_3		;9277 20 DC A1
 		jsr print_space		;927A 20 AF 91
 		ldx #$0F		;927D A2 0F
@@ -2360,7 +2360,7 @@ rts
 		jsr set_text_cursor		;928C 20 6B 10
 		ldx #$2F		;928F A2 2F			; "Best Lap : "
 		jsr print_msg_1		;9291 20 A5 32
-		ldx #$C9		;9294 A2 C9			; "------------" (driver 2)
+		ldx #frontend_strings_3_driver_2-frontend_strings_3	;9294 A2 C9 ; "------------" (driver 2)
 		jsr print_msg_3		;9296 20 DC A1
 		jsr print_space		;9299 20 AF 91
 		ldx #$0E		;929C A2 0E
@@ -2386,9 +2386,9 @@ rts
 		ldy #$00		;9331 A0 00
 		bit ZP_14		;9333 24 14
 		bmi L_936E		;9335 30 37
-.L_9337	lda L_3273,Y	;9337 B9 73 32
+.L_9337	lda frontend_strings_3_driver_2,Y ;9337 B9 73 32
 		sta L_DE00,X	;933A 9D 00 DE
-		lda L_3280,Y	;933D B9 80 32
+		lda frontend_strings_3_driver_1,Y ;933D B9 80 32
 		sta L_DF00,X	;9340 9D 00 DF
 		inx				;9343 E8
 		iny				;9344 C8
@@ -2410,9 +2410,9 @@ rts
 
 .L_936E
 		lda L_DE00,X	;936E BD 00 DE
-		sta L_3273,Y	;9371 99 73 32
+		sta frontend_strings_3_driver_2,Y ;9371 99 73 32
 		lda L_DF00,X	;9374 BD 00 DF
-		sta L_3280,Y	;9377 99 80 32
+		sta frontend_strings_3_driver_1,Y ;9377 99 80 32
 		inx				;937A E8
 		iny				;937B C8
 		cpy #$0C		;937C C0 0C
@@ -3683,8 +3683,8 @@ equb $74						; STEER LEFT
 		equb "TRACK  DRIVER   LAP-TIME    DRIVER  RACE-TIME",$FF
 }
 
-.L_A1C7	jsr write_char		;A1C7 20 6F 84
-		inx				;A1CA E8
+.L_A1C7	jsr write_char			;A1C7 20 6F 84 (not an entry point)
+		inx						;A1CA E8
 .print_msg_2		; HAS DLL
 {
 		bit L_31A0		;A1CB 2C A0 31
@@ -3695,9 +3695,9 @@ equb $74						; STEER LEFT
 		rts				;A1D7 60
 }
 
-.L_A1D8	jsr write_char		;A1D8 20 6F 84
-		inx				;A1DB E8
-.print_msg_3		; HAS DLL
+.L_A1D8	jsr write_char			;A1D8 20 6F 84 (not an entry point)
+		inx						;A1DB E8
+.print_msg_3					; HAS DLL
 {
 		lda frontend_strings_3,X	;A1DC BD AA 31
 		cmp #$FF		;A1DF C9 FF
@@ -3763,7 +3763,7 @@ equb $74						; STEER LEFT
 {
 		ldx #$06		;3170 A2 06
 		jsr set_text_cursor		;3172 20 6B 10
-		ldx #$93		;3175 A2 93
+		ldx #frontend_strings_3_track_the-frontend_strings_3 ;3175 A2 93
 		jsr print_msg_3		;3177 20 DC A1		; "Track:  The "
 		ldx current_track		;317A AE 7D C7
 		jsr print_track_name		;317D 20 92 38
@@ -3771,7 +3771,7 @@ equb $74						; STEER LEFT
 		beq L_318F		;3183 F0 0A
 		lda L_C71A		;3185 AD 1A C7
 		beq L_318F		;3188 F0 05
-		ldx #$63		;318A A2 63
+		ldx #frontend_strings_3_space_s_dot-frontend_strings_3 ;318A A2 63
 		jsr print_msg_3		;318C 20 DC A1		; " S."
 .L_318F	rts				;318F 60
 }
@@ -6535,7 +6535,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		lda #$00		;3057 A9 00
 		sta L_31A1		;3059 8D A1 31
 		ldy #$01		;305C A0 01
-		ldx #$10		;305E A2 10
+		ldx #menu_screen_offsets_initial_menu-menu_screen_offsets ;305E A2 10
 		jsr kernel_do_menu_screen		;3060 20 36 EE
 		cmp #$00		;3063 C9 00
 		bne L_307D		;3065 D0 16
@@ -6543,7 +6543,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp L_308C		;306A 4C 8C 30
 .L_306D	lda #$00		;306D A9 00
 		ldy #$01		;306F A0 01
-		ldx #$14		;3071 A2 14
+		ldx #menu_screen_offsets_multiplayer_drivers-menu_screen_offsets ;3071 A2 14
 		jsr kernel_do_menu_screen		;3073 20 36 EE
 		cmp #$00		;3076 C9 00
 		bne L_3087		;3078 D0 0D
@@ -6642,7 +6642,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp L_3158		;314B 4C 58 31
 .L_314E	ldy #$0B		;314E A0 0B
 		jsr print_track_title		;3150 20 70 31
-.L_3153	ldx #$71		;3153 A2 71		; "DRIVER      BEST-LAP RACE-TIME"
+.L_3153	ldx #frontend_strings_3_driver_best_lap_race_time-frontend_strings_3 ;3153 A2 71 ; "DRIVER      BEST-LAP RACE-TIME"
 		jsr print_msg_3		;3155 20 DC A1
 .L_3158	lda #$0E		;3158 A9 0E
 		sta ZP_19		;315A 85 19

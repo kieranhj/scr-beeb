@@ -524,7 +524,7 @@ ENDIF
 		jmp cart_print_single_digit		;3572 4C 8A 10
 }
 \\
-.L_3575	ldx #$A0		;3575 A2 A0		; "DRIVERS CHAMPIONSHIP"
+.L_3575	ldx #frontend_strings_3_drivers_championship-frontend_strings_3	;3575 A2 A0 ; "DRIVERS CHAMPIONSHIP"
 		jmp cart_print_msg_3		;3577 4C DC A1
 .L_357A	lda #$80		;357A A9 80
 		bne L_3580		;357C D0 02

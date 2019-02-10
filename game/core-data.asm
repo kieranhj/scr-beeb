@@ -212,45 +212,79 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 ; FRONTEND STRINGS
 
 .frontend_strings_2
+.frontend_strings_2_select
 		equb $1F,$11,$0B,"SELECT",$FF
+.frontend_strings_2_practise
 		equb "Practise ",$FF
+.frontend_strings_2_start_the_racing_season
 		equb "Start the Racing Season",$FF
+.frontend_strings_2_load_save_replay
 		equb "Load/Save/Replay       ",$FF
+.frontend_strings_2_load
 		equb "Load",$FF
+.frontend_strings_2_save
 		equb "Save",$FF
+.frontend_strings_2_replay
 		equb "Replay",$FF
+.frontend_strings_2_cancel
 		equb "Cancel",$FF
+.frontend_strings_2_load_from_tape
 		equb "LOAD from Tape",$FF
+.frontend_strings_2_load_from_disc
 		equb "LOAD from Disc",$FF
+.frontend_strings_2_save_to_tape
 		equb "SAVE to Tape",$FF
+.frontend_strings_2_save_to_disc
 		equb "SAVE to Disc",$FF
+.frontend_strings_2_filename
 		equb $1F,$05,$13,"   Filename?  >",$FF
+.frontend_strings_2_to_the_super_league
 		equb "to the SUPER LEAGUE",$FF
+.frontend_strings_2_super_division
 		equb $1F,$0C
 .L_E0BD	equb $09,"SUPER DIVISION "
 		equb $FF
+.frontend_strings_2_excellent_driving_well_done
 		equb "EXCELLENT DRIVING - WELL DONE",$FF
+.frontend_strings_2_hall_of_fame
 		equb "Hall of Fame",$FF
 
 .frontend_strings_3
+.frontend_strings_3_select
 		equb $1F,$11,$0B,"SELECT",$FF
+.frontend_strings_3_single_player_league
 		equb "Single Player League",$FF
+.frontend_strings_3_multiplayer
 		equb "Multiplayer",$FF
+.frontend_strings_3_enter_another_driver
 		equb "Enter another driver",$FF
+.frontend_strings_3_continue
 		equb "Continue",$FF
+.frontend_strings_3_tracks_in_division
 		equb "Tracks in DIVISION ",$FF
 		equb $00,$00,$00
-		equb $00,$00,$00," S.",$FF
-		equb "        s",$FF
+		equb $00,$00,$00
+.frontend_strings_3_space_s_dot
+		equb " S.",$FF
+		equb "        "
+.frontend_strings_3_s
+		equb "s",$FF
+.frontend_strings_3_driver_best_lap_race_time
 		equb $1F,$06
 .L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
+.frontend_strings_3_track_the
 		equb "Track:  The ",$FF
+.frontend_strings_3_drivers_championship
 		equb $1F,$0A,$09
 		equb "DRIVERS CHAMPIONSHIP",$FF
+.frontend_strings_3_track_record
 		equb $1F,$0E,$14,"Track record",$FF
 		equb $00
-.L_3273	equb "------------",$FF
-.L_3280	equb "------------",$FF
+.frontend_strings_3_driver_2
+		equb "------------",$FF
+.frontend_strings_3_driver_1
+		equb "------------",$FF
+.frontend_strings_3_new_track_record
 		equb $1F,$0C,$0F
 		equb "New track record",$FF
 
