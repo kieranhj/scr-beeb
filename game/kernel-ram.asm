@@ -5909,7 +5909,7 @@ equb $00												; "select" $0f
 .menu_screen_offsets_initial_menu
 equb frontend_strings_3_single_player_league-frontend_strings_3 ; $10
 equb frontend_strings_3_multiplayer-frontend_strings_3			; $11
-equb $00														; $12
+equb frontend_strings_3_credits-frontend_strings_3				; $12
 equb $00						; "select" $13
 .menu_screen_offsets_multiplayer_drivers
 equb frontend_strings_3_enter_another_driver-frontend_strings_3 ; $14

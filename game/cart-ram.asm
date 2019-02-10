@@ -6534,9 +6534,11 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		sta L_31A0		;3054 8D A0 31
 		lda #$00		;3057 A9 00
 		sta L_31A1		;3059 8D A1 31
-		ldy #$01		;305C A0 01
+		ldy #$02		;305C A0 01
 		ldx #menu_screen_offsets_initial_menu-menu_screen_offsets ;305E A2 10
 		jsr kernel_do_menu_screen		;3060 20 36 EE
+		cmp #$02
+		beq do_credits_screen
 		cmp #$00		;3063 C9 00
 		bne L_307D		;3065 D0 16
 		jsr kernel_get_entered_name		;3067 20 7F ED
@@ -6557,6 +6559,13 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 .L_308C	lda #$00		;308C A9 00
 		sta L_31A0		;308E 8D A0 31
 		rts				;3091 60
+}
+
+.do_credits_screen
+{
+jsr graphics_show_credits_screen
+jsr kernel_set_up_screen_for_frontend
+jmp do_initial_screen
 }
 
 .do_end_of_race_screen

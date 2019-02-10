@@ -248,6 +248,7 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 		equb "EXCELLENT DRIVING - WELL DONE",$FF
 .frontend_strings_2_hall_of_fame
 		equb "Hall of Fame",$FF
+if P%-frontend_strings_2>255:error "frontend_strings_2 too big":endif
 
 .frontend_strings_3
 .frontend_strings_3_select
@@ -287,6 +288,9 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 .frontend_strings_3_new_track_record
 		equb $1F,$0C,$0F
 		equb "New track record",$FF
+.frontend_strings_3_credits
+        equb "Credits",$FF
+if P%-frontend_strings_3>255:error "frontend_strings_3 too big":endif
 
 .frontend_strings_4
 		equb $1F,$0F
@@ -312,24 +316,7 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 		equb " CHANGES",$FF
 		equb $1F,$12,$0E,"NAME?",$FF
 		equb " 2pts",$FF," 1pt",$FF," of ",$FF
-
-.beeb_mode1_crtc_regs
-{
-	EQUB 127				; R0  horizontal total
-	EQUB 80					; R1  horizontal displayed
-	EQUB 98					; R2  horizontal position
-	EQUB &28				; R3  sync width 40 = &28
-	EQUB 38					; R4  vertical total
-	EQUB 0					; R5  vertical total adjust
-	EQUB 25					; R6  vertical displayed
-	EQUB 35					; R7  vertical position; 35=top of screen
-	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
-	EQUB 7					; R9  scanlines per row
-	EQUB 32					; R10 cursor start
-	EQUB 8					; R11 cursor end
-	EQUB HI(screen1_address/8)	; R12 screen start address, high
-	EQUB LO(screen1_address/8)	; R13 screen start address, low
-}
+if P%-frontend_strings_4>255:error "frontend_strings_4 too big":endif
 
 .beeb_mode5_crtc_regs
 {

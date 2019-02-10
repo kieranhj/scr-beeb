@@ -1116,6 +1116,33 @@ GUARD disksys_loadto_addr
 
 	; BEEB LATE INIT
 
+	; BEEB SET INTERRUPT HANDLER
+
+    SEI
+	LDA #&7F		; A=01111111
+	STA &FE4E		; R14=Interrupt Enable (disable all interrupts)
+
+	LDA #0			; A=00000000
+	STA &FE4B		; R11=Auxillary Control Register (timer 1 one shot mode)
+
+	LDA #&C2		; A=11000010
+	STA &FE4E		; R14=Interrupt Enable (enable main_vsync and timer interrupt)
+
+	LDA IRQ1V:STA old_irqv
+	LDA IRQ1V+1:STA old_irqv+1      ; remember old interrupt handler
+	
+	LDA #LO(irq_handler):STA IRQ1V
+	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
+
+if _DEBUG
+    lda #LO(brk_handler):sta BRKV+0
+	lda #HI(brk_handler):sta BRKV+1
+endif
+
+    CLI
+
+	jsr disable_screen
+
 	\\ Need to copy data from &3000 - &3FFF into SHADOW RAM as this may be
 	\\ accessed by the frontend system whilst the MODE 1 SHADOW screen is
 	\\ paged in. As we're in the loader above $3000 we need to copy some
@@ -1148,31 +1175,6 @@ GUARD disksys_loadto_addr
 		cpy #&0D
 		bcc clear_loop
 	}
-
-	; BEEB SET INTERRUPT HANDLER
-
-    SEI
-	LDA #&7F		; A=01111111
-	STA &FE4E		; R14=Interrupt Enable (disable all interrupts)
-
-	LDA #0			; A=00000000
-	STA &FE4B		; R11=Auxillary Control Register (timer 1 one shot mode)
-
-	LDA #&C2		; A=11000010
-	STA &FE4E		; R14=Interrupt Enable (enable main_vsync and timer interrupt)
-
-	LDA IRQ1V:STA old_irqv
-	LDA IRQ1V+1:STA old_irqv+1      ; remember old interrupt handler
-	
-	LDA #LO(irq_handler):STA IRQ1V
-	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
-
-if _DEBUG
-    lda #LO(brk_handler):sta BRKV+0
-	lda #HI(brk_handler):sta BRKV+1
-endif
-
-    CLI
 
 	; Sort out display.
 	jsr set_up_beeb_display
@@ -1221,8 +1223,18 @@ dex:bpl loop
 rts
 
 .crtc
-;    R0  R1  R2  R3  R4  R5  R6  R7  R8  R9  R10 R11
-equb $3f,$28,$31,$42,$26,$00,$19,$22,$01,$07,$20,$08
+equb $3f						; R0
+equb $28						; R1
+equb $31						; R2
+equb $42						; R3
+equb $26						; R4
+equb $00						; R5
+equb $19						; R6
+equb $22						; R7
+equb CRTC_R8_DisplayDisableValue ; R8
+equb $07						; R9
+equb $20						; R10
+equb $08						; R11
 equb HI(screen1_address/8) 		; R12
 equb LO(screen1_address/8)		; R13
 
@@ -1612,18 +1624,28 @@ cpx #0:beq tube_ok
 ldx #disable_tube-text:jmp print
 
 .tube_ok
+
+ldx #0:jsr clear_display_ram	; clear main RAM
+ldx #1:jsr clear_display_ram	; clear shadow RAM
+
+lda #19:jsr osbyte
+
 lda #22:jsr oswrch
 lda #2:jsr oswrch
 
 lda #10:sta $fe00:lda #32:sta $fe01 ; disable cursor
 
-lda #108:ldx #1:jsr osbyte		; page in shadow memory
+lda #113:ldx #1:jsr osbyte		; display main RAM
+lda #108:ldx #1:jsr osbyte		; page in shadow RAM
+
+lda #19:jsr osbyte
 
 ldx #LO(load_title):ldy #HI(load_title):jsr oscli
 
-lda #108:ldx #0:jsr osbyte		; page in main memory
+lda #113:ldx #2:jsr osbyte		; display shadow RAM
+lda #108:ldx #0:jsr osbyte		; page in main RAM
+
 lda #19:jsr osbyte
-lda #113:ldx #2:jsr osbyte		; display shadow memory
 
 ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
 
@@ -1634,6 +1656,15 @@ ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
 .master_required:equs "Master required",13
 .disable_tube:equs "Please disable the Tube",13
 
+.clear_display_ram
+lda #108:jsr osbyte				; page in main (X=1) or shadow (X=1)
+lda #$30:sta clear_loop_store+2
+lda #0:sta clear_loop_store+1
+.clear_loop
+.clear_loop_store:sta $3000
+inc clear_loop_store+1:bne clear_loop
+inc clear_loop_store+2:bpl clear_loop
+rts
 }
 .title_screen_loader_end
 

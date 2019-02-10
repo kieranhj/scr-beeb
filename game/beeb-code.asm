@@ -58,39 +58,39 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     STA &FE4D
 
     LDA irq_mode
-    BEQ enter_frontend
+    BEQ enter_frontend			; taken if $00
 
-    BPL in_frontend
+    BPL in_frontend				; taken if <$80
     JMP in_game
 
     .in_frontend
-    CMP #&40
-    BEQ track_preview
+    CMP #&40					
+    BEQ track_preview			; taken if $40
 
     \\ Menus
 
-    IF 0
-    LDA irq_part
-    BNE menu_options
+IF 0
+    ; LDA irq_part
+    ; BNE menu_options
 
-    \\ Header
-    LDA irq_part
-    BNE menu_options
+    ; \\ Header
+    ; LDA irq_part
+    ; BNE menu_options
 
-	LDA #LO(TIMER_Menu):STA &FE44		; R4=T1 Low-Order Latches (write)
-	LDA #HI(TIMER_Menu):STA &FE45		; R5=T1 High-Order Counter
+	; LDA #LO(TIMER_Menu):STA &FE44		; R4=T1 Low-Order Latches (write)
+	; LDA #HI(TIMER_Menu):STA &FE45		; R5=T1 High-Order Counter
     
-    TXA:PHA:TYA:PHA
-    JSR beeb_set_mode_5
-    PLA:TAY:PLA:TAX
-    INC irq_part
-    JMP also_return
+    ; TXA:PHA:TYA:PHA
+    ; JSR beeb_set_mode_5
+    ; PLA:TAY:PLA:TAX
+    ; INC irq_part
+    ; JMP also_return
 
-    .menu_options
-    TXA:PHA:TYA:PHA
-    JSR beeb_set_mode_4
-    PLA:TAY:PLA:TAX
-    ENDIF
+    ; .menu_options
+    ; TXA:PHA:TYA:PHA
+    ; JSR beeb_set_mode_4
+    ; PLA:TAY:PLA:TAX
+ENDIF
 
     JMP also_return
 
@@ -473,42 +473,30 @@ EQUW 0
     JMP beeb_set_mode_5
 }
 
-.beeb_set_mode_1
-{
-    LDX #LO(beeb_mode1_crtc_regs)
-    LDY #HI(beeb_mode1_crtc_regs)
-    JSR beeb_set_crtc_regs
-
-    \\ BEEB ULA SET MODE 1
-    LDA #ULA_MODE_1			; 80 chars per line @ 2bpp
-    STA &FE20
-
-    \\ BEEB SHADOW
-    LDA &FE34
-    ORA #5          ; page in SHADOW and display SHADOW
-    STA &FE34
-
-    \\ BEEB ULA SET PALETTE
-    LDX #LO(beeb_mode5_palette)
-    LDY #HI(beeb_mode5_palette)
-    JMP beeb_set_palette
-}
-
 .beeb_set_crtc_regs
 {
     STX load_regs+1
     STY load_regs+2
 
-	LDX #3  ; just horizontal
-	.loop
+	LDX beeb_max_crtc_reg
+.loop
+; Always leave R8 as it is. The vsync routine sets it to an
+; appropriate value.
+	cpx #8:beq next_reg
 	STX &FE00
-    .load_regs
+.load_regs
 	LDA &FFFF,X
 	STA &FE01
+.next_reg
 	DEX
 	BPL loop
+	lda #3:sta beeb_max_crtc_reg
     RTS
 }
+
+; Max CRTC register index to set on the next call to
+; beeb_set_crtc_regs. Reset to 3 on exit from beeb_set_crtc_regs.
+.beeb_max_crtc_reg:equb 3
 
 if _DEBUG
 .brk_handler

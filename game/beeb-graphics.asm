@@ -163,6 +163,9 @@ incbin "build/scr-beeb-preview.pu"
 .track_preview_bg
 incbin "build/scr-beeb-preview-bg.pu"
 
+.credits_screen
+incbin "build/scr-beeb-credits.pu"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1825,6 +1828,141 @@ lda #CRTC_R8_DisplayDisableValue
 {
 :sta irq_handler_load_r8_value+1
 lda vsync_counter:.loop:cmp vsync_counter:beq loop
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._beeb_set_mode_1
+{
+    lda #13:sta beeb_max_crtc_reg
+    LDX #LO(beeb_mode1_crtc_regs)
+    LDY #HI(beeb_mode1_crtc_regs)
+    JSR beeb_set_crtc_regs
+
+    \\ BEEB ULA SET MODE 1
+    LDA #ULA_MODE_1			; 80 chars per line @ 2bpp
+    STA &FE20
+
+    \\ BEEB SHADOW
+    LDA &FE34
+    ORA #5          ; page in SHADOW and display SHADOW
+    STA &FE34
+
+    \\ BEEB ULA SET PALETTE
+    LDX #LO(beeb_mode5_palette)
+    LDY #HI(beeb_mode5_palette)
+    JMP beeb_set_palette
+	
+.beeb_mode1_crtc_regs
+{
+	EQUB 127				; R0  horizontal total
+	EQUB 80					; R1  horizontal displayed
+	EQUB 98					; R2  horizontal position
+	EQUB &28				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI(screen1_address/8)	; R12 screen start address, high
+	EQUB LO(screen1_address/8)	; R13 screen start address, low
+}
+
+}
+
+.beeb_set_mode_2
+{
+lda #13:sta beeb_max_crtc_reg
+ldx #lo(beeb_mode2_crtc_regs)
+ldy #hi(beeb_mode2_crtc_regs)
+jsr beeb_set_crtc_regs
+
+lda #6:sta $fe00:lda #32:sta $fe01
+lda #12:sta $fe00:lda #$06:sta $fe01
+lda #13:sta $fe00:lda #$00:sta $fe01
+
+lda #ULA_MODE_2:sta $fe20
+
+; Page in shadow RAM, display shadow RAM
+lda $fe34:ora #5:sta $fe34
+
+; Palette.
+lda #0
+clc
+.loop
+tax
+eor #7:sta $fe21
+txa
+adc #$11
+bcc loop
+
+rts
+
+.beeb_mode2_crtc_regs
+{
+	EQUB 127				; R0  horizontal total
+	EQUB 80					; R1  horizontal displayed
+	EQUB 98					; R2  horizontal position
+	EQUB &28				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 32					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI($3000/8)		; R12 screen start address, high
+	EQUB LO($3000/8)		; R13 screen start address, low
+}
+
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._graphics_show_credits_screen
+{
+jsr disable_screen
+jsr beeb_set_mode_2
+
+ldx #lo(credits_screen):ldy #hi(credits_screen)
+lda #$30
+jsr PUCRUNCH_UNPACK
+jsr ensure_screen_enabled
+
+.keys_loop
+lda #$7a:jsr osbyte
+cpx #$ff:beq keys_loop
+
+jsr disable_screen
+
+; copy $3000-$3fff back from main RAM to shadow RAM.
+lda #$30:sta load_main+2:sta store_shadow+2
+
+ldx #0
+.copy_main_ram_to_shadow_ram_loop
+lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
+.load_main:lda $ff00,x
+pha
+
+lda $fe34:ora #%00000100:sta $fe34 ; page in shadow RAM
+pla
+.store_shadow:sta $ff00,x
+inx
+bne copy_main_ram_to_shadow_ram_loop
+inc load_main+2
+inc store_shadow+2
+lda store_shadow+2
+cmp #$40
+bne copy_main_ram_to_shadow_ram_loop
+
+jsr beeb_set_mode_1
 rts
 }
 

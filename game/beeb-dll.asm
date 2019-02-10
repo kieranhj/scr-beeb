@@ -894,6 +894,8 @@ ENDIF
 .enable_screen_and_set_irq50
 .ensure_screen_enabled DLL_CALL_GRAPHICS _ensure_screen_enabled,22
 
+.beeb_set_mode_1 DLL_CALL_GRAPHICS _beeb_set_mode_1,23
+.graphics_show_credits_screen DLL_CALL_GRAPHICS _graphics_show_credits_screen,24
 
 ; *****************************************************************************
 \\ Function addresses
@@ -924,6 +926,8 @@ ENDIF
 	EQUB LO(_graphics_pause_show_text_sprite)	 ; 20
 	EQUB LO(_disable_screen)					 ; 21
 	EQUB LO(_ensure_screen_enabled)				 ; 22
+	EQUB LO(_beeb_set_mode_1)					 ; 23
+	EQUB LO(_graphics_show_credits_screen)		 ; 24
 }
 
 .graphics_table_HI
@@ -951,6 +955,8 @@ ENDIF
 	EQUB HI(_graphics_pause_show_text_sprite)	 ; 20
 	EQUB HI(_disable_screen)					 ; 21
 	EQUB HI(_ensure_screen_enabled)				 ; 22
+	EQUB HI(_beeb_set_mode_1)					 ; 23
+	EQUB HI(_graphics_show_credits_screen)		 ; 24
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"
