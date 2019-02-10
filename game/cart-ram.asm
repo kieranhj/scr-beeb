@@ -827,7 +827,11 @@ ENDIF
 ; A=$43 ->	draw tachometer
 ; A=$45 ->	clear screen
 ; A=$46 ->	update colour map
-; A=$47 ->  
+; A=$47 ->  prepare for save game
+;           X =  0 -> reload disk catalogue (due to disk change)
+;           X != 0 -> prepare for load/save - ??delete old file if save,
+;                     do nothing if load??
+;           return with C set on error
 ; A=$48 ->  fill in-game sky
 ; A=$49 ->	draw animated flames
 ; A=$4A ->	erase flames
@@ -2180,60 +2184,115 @@ rts
 
 .sysctl_47			; in Cart
 {
-		lda L_0840		;90BB AD 40 08
-		beq L_9106		;90BE F0 46
+
+; skip all of this when saving to tape.
+
+		lda L_0840		;90BB AD 40 08 save device
+		beq L_9106		;90BE F0 46    0 = tape
 		
 		txa				;90C0 8A
 		pha				;90C1 48
-		ldx #$08		;90C2 A2 08
-		lda #$00		;90C4 A9 00
-		tay				;90C6 A8
+		ldx #$08		;90C2 A2 08 8 = disk
+		lda #$00		;90C4 A9 00 0 = handle
+		tay				;90C6 A8    0 = secondary address
 		jsr KERNEL_SETLFS		;90C7 20 BA FF
-		pla				;90CA 68
-		beq L_911A		;90CB F0 4D
+
+; If X was 0 on entry, reload disk catalogue.
+
+		pla						;90CA 68
+		beq L_911A				;90CB F0 4D
+
+; L_C77B is set at L_EF8C (kernel-ram) and reset at L_9493 (cart-ram).
+; Is this the load/save flag?
+
 		lda L_C77B		;90CD AD 7B C7
 		beq L_9106		;90D0 F0 34
-		ldx #$0B		;90D2 A2 0B
+
+; form S0:<<save game name>> file name.
+
+		ldx #L_910B_end-L_910E-1 ;90D2 A2 0B
 .L_90D4	lda L_AEC1,X	;90D4 BD C1 AE
 		sta L_910E,X	;90D7 9D 0E 91
 		dex				;90DA CA
 		bpl L_90D4		;90DB 10 F7
-		lda #$0F		;90DD A9 0F
-		ldy #HI(L_910B)		;90DF A0 91
-		ldx #LO(L_910B)		;90E1 A2 0B
-.L_90E3	jsr KERNEL_SETNAM		;90E3 20 BD FF
-		lda #$0F		;90E6 A9 0F
-		ldx #$08		;90E8 A2 08
-		ldy #$0F		;90EA A0 0F
+		
+		lda #L_910B_end-L_910B	;90DD A9 0F
+		ldy #HI(L_910B)			;90DF A0 91
+		ldx #LO(L_910B)			;90E1 A2 0B
+.L_90E3
+
+; either set "S0:<<save game name>>" (delete save game), or "I0"
+; (refresh disk catalogue)
+;
+; https://en.wikipedia.org/wiki/KERNAL#On_device-independent_I/O
+; https://www.c64-wiki.com/wiki/Drive_command
+; https://www.c64-wiki.com/wiki/Commodore_1541#Disk_Drive_Commands
+
+		jsr KERNEL_SETNAM		;90E3 20 BD FF
+		
+		lda #$0F		;90E6 A9 0F F = handle
+		ldx #$08		;90E8 A2 08 8 = disk
+		ldy #$0F		;90EA A0 0F F = command channel
 		jsr KERNEL_SETLFS		;90EC 20 BA FF
+		
 		jsr KERNEL_OPEN		;90EF 20 C0 FF
+
+; branch taken if no error?
+
 		bcc L_90FC		;90F2 90 08
+
+; http://sta.c64.org/cbm64baserr.html ??? - 4 = file not found,
+; presumably. Treat this as a non-error.
+
 		cmp #$04		;90F4 C9 04
 		beq L_90FB		;90F6 F0 03
+
+; some other error, not so benign.
+
 		sec				;90F8 38
 		bcs L_90FC		;90F9 B0 01
+
 .L_90FB	clc				;90FB 18
 .L_90FC	php				;90FC 08
+
+; close command channel
+
 		lda #$0F		;90FD A9 0F
 		jsr KERNEL_CLOSE		;90FF 20 C3 FF
+
+; CLOSE failure counts as an error.
+
 		bcs L_9108		;9102 B0 04
+		
 		plp				;9104 28
 		rts				;9105 60
+
 .L_9106	clc				;9106 18
 		rts				;9107 60
+		
 .L_9108	plp				;9108 28
 		sec				;9109 38
 		rts				;910A 60
-		
-.L_910B	equb $53,$30,$3A
-.L_910E	equb $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
 
-.L_911A	lda #$02		;911A A9 02
-		ldy #$91		;911C A0 91
-		ldx #$23		;911E A2 23
-		jmp L_90E3		;9120 4C E3 90
-		
-.L_9123	equb $49,$30
+;https://en.wikipedia.org/wiki/Commodore_DOS#DOS_commands
+;
+; When a file named "S0:XXX" is opened over the command channel, the
+; file "XXX" is deleted.
+.L_910B	equb "S0:"
+.L_910E	equb "            "
+.L_910B_end
+
+.L_911A	lda #L_9123_end-L_9123	;911A A9 02
+		ldy #HI(L_9123)			;911C A0 91
+		ldx #LO(L_9123)			;911E A2 23
+		jmp L_90E3				;9120 4C E3 90
+
+;https://en.wikipedia.org/wiki/Commodore_DOS#DOS_commands
+;
+; When a file named "I0" is opened over the command channel, the drive
+; is reset and the disk catalogue is updated.
+.L_9123	equb "I0"
+.L_9123_end
 }
 
 .print_3space		; HAS DLL
@@ -2515,74 +2574,147 @@ rts
 
 .L_9448				; HAS DLL
 {
+
+; $00 = save game name starts with none of "DIR ", "HALL" or "MP"
+
 		ldy #$00		;9448 A0 00
+
+; does the save game name start with "DIR "?
+
 		ldx #$03		;944A A2 03
 .L_944C	lda L_AEC1,X	;944C BD C1 AE
 		cmp L_94CC,X	;944F DD CC 94
 		bne L_945B		;9452 D0 07
 		dex				;9454 CA
 		bpl L_944C		;9455 10 F5
+
+; $80 = save game name starts with "DIR "
+
 		ldy #$80		;9457 A0 80
 		bne L_947B		;9459 D0 20
-.L_945B	ldx #$03		;945B A2 03
+		
+.L_945B
+
+; does the save game name start with "HALL"?
+
+		ldx #$03		;945B A2 03
 .L_945D	lda L_AEC1,X	;945D BD C1 AE
 		cmp L_94D0,X	;9460 DD D0 94
 		bne L_946C		;9463 D0 07
 		dex				;9465 CA
 		bpl L_945D		;9466 10 F5
+
+; $40 = save game name starts with "HALL"
+
 		ldy #$40		;9468 A0 40
 		bne L_947B		;946A D0 0F
-.L_946C	ldx #$01		;946C A2 01
+
+.L_946C
+
+; does the save game name start with "MP"?
+
+		ldx #$01		;946C A2 01
 .L_946E	lda L_AEC1,X	;946E BD C1 AE
 		cmp L_94D4,X	;9471 DD D4 94
 		bne L_947B		;9474 D0 05
 		dex				;9476 CA
 		bpl L_946E		;9477 10 F5
+
+; $01 = save game name starts with "MP"
+
 		ldy #$01		;9479 A0 01
-.L_947B	sty L_C367		;947B 8C 67 C3
+.L_947B
+		sty L_C367		;947B 8C 67 C3
+
+; skip this next bit if loading
+
 		lda L_C77B		;947E AD 7B C7
 		beq L_9491		;9481 F0 0E
+
+; branch taken if name starts with "DIR "
+
 		tya				;9483 98
 		bmi L_9493		;9484 30 0D
+
+; name starts with "HALL", "MP", or other.
+; branch taken if other.
+
 		beq L_949A		;9486 F0 12
+
+; name starts with "HALL", or "MP".
+; branch taken if name starts with "HALL"
+
 		cpy #$01		;9488 C0 01
 		bne L_9491		;948A D0 05
+
+; name starts with "MP".
+; branch taken if single-player mode.
+
 		lda L_31A1		;948C AD A1 31
-		beq L_949F		;948F F0 0E
-.L_9491	clc				;9491 18
+		beq file_name_is_not_suitable ;948F F0 0E
+		
+.L_9491
+
+; name is ok (??)
+
+		clc				;9491 18
 		rts				;9492 60
-.L_9493	lda #$00		;9493 A9 00
+		
+.L_9493
+
+; dir requested, so return with C=0 (no error) and L_C77B reset (load
+; data). The value of L_C367 is used later to figure out what to do.
+
+		lda #$00		;9493 A9 00
 		sta L_C77B		;9495 8D 7B C7
 		clc				;9498 18
 		rts				;9499 60
-.L_949A	lda L_31A1		;949A AD A1 31
+
+.L_949A
+
+; branch taken if single-player mode
+
+		lda L_31A1		;949A AD A1 31
 		beq L_9491		;949D F0 F2
-.L_949F	jsr set_write_char_half_row_flag		;949F 20 84 38
+		
+.file_name_is_not_suitable
+
+		jsr set_write_char_half_row_flag		;949F 20 84 38
+		
 		ldx #$06		;94A2 A2 06
 		ldy #$16		;94A4 A0 16
 		jsr set_text_cursor		;94A6 20 6B 10
-		ldx #$57		;94A9 A2 57
+		
+		ldx #file_strings_file_name_is_not_suitable-file_strings ;94A9 A2 57
 		jsr write_file_string		;94AB 20 E2 95
+		
 		jsr getch		;94AE 20 03 86
+		
 		ldx #$19		;94B1 A2 19
 .L_94B3	lda #$7F		;94B3 A9 7F
 		jsr write_char		;94B5 20 6F 84
 		dex				;94B8 CA
 		bne L_94B3		;94B9 D0 F8
+		
 		ldx #$14		;94BB A2 14
 		ldy #$13		;94BD A0 13
 		jsr set_text_cursor		;94BF 20 6B 10
+		
 		ldx #$0C		;94C2 A2 0C
 .L_94C4	jsr print_space		;94C4 20 AF 91
 		dex				;94C7 CA
 		bne L_94C4		;94C8 D0 FA
+
+; indicate error.
+
 		sec				;94CA 38
 		rts				;94CB 60
-
+		
 .L_94CC	equb "DIR "
 .L_94D0	equb "HALL"
-.L_94D4	equb "MP$"
+.L_94D4	equb "MP"
 }
+
 
 \\ Data moved from file_strings_offset to Hazel RAM
 

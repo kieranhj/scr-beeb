@@ -75,6 +75,13 @@
 .L_C364	skip 1
 .L_C365	skip 1
 .L_C366	skip 1
+
+; L_C367 = some kind of save game name flags - see L_9448 (cart-ram)
+;
+; $80 = name starts with "DIR "
+; $40 = name starts with "HALL"
+; $01 = name starts with "MP"
+
 .L_C367	skip 1
 .L_C368	skip 1		; Crash Timer
 .L_C369	skip 1
@@ -226,6 +233,8 @@ if (P% and 255)<>0:error "oops":endif
 .L_C777	equb $00
 .L_C778	equb $00
 .L_C779	equb $00,$00
+
+; L_C77B = load/save flag? 0 = load, 1 = save?
 .L_C77B	equb $00
 .L_C77C	equb $00
 .current_track	equb $00

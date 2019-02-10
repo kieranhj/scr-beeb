@@ -442,6 +442,8 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 }
 
 .L_31A0	equb $00
+
+; L_31A1 = 0 = single player/1 = multiplayer?
 .L_31A1	equb $00
 .L_31A2	equb $00
 .L_31A3	equb $06

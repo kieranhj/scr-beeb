@@ -1631,8 +1631,14 @@ jsr dash_reset
 		lda #BEEB_PIXELS_COLOUR1		;2AC2 A9 0F
 		sta menu_option_colour		;2AC4 8D 53 39
 		jsr set_write_char_half_row_flag		;2AC7 20 84 38
+
+; branch taken if load
+
 		lda L_C77B		;2ACA AD 7B C7
 		beq L_2AE9		;2ACD F0 1A
+
+; save
+
 		ldx #file_strings_insert_game_position_save-file_strings ;2ACF A2 71
 		jsr cart_write_file_string		;2AD1 20 E2 95
 		lda L_0840		;2AD4 AD 40 08
@@ -1642,9 +1648,13 @@ jsr dash_reset
 		ldx file_strings_offset,Y	;2ADB BE 2A 95
 		jsr cart_write_file_string		;2ADE 20 E2 95
 		jsr debounce_fire_and_wait_for_fire		;2AE1 20 96 36
+
 		ldx #file_string_file_name_maybe-file_strings ;2AE4 A2 99
 		jsr cart_write_file_string		;2AE6 20 E2 95
-.L_2AE9	ldx #$94		;2AE9 A2 94		; "   Filename?  >"
+		
+.L_2AE9
+
+		ldx #frontend_strings_2_filename-frontend_strings_2	;2AE9 A2 94		; "   Filename?  >"
 		jsr cart_print_msg_2		;2AEB 20 CB A1
 		ldx #$78		;2AEE A2 78
 		ldy #$D5		;2AF0 A0 D5
@@ -1653,8 +1663,17 @@ jsr dash_reset
 		bit L_EE35		;2AF7 2C 35 EE
 		bpl L_2AFD		;2AFA 10 01
 		rts				;2AFC 60
-.L_2AFD	jsr cart_L_9448		;2AFD 20 48 94
+		
+.L_2AFD
+
+; verify file name
+
+		jsr cart_L_9448		;2AFD 20 48 94
+
+; branch taken if file name not valid
+
 		bcs L_2AE9		;2B00 B0 E7
+
 		jsr clear_write_char_half_row_flag		;2B02 20 1F 36
 		jsr cart_save_rndQ_stateQ		;2B05 20 2C 16
 		lda #$00		;2B08 A9 00
@@ -1679,8 +1698,15 @@ jsr dash_reset
 		pha				;2B30 48
 		lda #C64_IO_AND_KERNAL		;2B31 A9 36
 		sta RAM_SELECT		;2B33 85 01
+
+; FF84 = IOINIT - initialize I/O devices
+
 		jsr L_FF84		;2B35 20 84 FF
+
+; FF87 = RAMTAS - initialize RAM, tape buffer and screen
+
 		jsr L_FF87		;2B38 20 87 FF
+		
 		ldx #$1F		;2B3B A2 1F
 .L_2B3D	lda KERNEL_RAM_VECTORS,X	;2B3D BD 30 FD
 		sta L_0314,X	;2B40 9D 14 03
@@ -1696,6 +1722,9 @@ jsr dash_reset
 		lda #C64_IO_AND_KERNAL		;2B54 A9 36
 		sta RAM_SELECT		;2B56 85 01
 		cli				;2B58 58
+
+; refresh disk catalogue
+
 ;L_2B59
 		lda #$47		;2B59 A9 47
 ;L_2B5A	= *-1			;! _SELF_MOD
@@ -1708,47 +1737,69 @@ jsr dash_reset
 		ldy L_0840		;2B60 AC 40 08
 		ldx L_2C21,Y	;2B63 BE 21 2C device number - 1 (tape) or 8
 						;(disk)
-		lda #$00		;2B66 A9 00 file logical number
-		ldy #$00		;2B68 A0 00 secondary address (???)
+		lda #$00		;2B66 A9 00 file logical number = 0
+		ldy #$00		;2B68 A0 00 secondary address = 0
 		jsr KERNEL_SETLFS		;2B6A 20 BA FF
+
+; branch taken if not "DIR *"
+
 		bit L_C367		;2B6D 2C 67 C3
 		bpl L_2B7B		;2B70 10 09
-		
+
+; SETNAM for catalogue
+
 		lda #$01		;2B72 A9 01
-		ldx #$D6		;2B74 A2 D6
-		ldy #$94		;2B76 A0 94
+		ldx #LO(L_94D6)	;2B74 A2 D6
+		ldy #HI(L_94D6)	;2B76 A0 94
 		jmp L_2B8A		;2B78 4C 8A 2B
 		
-.L_2B7B	lda #$47		;2B7B A9 47
+.L_2B7B
+
+; prepare for load/save
+
+		lda #$47		;2B7B A9 47
 		ldx #$80		;2B7D A2 80
 		jsr cart_sysctl		;2B7F 20 25 87
-		
+
+; branch taken if error.
+
 		bcs L_2BC9		;2B82 B0 45
+
+; SETNAM for save game name.
+
 		lda #$0C		;2B84 A9 0C
-		ldx #$C1		;2B86 A2 C1
-		ldy #$AE		;2B88 A0 AE
-.L_2B8A	jsr KERNEL_SETNAM		;2B8A 20 BD FF
+		ldx #LO(L_AEC1)	;2B86 A2 C1
+		ldy #HI(L_AEC1)	;2B88 A0 AE
+.L_2B8A
+		jsr KERNEL_SETNAM		;2B8A 20 BD FF
+
+; branch taken if load
+
 		lda L_C77B		;2B8D AD 7B C7
 		beq L_2BB9		;2B90 F0 27
 
-; set LSB of start address.
+; set LSB of save start address - $00 in all cases.
 
 		lda #$00		;2B92 A9 00
 		sta ZP_FB		;2B94 85 FB
 
+; Branch taken if not "HALL*" or "MP*"
+
 		lda L_C367		;2B96 AD 67 C3
 		beq L_2BAB		;2B99 F0 10
 
-; set end address.
+; Multiplayer/HoF save??
 
-		and #$01			 ;2B9B 29 01   0x00 or 0x01
-		eor #$03			 ;2B9D 49 03   0x03 or 0x02
+; set end save address.
+
+		and #$01			 ;2B9B 29 01   0x00 = HALL, 0x01 = MP
+		eor #$03			 ;2B9D 49 03   0x03 = HALL, 0x02 = MP
 		clc					 ;2B9F 18
-		adc #HI(L_4000)-1	 ;2BA0 69 3F   0x42 or 0x41
+		adc #HI(L_4000)-1	 ;2BA0 69 3F   0x42 = HALL, 0x41 = MP
 		tay					 ;2BA2 A8      MSB of where to stop saving
 		ldx #$00			 ;2BA3 A2 00   LSB or where to stop saving
 
-; set MSB of start address
+; set MSB of save start address
 		lda #HI(L_4000)			;2BA5 A9 40
 		sta ZP_FC				;2BA7 85 FC
 
@@ -1758,11 +1809,13 @@ jsr dash_reset
 		
 .L_2BAB
 
-; set LSB of end address.
+; Single player save??
+
+; set LSB of save end address.
 
 		ldx #$C0		;2BAB A2 C0
 
-; set MSB of start address and MSB of end address.
+; set MSB of save start address and MSB of save end address.
 
 		ldy #$80		;2BAD A0 80
 		sty ZP_FC		;2BAF 84 FC
@@ -1776,33 +1829,53 @@ jsr dash_reset
 		
 .L_2BB9
 
-; set end address to $8000
+; set load address to $8000
 
 		ldx #$00		;2BB9 A2 00
 		ldy #$80		;2BBB A0 80
+
+; branch taken if not "DIR *", "HALL*" or "MP*"
+
 		lda L_C367		;2BBD AD 67 C3
 		beq L_2BC4		;2BC0 F0 02
 
-; set end address to $4000
+; name is "DIR *", "HALL*" or "MP*"
+
+; set load address to $4000
 
 		ldy #$40		;2BC2 A0 40
-.L_2BC4	lda #$00		;2BC4 A9 00
+.L_2BC4
+		lda #$00		;2BC4 A9 00 load file
 		jsr KERNEL_LOAD			;2BC6 20 D5 FF
-.L_2BC9	ror L_C301		;2BC9 6E 01 C3
+.L_2BC9
+		; put error flag in L_C301 bit 7
+		ror L_C301		;2BC9 6E 01 C3
 		jsr KERNEL_READST		;2BCC 20 B7 FF
 		and #$BF		;2BCF 29 BF
 		beq L_2BD7		;2BD1 F0 04
+		; put error flag in L_C301 bit 7
 		sec				;2BD3 38
 		ror L_C301		;2BD4 6E 01 C3
-.L_2BD7	bit L_C301		;2BD7 2C 01 C3
+.L_2BD7
+
+; branch taken if no error so far
+
+		bit L_C301		;2BD7 2C 01 C3
 		bpl L_2BE3		;2BDA 10 07
+
+; re-read catalogue
+
 		lda #$47		;2BDC A9 47
 		ldx #$00		;2BDE A2 00
 		jsr cart_sysctl		;2BE0 20 25 87
-.L_2BE3	pla				;2BE3 68
+.L_2BE3
+
+		pla				;2BE3 68
 		sta L_A000		;2BE4 8D 00 A0
+		
 		ldy #$4B		;2BE7 A0 4B
 		jsr delay_approx_Y_25ths_sec		;2BE9 20 EB 3F
+		
 		lda #C64_IO_NO_KERNAL		;2BEC A9 35
 		sta RAM_SELECT		;2BEE 85 01
 		bit L_C301		;2BF0 2C 01 C3
@@ -1810,9 +1883,18 @@ jsr dash_reset
 		lda #$80		;2BF5 A9 80
 		sta L_C39A		;2BF7 8D 9A C3
 		bne L_2C04		;2BFA D0 08
-.L_2BFC	lda L_C367		;2BFC AD 67 C3
+		
+.L_2BFC
+
+; branch taken if not "DIR *"
+
+		lda L_C367		;2BFC AD 67 C3
 		bpl L_2C04		;2BFF 10 03
+
+; show directory??
+
 		jsr cart_L_95EA		;2C01 20 EA 95
+		
 .L_2C04	jsr disable_screen	;2C04 20 BE 3F
 		sei				;2C07 78
 		lda #$2B		;2C08 A9 2B			; $2B=disable screen, 25 rows, bitmap graphics mode
@@ -1830,6 +1912,8 @@ jsr dash_reset
 .L_2C21
 equb $01						; tape device
 equb $08						; disk device
+
+.L_94D6 equb "$"
 }
 
 ; only called from game update (move to kernel?)

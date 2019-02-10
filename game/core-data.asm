@@ -207,7 +207,7 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 .L_209B	equb $05
 
 ;.L_083A	equb $00,$00,$00,$00,$00,$00 ; unused?
-.L_0840	equb $01
+.L_0840	equb $01				; save device - 0=tape, 1=disk
 
 .L_1327	equb $00
 .L_1328	equb $02
@@ -406,6 +406,7 @@ PAGE_ALIGN
 		LDA (ZP_19),Y
 }
 
+; buffer for save game name, I think? - see, e.g., sysctl_47
 L_AEC1 = L_AEC0 + 1
 
 ;opponent.attributes
