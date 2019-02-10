@@ -806,7 +806,7 @@ ENDIF
 		equb $01,BEEB_PIXELS_COLOUR1	; $2E - ""
 		equb $0B,BEEB_PIXELS_COLOUR1	; $30 - ""
 		equb $07,BEEB_PIXELS_COLOUR1	; $32 - ""
-		equb $50,$5A	; $34 - do_hall_of_fame_screen
+		equb $50,BEEB_PIXELS_COLOUR2	; $34 - do_hall_of_fame_screen
 
 IF 0	\\ used by fill_colourmap_varying - now removed
 .L_397A	equb $04,$AE,$AE,$90,$89,$08,$90,$89,$89,$90,$89,$90,$89,$89,$04,$A5

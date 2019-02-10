@@ -2372,9 +2372,10 @@ jsr dash_reset
 		bpl L_9960		;99D7 10 87
 		lda #$00		;99D9 A9 00
 		sta write_char_pixel_offset		;99DB 8D D9 C3
-		lda VIC_SCROLY		;99DE AD 11 D0
-		ora #$10		;99E1 09 10			; 1=enable screen
-		sta VIC_SCROLY		;99E3 8D 11 D0
+		jsr ensure_screen_enabled
+		; lda VIC_SCROLY		;99DE AD 11 D0
+		; ora #$10		;99E1 09 10			; 1=enable screen
+		; sta VIC_SCROLY		;99E3 8D 11 D0
 		jsr debounce_fire_and_wait_for_fire		;99E6 20 96 36
 		jsr enable_screen_and_set_irq50		;99E9 20 A5 3F
 		jmp set_up_screen_for_frontend		;99EC 4C 04 35
