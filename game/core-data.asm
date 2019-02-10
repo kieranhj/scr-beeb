@@ -169,8 +169,19 @@ L_80A0	= L_8000 + $A0
 ; Fandal says "table of car damage for multiplayer (12 byte)"
 .L_83B0	equb $FF,$00,$00,$00,$00,$00,$00,$FF,$30,$18,$0C,$06,$0C,$18,$30,$00
 
-\\
-.file_strings_offset	equb $05,$0D,$43,$14,$2A,$43,$43,$43,$71,$8F,$94
+\\comments are index/offset
+.file_strings_offset
+equb file_strings_loaded-file_strings ; $00 / $05
+equb file_strings_saved-file_strings ; $01 / $0d
+equb file_strings_problem_encountered-file_strings ; $02 / $43
+equb file_strings_incorrect_data_found-file_strings ; $03 / $14
+equb file_strings_file_name_already_exists-file_strings ; $04 / $2a
+equb file_strings_problem_encountered-file_strings ; $05 / $43
+equb file_strings_problem_encountered-file_strings ; $06 / $43
+equb file_strings_problem_encountered-file_strings ; $07 / $43
+equb file_strings_insert_game_position_save-file_strings ; $08 / $71
+equb file_strings_tape-file_strings ; $09 / $8f
+equb file_strings_disc-file_strings ; $0a / $94
 
 \\
 .L_A1F2	equb $E8,$46,$4B,$53,$52,$46,$55,$48,$42,$45,$52,$44
@@ -1002,16 +1013,27 @@ ENDIF
 		equb $00
 
 .file_strings
+.file_strings_not
 		equb " NOT",$FF
+.file_strings_loaded
 		equb " loaded",$FF
+.file_strings_saved
 		equb " saved",$FF
+.file_strings_incorrect_data_found
 		equb "Incorrect data found ",$FF
+.file_strings_file_name_already_exists
 		equb "File name already exists",$FF
+.file_strings_problem_encountered
 		equb "Problem encountered",$FF
+.file_strings_file_name_is_not_suitable
 		equb "File name is not suitable",$FF
+.file_strings_insert_game_position_save
 		equb $1F,$05,$13,"Insert game position save ",$FF
+.file_strings_tape
 		equb "tape",$FF
+.file_strings_disc
 		equb "disc",$FF
+.file_string_file_name_maybe
 		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
 
 .L_9674	equb "DIRECTORY:"

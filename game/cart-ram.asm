@@ -827,7 +827,7 @@ ENDIF
 ; A=$43 ->	draw tachometer
 ; A=$45 ->	clear screen
 ; A=$46 ->	update colour map
-; A=$47
+; A=$47 ->  
 ; A=$48 ->  fill in-game sky
 ; A=$49 ->	draw animated flames
 ; A=$4A ->	erase flames
@@ -2182,6 +2182,7 @@ rts
 {
 		lda L_0840		;90BB AD 40 08
 		beq L_9106		;90BE F0 46
+		
 		txa				;90C0 8A
 		pha				;90C1 48
 		ldx #$08		;90C2 A2 08

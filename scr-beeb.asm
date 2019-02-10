@@ -98,7 +98,7 @@ KERNEL_GETIN	= $FFE4	; Get One Byte from the Input Device
 
 BEEB_VIC_BASE = $300	; $D000
 BEEB_SID_BASE = $330	; $D400
-BEEB_COLOR_BASE = $D800	
+; BEEB_COLOR_BASE = $D800	
 BEEB_CIA1_BASE = $350	; $DC00
 BEEB_CIA2_BASE = $360	; $DD00
 
@@ -1342,6 +1342,9 @@ L_3FF6	= screen1_address-$A
 L_3FFA	= screen1_address-$6
 
 L_4000	= screen1_address+$0000
+IF (L_4000 AND 255)<>0
+error "L_4000 must be page aligned"
+ENDIF
 L_4001	= screen1_address+$0001
 L_4008	= screen1_address+$0008
 L_400C	= screen1_address+$000c

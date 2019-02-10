@@ -1633,16 +1633,16 @@ jsr dash_reset
 		jsr set_write_char_half_row_flag		;2AC7 20 84 38
 		lda L_C77B		;2ACA AD 7B C7
 		beq L_2AE9		;2ACD F0 1A
-		ldx #$71		;2ACF A2 71
+		ldx #file_strings_insert_game_position_save-file_strings ;2ACF A2 71
 		jsr cart_write_file_string		;2AD1 20 E2 95
 		lda L_0840		;2AD4 AD 40 08
 		clc				;2AD7 18
 		adc #$09		;2AD8 69 09
-		tay				;2ADA A8
+		tay				;2ADA A8 - "tape" or "disc"
 		ldx file_strings_offset,Y	;2ADB BE 2A 95
 		jsr cart_write_file_string		;2ADE 20 E2 95
 		jsr debounce_fire_and_wait_for_fire		;2AE1 20 96 36
-		ldx #$99		;2AE4 A2 99
+		ldx #file_string_file_name_maybe-file_strings ;2AE4 A2 99
 		jsr cart_write_file_string		;2AE6 20 E2 95
 .L_2AE9	ldx #$94		;2AE9 A2 94		; "   Filename?  >"
 		jsr cart_print_msg_2		;2AEB 20 CB A1
@@ -1702,20 +1702,27 @@ jsr dash_reset
 ;L_2B5B
 		ldx #$00		;2B5B A2 00
 		jsr cart_sysctl		;2B5D 20 25 87
+
+; http://sta.c64.org/cbm64krnfunc.html
+
 		ldy L_0840		;2B60 AC 40 08
-		ldx L_2C21,Y	;2B63 BE 21 2C
-		lda #$00		;2B66 A9 00
-		ldy #$00		;2B68 A0 00
+		ldx L_2C21,Y	;2B63 BE 21 2C device number - 1 (tape) or 8
+						;(disk)
+		lda #$00		;2B66 A9 00 file logical number
+		ldy #$00		;2B68 A0 00 secondary address (???)
 		jsr KERNEL_SETLFS		;2B6A 20 BA FF
 		bit L_C367		;2B6D 2C 67 C3
 		bpl L_2B7B		;2B70 10 09
+		
 		lda #$01		;2B72 A9 01
 		ldx #$D6		;2B74 A2 D6
 		ldy #$94		;2B76 A0 94
 		jmp L_2B8A		;2B78 4C 8A 2B
+		
 .L_2B7B	lda #$47		;2B7B A9 47
 		ldx #$80		;2B7D A2 80
 		jsr cart_sysctl		;2B7F 20 25 87
+		
 		bcs L_2BC9		;2B82 B0 45
 		lda #$0C		;2B84 A9 0C
 		ldx #$C1		;2B86 A2 C1
@@ -1723,29 +1730,61 @@ jsr dash_reset
 .L_2B8A	jsr KERNEL_SETNAM		;2B8A 20 BD FF
 		lda L_C77B		;2B8D AD 7B C7
 		beq L_2BB9		;2B90 F0 27
+
+; set LSB of start address.
+
 		lda #$00		;2B92 A9 00
 		sta ZP_FB		;2B94 85 FB
+
 		lda L_C367		;2B96 AD 67 C3
 		beq L_2BAB		;2B99 F0 10
-		and #$01		;2B9B 29 01
-		eor #$03		;2B9D 49 03
-		clc				;2B9F 18
-		adc #$3F		;2BA0 69 3F
-		tay				;2BA2 A8
-		ldx #$00		;2BA3 A2 00
-		lda #$40		;2BA5 A9 40
-		sta ZP_FC		;2BA7 85 FC
+
+; set end address.
+
+		and #$01			 ;2B9B 29 01   0x00 or 0x01
+		eor #$03			 ;2B9D 49 03   0x03 or 0x02
+		clc					 ;2B9F 18
+		adc #HI(L_4000)-1	 ;2BA0 69 3F   0x42 or 0x41
+		tay					 ;2BA2 A8      MSB of where to stop saving
+		ldx #$00			 ;2BA3 A2 00   LSB or where to stop saving
+
+; set MSB of start address
+		lda #HI(L_4000)			;2BA5 A9 40
+		sta ZP_FC				;2BA7 85 FC
+
+; start = $4000, end = $4100 or $4200
+		
 		bne L_2BB1		;2BA9 D0 06
-.L_2BAB	ldx #$C0		;2BAB A2 C0
+		
+.L_2BAB
+
+; set LSB of end address.
+
+		ldx #$C0		;2BAB A2 C0
+
+; set MSB of start address and MSB of end address.
+
 		ldy #$80		;2BAD A0 80
 		sty ZP_FC		;2BAF 84 FC
-.L_2BB1	lda #$FB		;2BB1 A9 FB
-		jsr KERNEL_SAVE		;2BB3 20 D8 FF
-		jmp L_2BC9		;2BB6 4C C9 2B
-.L_2BB9	ldx #$00		;2BB9 A2 00
+
+; start = $8000, end = $80c0
+
+.L_2BB1	lda #$FB		   ;2BB1 A9 FB zero page address of save start
+						   ;address
+		jsr KERNEL_SAVE	   ;2BB3 20 D8 FF
+		jmp L_2BC9		   ;2BB6 4C C9 2B
+		
+.L_2BB9
+
+; set end address to $8000
+
+		ldx #$00		;2BB9 A2 00
 		ldy #$80		;2BBB A0 80
 		lda L_C367		;2BBD AD 67 C3
 		beq L_2BC4		;2BC0 F0 02
+
+; set end address to $4000
+
 		ldy #$40		;2BC2 A0 40
 .L_2BC4	lda #$00		;2BC4 A9 00
 		jsr KERNEL_LOAD			;2BC6 20 D5 FF
@@ -1788,7 +1827,9 @@ jsr dash_reset
 		jsr cart_load_rndQ_stateQ		;2C1D 20 37 16
 		rts				;2C20 60
 
-.L_2C21	equb $01,$08	;2C21 01 08
+.L_2C21
+equb $01						; tape device
+equb $08						; disk device
 }
 
 ; only called from game update (move to kernel?)
@@ -2201,7 +2242,7 @@ jsr dash_reset
 		jsr print_driver_name		;94F0 20 8B 38
 		lda L_C39A		;94F3 AD 9A C3
 		bpl L_94FD		;94F6 10 05
-		ldx #$00		;94F8 A2 00
+		ldx #file_strings_not-file_strings		;94F8 A2 00
 		jsr cart_write_file_string		;94FA 20 E2 95
 .L_94FD	ldy L_C77B		;94FD AC 7B C7
 		ldx file_strings_offset,Y	;9500 BE 2A 95
