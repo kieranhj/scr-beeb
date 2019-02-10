@@ -1936,9 +1936,10 @@ lda #$30
 jsr PUCRUNCH_UNPACK
 jsr ensure_screen_enabled
 
-.keys_loop
-lda #$7a:jsr osbyte
-cpx #$ff:beq keys_loop
+jsr debounce_fire_and_wait_for_fire
+; .keys_loop
+; lda #$7a:jsr osbyte
+; cpx #$ff:beq keys_loop
 
 jsr disable_screen
 
