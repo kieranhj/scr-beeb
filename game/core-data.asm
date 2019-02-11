@@ -6,6 +6,7 @@ _JUST_ONE_TRACK_FOR_SAVING_RAM = FALSE
 
 .core_data_start
 
+\\ Save game
 PAGE_ALIGN
 .L_8000	skip $C0
 L_801B	= L_8000 + $1B
@@ -21,6 +22,7 @@ L_807E	= L_8000 + $7E
 L_807F	= L_8000 + $7F
 L_8080	= L_8000 + $80
 L_80A0	= L_8000 + $A0
+L_80C0	= L_8000 + $C0
 
 \\ FONT START at $80C0
 .font_data
@@ -240,13 +242,13 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 .frontend_strings_2_cancel
 		equb "Cancel",$FF
 .frontend_strings_2_load_from_tape
-		equb "LOAD from Tape",$FF
+		equb "Load Hall of Fame",$FF
 .frontend_strings_2_load_from_disc
-		equb "LOAD from Disc",$FF
+		equb "Load Game",$FF
 .frontend_strings_2_save_to_tape
-		equb "SAVE to Tape",$FF
+		equb "Save Hall of Fame",$FF
 .frontend_strings_2_save_to_disc
-		equb "SAVE to Disc",$FF
+		equb "Save Game",$FF
 .frontend_strings_2_filename
 		equb $1F,$05,$13,"   Filename?  >",$FF
 .frontend_strings_2_to_the_super_league
@@ -259,6 +261,8 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 		equb "EXCELLENT DRIVING - WELL DONE",$FF
 .frontend_strings_2_hall_of_fame
 		equb "Hall of Fame",$FF
+.frontend_strings_2_catalog
+		equb "@CAT",$FF
 if P%-frontend_strings_2>255:error "frontend_strings_2 too big":endif
 
 .frontend_strings_3

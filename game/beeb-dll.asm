@@ -132,7 +132,7 @@ ENDIF
 .kernel_set_road_data1 DLL_CALL_KERNEL set_road_data1, 14
 .kernel_L_EC11 DLL_CALL_KERNEL L_EC11, 15		; not required in DLL
 .kernel_get_entered_name DLL_CALL_KERNEL get_entered_name, 16
-.kernel_L_EDAB DLL_CALL_KERNEL L_EDAB, 17
+.kernel_get_entered_string DLL_CALL_KERNEL get_entered_string, 17
 .kernel_do_menu_screen DLL_CALL_KERNEL do_menu_screen, 18
 .kernel_do_main_menu_dwim DLL_CALL_KERNEL do_main_menu_dwim, 19
 .kernel_L_F021 DLL_CALL_KERNEL L_F021, 20		; not required in DLL
@@ -230,7 +230,7 @@ ENDIF
 	EQUB LO(set_road_data1)
 	EQUB LO(L_EC11)
 	EQUB LO(get_entered_name)
-	EQUB LO(L_EDAB)
+	EQUB LO(get_entered_string)
 	EQUB LO(do_menu_screen)
 	EQUB LO(do_main_menu_dwim)
 	EQUB LO(L_F021)
@@ -317,7 +317,7 @@ ENDIF
 	EQUB HI(set_road_data1)
 	EQUB HI(L_EC11)
 	EQUB HI(get_entered_name)
-	EQUB HI(L_EDAB)
+	EQUB HI(get_entered_string)
 	EQUB HI(do_menu_screen)
 	EQUB HI(do_main_menu_dwim)
 	EQUB HI(L_F021)
@@ -513,8 +513,8 @@ ENDIF
 .cart_convert_X_to_BCD DLL_CALL_CART convert_X_to_BCD, 11
 .cart_print_track_records DLL_CALL_CART print_track_records, 12
 .cart_copy_track_records_Q DLL_CALL_CART copy_track_records_Q, 13
-.cart_L_93A8 DLL_CALL_CART L_93A8, 14
-.cart_L_9448 DLL_CALL_CART L_9448, 15
+.cart_copy_hall_of_fameQ DLL_CALL_CART copy_hall_of_fameQ, 14
+.cart_verify_filename DLL_CALL_CART verify_filename, 15
 .cart_write_file_string DLL_CALL_CART write_file_string, 16
 .cart_L_95EA DLL_CALL_CART L_95EA, 17
 .cart_maybe_define_keys DLL_CALL_CART maybe_define_keys, 18
@@ -598,8 +598,8 @@ ENDIF
 	EQUB LO(convert_X_to_BCD)
 	EQUB LO(print_track_records)
 	EQUB LO(copy_track_records_Q)
-	EQUB LO(L_93A8)
-	EQUB LO(L_9448)
+	EQUB LO(copy_hall_of_fameQ)
+	EQUB LO(verify_filename)
 	EQUB LO(write_file_string)
 	EQUB LO(L_95EA)
 	EQUB LO(maybe_define_keys)
@@ -680,8 +680,8 @@ ENDIF
 	EQUB HI(convert_X_to_BCD)
 	EQUB HI(print_track_records)
 	EQUB HI(copy_track_records_Q)
-	EQUB HI(L_93A8)
-	EQUB HI(L_9448)
+	EQUB HI(copy_hall_of_fameQ)
+	EQUB HI(verify_filename)
 	EQUB HI(write_file_string)
 	EQUB HI(L_95EA)
 	EQUB HI(maybe_define_keys)

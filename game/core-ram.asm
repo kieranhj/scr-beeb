@@ -443,8 +443,8 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 
 .L_31A0	equb $00
 
-; L_31A1 = 0 = single player/1 = multiplayer?
-.L_31A1	equb $00
+; L_31A1 = 0 = single player/1 = multiplayer? - actually #players-1
+.number_players	equb $00
 .L_31A2	equb $00
 .L_31A3	equb $06
 .L_31A4	equb $0B
@@ -505,7 +505,7 @@ ENDIF
 		rts				;354C 60
 }
 
-.L_354D	lda L_31A1		;354D AD A1 31
+.L_354D	lda number_players		;354D AD A1 31
 		bne L_3575		;3550 D0 23
 		ldy #$09		;3552 A0 09
 \\
@@ -539,7 +539,7 @@ ENDIF
 		asl A			;3589 0A
 		sta ZP_14		;358A 85 14
 		lda L_C77F		;358C AD 7F C7
-		ldx L_31A1		;358F AE A1 31
+		ldx number_players		;358F AE A1 31
 		beq L_3599		;3592 F0 05
 		lda L_31A2		;3594 AD A2 31
 		eor #$01		;3597 49 01
@@ -566,7 +566,7 @@ ENDIF
 		ldx #$F4		;35C6 A2 F4		; " of "
 		jsr cart_print_msg_4		;35C8 20 27 30
 		lda L_31A3		;35CB AD A3 31
-		ldx L_31A1		;35CE AE A1 31
+		ldx number_players		;35CE AE A1 31
 		beq L_35D4		;35D1 F0 01
 		asl A			;35D3 0A
 .L_35D4	jsr cart_print_number_unpadded		;35D4 20 41 33
@@ -1022,7 +1022,7 @@ NEXT
 
 .L_3BEA	jsr L_357A		;3BEA 20 7A 35
 		jsr cart_L_3626_from_game_start		;3BED 20 26 36
-		lda L_31A1		;3BF0 AD A1 31
+		lda number_players		;3BF0 AD A1 31
 		beq L_3BF8		;3BF3 F0 03
 		jsr cart_L_91C3		;3BF5 20 C3 91
 
@@ -1035,7 +1035,7 @@ NEXT
 
 .L_3C09	lda #$00		;3C09 A9 00
 		sta L_C77F		;3C0B 8D 7F C7
-		lda L_31A1		;3C0E AD A1 31
+		lda number_players		;3C0E AD A1 31
 		bne L_3C1F		;3C11 D0 0C
 		jsr cart_do_driver_league_changes		;3C13 20 54 37
 		jsr kernel_print_division_table		;3C16 20 AD 36
@@ -1274,7 +1274,7 @@ NEXT
 		jsr kernel_silence_all_voices_with_sysctl		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7
 		bpl L_3DE7		;3DC8 10 1D
-		lda L_31A1		;3DCA AD A1 31
+		lda number_players		;3DCA AD A1 31
 		beq L_3DED		;3DCD F0 1E
 		ldx L_31A4		;3DCF AE A4 31
 		lda L_C719		;3DD2 AD 19 C7

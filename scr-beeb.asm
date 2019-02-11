@@ -82,9 +82,6 @@ ENDMACRO
 ; C64 KERNEL DEFINES
 ; *****************************************************************************
 
-; Not sure what this is used for - depends on which C64 bank is paged in?
-L_A000 = $A000		; Cold Start Vector?
-
 KERNEL_RAM_VECTORS = $FD30
 
 KERNEL_READST	= $FFB7	; Read the I/O Status Word
@@ -92,8 +89,8 @@ KERNEL_SETLFS	= $FFBA	; Set Logical File Number, Device Number, and Secondary Ad
 KERNEL_SETNAM	= $FFBD	; Set Filename Parameters
 KERNEL_OPEN 	= $FFC0	; Open a Logical I/O File
 KERNEL_CLOSE	= $FFC3	; Close a Logical I/O File
-KERNEL_LOAD		= $FFD5	; Load RAM from a device
-KERNEL_SAVE		= $FFD8	; Save RAM to a device
+;KERNEL_LOAD		= $FFD5	; Load RAM from a device
+;KERNEL_SAVE		= $FFD8	; Save RAM to a device
 KERNEL_GETIN	= $FFE4	; Get One Byte from the Input Device
 
 BEEB_VIC_BASE = $300	; $D000
@@ -101,6 +98,9 @@ BEEB_SID_BASE = $330	; $D400
 ; BEEB_COLOR_BASE = $D800	
 BEEB_CIA1_BASE = $350	; $DC00
 BEEB_CIA2_BASE = $360	; $DD00
+
+; Not sure what this is used for - depends on which C64 bank is paged in?
+L_A000 = $3A0	;$A000		; Cold Start Vector?
 
 VIC_SP0X 	= BEEB_VIC_BASE + $00	; Sprite 0 Horizontal Position
 VIC_SP0Y	= BEEB_VIC_BASE + $01 	; Sprite 0 Vertical Position
@@ -1133,6 +1133,9 @@ GUARD disksys_loadto_addr
 	
 	LDA #LO(irq_handler):STA IRQ1V
 	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
+
+	LDA #LO(cart_write_char):STA WRCHV
+	LDA #HI(cart_write_char):STA WRCHV+1
 
 if _DEBUG
     lda #LO(brk_handler):sta BRKV+0
