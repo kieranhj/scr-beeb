@@ -2473,7 +2473,7 @@ EQUD $FFFF
 		rts				;9318 60
 }
 
-.L_94D7				; only called from Kernel?
+.show_file_done_message				; only called from Kernel?
 {
 		lda file_error_flag		;94D7 AD 9A C3
 		bmi L_94E1		;94DA 30 05
@@ -6269,6 +6269,7 @@ equb $00														; $1f
 		bne L_EF77		;EF6F D0 06
 		jsr disable_screen		;EF71 20 00 35
 		jmp game_start		;EF74 4C 22 3B
+
 .L_EF77	lda number_players		;EF77 AD A1 31
 		bne L_EF86		;EF7A D0 0A
 		jsr disable_screen ;EF7C 20 BE 3F
@@ -6277,6 +6278,7 @@ equb $00														; $1f
 		bcc L_EFF4		;EF84 90 6E
 .L_EF86	jsr L_E85B		;EF86 20 5B E8
 		jmp L_EFF4		;EF89 4C F4 EF
+
 .L_EF8C	sta file_load_save_flag		;EF8C 8D 7B C7
 		asl A			;EF8F 0A
 		asl A			;EF90 0A
@@ -6320,6 +6322,7 @@ equb $00														; $1f
 		bcc L_EFF1		;EFD9 90 16
 		lda #$81		;EFDB A9 81
 		sta file_error_flag		;EFDD 8D 9A C3
+
 .L_EFE0	ldy #$00		;EFE0 A0 00
 		lda L_F000		;EFE2 AD 00 F0
 		sta L_C77E		;EFE5 8D 7E C7
@@ -6330,10 +6333,12 @@ equb $00														; $1f
 ;		dey				;EFEE 88
 ;		bne L_EFE8		;EFEF D0 F7
 
-.L_EFF1	jsr L_94D7		;EFF1 20 D7 94
+.L_EFF1	jsr show_file_done_message		;EFF1 20 D7 94
+
 .L_EFF4	jsr disable_screen		;EFF4 20 00 35
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
 		jsr print_division_table		;EFFA 20 AD 36
+
 .L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF
 
 .L_F000	equb $00
