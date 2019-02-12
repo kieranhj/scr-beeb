@@ -127,17 +127,14 @@
 		dec ZP_F7		;8448 C6 F7
 		dec ZP_F5		;844A C6 F5
 		lda ZP_F7		;844C A5 F7
-		cmp #HI(L_4100)		;844E C9 41
+		cmp #HI(screen1_address + $100)		;844E C9 41
 		bcs L_843C		;8450 B0 EA
 		rts				;8452 60
 .L_8453
 		lda #$14		;8453 A9 14
 		sta ZP_52		;8455 85 52
-		ldx #LO(L_4000)		;8457 A2 00
-		ldy #HI(L_4000)		;8459 A0 40
-
-\\ Changing this from #$AA to #&F0 results in entire sky being filled...
-
+		ldx #LO(screen1_address)		;8457 A2 00
+		ldy #HI(screen1_address)		;8459 A0 40
 		lda #BEEB_PIXELS_COLOUR2;845B A9 AA
 		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
@@ -2217,10 +2214,10 @@ rts
 		pla						;90CA 68
 		beq L_911A				;90CB F0 4D
 
-; load_save_flag is set at L_EF8C (kernel-ram) and reset at L_9493 (cart-ram).
+; file_load_save_flag is set at L_EF8C (kernel-ram) and reset at L_9493 (cart-ram).
 ; Is this the load/save flag?
 
-		lda load_save_flag		;90CD AD 7B C7
+		lda file_load_save_flag		;90CD AD 7B C7
 		beq L_9106		;90D0 F0 34
 
 ; form S0:<<save game name>> file name.
@@ -2510,23 +2507,23 @@ rts
 
 .copy_hall_of_fameQ				; HAS DLL
 {
-		eor load_save_flag		;93A8 4D 7B C7
+		eor file_load_save_flag		;93A8 4D 7B C7
 		bne L_93DF		;93AB D0 32
-		lda L_C39A		;93AD AD 9A C3
+		lda file_error_flag		;93AD AD 9A C3
 		bmi L_93DF		;93B0 30 2D
-		lda mp_hall_dir_flag		;93B2 AD 67 C3
+		lda file_type_id		;93B2 AD 67 C3
 		bmi L_93DF		;93B5 30 28
 		beq L_93DF		;93B7 F0 26
 		cmp #$40		;93B9 C9 40
 		beq L_93C0		;93BB F0 03
 		jmp L_9756		;93BD 4C 56 97
 .L_93C0	jsr disable_ints_and_page_in_RAM		;93C0 20 F1 33
-		lda load_save_flag		;93C3 AD 7B C7
+		lda file_load_save_flag		;93C3 AD 7B C7
 		beq L_93E0		;93C6 F0 18
 		ldx #$00		;93C8 A2 00
-.L_93CA	lda L_DE00,X	;93CA BD 00 DE		; I/O 1
+.L_93CA	lda L_DE00,X	;93CA BD 00 DE
 		sta L_4000,X	;93CD 9D 00 40
-		lda L_DF00,X	;93D0 BD 00 DF		; I/O 2
+		lda L_DF00,X	;93D0 BD 00 DF
 		sta L_4100,X	;93D3 9D 00 41
 		dex				;93D6 CA
 		bne L_93CA		;93D7 D0 F1
@@ -2639,11 +2636,11 @@ rts
 
 		ldy #$01		;9479 A0 01
 .L_947B
-		sty mp_hall_dir_flag		;947B 8C 67 C3
+		sty file_type_id		;947B 8C 67 C3
 
 ; skip this next bit if loading
 
-		lda load_save_flag		;947E AD 7B C7
+		lda file_load_save_flag		;947E AD 7B C7
 		beq L_9491		;9481 F0 0E
 
 ; branch taken if name starts with "DIR "
@@ -2677,11 +2674,11 @@ rts
 		
 .L_9493
 
-; dir requested, so return with C=0 (no error) and load_save_flag reset (load
-; data). The value of mp_hall_dir_flag is used later to figure out what to do.
+; dir requested, so return with C=0 (no error) and file_load_save_flag reset (load
+; data). The value of file_type_id is used later to figure out what to do.
 
 		lda #$00		;9493 A9 00
-		sta load_save_flag		;9495 8D 7B C7
+		sta file_load_save_flag		;9495 8D 7B C7
 		clc				;9498 18
 		rts				;9499 60
 
@@ -2929,7 +2926,7 @@ rts
 		clc				;973C 18
 		beq L_9745		;973D F0 06
 		lda #$81		;973F A9 81
-		sta L_C39A		;9741 8D 9A C3
+		sta file_error_flag		;9741 8D 9A C3
 		sec				;9744 38
 .L_9745	rts				;9745 60
 }
@@ -2950,7 +2947,7 @@ rts
 
 .L_9756				; in Cart
 {
-		lda load_save_flag		;9756 AD 7B C7
+		lda file_load_save_flag		;9756 AD 7B C7
 		beq L_9784		;9759 F0 29
 		ldx #$7F		;975B A2 7F
 .L_975D	lda L_AE40,X	;975D BD 40 AE

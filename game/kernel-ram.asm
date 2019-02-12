@@ -1621,7 +1621,7 @@ jsr dash_reset
 .do_load_save_game
 {
 		lda #$00		;2AAE A9 00
-		sta L_C39A		;2AB0 8D 9A C3
+		sta file_error_flag		;2AB0 8D 9A C3
 		lda #BEEB_PIXELS_COLOUR2		;2AB3 A9 07
 		sta menu_option_colour		;2AB5 8D 53 39
 		ldy #$13		;2AB8 A0 13
@@ -1643,7 +1643,7 @@ jsr dash_reset
 IF _NOT_BEEB
 ; branch taken if load
 
-		lda load_save_flag		;2ACA AD 7B C7
+		lda file_load_save_flag		;2ACA AD 7B C7
 		beq L_2AE9		;2ACD F0 1A
 
 ; save
@@ -1676,23 +1676,23 @@ ENDIF
 		
 .L_2AFD
 
-; set mp_hall_dir_flag
+; set file_type_id
 
 		LDA L_0840		; option 0 = HoF
 		BNE is_game
 
 		; Hall of Fame
 		LDA #$40
-		BNE set_mp_hall_dir_flag
+		BNE set_file_type_id
 
 		.is_game
 		LDA number_players
-		BEQ set_mp_hall_dir_flag
+		BEQ set_file_type_id
 
 		LDA #1	; 1 = MP otherwise SP
 
-		.set_mp_hall_dir_flag
-		STA mp_hall_dir_flag
+		.set_file_type_id
+		STA file_type_id
 
 ; verify file name
 
@@ -1787,7 +1787,7 @@ IF _NOT_BEEB
 
 ; branch taken if not "DIR *"
 
-		bit mp_hall_dir_flag		;2B6D 2C 67 C3
+		bit file_type_id		;2B6D 2C 67 C3
 		bpl L_2B7B		;2B70 10 09
 
 ; SETNAM for catalogue
@@ -1820,7 +1820,7 @@ ENDIF
 
 ; branch taken if load
 
-		lda load_save_flag		;2B8D AD 7B C7
+		lda file_load_save_flag		;2B8D AD 7B C7
 		beq L_2BB9		;2B90 F0 27
 
 ; set LSB of save start address - $00 in all cases.
@@ -1830,7 +1830,7 @@ ENDIF
 
 ; Branch taken if not "HALL*" or "MP*"
 
-		lda mp_hall_dir_flag		;2B96 AD 67 C3
+		lda file_type_id		;2B96 AD 67 C3
 		beq L_2BAB		;2B99 F0 10
 
 ; Multiplayer/HoF save??
@@ -1882,7 +1882,7 @@ ENDIF
 
 ; branch taken if not "DIR *", "HALL*" or "MP*"
 
-		lda mp_hall_dir_flag		;2BBD AD 67 C3
+		lda file_type_id		;2BBD AD 67 C3
 		beq L_2BC4		;2BC0 F0 02
 
 ; name is "DIR *", "HALL*" or "MP*"
@@ -1931,14 +1931,14 @@ ENDIF
 		bit L_C301		;2BF0 2C 01 C3
 		bpl L_2BFC		;2BF3 10 07
 		lda #$80		;2BF5 A9 80
-		sta L_C39A		;2BF7 8D 9A C3
+		sta file_error_flag		;2BF7 8D 9A C3
 		bne L_2C04		;2BFA D0 08
 		
 .L_2BFC
 
 ; branch taken if not "DIR *"
 
-		lda mp_hall_dir_flag		;2BFC AD 67 C3
+		lda file_type_id		;2BFC AD 67 C3
 		bpl L_2C04		;2BFF 10 03
 
 .do_catalog
@@ -1982,7 +1982,7 @@ ENDIF
 	; tell the rest of the system we did a dir
 
 		LDA #$80
-		STA mp_hall_dir_flag
+		STA file_type_id
 
 .L_2C04
 
@@ -2475,9 +2475,9 @@ EQUD $FFFF
 
 .L_94D7				; only called from Kernel?
 {
-		lda L_C39A		;94D7 AD 9A C3
+		lda file_error_flag		;94D7 AD 9A C3
 		bmi L_94E1		;94DA 30 05
-		lda mp_hall_dir_flag		;94DC AD 67 C3
+		lda file_type_id		;94DC AD 67 C3
 		bmi L_9526		;94DF 30 45
 .L_94E1	jsr disable_screen				;94E1 20 00 35
 		jsr set_up_screen_for_frontend		;94E4 20 04 35
@@ -2486,17 +2486,17 @@ EQUD $FFFF
 		jsr plot_menu_option_2		;94EB 20 58 38
 		ldx #$0C		;94EE A2 0C
 		jsr print_driver_name		;94F0 20 8B 38
-		lda L_C39A		;94F3 AD 9A C3
+		lda file_error_flag		;94F3 AD 9A C3
 		bpl L_94FD		;94F6 10 05
 		ldx #file_strings_not-file_strings		;94F8 A2 00
 		jsr cart_write_file_string		;94FA 20 E2 95
-.L_94FD	ldy load_save_flag		;94FD AC 7B C7
+.L_94FD	ldy file_load_save_flag		;94FD AC 7B C7
 		ldx file_strings_offset,Y	;9500 BE 2A 95
 		jsr cart_write_file_string		;9503 20 E2 95
-		lda L_C39A		;9506 AD 9A C3
+		lda file_error_flag		;9506 AD 9A C3
 		bpl L_951D		;9509 10 12
 		jsr plot_menu_option_2		;950B 20 58 38
-		lda L_C39A		;950E AD 9A C3
+		lda file_error_flag		;950E AD 9A C3
 		clc				;9511 18
 		adc #$02		;9512 69 02
 		and #$07		;9514 29 07
@@ -2506,7 +2506,7 @@ EQUD $FFFF
 .L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
 		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
 		jsr clear_write_char_half_row_flag		;9523 20 1F 36
-.L_9526	lda L_C39A		;9526 AD 9A C3
+.L_9526	lda file_error_flag		;9526 AD 9A C3
 		rts				;9529 60
 }
 
@@ -6277,7 +6277,7 @@ equb $00														; $1f
 		bcc L_EFF4		;EF84 90 6E
 .L_EF86	jsr L_E85B		;EF86 20 5B E8
 		jmp L_EFF4		;EF89 4C F4 EF
-.L_EF8C	sta load_save_flag		;EF8C 8D 7B C7
+.L_EF8C	sta file_load_save_flag		;EF8C 8D 7B C7
 		asl A			;EF8F 0A
 		asl A			;EF90 0A
 		clc				;EF91 18
@@ -6307,11 +6307,11 @@ equb $00														; $1f
 		jsr do_load_save_game		;EFBD 20 AE 2A
 		bit L_EE35		;EFC0 2C 35 EE
 		bmi L_EFFD		;EFC3 30 38
-		lda mp_hall_dir_flag		;EFC5 AD 67 C3
+		lda file_type_id		;EFC5 AD 67 C3
 		bne L_EFF1		;EFC8 D0 27
-		lda L_C39A		;EFCA AD 9A C3
+		lda file_error_flag		;EFCA AD 9A C3
 		bmi L_EFE0		;EFCD 30 11
-		lda load_save_flag		;EFCF AD 7B C7
+		lda file_load_save_flag		;EFCF AD 7B C7
 		bne L_EFE0		;EFD2 D0 0C
 
 		lda #$80		;EFD4 A9 80
@@ -6319,7 +6319,7 @@ equb $00														; $1f
 
 		bcc L_EFF1		;EFD9 90 16
 		lda #$81		;EFDB A9 81
-		sta L_C39A		;EFDD 8D 9A C3
+		sta file_error_flag		;EFDD 8D 9A C3
 .L_EFE0	ldy #$00		;EFE0 A0 00
 		lda L_F000		;EFE2 AD 00 F0
 		sta L_C77E		;EFE5 8D 7E C7
