@@ -929,7 +929,7 @@ NEXT
 ; *****************************************************************************
 
 .game_start				; aka L_3B22
-{
+\\{
 		ldx #$FF		;3B22 A2 FF
 		txs				;3B24 9A
 		jsr disable_ints_and_page_in_RAM		;3B25 20 F1 33
@@ -949,6 +949,9 @@ NEXT
 
 .L_3B45	lsr L_C304		;3B45 4E 04 C3
 		jsr kernel_do_main_menu_dwim		;3B48 20 3A EF
+
+	.game_start_return_here_after_brk
+
 		lda L_C76C		;3B4B AD 6C C7
 		bmi L_3B69		;3B4E 30 19	     ; taken if	racing
 
@@ -1053,7 +1056,7 @@ NEXT
 		cmp #$07		;3C30 C9 07
 		bcs L_3C19		;3C32 B0 E5
 		bcc L_3C1C		;3C34 90 E6
-}
+\\}
 
 .do_track_preview			; could be moved to Cart
 {

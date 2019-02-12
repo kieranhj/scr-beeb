@@ -507,4 +507,15 @@ jmp graphics_debug_handle_brk
 }
 endif
 
+.file_error_handler
+{
+ldx #$ff:txs
+lda $f4:pha
+lda #BEEB_KERNEL_SLOT:sta $f4:sta $fe30
+lda #$80:sta file_error_flag
+LDA #LO(game_start_return_here_after_brk-1):PHA
+LDA #HI(game_start_return_here_after_brk-1):PHA
+jmp do_file_result_message
+}
+
 .beeb_code_end

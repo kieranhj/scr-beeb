@@ -1676,6 +1676,24 @@ ENDIF
 		
 .L_2AFD
 
+\\ BEEB terminate file name for OSFILE:
+
+		{
+			LDX #11
+			.find_loop
+			LDA L_AEC1, X
+			CMP #$20
+			BNE done_loop
+			DEX
+			BPL find_loop
+			.done_loop
+			INX
+			STX file_name_length
+		}
+
+		LDA #13
+		STA L_AEC1,X
+
 ; set file_type_id
 
 		LDA L_0840		; option 0 = HoF
@@ -1947,6 +1965,11 @@ ENDIF
 
 \\		jsr cart_L_95EA		;2C01 20 EA 95
 
+	; tell the rest of the system we're doing a dir command
+
+		LDA #$80
+		STA file_type_id
+
 	; cls - move to shared fn as also used in do_hall_of_fame_screen
 
 	{
@@ -1966,7 +1989,7 @@ ENDIF
 
 	; set text cursor to 0,0
 
-		LDX #0:LDY #0
+		LDX #4:LDY #2
 		JSR cart_set_text_cursor
 
 	; issue *CAT
@@ -1978,11 +2001,6 @@ ENDIF
 	; wait for key press
 
 		JSR debounce_fire_and_wait_for_fire
-
-	; tell the rest of the system we did a dir
-
-		LDA #$80
-		STA file_type_id
 
 .L_2C04
 
@@ -1997,11 +2015,6 @@ IF _NOT_BEEB
 		sta VIC_IRQMASK		;2C13 8D 1A D0		; VIC
 ENDIF
 
-	; not sure why menu colour doesn't get reset but reset it?
-
-		lda #BEEB_PIXELS_COLOUR2		;2AB3 A9 07
-		sta menu_option_colour		;2AB5 8D 53 39
-
 ; if loading then merge Hall of Fame data with existing
 
 		lda #$00		;2C16 A9 00
@@ -2015,9 +2028,8 @@ ENDIF
 equb $01						; tape device
 equb $08						; disk device
 
-.L_94D6 equb "$"
-
-.oscli_cat EQUB "CAT",13
+.L_94D6		equb "$"
+.oscli_cat	EQUB "CAT",13
 }
 
 .KERNEL_SAVE
@@ -2033,16 +2045,11 @@ equb $08						; disk device
 	STA osfile_params_save_addr+1
 	STA osfile_params_load_addr+1
 
-	LDA #13
-	STA L_AEC1+7
-
     LDX #LO(savegame_params)
     LDY #HI(savegame_params)
     LDA #0
     JSR osfile
 
-	LDA #$FF
-	STA L_AEC1+7
 	RTS
 }
 
@@ -2051,16 +2058,11 @@ equb $08						; disk device
 	STX osfile_params_load_addr
 	STY osfile_params_load_addr+1
 
-	LDA #13
-	STA L_AEC1+7
-
 	LDX #LO(savegame_params)
 	LDY #HI(savegame_params)
 	LDA #&FF
     JSR osfile
 
-	LDA #$FF
-	STA L_AEC1+7
 	RTS
 }
 
@@ -2479,10 +2481,16 @@ EQUD $FFFF
 		bmi L_94E1		;94DA 30 05
 		lda file_type_id		;94DC AD 67 C3
 		bmi L_9526		;94DF 30 45
+
 .L_94E1	jsr disable_screen				;94E1 20 00 35
 		jsr set_up_screen_for_frontend		;94E4 20 04 35
+
 		lda #$01		;94E7 A9 01
 		sta ZP_19		;94E9 85 19
+
+		lda file_type_id
+		bmi write_error_message_from_stack
+
 		jsr plot_menu_option_2		;94EB 20 58 38
 		ldx #$0C		;94EE A2 0C
 		jsr print_driver_name		;94F0 20 8B 38
@@ -2490,19 +2498,33 @@ EQUD $FFFF
 		bpl L_94FD		;94F6 10 05
 		ldx #file_strings_not-file_strings		;94F8 A2 00
 		jsr cart_write_file_string		;94FA 20 E2 95
+
 .L_94FD	ldy file_load_save_flag		;94FD AC 7B C7
 		ldx file_strings_offset,Y	;9500 BE 2A 95
 		jsr cart_write_file_string		;9503 20 E2 95
 		lda file_error_flag		;9506 AD 9A C3
 		bpl L_951D		;9509 10 12
+
+.write_error_message_from_stack
+
 		jsr plot_menu_option_2		;950B 20 58 38
 		lda file_error_flag		;950E AD 9A C3
 		clc				;9511 18
 		adc #$02		;9512 69 02
 		and #$07		;9514 29 07
 		tay				;9516 A8
-		ldx file_strings_offset,Y	;9517 BE 2A 95
-		jsr cart_write_file_string		;951A 20 E2 95
+;		ldx file_strings_offset,Y	;9517 BE 2A 95
+;		jsr cart_write_file_string		;951A 20 E2 95
+
+		LDX #0
+		.error_string_loop
+		LDA $102,X
+		BEQ done_error_string
+		JSR cart_write_char
+		INX
+		BNE error_string_loop
+		.done_error_string
+
 .L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
 		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
 		jsr clear_write_char_half_row_flag		;9523 20 1F 36
@@ -6242,7 +6264,7 @@ equb $00														; $1f
 .L_EF37	jsr delay_approx_4_5ths_sec		;EF37 20 E9 3F
 \\
 .do_main_menu_dwim
-{
+\\{
 		lda L_31A8		;EF3A AD A8 31
 		bne L_EF0F		;EF3D D0 D0
 		lda #$01		;EF3F A9 01
@@ -6306,15 +6328,28 @@ equb $00														; $1f
 		lda #$00		;EFB8 A9 00
 		jsr L_F6D7_in_kernel		;EFBA 20 D7 F6
 
+\\ BEEB set up new BRK handler for file operations:
+
+		LDA BRKV:STA prev_brk
+		LDA BRKV+1:STA prev_brk+1
+
+		LDA #LO(file_error_handler):STA BRKV
+		LDA #HI(file_error_handler):STA BRKV+1
+
+\\ BEEB store any ZP vars that might be mangled by FS operations
+
+		JSR beeb_store_zp_vars
+
 		jsr do_load_save_game		;EFBD 20 AE 2A
+
 		bit L_EE35		;EFC0 2C 35 EE
 		bmi L_EFFD		;EFC3 30 38
 		lda file_type_id		;EFC5 AD 67 C3
 		bne L_EFF1		;EFC8 D0 27
 		lda file_error_flag		;EFCA AD 9A C3
-		bmi L_EFE0		;EFCD 30 11
+		bmi do_file_result_message		;EFCD 30 11
 		lda file_load_save_flag		;EFCF AD 7B C7
-		bne L_EFE0		;EFD2 D0 0C
+		bne do_file_result_message		;EFD2 D0 0C
 
 		lda #$80		;EFD4 A9 80
 		jsr L_F6D7_in_kernel		;EFD6 20 D7 F6
@@ -6323,7 +6358,9 @@ equb $00														; $1f
 		lda #$81		;EFDB A9 81
 		sta file_error_flag		;EFDD 8D 9A C3
 
-.L_EFE0	ldy #$00		;EFE0 A0 00
+.do_file_result_message
+
+		ldy #$00		;EFE0 A0 00
 		lda L_F000		;EFE2 AD 00 F0
 		sta L_C77E		;EFE5 8D 7E C7
 
@@ -6333,15 +6370,67 @@ equb $00														; $1f
 ;		dey				;EFEE 88
 ;		bne L_EFE8		;EFEF D0 F7
 
-.L_EFF1	jsr show_file_done_message		;EFF1 20 D7 94
+.L_EFF1
 
-.L_EFF4	jsr disable_screen		;EFF4 20 00 35
+\\ BEEB terminate file name string for menu
+
+		LDX file_name_length
+		LDA #$FF
+		STA L_AEC1, X
+
+		jsr show_file_done_message		;EFF1 20 D7 94
+
+.L_EFF4
+	; not sure why menu colour doesn't get reset but reset it?
+
+		lda #BEEB_PIXELS_COLOUR2		;2AB3 A9 07
+		sta menu_option_colour		;2AB5 8D 53 39
+
+		jsr disable_screen		;EFF4 20 00 35
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
 		jsr print_division_table		;EFFA 20 AD 36
 
-.L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF
+.L_EFFD
 
-.L_F000	equb $00
+\\ BEEB restore previous BRK handler
+
+		LDA prev_brk:STA BRKV
+		LDA prev_brk+1:STA BRKV+1
+
+\\ BEEB restore any ZP vars that might be mangled by FS operations
+
+		JSR beeb_restore_zp_vars
+
+		jmp do_main_menu_dwim		;EFFD 4C 3A EF
+
+.L_F000				equb $00
+.prev_brk			EQUW 0
+.file_name_length	EQUB 0
+\\}
+
+.beeb_store_zp_vars
+{
+	LDX #$A0
+	.store_zp_loop
+	LDA $00,X
+	STA $300,X
+	INX
+	CPX #$D0
+	BCC store_zp_loop
+	RTS
+}
+
+
+.beeb_restore_zp_vars
+{
+	LDX #$A0
+	.store_zp_loop
+	LDA $300,X
+	STA $00,X
+	INX
+	CPX #$D0
+	BCC store_zp_loop
+	RTS
 }
 
 ; X=0 (main menu)

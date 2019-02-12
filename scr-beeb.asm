@@ -100,7 +100,7 @@ BEEB_CIA1_BASE = $350	; $DC00
 BEEB_CIA2_BASE = $360	; $DD00
 
 ; Not sure what this is used for - depends on which C64 bank is paged in?
-L_A000 = $3A0	;$A000		; Cold Start Vector?
+L_A000 = $370	;$A000		; Cold Start Vector?
 
 VIC_SP0X 	= BEEB_VIC_BASE + $00	; Sprite 0 Horizontal Position
 VIC_SP0Y	= BEEB_VIC_BASE + $01 	; Sprite 0 Vertical Position

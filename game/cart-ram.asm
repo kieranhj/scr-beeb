@@ -215,7 +215,7 @@ rts
 .check_newline
 		cmp #$0d
 		bne check_delete
-		lda #0
+		lda #4
 		sta write_char_x_pos
 		rts
 
