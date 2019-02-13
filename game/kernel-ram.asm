@@ -1896,23 +1896,58 @@ ENDIF
 ; set load address to $8000
 
 		ldx #LO(L_8000)		;2BB9 A2 00
-		ldy #HI(L_8000)		;2BBB A0 80
+;		ldy #HI(L_8000)		;2BBB A0 80
 
 ; branch taken if not "DIR *", "HALL*" or "MP*"
 
-		lda file_type_id		;2BBD AD 67 C3
-		beq L_2BC4		;2BC0 F0 02
+;		lda file_type_id		;2BBD AD 67 C3
+;		beq L_2BC4		;2BC0 F0 02
 
 ; name is "DIR *", "HALL*" or "MP*"
 
 ; set load address to $4000
 
 		ldy #HI(L_4000)		;2BC2 A0 40
+
+\ For BEEB always load to L_4000 as safer
+
 .L_2BC4
 		lda #$00		;2BC4 A9 00 load file
 		jsr KERNEL_LOAD			;2BC6 20 D5 FF
 
 .L_2BC9
+
+		lda file_type_id		;2BBD AD 67 C3
+		bne not_sp		;2BC0 F0 02
+
+		\ BEEB check file size of SP game
+
+		LDA osfile_params_save_addr+1
+		BNE sp_error
+		LDA osfile_params_save_addr
+		CMP #$C0
+		BEQ sp_ok
+
+		\ Incorrect data found
+
+		.sp_error
+		LDA #$81
+		STA file_error_flag
+		BNE L_2C04
+
+		.sp_ok
+		\ Copy down $C0 bytes to save game location
+		{
+			LDX #0
+			.sp_loop
+			LDA L_4000,X
+			STA L_8000,X
+			INX
+			CPX #$C0
+			BNE sp_loop
+		}
+
+		.not_sp
 
 IF _NOT_BEEB
 		; put error flag in L_C301 bit 7
@@ -2489,7 +2524,7 @@ EQUD $FFFF
 		sta ZP_19		;94E9 85 19
 
 		lda file_type_id
-		bmi write_error_message_from_stack
+		bmi write_error_message
 
 		jsr plot_menu_option_2		;94EB 20 58 38
 		ldx #$0C		;94EE A2 0C
@@ -2505,25 +2540,34 @@ EQUD $FFFF
 		lda file_error_flag		;9506 AD 9A C3
 		bpl L_951D		;9509 10 12
 
-.write_error_message_from_stack
+.write_error_message
 
 		jsr plot_menu_option_2		;950B 20 58 38
+
 		lda file_error_flag		;950E AD 9A C3
+		cmp #$81
+		beq incorrect_data_found
+
+	; copy error message from the stack
+
+		.use_stack_string
+		LDX #0
+		.error_string_loop
+		LDA $102,X
+		BEQ L_951D
+		JSR cart_write_char
+		INX
+		BNE error_string_loop
+
+	; incorrect data found
+
+	.incorrect_data_found
 		clc				;9511 18
 		adc #$02		;9512 69 02
 		and #$07		;9514 29 07
 		tay				;9516 A8
-;		ldx file_strings_offset,Y	;9517 BE 2A 95
-;		jsr cart_write_file_string		;951A 20 E2 95
-
-		LDX #0
-		.error_string_loop
-		LDA $102,X
-		BEQ done_error_string
-		JSR cart_write_char
-		INX
-		BNE error_string_loop
-		.done_error_string
+		ldx file_strings_offset,Y	;9517 BE 2A 95
+		jsr cart_write_file_string		;951A 20 E2 95
 
 .L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
 		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
@@ -6419,7 +6463,6 @@ equb $00														; $1f
 	BCC store_zp_loop
 	RTS
 }
-
 
 .beeb_restore_zp_vars
 {
