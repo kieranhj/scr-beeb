@@ -509,12 +509,16 @@ endif
 
 .file_error_handler
 {
+; reset stack
 ldx #$ff:txs
-lda $f4:pha
+; switch to KERNEL bank
 lda #BEEB_KERNEL_SLOT:sta $f4:sta $fe30
+; flag file error
 lda #$80:sta file_error_flag
-LDA #LO(game_start_return_here_after_brk-1):PHA
+; push main loop return address onto stack
 LDA #HI(game_start_return_here_after_brk-1):PHA
+LDA #LO(game_start_return_here_after_brk-1):PHA
+; jump back into frontend to report error
 jmp do_file_result_message
 }
 
