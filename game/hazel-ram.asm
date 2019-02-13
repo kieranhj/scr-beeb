@@ -75,7 +75,14 @@
 .L_C364	skip 1
 .L_C365	skip 1
 .L_C366	skip 1
-.L_C367	skip 1
+
+; L_C367 = some kind of save game name flags - see verify_filename (cart-ram)
+;
+; $80 = name starts with "DIR "
+; $40 = name starts with "HALL"
+; $01 = name starts with "MP"
+
+.file_type_id	skip 1
 .L_C368	skip 1		; Crash Timer
 .L_C369	skip 1
 .L_C36A	skip 1					; distance_to_aicar_in_segments
@@ -112,7 +119,7 @@
 .L_C397	skip 1
 .L_C398	skip 1
 .L_C399	skip 1
-.L_C39A	skip 1
+.file_error_flag	skip 1
 .L_C39B	skip 1
 .L_C39C	skip 8
 .L_C3A4	skip 1
@@ -150,6 +157,7 @@
 .L_C400	skip &3F
 .L_C43F	skip 1
 .L_C440	skip &C0
+if (P% and 255)<>0:error "oops":endif
 .L_C500	skip 2
 .L_C502	skip 3
 .L_C505	skip 2
@@ -169,6 +177,7 @@
 .L_C540	skip &40
 .L_C580	skip &40
 .L_C5C0	skip &40
+if (P% and 255)<>0:error "oops":endif
 .L_C600	skip &40
 .L_C640	skip &40
 .L_C680	skip &40
@@ -224,7 +233,9 @@
 .L_C777	equb $00
 .L_C778	equb $00
 .L_C779	equb $00,$00
-.L_C77B	equb $00
+
+; L_C77B = load/save flag? 0 = load, 1 = save?
+.file_load_save_flag	equb $00
 .L_C77C	equb $00
 .current_track	equb $00
 .L_C77E	equb $00
@@ -524,6 +535,37 @@ FREQ_TO_NOISE = 7.5
     NEXT
 }
 
+.L_B000	equb $00
+.L_B001	equb $0B,$16,$22,$2D,$38,$44,$4F,$5B,$66,$72,$7E,$8A,$95,$A1,$AD,$B9
+		equb $C5,$D2,$DE,$EA,$F7,$03,$10,$1C,$29,$36,$42,$4F,$5C,$69,$76,$83
+		equb $91,$9E,$AB,$B9,$C6,$D4,$E2,$EF,$FD,$0B,$19,$27,$35,$43,$52,$60
+		equb $6E,$7D,$8B,$9A,$A9,$B8,$C7,$D6,$E5,$F4,$03,$12,$22,$31,$41,$50
+		equb $60,$70,$80,$90,$A0,$B0,$C0,$D1,$E1,$F1,$02,$13,$24,$34,$45,$56
+		equb $68,$79,$8A,$9C,$AD,$BF,$D0,$E2,$F4,$06,$18,$2B,$3D,$4F,$62,$74
+		equb $87,$9A,$AD,$C0,$D3,$E6,$F9,$0D,$20,$34,$48,$5C,$70,$84,$98,$AC
+		equb $C0,$D5,$EA,$FE,$13,$28,$3D,$52,$68,$7D,$93,$A8,$BE,$D4,$EA
+
+\* Used to convert a sin value from (0*256 - 1*256) into a cosine value.
+\*
+\* There are 128 values in this table representing sin values increasing in
+\* increments of 1/128.
+\*
+\* Each value is calculated by getting the inverse sin of the sin value, to
+\* give the actual angle, then taking the cosine of this angle.  The result
+\* is then multiplied by 256.
+\*
+\* First 8 values should ideally be 256.
+
+;L_B080
+.cosine_conversion_table
+		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
+		equb $FE,$FE,$FD,$FD,$FD,$FD,$FC,$FC,$FB,$FB,$FB,$FA,$FA,$F9,$F9,$F8
+		equb $F8,$F7,$F7,$F6,$F6,$F5,$F4,$F4,$F3,$F3,$F2,$F1,$F0,$F0,$EF,$EE
+		equb $ED,$EC,$EC,$EB,$EA,$E9,$E8,$E7,$E6,$E5,$E4,$E3,$E2,$E1,$E0,$DF
+		equb $DE,$DD,$DB,$DA,$D9,$D8,$D6,$D5,$D4,$D2,$D1,$CF,$CE,$CC,$CB,$C9
+		equb $C8,$C6,$C5,$C3,$C1,$BF,$BE,$BC,$BA,$B8,$B6,$B4,$B2,$B0,$AE,$AC
+		equb $A9,$A7,$A5,$A2,$A0,$9D,$9B,$98,$95,$92,$8F,$8C,$89,$86,$83,$7F
+		equb $7C,$78,$74,$70,$6C,$68,$63,$5E,$59,$53,$4D,$47,$3F,$37,$2D,$20
 
 .hazel_data_end
 
@@ -550,16 +592,40 @@ FREQ_TO_NOISE = 7.5
 .L_DF0D	skip 1	; = $DF0D + BEEB_HAZEL_OFFSET
 .L_DF0E	skip $F2	; = $DF0E + BEEB_HAZEL_OFFSET
 
+; This is scratch space for save game
+
+.L_4000 skip $C
+.L_400C skip 1
+.L_400D skip 1
+.L_400E skip $12
+.L_4020 skip 5
+.L_4025 skip $7B
+.L_40A0 skip $3C
+.L_40DC skip 4
+.L_40E0 skip $20
+
+.L_4100 skip $C
+.L_410C skip 1
+.L_410D skip 1
+.L_410E skip $12
+.L_4120 skip $E0
+
+.L_4300	skip $100
+
 .hazel_end
 
 ; These are free
 
 ._L_D000:skip 256
 ._L_D100:skip 256
-._L_D200:skip 256
-._L_D300:skip 256
-._L_D400:skip 256
-._L_D500:skip 256
+
+; Claimed for save game workspace
+;._L_D200:skip 256
+;._L_D300:skip 256
+;._L_D400:skip 256
+
+; Claimed for cosine table
+;._L_D500:skip 256
 
 ; Claimed for SID>SN76489 frequency tables
 ;._L_D600:skip 256

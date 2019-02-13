@@ -3,6 +3,143 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+if _DEBUG
+; I'd hoped this would automatically be informed of BRKs, but of
+; course because the OS doesn't re-initialise the ROM type table until
+; BREAK, it doesn't...
+{
+.rom_start
+nop:nop:nop						; language entry point
+jmp svc							; service entry point
+equb $82						; ROM type
+equb copyright-rom_start
+equb $ff						; version number
+equb "Stunt Car Racer Debug" ; ROM title
+.copyright
+equb 0,"(C)",0					; copyright message
+.svc
+cmp #4:bne not_cmd:jmp svc_cmd:.not_cmd
+.svc_done
+rts
+
+.brk_got_info:equb 0
+.brk_a:equb 0
+.brk_x:equb 0
+.brk_y:equb 0
+.brk_s:equb 0
+.brk_p:equb 0
+.brk_addr:equb 0,0
+brk_stack_max_size=16
+.brk_stack:skip brk_stack_max_size
+.brk_stack_size:equb 0
+.brk_rom:equb 0
+
+.*graphics_debug_handle_brk
+lda $fc:sta brk_a
+stx brk_x
+sty brk_y
+pla:sta brk_rom
+tsx
+lda $101,x:sta brk_p
+sec
+lda $fd:sbc #1:sta brk_addr+0
+lda $fe:sbc #0:sta brk_addr+1
+inx								; skip P
+inx								; skip PCL
+inx								; skip PCH
+stx brk_s
+ldy #0
+.copy_stack_loop
+lda $101,x:sta brk_stack,y
+iny
+cpy #brk_stack_max_size:beq copied_stack
+inx
+cpx #$ff:bne copy_stack_loop
+.copied_stack
+sty brk_stack_size
+
+lda #$80:sta brk_got_info
+
+; Better suggestions welcome...
+cli								; stop screen going nuts.
+.halt:jmp halt
+
+.svc_cmd
+{
+pha
+tya:pha
+.check_command_line
+lda ($f2),y:and #$df:cmp #'B':beq check_command_line_2
+.done
+pla:tay
+ldx $f4
+pla
+rts
+.check_command_line_2
+iny
+lda ($f2),y:cmp #'.':beq print:and #$df:cmp #'R':bne done
+iny
+lda ($f2),y:cmp #'.':beq print:and #$df:cmp #'K':bne done
+iny
+lda ($f2),y:cmp #13:bne done
+.print
+ldx #0
+.print_title_loop
+lda $8009,x:beq title_printed:jsr oswrch:inx:bne print_title_loop
+.title_printed
+jsr osnewl
+bit brk_got_info:bmi print_brk_info
+.no_brk_info
+lda #'N':jsr oswrch
+lda #'/':jsr oswrch
+lda #'A':jsr oswrch
+jmp printed
+.print_brk_info
+ldx #'A':ldy brk_a:jsr print_reg
+ldx #'X':ldy brk_x:jsr print_reg
+ldx #'Y':ldy brk_y:jsr print_reg
+ldx #'P':ldy brk_p:jsr print_reg
+ldx #'S':ldy brk_s:jsr print_reg
+ldx #'R':ldy brk_rom:jsr print_reg
+ldx #'@':ldy brk_addr+1:jsr print_reg:lda brk_addr+0:jsr hex
+jsr osnewl
+lda brk_stack_size:beq printed
+ldx #'s':ldy brk_stack:jsr print_reg
+ldx #1
+.print_stack_loop
+lda #' ':jsr oswrch
+lda brk_stack,x:jsr hex
+inx
+cpx brk_stack_size:bne print_stack_loop
+.printed
+jsr osnewl
+pla:pla							; discard old Y+A
+ldx $f4
+lda #0							; claim call
+rts
+}
+
+.print_reg
+lda #' ':jsr oswrch
+txa:jsr oswrch
+lda #':':jsr oswrch
+tya
+; fall through
+.hex
+{
+pha
+lsr a:lsr a:lsr a:lsr a:jsr hex2
+pla:and #$0f
+.hex2
+sed:clc:adc #$90:adc #$40:cld
+jmp oswrch
+}
+}
+endif
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 include "build/flames-tables.asm"
 
 ; Entire menu screen nnow compressed with pucrunch
@@ -25,6 +162,9 @@ incbin "build/scr-beeb-preview.pu"
 
 .track_preview_bg
 incbin "build/scr-beeb-preview-bg.pu"
+
+.credits_screen
+incbin "build/scr-beeb-credits.pu"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1666,6 +1806,164 @@ clc:jsr graphics_pause_copy_screen ; back->front
 lda ZP_12:eor #$20:sta ZP_12
 jsr _graphics_draw_in_game_text_sprites
 lda ZP_12:eor #$20:sta ZP_12
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._ensure_screen_enabled
+{
+lda #CRTC_R8_DisplayEnableValue
+bne set_r8_value				; will always be non-zero due to the
+								; cursor bits
+}
+
+._disable_screen
+{
+lda #CRTC_R8_DisplayDisableValue
+}
+
+.set_r8_value
+{
+:sta irq_handler_load_r8_value+1
+lda vsync_counter:.loop:cmp vsync_counter:beq loop
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._beeb_set_mode_1
+{
+    lda #13:sta beeb_max_crtc_reg
+    LDX #LO(beeb_mode1_crtc_regs)
+    LDY #HI(beeb_mode1_crtc_regs)
+    JSR beeb_set_crtc_regs
+
+    \\ BEEB ULA SET MODE 1
+    LDA #ULA_MODE_1			; 80 chars per line @ 2bpp
+    STA &FE20
+
+    \\ BEEB SHADOW
+    LDA &FE34
+    ORA #5          ; page in SHADOW and display SHADOW
+    STA &FE34
+
+    \\ BEEB ULA SET PALETTE
+    LDX #LO(beeb_mode5_palette)
+    LDY #HI(beeb_mode5_palette)
+    JMP beeb_set_palette
+	
+.beeb_mode1_crtc_regs
+{
+	EQUB 127				; R0  horizontal total
+	EQUB 80					; R1  horizontal displayed
+	EQUB 98					; R2  horizontal position
+	EQUB &28				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI(screen1_address/8)	; R12 screen start address, high
+	EQUB LO(screen1_address/8)	; R13 screen start address, low
+}
+
+}
+
+.beeb_set_mode_2
+{
+lda #13:sta beeb_max_crtc_reg
+ldx #lo(beeb_mode2_crtc_regs)
+ldy #hi(beeb_mode2_crtc_regs)
+jsr beeb_set_crtc_regs
+
+lda #6:sta $fe00:lda #32:sta $fe01
+lda #12:sta $fe00:lda #$06:sta $fe01
+lda #13:sta $fe00:lda #$00:sta $fe01
+
+lda #ULA_MODE_2:sta $fe20
+
+; Page in shadow RAM, display shadow RAM
+lda $fe34:ora #5:sta $fe34
+
+; Palette.
+lda #0
+clc
+.loop
+tax
+eor #7:sta $fe21
+txa
+adc #$11
+bcc loop
+
+rts
+
+.beeb_mode2_crtc_regs
+{
+	EQUB 127				; R0  horizontal total
+	EQUB 80					; R1  horizontal displayed
+	EQUB 98					; R2  horizontal position
+	EQUB &28				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 32					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI($3000/8)		; R12 screen start address, high
+	EQUB LO($3000/8)		; R13 screen start address, low
+}
+
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._graphics_show_credits_screen
+{
+jsr disable_screen
+jsr beeb_set_mode_2
+
+ldx #lo(credits_screen):ldy #hi(credits_screen)
+lda #$30
+jsr PUCRUNCH_UNPACK
+jsr ensure_screen_enabled
+
+jsr debounce_fire_and_wait_for_fire
+; .keys_loop
+; lda #$7a:jsr osbyte
+; cpx #$ff:beq keys_loop
+
+jsr disable_screen
+
+; copy $3000-$3fff back from main RAM to shadow RAM.
+lda #$30:sta load_main+2:sta store_shadow+2
+
+ldx #0
+.copy_main_ram_to_shadow_ram_loop
+lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
+.load_main:lda $ff00,x
+pha
+
+lda $fe34:ora #%00000100:sta $fe34 ; page in shadow RAM
+pla
+.store_shadow:sta $ff00,x
+inx
+bne copy_main_ram_to_shadow_ram_loop
+inc load_main+2
+inc store_shadow+2
+lda store_shadow+2
+cmp #$40
+bne copy_main_ram_to_shadow_ram_loop
+
+jsr beeb_set_mode_1
 rts
 }
 

@@ -442,7 +442,9 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 }
 
 .L_31A0	equb $00
-.L_31A1	equb $00
+
+; L_31A1 = 0 = single player/1 = multiplayer? - actually #players-1
+.number_players	equb $00
 .L_31A2	equb $00
 .L_31A3	equb $06
 .L_31A4	equb $0B
@@ -476,12 +478,6 @@ IF _NOT_BEEB
 }
 ENDIF
 
-.reset_border_colour
-{
-		jsr vic_reset_border_colour		;3500 20 BE 3F	; does VIC stuff
-		rts				;3503 60
-}
-
 .set_up_screen_for_menu
 {
 		lda L_C718		;351F AD 18 C7
@@ -509,7 +505,7 @@ ENDIF
 		rts				;354C 60
 }
 
-.L_354D	lda L_31A1		;354D AD A1 31
+.L_354D	lda number_players		;354D AD A1 31
 		bne L_3575		;3550 D0 23
 		ldy #$09		;3552 A0 09
 \\
@@ -530,7 +526,7 @@ ENDIF
 		jmp cart_print_single_digit		;3572 4C 8A 10
 }
 \\
-.L_3575	ldx #$A0		;3575 A2 A0		; "DRIVERS CHAMPIONSHIP"
+.L_3575	ldx #frontend_strings_3_drivers_championship-frontend_strings_3	;3575 A2 A0 ; "DRIVERS CHAMPIONSHIP"
 		jmp cart_print_msg_3		;3577 4C DC A1
 .L_357A	lda #$80		;357A A9 80
 		bne L_3580		;357C D0 02
@@ -543,7 +539,7 @@ ENDIF
 		asl A			;3589 0A
 		sta ZP_14		;358A 85 14
 		lda L_C77F		;358C AD 7F C7
-		ldx L_31A1		;358F AE A1 31
+		ldx number_players		;358F AE A1 31
 		beq L_3599		;3592 F0 05
 		lda L_31A2		;3594 AD A2 31
 		eor #$01		;3597 49 01
@@ -570,7 +566,7 @@ ENDIF
 		ldx #$F4		;35C6 A2 F4		; " of "
 		jsr cart_print_msg_4		;35C8 20 27 30
 		lda L_31A3		;35CB AD A3 31
-		ldx L_31A1		;35CE AE A1 31
+		ldx number_players		;35CE AE A1 31
 		beq L_35D4		;35D1 F0 01
 		asl A			;35D3 0A
 .L_35D4	jsr cart_print_number_unpadded		;35D4 20 41 33
@@ -601,13 +597,6 @@ ENDIF
 		ldx #$EF		;3617 A2 EF		; " 1pt"
 		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
-\\
-.clear_write_char_half_row_flag
-{
-		ldx #$00		;361F A2 00
-		lda #$20		;3621 A9 20
-		jmp cart_sysctl		;3623 4C 25 87
-}
 
 .debounce_fire_and_wait_for_fire
 {
@@ -623,12 +612,6 @@ ENDIF
 }
 
 .track_order				equb $00,$02,$01,$03,$06,$07,$04,$05
-.track_background_colours	equb $08,$05,$0C,$05,$05,$08,$0C,$08
-
-.L_3834	equb $06,$04,$00
-; menu option y rows
-.L_3837	equb $0D,$10,$13,$16,$10,$13,$10,$0F,$14,$17,$0A,$0E,$12,$16
-.L_3845	equb $0E,$0B,$11
 
 .colour_menu_option
 		ldx #$04		;3848 A2 04
@@ -636,42 +619,6 @@ ENDIF
 		ldx #$0E		;384D A2 0E
 		lda #$01		;384F A9 01
 		jmp fill_colourmap_solid		;3851 4C 16 39
-
-.plot_menu_option_3
-		lda #$03		;3854 A9 03
-		bne plot_menu_option		;3856 D0 02
-
-.plot_menu_option_2
-		lda #$02		;3858 A9 02
-
-.plot_menu_option
-{
-		sta ZP_73		;385A 85 73
-		ldx ZP_19		;385C A6 19
-		ldy L_3837,X	;385E BC 37 38
-		sty ZP_74		;3861 84 74
-		sty ZP_7A		;3863 84 7A
-		jsr plot_menu_item_line		;3865 20 42 3A
-.L_3868	ldy ZP_74		;3868 A4 74
-		jsr colour_menu_option		;386A 20 48 38
-		inc ZP_74		;386D E6 74
-		dec ZP_73		;386F C6 73
-		bne L_3868		;3871 D0 F5
-		bit L_C356		;3873 2C 56 C3
-		bmi L_387B		;3876 30 03
-		jsr plot_menu_item_line		;3878 20 42 3A
-}
-\\ Fall through
-.L_387B	ldx #$05		;387B A2 05
-		ldy ZP_7A		;387D A4 7A
-		jsr cart_set_text_cursor		;387F 20 6B 10
-		inc ZP_19		;3882 E6 19
-
-\\ Fall through
-.set_write_char_half_row_flag
-		ldx #$80		;3884 A2 80
-		lda #$20		;3886 A9 20
-		jmp cart_sysctl		;3888 4C 25 87
 
 .print_driver_name
 {
@@ -705,8 +652,8 @@ ENDIF
 		rts				;38B3 60
 }
 
-.L_38B4	equb $FE,$FD,$FB,$F7,$EF,$DF,$BF,$7F
-.L_38BC	equb $01,$02,$04,$08,$10,$20,$40,$80
+; .L_38B4	equb $FE,$FD,$FB,$F7,$EF,$DF,$BF,$7F
+; .L_38BC	equb $01,$02,$04,$08,$10,$20,$40,$80
 
 ; Initialise offscreen colour map pointer for reading or writing. X =
 ; X coordinate, Y = Y coordinate. On exit, access value with (ZP_1E),y
@@ -861,7 +808,7 @@ ENDIF
 		equb $01,BEEB_PIXELS_COLOUR1	; $2E - ""
 		equb $0B,BEEB_PIXELS_COLOUR1	; $30 - ""
 		equb $07,BEEB_PIXELS_COLOUR1	; $32 - ""
-		equb $50,$5A	; $34 - do_hall_of_fame_screen
+		equb $50,BEEB_PIXELS_COLOUR2	; $34 - do_hall_of_fame_screen
 
 IF 0	\\ used by fill_colourmap_varying - now removed
 .L_397A	equb $04,$AE,$AE,$90,$89,$08,$90,$89,$89,$90,$89,$90,$89,$89,$04,$A5
@@ -982,7 +929,7 @@ NEXT
 ; *****************************************************************************
 
 .game_start				; aka L_3B22
-{
+\\{
 		ldx #$FF		;3B22 A2 FF
 		txs				;3B24 9A
 		jsr disable_ints_and_page_in_RAM		;3B25 20 F1 33
@@ -1002,11 +949,14 @@ NEXT
 
 .L_3B45	lsr L_C304		;3B45 4E 04 C3
 		jsr kernel_do_main_menu_dwim		;3B48 20 3A EF
+
+	.game_start_return_here_after_brk
+
 		lda L_C76C		;3B4B AD 6C C7
 		bmi L_3B69		;3B4E 30 19	     ; taken if	racing
 
 		jsr do_track_preview		;3B50 20 36 3C
-		jsr reset_border_colour		;3B53 20 00 35
+		jsr disable_screen			;3B53 20 00 35
 		jsr game_main_loop		;3B56 20 99 3C
 		jsr kernel_set_up_screen_for_frontend		;3B59 20 04 35
 		jmp L_3B45		;3B5C 4C 45 3B
@@ -1057,7 +1007,7 @@ NEXT
 		jsr poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
 		jsr do_track_preview		;3BBF 20 36 3C
-		jsr reset_border_colour		;3BC2 20 00 35
+		jsr disable_screen			;3BC2 20 00 35
 		lda #$80		;3BC5 A9 80
 		jsr cart_store_restore_control_keys		;3BC7 20 46 98
 		jsr game_main_loop		;3BCA 20 99 3C
@@ -1075,7 +1025,7 @@ NEXT
 
 .L_3BEA	jsr L_357A		;3BEA 20 7A 35
 		jsr cart_L_3626_from_game_start		;3BED 20 26 36
-		lda L_31A1		;3BF0 AD A1 31
+		lda number_players		;3BF0 AD A1 31
 		beq L_3BF8		;3BF3 F0 03
 		jsr cart_L_91C3		;3BF5 20 C3 91
 
@@ -1088,7 +1038,7 @@ NEXT
 
 .L_3C09	lda #$00		;3C09 A9 00
 		sta L_C77F		;3C0B 8D 7F C7
-		lda L_31A1		;3C0E AD A1 31
+		lda number_players		;3C0E AD A1 31
 		bne L_3C1F		;3C11 D0 0C
 		jsr cart_do_driver_league_changes		;3C13 20 54 37
 		jsr kernel_print_division_table		;3C16 20 AD 36
@@ -1106,12 +1056,12 @@ NEXT
 		cmp #$07		;3C30 C9 07
 		bcs L_3C19		;3C32 B0 E5
 		bcc L_3C1C		;3C34 90 E6
-}
+\\}
 
 .do_track_preview			; could be moved to Cart
 {
 		lda #$0B		;3C36 A9 0B
-		jsr vic_set_border_colour		;3C38 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3C38 20 BB 3F
 
 		lda #$03:jsr cart_sysctl ; 'mode 3'
 		
@@ -1160,7 +1110,7 @@ NEXT
 		jmp L_3C74		;3C8B 4C 74 3C
 
 .L_3C8E	lda #$00		;3C8E A9 00
-		jsr vic_set_border_colour		;3C90 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3C90 20 BB 3F
 		lda #$00		;3C93 A9 00
 		sta irq_mode		;3C95 8D F8 3D
 		rts				;3C98 60
@@ -1320,14 +1270,14 @@ NEXT
 		lda #$C0		;3DB0 A9 C0
 		sta L_C362		;3DB2 8D 62 C3
 .L_3DB5	lda #$00		;3DB5 A9 00
-		jsr vic_set_border_colour		;3DB7 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3DB7 20 BB 3F
 		lda #$00		;3DBA A9 00
 		sta irq_mode		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
 		jsr kernel_silence_all_voices_with_sysctl		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7
 		bpl L_3DE7		;3DC8 10 1D
-		lda L_31A1		;3DCA AD A1 31
+		lda number_players		;3DCA AD A1 31
 		beq L_3DED		;3DCD F0 1E
 		ldx L_31A4		;3DCF AE A4 31
 		lda L_C719		;3DD2 AD 19 C7
@@ -1595,57 +1545,67 @@ NEXT
 		rts				;3F6A 60
 }
 
-.ensure_screen_enabled		RTS
-IF _NOT_BEEB
-{
-		lda VIC_SCROLY		;3F9E AD 11 D0
-		and #$10		;3FA1 29 10			; 1=enable screen
-		bne L_3FB4		;3FA3 D0 0F
-}
-ENDIF
-\\
-.enable_screen_and_set_irq50
-IF _NOT_BEEB
-		lda VIC_SCROLY		;3FA5 AD 11 D0
-		ora #$10		;3FA8 09 10			; 1=enable screen
-		and #$7F		;3FAA 29 7F			; 0=raster compare HI
-		sta VIC_SCROLY		;3FAC 8D 11 D0
-		lda #$32		;3FAF A9 32
-		sta VIC_RASTER		;3FB1 8D 12 D0
-.L_3FB4	lda #C64_VIC_IRQ_RASTERCMP		;3FB4 A9 01
-		sta VIC_IRQMASK		;3FB6 8D 1A D0
-ENDIF
-		rts				;3FB9 60
+; .ensure_screen_enabled		RTS
+; IF _NOT_BEEB
+; {
+; 		lda VIC_SCROLY		;3F9E AD 11 D0
+; 		and #$10		;3FA1 29 10			; 1=enable screen
+; 		bne L_3FB4		;3FA3 D0 0F
+; }
+; ENDIF
+; \\
+; .enable_screen_and_set_irq50
+; IF _NOT_BEEB
+; 		lda VIC_SCROLY		;3FA5 AD 11 D0
+; 		ora #$10		;3FA8 09 10			; 1=enable screen
+; 		and #$7F		;3FAA 29 7F			; 0=raster compare HI
+; 		sta VIC_SCROLY		;3FAC 8D 11 D0
+; 		lda #$32		;3FAF A9 32
+; 		sta VIC_RASTER		;3FB1 8D 12 D0
+; .L_3FB4	lda #C64_VIC_IRQ_RASTERCMP		;3FB4 A9 01
+; 		sta VIC_IRQMASK		;3FB6 8D 1A D0
+; ENDIF
+; 		rts				;3FB9 60
 		
-.vic_border_colour	equb $00
+; .vic_border_colour	equb $00
 
-.vic_set_border_colour
-{
-		sta vic_border_colour		;3FBB 8D BA 3F
-}
-\\
-.vic_reset_border_colour
-{
-		nop				;3FBE EA
-		ldy #$05		;3FBF A0 05
-		sty ZP_14		;3FC1 84 14
-.L_3FC3	lda VIC_RASTER		;3FC3 AD 12 D0
-		cmp #$0A		;3FC6 C9 0A
-		bcs L_3FCF		;3FC8 B0 05
-		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
-		bpl L_3FD6		;3FCD 10 07
-.L_3FCF	dec ZP_14		;3FCF C6 14
-		bne L_3FC3		;3FD1 D0 F0
-		dey				;3FD3 88
-		bne L_3FC3		;3FD4 D0 ED
-.L_3FD6	lda vic_border_colour		;3FD6 AD BA 3F
-		sta VIC_EXTCOL		;3FD9 8D 20 D0
-		lda VIC_SCROLY		;3FDC AD 11 D0
-		and #$EF		;3FDF 29 EF				; 0=blank screen
-		sta VIC_SCROLY		;3FE1 8D 11 D0
-		ldy #$01		;3FE4 A0 01
-		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
-}
+; .disable_screen_and_change_border_colour
+; {
+; 		sta vic_border_colour		;3FBB 8D BA 3F
+; }
+; \\
+; .disable_screen
+; {
+; ; Not 100% sure about this initial bit - I think it waits until the
+; ; scanout is outside the visible area?
+; 		nop				;3FBE EA
+; 		ldy #$05		;3FBF A0 05
+; 		sty ZP_14		;3FC1 84 14
+; .L_3FC3 lda VIC_RASTER		;3FC3 AD 12 D0
+; 		cmp #$0A		;3FC6 C9 0A
+; 		bcs L_3FCF		;3FC8 B0 05
+; 		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
+; 		bpl L_3FD6		;3FCD 10 07
+; .L_3FCF dec ZP_14		;3FCF C6 14
+; 		bne L_3FC3		;3FD1 D0 F0
+; 		dey				;3FD3 88
+; 		bne L_3FC3		;3FD4 D0 ED
+; .L_3FD6
+; ; Set border colour.
+; 		lda vic_border_colour		;3FD6 AD BA 3F
+; 		sta VIC_EXTCOL		;3FD9 8D 20 D0
+
+; ; Disable display.
+
+; 		lda VIC_SCROLY		;3FDC AD 11 D0
+; 		and #$EF		;3FDF 29 EF				; 0=blank screen
+; 		sta VIC_SCROLY		;3FE1 8D 11 D0
+
+; ; Wait a bit.
+
+; 		ldy #$01		;3FE4 A0 01
+; 		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
+; }
 
 .delay_approx_4_5ths_sec
 		ldy #$14		;3FE9 A0 14

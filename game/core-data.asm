@@ -6,6 +6,7 @@ _JUST_ONE_TRACK_FOR_SAVING_RAM = FALSE
 
 .core_data_start
 
+\\ Save game
 PAGE_ALIGN
 .L_8000	skip $C0
 L_801B	= L_8000 + $1B
@@ -21,16 +22,14 @@ L_807E	= L_8000 + $7E
 L_807F	= L_8000 + $7F
 L_8080	= L_8000 + $80
 L_80A0	= L_8000 + $A0
+L_80C0	= L_8000 + $C0
 
 \\ FONT START at $80C0
 .font_data
 	equb $00,$00,$00,$00,$00,$00,$00,$00 ; 32
 .L_80C8
-; Car damage data.
 
-; Original pattern? (no longer used)
-
-	equb $95,$95,$95,$95,$AA,$EA,$EA,$EA ; 33 +$00
+	equb $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff ; 33 - backspace char
 	equb $15,$15,$15,$15,$15,$6A,$6A,$6A ; 34 +$08
 	
 ; Hole.
@@ -172,8 +171,19 @@ L_80A0	= L_8000 + $A0
 ; Fandal says "table of car damage for multiplayer (12 byte)"
 .L_83B0	equb $FF,$00,$00,$00,$00,$00,$00,$FF,$30,$18,$0C,$06,$0C,$18,$30,$00
 
-\\
-.file_strings_offset	equb $05,$0D,$43,$14,$2A,$43,$43,$43,$71,$8F,$94
+\\comments are index/offset
+.file_strings_offset
+equb file_strings_loaded-file_strings ; $00 / $05
+equb file_strings_saved-file_strings ; $01 / $0d
+equb file_strings_problem_encountered-file_strings ; $02 / $43
+equb file_strings_incorrect_data_found-file_strings ; $03 / $14
+equb file_strings_file_name_already_exists-file_strings ; $04 / $2a
+equb file_strings_problem_encountered-file_strings ; $05 / $43
+equb file_strings_problem_encountered-file_strings ; $06 / $43
+equb file_strings_problem_encountered-file_strings ; $07 / $43
+equb file_strings_insert_game_position_save-file_strings ; $08 / $71
+equb file_strings_tape-file_strings ; $09 / $8f
+equb file_strings_disc-file_strings ; $0a / $94
 
 \\
 .L_A1F2	equb $E8,$46,$4B,$53,$52,$46,$55,$48,$42,$45,$52,$44
@@ -199,7 +209,7 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 .L_209B	equb $05
 
 ;.L_083A	equb $00,$00,$00,$00,$00,$00 ; unused?
-.L_0840	equb $01
+.L_0840	equb $01				; save device - 0=tape, 1=disk
 
 .L_1327	equb $00
 .L_1328	equb $02
@@ -215,47 +225,87 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 ; FRONTEND STRINGS
 
 .frontend_strings_2
+.frontend_strings_2_select
 		equb $1F,$11,$0B,"SELECT",$FF
+.frontend_strings_2_practise
 		equb "Practise ",$FF
+.frontend_strings_2_start_the_racing_season
 		equb "Start the Racing Season",$FF
+.frontend_strings_2_load_save_replay
 		equb "Load/Save/Replay       ",$FF
+.frontend_strings_2_load
 		equb "Load",$FF
+.frontend_strings_2_save
 		equb "Save",$FF
+.frontend_strings_2_replay
 		equb "Replay",$FF
+.frontend_strings_2_cancel
 		equb "Cancel",$FF
-		equb "LOAD from Tape",$FF
-		equb "LOAD from Disc",$FF
-		equb "SAVE to Tape",$FF
-		equb "SAVE to Disc",$FF
+.frontend_strings_2_load_from_tape
+		equb "Load Hall of Fame",$FF
+.frontend_strings_2_load_from_disc
+		equb "Load Game",$FF
+.frontend_strings_2_save_to_tape
+		equb "Save Hall of Fame",$FF
+.frontend_strings_2_save_to_disc
+		equb "Save Game",$FF
+.frontend_strings_2_filename
 		equb $1F,$05,$13,"   Filename?  >",$FF
+.frontend_strings_2_to_the_super_league
 		equb "to the SUPER LEAGUE",$FF
+.frontend_strings_2_super_division
 		equb $1F,$0C
 .L_E0BD	equb $09,"SUPER DIVISION "
 		equb $FF
+.frontend_strings_2_excellent_driving_well_done
 		equb "EXCELLENT DRIVING - WELL DONE",$FF
+.frontend_strings_2_hall_of_fame
 		equb "Hall of Fame",$FF
+.frontend_strings_2_catalog
+		equb "@CAT",$FF
+if P%-frontend_strings_2>255:error "frontend_strings_2 too big":endif
 
 .frontend_strings_3
+.frontend_strings_3_select
 		equb $1F,$11,$0B,"SELECT",$FF
+.frontend_strings_3_single_player_league
 		equb "Single Player League",$FF
+.frontend_strings_3_multiplayer
 		equb "Multiplayer",$FF
+.frontend_strings_3_enter_another_driver
 		equb "Enter another driver",$FF
+.frontend_strings_3_continue
 		equb "Continue",$FF
+.frontend_strings_3_tracks_in_division
 		equb "Tracks in DIVISION ",$FF
 		equb $00,$00,$00
-		equb $00,$00,$00," S.",$FF
-		equb "        s",$FF
+		equb $00,$00,$00
+.frontend_strings_3_space_s_dot
+		equb " S.",$FF
+		equb "        "
+.frontend_strings_3_s
+		equb "s",$FF
+.frontend_strings_3_driver_best_lap_race_time
 		equb $1F,$06
 .L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
+.frontend_strings_3_track_the
 		equb "Track:  The ",$FF
+.frontend_strings_3_drivers_championship
 		equb $1F,$0A,$09
 		equb "DRIVERS CHAMPIONSHIP",$FF
+.frontend_strings_3_track_record
 		equb $1F,$0E,$14,"Track record",$FF
 		equb $00
-.L_3273	equb "------------",$FF
-.L_3280	equb "------------",$FF
+.frontend_strings_3_driver_2
+		equb "------------",$FF
+.frontend_strings_3_driver_1
+		equb "------------",$FF
+.frontend_strings_3_new_track_record
 		equb $1F,$0C,$0F
 		equb "New track record",$FF
+.frontend_strings_3_credits
+        equb "Credits",$FF
+if P%-frontend_strings_3>255:error "frontend_strings_3 too big":endif
 
 .frontend_strings_4
 		equb $1F,$0F
@@ -281,24 +331,7 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 		equb " CHANGES",$FF
 		equb $1F,$12,$0E,"NAME?",$FF
 		equb " 2pts",$FF," 1pt",$FF," of ",$FF
-
-.beeb_mode1_crtc_regs
-{
-	EQUB 127				; R0  horizontal total
-	EQUB 80					; R1  horizontal displayed
-	EQUB 98					; R2  horizontal position
-	EQUB &28				; R3  sync width 40 = &28
-	EQUB 38					; R4  vertical total
-	EQUB 0					; R5  vertical total adjust
-	EQUB 25					; R6  vertical displayed
-	EQUB 35					; R7  vertical position; 35=top of screen
-	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
-	EQUB 7					; R9  scanlines per row
-	EQUB 32					; R10 cursor start
-	EQUB 8					; R11 cursor end
-	EQUB HI(screen1_address/8)	; R12 screen start address, high
-	EQUB LO(screen1_address/8)	; R13 screen start address, low
-}
+if P%-frontend_strings_4>255:error "frontend_strings_4 too big":endif
 
 .beeb_mode5_crtc_regs
 {
@@ -377,6 +410,7 @@ PAGE_ALIGN
 		LDA (ZP_19),Y
 }
 
+; buffer for save game name, I think? - see, e.g., sysctl_47
 L_AEC1 = L_AEC0 + 1
 
 ;opponent.attributes
@@ -454,38 +488,6 @@ L_AEC1 = L_AEC0 + 1
 .L_AFD4	equb $12,$11,$1B,$20,$B2,$BD,$20,$56,$AE,$20,$F0,$92,$E9,$E5,$FA,$F3
 		equb $F8,$E3,$ED,$E2,$FE,$8A,$ED,$EF,$E5,$EC,$EC,$8A,$E9,$F8,$EB,$E7
 		equb $E7,$E5,$E4,$EE,$8A,$9B,$93,$92,$92,$56,$AE,$20
-
-.L_B000	equb $00
-.L_B001	equb $0B,$16,$22,$2D,$38,$44,$4F,$5B,$66,$72,$7E,$8A,$95,$A1,$AD,$B9
-		equb $C5,$D2,$DE,$EA,$F7,$03,$10,$1C,$29,$36,$42,$4F,$5C,$69,$76,$83
-		equb $91,$9E,$AB,$B9,$C6,$D4,$E2,$EF,$FD,$0B,$19,$27,$35,$43,$52,$60
-		equb $6E,$7D,$8B,$9A,$A9,$B8,$C7,$D6,$E5,$F4,$03,$12,$22,$31,$41,$50
-		equb $60,$70,$80,$90,$A0,$B0,$C0,$D1,$E1,$F1,$02,$13,$24,$34,$45,$56
-		equb $68,$79,$8A,$9C,$AD,$BF,$D0,$E2,$F4,$06,$18,$2B,$3D,$4F,$62,$74
-		equb $87,$9A,$AD,$C0,$D3,$E6,$F9,$0D,$20,$34,$48,$5C,$70,$84,$98,$AC
-		equb $C0,$D5,$EA,$FE,$13,$28,$3D,$52,$68,$7D,$93,$A8,$BE,$D4,$EA
-
-\* Used to convert a sin value from (0*256 - 1*256) into a cosine value.
-\*
-\* There are 128 values in this table representing sin values increasing in
-\* increments of 1/128.
-\*
-\* Each value is calculated by getting the inverse sin of the sin value, to
-\* give the actual angle, then taking the cosine of this angle.  The result
-\* is then multiplied by 256.
-\*
-\* First 8 values should ideally be 256.
-
-;L_B080
-.cosine_conversion_table
-		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
-		equb $FE,$FE,$FD,$FD,$FD,$FD,$FC,$FC,$FB,$FB,$FB,$FA,$FA,$F9,$F9,$F8
-		equb $F8,$F7,$F7,$F6,$F6,$F5,$F4,$F4,$F3,$F3,$F2,$F1,$F0,$F0,$EF,$EE
-		equb $ED,$EC,$EC,$EB,$EA,$E9,$E8,$E7,$E6,$E5,$E4,$E3,$E2,$E1,$E0,$DF
-		equb $DE,$DD,$DB,$DA,$D9,$D8,$D6,$D5,$D4,$D2,$D1,$CF,$CE,$CC,$CB,$C9
-		equb $C8,$C6,$C5,$C3,$C1,$BF,$BE,$BC,$BA,$B8,$B6,$B4,$B2,$B0,$AE,$AC
-		equb $A9,$A7,$A5,$A2,$A0,$9D,$9B,$98,$95,$92,$8F,$8C,$89,$86,$83,$7F
-		equb $7C,$78,$74,$70,$6C,$68,$63,$5E,$59,$53,$4D,$47,$3F,$37,$2D,$20
 
 \* These first 16 words are used to give offsets to the data definitions of
 \* the different road pieces.  They are stored in low byte, high byte order
@@ -1001,16 +1003,27 @@ ENDIF
 		equb $00
 
 .file_strings
+.file_strings_not
 		equb " NOT",$FF
+.file_strings_loaded
 		equb " loaded",$FF
+.file_strings_saved
 		equb " saved",$FF
+.file_strings_incorrect_data_found
 		equb "Incorrect data found ",$FF
+.file_strings_file_name_already_exists
 		equb "File name already exists",$FF
+.file_strings_problem_encountered
 		equb "Problem encountered",$FF
+.file_strings_file_name_is_not_suitable
 		equb "File name is not suitable",$FF
+.file_strings_insert_game_position_save
 		equb $1F,$05,$13,"Insert game position save ",$FF
+.file_strings_tape
 		equb "tape",$FF
+.file_strings_disc
 		equb "disc",$FF
+.file_string_file_name_maybe
 		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
 
 .L_9674	equb "DIRECTORY:"

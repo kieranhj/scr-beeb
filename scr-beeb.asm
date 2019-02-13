@@ -68,7 +68,7 @@ KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
 ; *****************************************************************************
 
 MACRO PAGE_ALIGN
-    PRINT "ALIGN LOST ", ~LO(((P% AND &FF) EOR &FF)+1), " BYTES"
+    PRINT "  ALIGN LOST ", ~LO(((P% AND &FF) EOR &FF)+1), " BYTES"
     ALIGN &100
 ENDMACRO
 
@@ -82,9 +82,6 @@ ENDMACRO
 ; C64 KERNEL DEFINES
 ; *****************************************************************************
 
-; Not sure what this is used for - depends on which C64 bank is paged in?
-L_A000 = $A000		; Cold Start Vector?
-
 KERNEL_RAM_VECTORS = $FD30
 
 KERNEL_READST	= $FFB7	; Read the I/O Status Word
@@ -92,15 +89,20 @@ KERNEL_SETLFS	= $FFBA	; Set Logical File Number, Device Number, and Secondary Ad
 KERNEL_SETNAM	= $FFBD	; Set Filename Parameters
 KERNEL_OPEN 	= $FFC0	; Open a Logical I/O File
 KERNEL_CLOSE	= $FFC3	; Close a Logical I/O File
-KERNEL_LOAD		= $FFD5	; Load RAM from a device
-KERNEL_SAVE		= $FFD8	; Save RAM to a device
+;KERNEL_LOAD	= $FFD5	; Load RAM from a device
+;KERNEL_SAVE	= $FFD8	; Save RAM to a device
 KERNEL_GETIN	= $FFE4	; Get One Byte from the Input Device
 
-BEEB_VIC_BASE = $300	; $D000
-BEEB_SID_BASE = $330	; $D400
-BEEB_COLOR_BASE = $D800	
-BEEB_CIA1_BASE = $350	; $DC00
-BEEB_CIA2_BASE = $360	; $DD00
+BEEB_VIC_BASE	= $300	; $D000
+BEEB_SID_BASE	= $330	; $D400
+; BEEB_COLOR_BASE = $D800	
+BEEB_CIA1_BASE	= $350	; $DC00
+BEEB_CIA2_BASE	= $360	; $DD00
+
+; Not sure what this is used for - depends on which C64 bank is paged in?
+L_A000 = $370	;$A000		; Cold Start Vector?
+
+; NOTE! space from $03A0 to $03D0 is used to store ZP vars during FS operations
 
 VIC_SP0X 	= BEEB_VIC_BASE + $00	; Sprite 0 Horizontal Position
 VIC_SP0Y	= BEEB_VIC_BASE + $01 	; Sprite 0 Vertical Position
@@ -726,6 +728,7 @@ vic_sprite_ptr7=$5fff
 ; $3F00 = System code? (page flip, VIC control, misc)
 ; *****************************************************************************
 
+PRINT "***"
 ORG &E00
 GUARD bootstrap_address		; using .boot_start doesn't seem to guard?
 
@@ -1071,10 +1074,14 @@ GUARD disksys_loadto_addr
 
 		lda #0:sta _L_D000,X	; d0
 		lda #0:sta _L_D100,X	; d1
-		lda #0:sta _L_D200,X	; d2
-		lda #0:sta _L_D300,X	; d3
-		lda #0:sta _L_D400,x	; d4
-		lda #0:sta _L_D500,x	; d5
+
+; Claimed for file operation workspace
+;		lda #0:sta _L_D200,X	; d2
+;		lda #0:sta _L_D300,X	; d3
+;		lda #0:sta _L_D400,x	; d4
+
+; Claimed for cosine table
+;		lda #0:sta _L_D500,x	; d5
 
 ; Claimed for SID>SN76489 frequency tables
 ;		lda #0:sta _L_D600,x	; d6
@@ -1088,6 +1095,7 @@ GUARD disksys_loadto_addr
 		
 		lda L_AE00,X	;422A BD 00 AE
 		sta L_DC00,X	;422D 9D 00 DC
+
 		lda L_7B00,X	;4230 BD 00 7B
 		sta L_DD00,X	;4233 9D 00 DD
 		dex				;4236 CA
@@ -1114,6 +1122,36 @@ GUARD disksys_loadto_addr
 		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
 	; BEEB LATE INIT
+
+	; BEEB SET INTERRUPT HANDLER
+
+    SEI
+	LDA #&7F		; A=01111111
+	STA &FE4E		; R14=Interrupt Enable (disable all interrupts)
+
+	LDA #0			; A=00000000
+	STA &FE4B		; R11=Auxillary Control Register (timer 1 one shot mode)
+
+	LDA #&C2		; A=11000010
+	STA &FE4E		; R14=Interrupt Enable (enable main_vsync and timer interrupt)
+
+	LDA IRQ1V:STA old_irqv
+	LDA IRQ1V+1:STA old_irqv+1      ; remember old interrupt handler
+	
+	LDA #LO(irq_handler):STA IRQ1V
+	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
+
+	LDA #LO(cart_write_char):STA WRCHV
+	LDA #HI(cart_write_char):STA WRCHV+1
+
+if _DEBUG
+    lda #LO(brk_handler):sta BRKV+0
+	lda #HI(brk_handler):sta BRKV+1
+endif
+
+    CLI
+
+	jsr disable_screen
 
 	\\ Need to copy data from &3000 - &3FFF into SHADOW RAM as this may be
 	\\ accessed by the frontend system whilst the MODE 1 SHADOW screen is
@@ -1147,26 +1185,6 @@ GUARD disksys_loadto_addr
 		cpy #&0D
 		bcc clear_loop
 	}
-
-	; BEEB SET INTERRUPT HANDLER
-
-    SEI
-	LDA #&7F		; A=01111111
-	STA &FE4E		; R14=Interrupt Enable (disable all interrupts)
-
-	LDA #0			; A=00000000
-	STA &FE4B		; R11=Auxillary Control Register (timer 1 one shot mode)
-
-	LDA #&C2		; A=11000010
-	STA &FE4E		; R14=Interrupt Enable (enable main_vsync and timer interrupt)
-
-	LDA IRQ1V:STA old_irqv
-	LDA IRQ1V+1:STA old_irqv+1      ; remember old interrupt handler
-	
-	LDA #LO(irq_handler):STA IRQ1V
-	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
-
-    CLI
 
 	; Sort out display.
 	jsr set_up_beeb_display
@@ -1215,8 +1233,18 @@ dex:bpl loop
 rts
 
 .crtc
-;    R0  R1  R2  R3  R4  R5  R6  R7  R8  R9  R10 R11
-equb $3f,$28,$31,$42,$26,$00,$19,$22,$01,$07,$20,$08
+equb $3f						; R0
+equb $28						; R1
+equb $31						; R2
+equb $42						; R3
+equb $26						; R4
+equb $00						; R5
+equb $19						; R6
+equb $22						; R7
+equb CRTC_R8_DisplayDisableValue ; R8
+equb $07						; R9
+equb $20						; R10
+equb $08						; R11
 equb HI(screen1_address/8) 		; R12
 equb LO(screen1_address/8)		; R13
 
@@ -1319,46 +1347,49 @@ screen2_address = $6000
 
 		; pointing to screen 1
 
-L_3FF1	= screen1_address-$F
-L_3FF6	= screen1_address-$A
-L_3FFA	= screen1_address-$6
+;L_3FF1	= screen1_address-$F
+;L_3FF6	= screen1_address-$A
+;L_3FFA	= screen1_address-$6
 
-L_4000	= screen1_address+$0000
-L_4001	= screen1_address+$0001
-L_4008	= screen1_address+$0008
-L_400C	= screen1_address+$000c
-L_400D	= screen1_address+$000d
-L_400E	= screen1_address+$000e
-L_4010	= screen1_address+$0010
-L_4020	= screen1_address+$0020	
-L_4025	= screen1_address+$0025
-L_40A0	= screen1_address+$00a0
-L_40DC	= screen1_address+$00dc
-L_40E0	= screen1_address+$00e0
-L_4100	= screen1_address+$0100
-L_410C	= screen1_address+$010c
-L_410D	= screen1_address+$010d
-L_410E	= screen1_address+$010e
-L_4120	= screen1_address+$0120
-L_4130	= screen1_address+$0130
-L_4136	= screen1_address+$0136			
-L_4148	= screen1_address+$0148			
-L_4150	= screen1_address+$0150
-L_41E0	= screen1_address+$01e0
-L_4268	= screen1_address+$0268
-L_42A0	= screen1_address+$02a0
-L_4300	= screen1_address+$0300
-L_43E0	= screen1_address+$03e0
-L_4520	= screen1_address+$0520
-L_4660	= screen1_address+$0660
-L_47A0	= screen1_address+$07a0
-L_48E0	= screen1_address+$08e0
-L_4A00	= screen1_address+$0a00
-L_4A20	= screen1_address+$0a20
-L_4B60	= screen1_address+$0b60
-L_4CA0	= screen1_address+$0ca0
-L_4DE0	= screen1_address+$0de0
-L_4F20	= screen1_address+$0f20
+\L_4000	= screen1_address+$0000	; screen
+\IF (L_4000 AND 255)<>0
+\error "L_4000 must be page aligned"
+\ENDIF
+;L_4001	= screen1_address+$0001
+;L_4008	= screen1_address+$0008
+\L_400C	= screen1_address+$000c	; save
+\L_400D	= screen1_address+$000d	; save
+\L_400E	= screen1_address+$000e	; save
+;L_4010	= screen1_address+$0010
+\L_4020	= screen1_address+$0020	; save
+\L_4025	= screen1_address+$0025	; save
+\L_40A0	= screen1_address+$00a0	; save
+\L_40DC	= screen1_address+$00dc	; save
+\L_40E0	= screen1_address+$00e0 ; save
+\L_4100	= screen1_address+$0100 ; crash
+\L_410C	= screen1_address+$010c ; save
+\L_410D	= screen1_address+$010d ; save
+\L_410E	= screen1_address+$010e	; save
+\L_4120	= screen1_address+$0120	; crash
+;L_4130	= screen1_address+$0130
+;L_4136	= screen1_address+$0136			
+;L_4148	= screen1_address+$0148			
+;L_4150	= screen1_address+$0150
+;L_41E0	= screen1_address+$01e0
+;L_4268	= screen1_address+$0268
+;L_42A0	= screen1_address+$02a0
+\L_4300	= screen1_address+$0300	; save
+;L_43E0	= screen1_address+$03e0
+;L_4520	= screen1_address+$0520
+;L_4660	= screen1_address+$0660
+;L_47A0	= screen1_address+$07a0
+;L_48E0	= screen1_address+$08e0
+;L_4A00	= screen1_address+$0a00
+;L_4A20	= screen1_address+$0a20
+;L_4B60	= screen1_address+$0b60
+;L_4CA0	= screen1_address+$0ca0
+;L_4DE0	= screen1_address+$0de0
+;L_4F20	= screen1_address+$0f20
 
 L_5740	= screen1_address+$1740
 
@@ -1415,6 +1446,7 @@ L_7740	= screen2_address+$1740
 ;L_7FC1	= screen2_address+$1fc1
 ;L_7FC2	= screen2_address+$1fc2
 
+PRINT "***"
 ORG &6000
 GUARD &8000
 INCLUDE "game/boot-data.asm"
@@ -1451,6 +1483,7 @@ PRINT "--------"
 ; $A100 = Calculate camera sines
 ; *****************************************************************************
 
+PRINT "***"
 CLEAR &8000, &C000
 ORG &8000
 GUARD &8000 + MAX_LOADABLE_ROM_SIZE
@@ -1472,6 +1505,7 @@ PRINT "--------"
 SAVE "Cart", cart_start, cart_end, 0
 PRINT "--------"
 
+PRINT "***"
 CLEAR &8000,&C000
 ORG &8000
 GUARD &C000
@@ -1500,6 +1534,7 @@ PRINT "--------"
 
 ; Engine screen data (copied at boot time from elsewhere)
 
+PRINT "***"
 CLEAR &C000, &E000
 \\ Need to keep PAGES $C000 - $C300 free for MOS DFS workspace
 ORG &C300
@@ -1547,6 +1582,7 @@ ENDIF
 ; $FF00 = Vectors
 ; *****************************************************************************
 
+PRINT "***"
 CLEAR &8000,&C000
 ORG &8000
 GUARD &8000 + MAX_LOADABLE_ROM_SIZE
@@ -1580,6 +1616,7 @@ SAVE "Title",$3000,$8000,0
 ; *****************************************************************************
 ; Title screen loader
 ; *****************************************************************************
+PRINT "***"
 CLEAR $0,$8000
 ORG $1900
 
@@ -1600,18 +1637,28 @@ cpx #0:beq tube_ok
 ldx #disable_tube-text:jmp print
 
 .tube_ok
+
+ldx #0:jsr clear_display_ram	; clear main RAM
+ldx #1:jsr clear_display_ram	; clear shadow RAM
+
+lda #19:jsr osbyte
+
 lda #22:jsr oswrch
 lda #2:jsr oswrch
 
 lda #10:sta $fe00:lda #32:sta $fe01 ; disable cursor
 
-lda #108:ldx #1:jsr osbyte		; page in shadow memory
+lda #113:ldx #1:jsr osbyte		; display main RAM
+lda #108:ldx #1:jsr osbyte		; page in shadow RAM
+
+lda #19:jsr osbyte
 
 ldx #LO(load_title):ldy #HI(load_title):jsr oscli
 
-lda #108:ldx #0:jsr osbyte		; page in main memory
+lda #113:ldx #2:jsr osbyte		; display shadow RAM
+lda #108:ldx #0:jsr osbyte		; page in main RAM
+
 lda #19:jsr osbyte
-lda #113:ldx #2:jsr osbyte		; display shadow memory
 
 ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
 
@@ -1622,6 +1669,15 @@ ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
 .master_required:equs "Master required",13
 .disable_tube:equs "Please disable the Tube",13
 
+.clear_display_ram
+lda #108:jsr osbyte				; page in main (X=1) or shadow (X=1)
+lda #$30:sta clear_loop_store+2
+lda #0:sta clear_loop_store+1
+.clear_loop
+.clear_loop_store:sta $3000
+inc clear_loop_store+1:bne clear_loop
+inc clear_loop_store+2:bpl clear_loop
+rts
 }
 .title_screen_loader_end
 
@@ -1635,3 +1691,11 @@ PRINT "  Free =", ~(&3000 - title_screen_loader_end)
 PRINT "-------"
 SAVE "Loader",title_screen_loader_start,title_screen_loader_end
 PRINT "-------"
+
+; *****************************************************************************
+; Additional files for the disk...
+; *****************************************************************************
+
+PUTFILE "data/Hall.bin", "HALL", &0
+PUTFILE "data/KCSave.bin", "KCSAVE", &0
+PUTFILE "data/MPSave.bin", "MPSAVE", &0

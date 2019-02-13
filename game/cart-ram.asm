@@ -127,17 +127,14 @@
 		dec ZP_F7		;8448 C6 F7
 		dec ZP_F5		;844A C6 F5
 		lda ZP_F7		;844C A5 F7
-		cmp #HI(L_4100)		;844E C9 41
+		cmp #HI(screen1_address + $100)		;844E C9 41
 		bcs L_843C		;8450 B0 EA
 		rts				;8452 60
 .L_8453
 		lda #$14		;8453 A9 14
 		sta ZP_52		;8455 85 52
-		ldx #LO(L_4000)		;8457 A2 00
-		ldy #HI(L_4000)		;8459 A0 40
-
-\\ Changing this from #$AA to #&F0 results in entire sky being filled...
-
+		ldx #LO(screen1_address)		;8457 A2 00
+		ldy #HI(screen1_address)		;8459 A0 40
 		lda #BEEB_PIXELS_COLOUR2;845B A9 AA
 		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
@@ -153,6 +150,14 @@
 		clc				;108A 18
 		adc #$30		;108B 69 30
 		jmp write_char		;108D 4C 6F 84
+}
+
+; returns old value in X.
+._set_write_char_colour_mask
+{
+ldx write_char_colour_mask
+sta write_char_colour_mask
+rts
 }
 
 ; Print char.
@@ -200,17 +205,52 @@
 		inc write_char_x_pos		;84B2 EE C5 85
 		rts				;84B5 60
 
+\\ VDU 10 = move cursor down
+
+.L_84B6	cmp #$0a
+		bne check_newline
+		inc write_char_y_pos
+		rts
+
+.check_newline
+		cmp #$0d
+		bne check_delete
+		lda #4
+		sta write_char_x_pos
+		rts
+
 \\ VDU 127 = delete
 
-.L_84B6	cmp #$7F		;84B6 C9 7F
+.check_delete
+		cmp #$7F		;84B6 C9 7F
 		bcc plot_glyph		;84B8 90 19
 		bne L_84D2		;84BA D0 16
+
+; Print a backspace.
+;
+; This only comes into play when entering the player name, so there's
+; a bit of a hack: print a solid character (code $21 in the font) in
+; blue (the background of the player name entry box), thus erasing
+; whatever was there before.
+;
+; (The C64 version did this by printing a space on top of the previous
+; char, but thanks to the separate colour RAM it could afford to do
+; the masking differently.)
+
 		dec write_char_x_pos		;84BC CE C5 85
 		lda #$80		;84BF A9 80
 		sta L_85D1		;84C1 8D D1 85
-		lda #$20		;84C4 A9 20
+
+		lda write_char_colour_mask:pha
+		lda #$f0:sta write_char_colour_mask
+
+		lda #$21		;84C4 A9 20
 		sta L_85C7		;84C6 8D C7 85
+		
 		jsr write_char_body		;84C9 20 85 84
+
+		pla:sta write_char_colour_mask
+
 		lsr L_85D1		;84CC 4E D1 85
 		dec write_char_x_pos		;84CF CE C5 85
 .L_84D2	rts				;84D2 60
@@ -369,24 +409,6 @@
 
 ; ZP_F8 contains screen address += 16
 
-		lda #$FF		;8556 A9 FF
-		sta write_char_next_col_mask		;8558 8D CB 85
-		lda #$00		;855B A9 00
-		ldx write_char_bit_offset		;855D AE CD 85
-		beq L_856A		;8560 F0 08
-
-; Rotate current column mask by bit offset
-
-.L_8562	sec				;8562 38
-		ror A			;8563 6A
-		ror write_char_next_col_mask		;8564 6E CB 85
-		dex				;8567 CA
-		bne L_8562		;8568 D0 F8
-
-; A contains bit mask for current column
-
-.L_856A	sta write_char_curr_col_mask		;856A 8D CA 85
-
 ; Start index into font glyph data
 
 		ldy #$00		;856D A0 00
@@ -394,110 +416,45 @@
 ; Zero next byte of glyph data to write
 
 .plot_glyph_loop
-		lda #$00		;856F A9 00
-		sta ZP_FB		;8571 85 FB
 
-; Load a byte of glyph data
+; Form 1bpp mask for this and next column, where 1=glyph and 0=screen.
 
-		lda (ZP_F0),Y	;8573 B1 F0
-		ldx write_char_bit_offset		;8575 AE CD 85
-		beq L_8580		;8578 F0 06
+		lda #0
+		sta write_char_next_col_mask
 
-; Rotate font data by bit offset into ZP_FB for next byte
+		lda (ZP_F0),y			; 0=screen, 1=glyph
+		ldx write_char_bit_offset
+		beq shift_done
 
-.L_857A	lsr A			;857A 4A
-		ror ZP_FB		;857B 66 FB
-		dex				;857D CA
-		bne L_857A		;857E D0 FA
+.shift_loop
+		lsr a
+		ror write_char_next_col_mask
+		dex
+		bne shift_loop
 
-; First byte of glyph data in ZP_FA
+.shift_done
+		sta write_char_curr_col_mask
 
-.L_8580	sta ZP_FA		;8580 85 FA
+; Screen byte 0 - top nibble of current column
+  		jsr handle_top_nibble
+		and (ZP_F4),y
+		ora write_char_value
+		sta (ZP_F4),y
 
-; Convert glyph data into beeb bytes
+; Screen byte 1 - bottom nibble of current column
+  		lda write_char_curr_col_mask
+  		jsr handle_bottom_nibble
+		and (ZP_F6),y
+		ora write_char_value
+		sta (ZP_F6),y
 
-	; top nibble only of second glyph byte
-		lda ZP_FB
-		lsr a:lsr a:lsr a:lsr a:tax
-		lda nibble_to_beeb_byte, X
-		sta ZP_FC
-
-	; bottom nibble of first glyph byte
-		lda ZP_FA
-		and #$0f:tax
-		lda nibble_to_beeb_byte, X
-		sta ZP_FB
-
-	; top nibble of first glyph byte
-		lda ZP_FA
-		lsr a:lsr a:lsr a:lsr a:tax
-		lda nibble_to_beeb_byte, X
-		sta ZP_FA
-
-; First byte column mask top nibble
-
-		lda write_char_curr_col_mask
-		lsr a:lsr a:lsr a:lsr a:tax
-
-; Load first screen byte
-
-		lda (ZP_F4),Y	;8582 B1 F4
-
-; Mask out bits we're going to write (on right)
-; Let's not mask this out as we're filling with colour anyway
-;		and nibble_to_beeb_byte, X		;8584 2D CA 85
-
-; Mask in glyph bits from first byte
-
-		ora ZP_FA		;8587 05 FA
-
-; Store first byte to screen
-
-		sta (ZP_F4),Y	;8589 91 F4
-
-; First byte column mask bottom nibble
-
-		lda write_char_curr_col_mask
-		and #$0f:tax
-
-; Load second screen byte
-
-		lda (ZP_F6),Y	;858B B1 F6
-
-; Mask out bits we're going to write (on left)
-; Let's not mask this out as we're filling with colour anyway
-;		and nibble_to_beeb_byte, X		;858D 2D CB 85
-
-; Mask in glyph bits from second byte
-
-		ora ZP_FB		;8590 05 FB
-
-; Store second byte to screen
-
-		sta (ZP_F6),Y	;8592 91 F6
-
-; Second byte column mask top nibble
-
-		lda write_char_next_col_mask
-		lsr a:lsr a:lsr a:lsr a:tax
-
-; Load third screen byte
-
-		lda (ZP_F8),Y	;858B B1 F6
-
-; Mask out bits we're going to write (on left)
-; Let's not mask this out as we're filling with colour anyway
-;		and nibble_to_beeb_byte, X		;858D 2D CB 85
-
-; Mask in glyph bits from second byte
-
-		ora ZP_FC		;8590 05 FB
-
-; Store second byte to screen
-
-		sta (ZP_F8),Y	;8592 91 F6
-
-
+; Screen byte 2 - top nibble of next column
+  		lda write_char_next_col_mask
+		jsr handle_top_nibble
+		and (ZP_F8),y
+		ora write_char_value
+		sta (ZP_F8),y
+		
 ; Check flag L_85D0
 
 		bit L_85D0		;8594 2C D0 85
@@ -548,6 +505,19 @@
 .L_85C1	sta write_char_x_pos		;85C1 8D C5 85
 		rts				;85C4 60
 
+.handle_top_nibble
+lsr a:lsr a:lsr a:lsr a
+.handle_bottom_nibble
+and #$0f
+tax
+lda nibble_to_beeb_byte,x
+pha
+and write_char_colour_mask
+sta write_char_value			; 0=screen, 1=glyph
+pla
+eor #$ff						; 0=glyph, 1=screen
+rts
+
 .nibble_to_beeb_byte equb $00,$11,$22,$33,$44,$55,$66,$77,$88,$99,$aa,$bb,$cc,$dd,$ee,$ff
 }
 
@@ -561,6 +531,13 @@
 .write_char_next_col_mask	equb $00
 .write_char_byte_offset	equb $00
 .write_char_bit_offset	equb $00
+
+.write_char_value equb 0
+
+; Mode 1 mask for glyph foreground colour. Glyph pixels are index 3
+; (set)/index 0 (reset) by default, ANDed with this value to select
+; whichever foreground colour necessary.
+.write_char_colour_mask equb $ff
 
 .L_85D1	equb $00
 
@@ -897,7 +874,11 @@ ENDIF
 ; A=$43 ->	draw tachometer
 ; A=$45 ->	clear screen
 ; A=$46 ->	update colour map
-; A=$47
+; A=$47 ->  prepare for save game
+;           X =  0 -> reload disk catalogue (due to disk change)
+;           X != 0 -> prepare for load/save - ??delete old file if save,
+;                     do nothing if load??
+;           return with C set on error
 ; A=$48 ->  fill in-game sky
 ; A=$49 ->	draw animated flames
 ; A=$4A ->	erase flames
@@ -1355,7 +1336,7 @@ ENDIF
 		lsr A			;89FC 4A
 		tay				;89FD A8
 		ldx #$00		;89FE A2 00
-		lda #$C6		;8A00 A9 C6
+		lda #$C6		;8A00 A9 C6 ;c6 ok
 .L_8A02	clc				;8A02 18
 		adc L_8A0F,Y	;8A03 79 0F 8A
 		sta L_0740,X	;8A06 9D 40 07
@@ -2250,59 +2231,115 @@ rts
 
 .sysctl_47			; in Cart
 {
-		lda L_0840		;90BB AD 40 08
-		beq L_9106		;90BE F0 46
+
+; skip all of this when saving to tape.
+
+		lda L_0840		;90BB AD 40 08 save device
+		beq L_9106		;90BE F0 46    0 = tape
+		
 		txa				;90C0 8A
 		pha				;90C1 48
-		ldx #$08		;90C2 A2 08
-		lda #$00		;90C4 A9 00
-		tay				;90C6 A8
+		ldx #$08		;90C2 A2 08 8 = disk
+		lda #$00		;90C4 A9 00 0 = handle
+		tay				;90C6 A8    0 = secondary address
 		jsr KERNEL_SETLFS		;90C7 20 BA FF
-		pla				;90CA 68
-		beq L_911A		;90CB F0 4D
-		lda L_C77B		;90CD AD 7B C7
+
+; If X was 0 on entry, reload disk catalogue.
+
+		pla						;90CA 68
+		beq L_911A				;90CB F0 4D
+
+; file_load_save_flag is set at L_EF8C (kernel-ram) and reset at L_9493 (cart-ram).
+; Is this the load/save flag?
+
+		lda file_load_save_flag		;90CD AD 7B C7
 		beq L_9106		;90D0 F0 34
-		ldx #$0B		;90D2 A2 0B
+
+; form S0:<<save game name>> file name.
+
+		ldx #L_910B_end-L_910E-1 ;90D2 A2 0B
 .L_90D4	lda L_AEC1,X	;90D4 BD C1 AE
 		sta L_910E,X	;90D7 9D 0E 91
 		dex				;90DA CA
 		bpl L_90D4		;90DB 10 F7
-		lda #$0F		;90DD A9 0F
-		ldy #HI(L_910B)		;90DF A0 91
-		ldx #LO(L_910B)		;90E1 A2 0B
-.L_90E3	jsr KERNEL_SETNAM		;90E3 20 BD FF
-		lda #$0F		;90E6 A9 0F
-		ldx #$08		;90E8 A2 08
-		ldy #$0F		;90EA A0 0F
+		
+		lda #L_910B_end-L_910B	;90DD A9 0F
+		ldy #HI(L_910B)			;90DF A0 91
+		ldx #LO(L_910B)			;90E1 A2 0B
+.L_90E3
+
+; either set "S0:<<save game name>>" (delete save game), or "I0"
+; (refresh disk catalogue)
+;
+; https://en.wikipedia.org/wiki/KERNAL#On_device-independent_I/O
+; https://www.c64-wiki.com/wiki/Drive_command
+; https://www.c64-wiki.com/wiki/Commodore_1541#Disk_Drive_Commands
+
+		jsr KERNEL_SETNAM		;90E3 20 BD FF
+		
+		lda #$0F		;90E6 A9 0F F = handle
+		ldx #$08		;90E8 A2 08 8 = disk
+		ldy #$0F		;90EA A0 0F F = command channel
 		jsr KERNEL_SETLFS		;90EC 20 BA FF
+		
 		jsr KERNEL_OPEN		;90EF 20 C0 FF
+
+; branch taken if no error?
+
 		bcc L_90FC		;90F2 90 08
+
+; http://sta.c64.org/cbm64baserr.html ??? - 4 = file not found,
+; presumably. Treat this as a non-error.
+
 		cmp #$04		;90F4 C9 04
 		beq L_90FB		;90F6 F0 03
+
+; some other error, not so benign.
+
 		sec				;90F8 38
 		bcs L_90FC		;90F9 B0 01
+
 .L_90FB	clc				;90FB 18
 .L_90FC	php				;90FC 08
+
+; close command channel
+
 		lda #$0F		;90FD A9 0F
 		jsr KERNEL_CLOSE		;90FF 20 C3 FF
+
+; CLOSE failure counts as an error.
+
 		bcs L_9108		;9102 B0 04
+		
 		plp				;9104 28
 		rts				;9105 60
+
 .L_9106	clc				;9106 18
 		rts				;9107 60
+		
 .L_9108	plp				;9108 28
 		sec				;9109 38
 		rts				;910A 60
-		
-.L_910B	equb $53,$30,$3A
-.L_910E	equb $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
 
-.L_911A	lda #$02		;911A A9 02
-		ldy #$91		;911C A0 91
-		ldx #$23		;911E A2 23
-		jmp L_90E3		;9120 4C E3 90
-		
-.L_9123	equb $49,$30
+;https://en.wikipedia.org/wiki/Commodore_DOS#DOS_commands
+;
+; When a file named "S0:XXX" is opened over the command channel, the
+; file "XXX" is deleted.
+.L_910B	equb "S0:"
+.L_910E	equb "            "
+.L_910B_end
+
+.L_911A	lda #L_9123_end-L_9123	;911A A9 02
+		ldy #HI(L_9123)			;911C A0 91
+		ldx #LO(L_9123)			;911E A2 23
+		jmp L_90E3				;9120 4C E3 90
+
+;https://en.wikipedia.org/wiki/Commodore_DOS#DOS_commands
+;
+; When a file named "I0" is opened over the command channel, the drive
+; is reset and the disk catalogue is updated.
+.L_9123	equb "I0"
+.L_9123_end
 }
 
 .print_3space		; HAS DLL
@@ -2388,17 +2425,17 @@ rts
 		ldx #$06		;922A A2 06
 		ldy #$14		;922C A0 14
 		jsr get_colour_map_ptr		;922E 20 FA 38
-		ldx #$14		;9231 A2 14
-		lda #$01		;9233 A9 01
-		jsr fill_colourmap_solid		;9235 20 16 39
-		ldx #$B8		;9238 A2 B8
+		; ldx #$14		;9231 A2 14
+		; lda #$01		;9233 A9 01
+		; jsr fill_colourmap_solid		;9235 20 16 39
+		ldx #frontend_strings_3_track_record-frontend_strings_3 ;9238 A2 B8
 		ldy #BEEB_PIXELS_COLOUR2		;923A A0 05
 		lda #$03		;923C A9 03
 		sta ZP_19		;923E 85 19
 		lda L_C305		;9240 AD 05 C3
 		and #$01		;9243 29 01
 		beq L_924F		;9245 F0 08
-		ldx #$E3		;9247 A2 E3			; "New track record"
+		ldx #frontend_strings_3_new_track_record-frontend_strings_3
 		ldy #BEEB_PIXELS_COLOUR1		;9249 A0 07
 		lda #$10		;924B A9 10
 		sta ZP_19		;924D 85 19
@@ -2408,7 +2445,7 @@ rts
 		and #$C0		;9258 29 C0
 		cmp #$C0		;925A C9 C0
 		bne L_9263		;925C D0 05
-		ldx #$6F		;925E A2 6F			; "s"
+		ldx #frontend_strings_3_s-frontend_strings_3 ;925E A2 6F ; "s"
 		jsr print_msg_3		;9260 20 DC A1
 .L_9263	jsr plot_menu_option_3		;9263 20 54 38
 		lda #BEEB_PIXELS_COLOUR2		;9266 A9 0F
@@ -2417,7 +2454,7 @@ rts
 		bpl L_9282		;926E 10 12
 		ldx #$23		;9270 A2 23			; "Race Time: "
 		jsr print_msg_1		;9272 20 A5 32
-		ldx #$D6		;9275 A2 D6			; "------------" (driver 1)
+		ldx #frontend_strings_3_driver_1-frontend_strings_3 ;9275 A2 D6 ; "------------" (driver 1)
 		jsr print_msg_3		;9277 20 DC A1
 		jsr print_space		;927A 20 AF 91
 		ldx #$0F		;927D A2 0F
@@ -2430,7 +2467,7 @@ rts
 		jsr set_text_cursor		;928C 20 6B 10
 		ldx #$2F		;928F A2 2F			; "Best Lap : "
 		jsr print_msg_1		;9291 20 A5 32
-		ldx #$C9		;9294 A2 C9			; "------------" (driver 2)
+		ldx #frontend_strings_3_driver_2-frontend_strings_3	;9294 A2 C9 ; "------------" (driver 2)
 		jsr print_msg_3		;9296 20 DC A1
 		jsr print_space		;9299 20 AF 91
 		ldx #$0E		;929C A2 0E
@@ -2456,9 +2493,9 @@ rts
 		ldy #$00		;9331 A0 00
 		bit ZP_14		;9333 24 14
 		bmi L_936E		;9335 30 37
-.L_9337	lda L_3273,Y	;9337 B9 73 32
+.L_9337	lda frontend_strings_3_driver_2,Y ;9337 B9 73 32
 		sta L_DE00,X	;933A 9D 00 DE
-		lda L_3280,Y	;933D B9 80 32
+		lda frontend_strings_3_driver_1,Y ;933D B9 80 32
 		sta L_DF00,X	;9340 9D 00 DF
 		inx				;9343 E8
 		iny				;9344 C8
@@ -2480,9 +2517,9 @@ rts
 
 .L_936E
 		lda L_DE00,X	;936E BD 00 DE
-		sta L_3273,Y	;9371 99 73 32
+		sta frontend_strings_3_driver_2,Y ;9371 99 73 32
 		lda L_DF00,X	;9374 BD 00 DF
-		sta L_3280,Y	;9377 99 80 32
+		sta frontend_strings_3_driver_1,Y ;9377 99 80 32
 		inx				;937A E8
 		iny				;937B C8
 		cpy #$0C		;937C C0 0C
@@ -2503,25 +2540,25 @@ rts
 		rts				;93A7 60
 }
 
-.L_93A8				; HAS DLL
+.copy_hall_of_fameQ				; HAS DLL
 {
-		eor L_C77B		;93A8 4D 7B C7
+		eor file_load_save_flag		;93A8 4D 7B C7
 		bne L_93DF		;93AB D0 32
-		lda L_C39A		;93AD AD 9A C3
+		lda file_error_flag		;93AD AD 9A C3
 		bmi L_93DF		;93B0 30 2D
-		lda L_C367		;93B2 AD 67 C3
+		lda file_type_id		;93B2 AD 67 C3
 		bmi L_93DF		;93B5 30 28
 		beq L_93DF		;93B7 F0 26
 		cmp #$40		;93B9 C9 40
 		beq L_93C0		;93BB F0 03
 		jmp L_9756		;93BD 4C 56 97
 .L_93C0	jsr disable_ints_and_page_in_RAM		;93C0 20 F1 33
-		lda L_C77B		;93C3 AD 7B C7
+		lda file_load_save_flag		;93C3 AD 7B C7
 		beq L_93E0		;93C6 F0 18
 		ldx #$00		;93C8 A2 00
-.L_93CA	lda L_DE00,X	;93CA BD 00 DE		; I/O 1
+.L_93CA	lda L_DE00,X	;93CA BD 00 DE
 		sta L_4000,X	;93CD 9D 00 40
-		lda L_DF00,X	;93D0 BD 00 DF		; I/O 2
+		lda L_DF00,X	;93D0 BD 00 DF
 		sta L_4100,X	;93D3 9D 00 41
 		dex				;93D6 CA
 		bne L_93CA		;93D7 D0 F1
@@ -2582,76 +2619,149 @@ rts
 		jmp L_93DC		;9445 4C DC 93
 }
 
-.L_9448				; HAS DLL
+.verify_filename				; HAS DLL
 {
+
+; $00 = save game name starts with none of "DIR ", "HALL" or "MP"
+
 		ldy #$00		;9448 A0 00
+
+; does the save game name start with "DIR "?
+
 		ldx #$03		;944A A2 03
 .L_944C	lda L_AEC1,X	;944C BD C1 AE
 		cmp L_94CC,X	;944F DD CC 94
 		bne L_945B		;9452 D0 07
 		dex				;9454 CA
 		bpl L_944C		;9455 10 F5
+
+; $80 = save game name starts with "DIR "
+
 		ldy #$80		;9457 A0 80
 		bne L_947B		;9459 D0 20
-.L_945B	ldx #$03		;945B A2 03
+		
+.L_945B
+
+; does the save game name start with "HALL"?
+
+		ldx #$03		;945B A2 03
 .L_945D	lda L_AEC1,X	;945D BD C1 AE
 		cmp L_94D0,X	;9460 DD D0 94
 		bne L_946C		;9463 D0 07
 		dex				;9465 CA
 		bpl L_945D		;9466 10 F5
+
+; $40 = save game name starts with "HALL"
+
 		ldy #$40		;9468 A0 40
 		bne L_947B		;946A D0 0F
-.L_946C	ldx #$01		;946C A2 01
+
+.L_946C
+
+; does the save game name start with "MP"?
+
+		ldx #$01		;946C A2 01
 .L_946E	lda L_AEC1,X	;946E BD C1 AE
 		cmp L_94D4,X	;9471 DD D4 94
 		bne L_947B		;9474 D0 05
 		dex				;9476 CA
 		bpl L_946E		;9477 10 F5
+
+; $01 = save game name starts with "MP"
+
 		ldy #$01		;9479 A0 01
-.L_947B	sty L_C367		;947B 8C 67 C3
-		lda L_C77B		;947E AD 7B C7
+.L_947B
+		sty file_type_id		;947B 8C 67 C3
+
+; skip this next bit if loading
+
+		lda file_load_save_flag		;947E AD 7B C7
 		beq L_9491		;9481 F0 0E
+
+; branch taken if name starts with "DIR "
+
 		tya				;9483 98
 		bmi L_9493		;9484 30 0D
+
+; name starts with "HALL", "MP", or other.
+; branch taken if other.
+
 		beq L_949A		;9486 F0 12
+
+; name starts with "HALL", or "MP".
+; branch taken if name starts with "HALL"
+
 		cpy #$01		;9488 C0 01
 		bne L_9491		;948A D0 05
-		lda L_31A1		;948C AD A1 31
-		beq L_949F		;948F F0 0E
-.L_9491	clc				;9491 18
+
+; name starts with "MP".
+; branch taken if single-player mode.
+
+		lda number_players		;948C AD A1 31
+		beq file_name_is_not_suitable ;948F F0 0E
+		
+.L_9491
+
+; name is ok (??)
+
+		clc				;9491 18
 		rts				;9492 60
-.L_9493	lda #$00		;9493 A9 00
-		sta L_C77B		;9495 8D 7B C7
+		
+.L_9493
+
+; dir requested, so return with C=0 (no error) and file_load_save_flag reset (load
+; data). The value of file_type_id is used later to figure out what to do.
+
+		lda #$00		;9493 A9 00
+		sta file_load_save_flag		;9495 8D 7B C7
 		clc				;9498 18
 		rts				;9499 60
-.L_949A	lda L_31A1		;949A AD A1 31
+
+.L_949A
+
+; branch taken if single-player mode
+
+		lda number_players		;949A AD A1 31
 		beq L_9491		;949D F0 F2
-.L_949F	jsr set_write_char_half_row_flag		;949F 20 84 38
+		
+.file_name_is_not_suitable
+
+		jsr set_write_char_half_row_flag		;949F 20 84 38
+		
 		ldx #$06		;94A2 A2 06
 		ldy #$16		;94A4 A0 16
 		jsr set_text_cursor		;94A6 20 6B 10
-		ldx #$57		;94A9 A2 57
+		
+		ldx #file_strings_file_name_is_not_suitable-file_strings ;94A9 A2 57
 		jsr write_file_string		;94AB 20 E2 95
+		
 		jsr getch		;94AE 20 03 86
+		
 		ldx #$19		;94B1 A2 19
 .L_94B3	lda #$7F		;94B3 A9 7F
 		jsr write_char		;94B5 20 6F 84
 		dex				;94B8 CA
 		bne L_94B3		;94B9 D0 F8
+		
 		ldx #$14		;94BB A2 14
 		ldy #$13		;94BD A0 13
 		jsr set_text_cursor		;94BF 20 6B 10
+		
 		ldx #$0C		;94C2 A2 0C
 .L_94C4	jsr print_space		;94C4 20 AF 91
 		dex				;94C7 CA
 		bne L_94C4		;94C8 D0 FA
+
+; indicate error.
+
 		sec				;94CA 38
 		rts				;94CB 60
-
+		
 .L_94CC	equb "DIR "
 .L_94D0	equb "HALL"
-.L_94D4	equb "MP$"
+.L_94D4	equb "MP"
 }
+
 
 \\ Data moved from file_strings_offset to Hazel RAM
 
@@ -2851,7 +2961,7 @@ rts
 		clc				;973C 18
 		beq L_9745		;973D F0 06
 		lda #$81		;973F A9 81
-		sta L_C39A		;9741 8D 9A C3
+		sta file_error_flag		;9741 8D 9A C3
 		sec				;9744 38
 .L_9745	rts				;9745 60
 }
@@ -2872,7 +2982,7 @@ rts
 
 .L_9756				; in Cart
 {
-		lda L_C77B		;9756 AD 7B C7
+		lda file_load_save_flag		;9756 AD 7B C7
 		beq L_9784		;9759 F0 29
 		ldx #$7F		;975B A2 7F
 .L_975D	lda L_AE40,X	;975D BD 40 AE
@@ -2887,7 +2997,7 @@ rts
 		sta L_40E0,X	;9774 9D E0 40
 .L_9777	dex				;9777 CA
 		bpl L_975D		;9778 10 E3
-		lda L_31A1		;977A AD A1 31
+		lda number_players		;977A AD A1 31
 		sta L_40DC		;977D 8D DC 40
 		jsr L_96A8		;9780 20 A8 96
 		rts				;9783 60
@@ -2907,7 +3017,7 @@ rts
 .L_97A5	dex				;97A5 CA
 		bpl L_978B		;97A6 10 E3
 		lda L_40DC		;97A8 AD DC 40
-		sta L_31A1		;97AB 8D A1 31
+		sta number_players		;97AB 8D A1 31
 .L_97AE	rts				;97AE 60
 }
 
@@ -2987,7 +3097,7 @@ equb $74						; STEER LEFT
 .store_restore_control_keys			; HAS DLL
 {
 		sta ZP_14		;9846 85 14
-		lda L_31A1		;9848 AD A1 31
+		lda number_players		;9848 AD A1 31
 		beq L_986E		;984B F0 21
 		lda L_31A4		;984D AD A4 31
 		sec				;9850 38
@@ -3753,8 +3863,8 @@ equb $74						; STEER LEFT
 		equb "TRACK  DRIVER   LAP-TIME    DRIVER  RACE-TIME",$FF
 }
 
-.L_A1C7	jsr write_char		;A1C7 20 6F 84
-		inx				;A1CA E8
+.L_A1C7	jsr write_char			;A1C7 20 6F 84 (not an entry point)
+		inx						;A1CA E8
 .print_msg_2		; HAS DLL
 {
 		bit L_31A0		;A1CB 2C A0 31
@@ -3765,9 +3875,9 @@ equb $74						; STEER LEFT
 		rts				;A1D7 60
 }
 
-.L_A1D8	jsr write_char		;A1D8 20 6F 84
-		inx				;A1DB E8
-.print_msg_3		; HAS DLL
+.L_A1D8	jsr write_char			;A1D8 20 6F 84 (not an entry point)
+		inx						;A1DB E8
+.print_msg_3					; HAS DLL
 {
 		lda frontend_strings_3,X	;A1DC BD AA 31
 		cmp #$FF		;A1DF C9 FF
@@ -3833,15 +3943,15 @@ equb $74						; STEER LEFT
 {
 		ldx #$06		;3170 A2 06
 		jsr set_text_cursor		;3172 20 6B 10
-		ldx #$93		;3175 A2 93
+		ldx #frontend_strings_3_track_the-frontend_strings_3 ;3175 A2 93
 		jsr print_msg_3		;3177 20 DC A1		; "Track:  The "
 		ldx current_track		;317A AE 7D C7
 		jsr print_track_name		;317D 20 92 38
-		lda L_31A1		;3180 AD A1 31
+		lda number_players		;3180 AD A1 31
 		beq L_318F		;3183 F0 0A
 		lda L_C71A		;3185 AD 1A C7
 		beq L_318F		;3188 F0 05
-		ldx #$63		;318A A2 63
+		ldx #frontend_strings_3_space_s_dot-frontend_strings_3 ;318A A2 63
 		jsr print_msg_3		;318C 20 DC A1		; " S."
 .L_318F	rts				;318F 60
 }
@@ -6603,30 +6713,39 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		lda #$80		;3052 A9 80
 		sta L_31A0		;3054 8D A0 31
 		lda #$00		;3057 A9 00
-		sta L_31A1		;3059 8D A1 31
-		ldy #$01		;305C A0 01
-		ldx #$10		;305E A2 10
+		sta number_players		;3059 8D A1 31
+		ldy #$02		;305C A0 01
+		ldx #menu_screen_offsets_initial_menu-menu_screen_offsets ;305E A2 10
 		jsr kernel_do_menu_screen		;3060 20 36 EE
+		cmp #$02
+		beq do_credits_screen
 		cmp #$00		;3063 C9 00
 		bne L_307D		;3065 D0 16
 		jsr kernel_get_entered_name		;3067 20 7F ED
 		jmp L_308C		;306A 4C 8C 30
 .L_306D	lda #$00		;306D A9 00
 		ldy #$01		;306F A0 01
-		ldx #$14		;3071 A2 14
+		ldx #menu_screen_offsets_multiplayer_drivers-menu_screen_offsets ;3071 A2 14
 		jsr kernel_do_menu_screen		;3073 20 36 EE
 		cmp #$00		;3076 C9 00
 		bne L_3087		;3078 D0 0D
-		inc L_31A1		;307A EE A1 31
+		inc number_players		;307A EE A1 31
 .L_307D	jsr kernel_get_entered_name		;307D 20 7F ED
-		lda L_31A1		;3080 AD A1 31
+		lda number_players		;3080 AD A1 31
 		cmp #$07		;3083 C9 07
 		bcc L_306D		;3085 90 E6
-.L_3087	lda L_31A1		;3087 AD A1 31
+.L_3087	lda number_players		;3087 AD A1 31
 		beq L_306D		;308A F0 E1
 .L_308C	lda #$00		;308C A9 00
 		sta L_31A0		;308E 8D A0 31
 		rts				;3091 60
+}
+
+.do_credits_screen
+{
+jsr graphics_show_credits_screen
+jsr kernel_set_up_screen_for_frontend
+jmp do_initial_screen
 }
 
 .do_end_of_race_screen
@@ -6653,11 +6772,11 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr set_text_cursor		;30C1 20 6B 10
 		ldx #$00		;30C4 A2 00		; "TRACK BONUS POINTS"
 		jsr print_msg_1		;30C6 20 A5 32
-		lda L_31A1		;30C9 AD A1 31
+		lda number_players		;30C9 AD A1 31
 		cmp #$05		;30CC C9 05
 		bcc L_30D3		;30CE 90 03
 		jsr set_write_char_half_row_flag		;30D0 20 84 38
-.L_30D3	ldx L_31A1		;30D3 AE A1 31
+.L_30D3	ldx number_players		;30D3 AE A1 31
 		lda L_3190,X	;30D6 BD 90 31
 		tay				;30D9 A8
 		clc				;30DA 18
@@ -6665,18 +6784,18 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		sta L_3845		;30DD 8D 45 38
 		jsr print_track_title		;30E0 20 70 31
 		jsr print_race_times		;30E3 20 CF 91
-		lda L_31A1		;30E6 AD A1 31
+		lda number_players		;30E6 AD A1 31
 		cmp #$06		;30E9 C9 06
 		beq L_30F4		;30EB F0 07
 		cmp #$05		;30ED C9 05
 		beq L_30F4		;30EF F0 03
 		jsr clear_write_char_half_row_flag		;30F1 20 1F 36
-.L_30F4	ldx L_31A1		;30F4 AE A1 31
+.L_30F4	ldx number_players		;30F4 AE A1 31
 		lda L_3198,X	;30F7 BD 98 31
 		sta L_321D		;30FA 8D 1D 32
 		clc				;30FD 18
 		adc #$02		;30FE 69 02
-		ldy L_31A1		;3100 AC A1 31
+		ldy number_players		;3100 AC A1 31
 		cpy #$07		;3103 C0 07
 		bne L_310A		;3105 D0 03
 		sec				;3107 38
@@ -6712,11 +6831,11 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jmp L_3158		;314B 4C 58 31
 .L_314E	ldy #$0B		;314E A0 0B
 		jsr print_track_title		;3150 20 70 31
-.L_3153	ldx #$71		;3153 A2 71		; "DRIVER      BEST-LAP RACE-TIME"
+.L_3153	ldx #frontend_strings_3_driver_best_lap_race_time-frontend_strings_3 ;3153 A2 71 ; "DRIVER      BEST-LAP RACE-TIME"
 		jsr print_msg_3		;3155 20 DC A1
 .L_3158	lda #$0E		;3158 A9 0E
 		sta ZP_19		;315A 85 19
-		lda L_31A1		;315C AD A1 31
+		lda number_players		;315C AD A1 31
 		clc				;315F 18
 		adc #$02		;3160 69 02
 		jsr plot_menu_option		;3162 20 5A 38
@@ -6733,7 +6852,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 .L_3389_from_game_start			; called from game_start
 {
 		ldx #$06		;3389 A2 06
-		lda L_31A1		;338B AD A1 31
+		lda number_players		;338B AD A1 31
 		beq L_33E8		;338E F0 58
 		jsr disable_ints_and_page_in_RAM		;3390 20 F1 33
 		ldx #$01		;3393 A2 01
@@ -6781,7 +6900,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		dex				;33DE CA
 		bpl L_3398		;33DF 10 B7
 		jsr page_in_IO_and_enable_ints		;33E1 20 FC 33
-		ldx L_31A1		;33E4 AE A1 31
+		ldx number_players		;33E4 AE A1 31
 		inx				;33E7 E8
 .L_33E8	stx L_31A3		;33E8 8E A3 31
 		lda #$00		;33EB A9 00
@@ -6794,7 +6913,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr kernel_L_E8C2		;3626 20 C2 E8
 		lda ZP_50		;3629 A5 50
 		sta ZP_C7		;362B 85 C7
-		lda L_31A1		;362D AD A1 31
+		lda number_players		;362D AD A1 31
 		beq L_3638		;3630 F0 06
 		jsr do_end_of_race_screen		;3632 20 92 30
 		jmp L_361C		;3635 4C 1C 36
@@ -7532,6 +7651,56 @@ ENDIF
 		bne L_3A68		;3A74 D0 F2
 		rts				;3A76 60
 }
+
+; Moved from core RAM
+._plot_menu_option_3
+		lda #$03		;3854 A9 03
+		bne _plot_menu_option		;3856 D0 02
+
+._plot_menu_option_2
+		lda #$02		;3858 A9 02
+
+._plot_menu_option
+{
+		sta ZP_73		;385A 85 73
+		ldx ZP_19		;385C A6 19
+		ldy L_3837,X	;385E BC 37 38
+		sty ZP_74		;3861 84 74
+		sty ZP_7A		;3863 84 7A
+		jsr plot_menu_item_line		;3865 20 42 3A
+.L_3868	ldy ZP_74		;3868 A4 74
+		jsr colour_menu_option		;386A 20 48 38
+		inc ZP_74		;386D E6 74
+		dec ZP_73		;386F C6 73
+		bne L_3868		;3871 D0 F5
+		bit L_C356		;3873 2C 56 C3
+		bmi L_387B		;3876 30 03
+		jsr plot_menu_item_line		;3878 20 42 3A
+}
+\\ Fall through
+.L_387B	ldx #$05		;387B A2 05
+		ldy ZP_7A		;387D A4 7A
+		jsr cart_set_text_cursor		;387F 20 6B 10
+		inc ZP_19		;3882 E6 19
+
+\\ Fall through
+._set_write_char_half_row_flag
+		ldx #$80		;3884 A2 80
+		lda #$20		;3886 A9 20
+		jmp cart_sysctl		;3888 4C 25 87
+
+\\
+._clear_write_char_half_row_flag
+{
+		ldx #$00		;361F A2 00
+		lda #$20		;3621 A9 20
+		jmp cart_sysctl		;3623 4C 25 87
+}
+
+; menu option y rows
+.L_3837	equb $0D,$10,$13,$16,$10,$13,$10,$0F,$14,$17,$0A,$0E,$12,$16
+.L_3845	equb $0E,$0B,$11
+
 
 PAGE_ALIGN
 .L_A800	equb $01,$01,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$02,$02

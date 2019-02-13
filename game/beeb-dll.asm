@@ -16,7 +16,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_kernel_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -30,19 +30,13 @@ ENDMACRO
 
 .beeb_dll_start
 
-.DLL_REG_A skip 1           \\ Move these to ZP when possible
-.DLL_REG_X skip 1
-IF _STORE_STATUS
-.DLL_REG_STATUS skip 1
-ENDIF
-
 .jump_to_kernel
 {
-    STA DLL_REG_A
+    sta reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA .reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -70,13 +64,13 @@ ENDIF
     STA kernel_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_kernel_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -91,11 +85,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+	sta reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA .reload_status+1
 ENDIF
 
     \\ Restore original bank
@@ -103,12 +97,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -138,7 +132,7 @@ ENDIF
 .kernel_set_road_data1 DLL_CALL_KERNEL set_road_data1, 14
 .kernel_L_EC11 DLL_CALL_KERNEL L_EC11, 15		; not required in DLL
 .kernel_get_entered_name DLL_CALL_KERNEL get_entered_name, 16
-.kernel_L_EDAB DLL_CALL_KERNEL L_EDAB, 17
+.kernel_get_entered_string DLL_CALL_KERNEL get_entered_string, 17
 .kernel_do_menu_screen DLL_CALL_KERNEL do_menu_screen, 18
 .kernel_do_main_menu_dwim DLL_CALL_KERNEL do_main_menu_dwim, 19
 .kernel_L_F021 DLL_CALL_KERNEL L_F021, 20		; not required in DLL
@@ -236,7 +230,7 @@ ENDIF
 	EQUB LO(set_road_data1)
 	EQUB LO(L_EC11)
 	EQUB LO(get_entered_name)
-	EQUB LO(L_EDAB)
+	EQUB LO(get_entered_string)
 	EQUB LO(do_menu_screen)
 	EQUB LO(do_main_menu_dwim)
 	EQUB LO(L_F021)
@@ -323,7 +317,7 @@ ENDIF
 	EQUB HI(set_road_data1)
 	EQUB HI(L_EC11)
 	EQUB HI(get_entered_name)
-	EQUB HI(L_EDAB)
+	EQUB HI(get_entered_string)
 	EQUB HI(do_menu_screen)
 	EQUB HI(do_main_menu_dwim)
 	EQUB HI(L_F021)
@@ -409,7 +403,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_cart_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -422,11 +416,11 @@ ENDMACRO
 
 .jump_to_cart
 {
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -454,13 +448,13 @@ ENDIF
     STA cart_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_cart_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -475,11 +469,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Restore original bank
@@ -487,12 +481,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -519,8 +513,8 @@ ENDIF
 .cart_convert_X_to_BCD DLL_CALL_CART convert_X_to_BCD, 11
 .cart_print_track_records DLL_CALL_CART print_track_records, 12
 .cart_copy_track_records_Q DLL_CALL_CART copy_track_records_Q, 13
-.cart_L_93A8 DLL_CALL_CART L_93A8, 14
-.cart_L_9448 DLL_CALL_CART L_9448, 15
+.cart_copy_hall_of_fameQ DLL_CALL_CART copy_hall_of_fameQ, 14
+.cart_verify_filename DLL_CALL_CART verify_filename, 15
 .cart_write_file_string DLL_CALL_CART write_file_string, 16
 .cart_L_95EA DLL_CALL_CART L_95EA, 17
 .cart_maybe_define_keys DLL_CALL_CART maybe_define_keys, 18
@@ -550,7 +544,7 @@ ENDIF
 .cart_update_per_track_stuff DLL_CALL_CART update_per_track_stuff, 41
 .cart_L_1EE2_from_main_loop DLL_CALL_CART L_1EE2_from_main_loop, 42
 .cart_L_238E DLL_CALL_CART L_238E, 43
-.cart_L_25EA BRK
+.plot_menu_option_2 DLL_CALL_CART _plot_menu_option_2, 44
 .cart_pow36Q DLL_CALL_CART pow36Q, 45
 .cart_update_camera_roll_tables DLL_CALL_CART update_camera_roll_tables, 46
 .cart_L_2809 DLL_CALL_CART L_2809, 47
@@ -559,7 +553,7 @@ ENDIF
 
 .cart_L_2C64 DLL_CALL_CART L_2C64, 50
 .cart_L_2C6F_from_main_loop DLL_CALL_CART L_2C6F_from_main_loop, 51
-; 52
+.plot_menu_option_3 DLL_CALL_CART _plot_menu_option_3, 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
 .cart_do_end_of_race_screen DLL_CALL_CART do_end_of_race_screen, 55	; not required in DLL
@@ -579,6 +573,10 @@ ENDIF
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 .cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
 .cart_print_track_title DLL_CALL_CART print_track_title, 70
+.set_write_char_half_row_flag DLL_CALL_CART _set_write_char_half_row_flag, 71
+.plot_menu_option DLL_CALL_CART _plot_menu_option, 72
+.clear_write_char_half_row_flag DLL_CALL_CART _clear_write_char_half_row_flag, 73
+.set_write_char_colour_mask DLL_CALL_CART _set_write_char_colour_mask, 74
 
 ; *****************************************************************************
 \\ Function addresses
@@ -600,8 +598,8 @@ ENDIF
 	EQUB LO(convert_X_to_BCD)
 	EQUB LO(print_track_records)
 	EQUB LO(copy_track_records_Q)
-	EQUB LO(L_93A8)
-	EQUB LO(L_9448)
+	EQUB LO(copy_hall_of_fameQ)
+	EQUB LO(verify_filename)
 	EQUB LO(write_file_string)
 	EQUB LO(L_95EA)
 	EQUB LO(maybe_define_keys)
@@ -631,7 +629,7 @@ ENDIF
 	EQUB LO(update_per_track_stuff)
 	EQUB LO(L_1EE2_from_main_loop)
 	EQUB LO(L_238E)
-	EQUB 0
+	EQUB LO(_plot_menu_option_2)
 	EQUB LO(pow36Q)
 	EQUB LO(update_camera_roll_tables)
 	EQUB LO(L_2809)
@@ -640,7 +638,7 @@ ENDIF
 
 	EQUB LO(L_2C64)
 	EQUB LO(L_2C6F_from_main_loop)
-	EQUB 0 ; 52
+	EQUB LO(_plot_menu_option_3)
 	EQUB LO(draw_track_preview_track_name)
 	EQUB LO(do_initial_screen)
 	EQUB LO(do_end_of_race_screen)
@@ -660,6 +658,10 @@ ENDIF
 	EQUB LO(set_text_cursor)
 	EQUB LO(print_number_unpadded)
 	EQUB LO(print_track_title)
+	EQUB LO(_set_write_char_half_row_flag)
+	EQUB LO(_plot_menu_option)
+	EQUB LO(_clear_write_char_half_row_flag)
+	EQUB LO(_set_write_char_colour_mask)
 }
 
 .cart_table_HI
@@ -678,8 +680,8 @@ ENDIF
 	EQUB HI(convert_X_to_BCD)
 	EQUB HI(print_track_records)
 	EQUB HI(copy_track_records_Q)
-	EQUB HI(L_93A8)
-	EQUB HI(L_9448)
+	EQUB HI(copy_hall_of_fameQ)
+	EQUB HI(verify_filename)
 	EQUB HI(write_file_string)
 	EQUB HI(L_95EA)
 	EQUB HI(maybe_define_keys)
@@ -709,7 +711,7 @@ ENDIF
 	EQUB HI(update_per_track_stuff)
 	EQUB HI(L_1EE2_from_main_loop)
 	EQUB HI(L_238E)
-	EQUB 0
+	EQUB HI(_plot_menu_option_2)
 	EQUB HI(pow36Q)
 	EQUB HI(update_camera_roll_tables)
 	EQUB HI(L_2809)
@@ -718,7 +720,7 @@ ENDIF
 
 	EQUB HI(L_2C64)
 	EQUB HI(L_2C6F_from_main_loop)
-	EQUB 0 ; 52
+	EQUB HI(_plot_menu_option_3)
 	EQUB HI(draw_track_preview_track_name)
 	EQUB HI(do_initial_screen)
 	EQUB HI(do_end_of_race_screen)
@@ -738,6 +740,10 @@ ENDIF
 	EQUB HI(set_text_cursor)
 	EQUB HI(print_number_unpadded)
 	EQUB HI(print_track_title)
+	EQUB HI(_set_write_char_half_row_flag)
+	EQUB HI(_plot_menu_option)
+	EQUB HI(_clear_write_char_half_row_flag)
+	EQUB HI(_set_write_char_colour_mask)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
@@ -758,7 +764,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_graphics_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -771,11 +777,11 @@ ENDMACRO
 
 .jump_to_graphics
 {
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -803,13 +809,13 @@ ENDIF
     STA graphics_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_graphics_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -824,11 +830,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+	STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
 
@@ -837,12 +843,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -877,6 +883,20 @@ ENDIF
 .graphics_pause_save_screen DLL_CALL_GRAPHICS graphics_pause_save_screen,19
 .graphics_pause_show_text_sprite DLL_CALL_GRAPHICS graphics_pause_show_text_sprite,20
 
+; Note that this routine has 2 names. I don't think the distinction is
+; relevant for the BBC.
+.disable_screen_and_change_border_colour
+.disable_screen DLL_CALL_GRAPHICS _disable_screen,21
+
+
+; Note that this routine has 2 names. I don't think the distinction is
+; relevant for the BBC.
+.enable_screen_and_set_irq50
+.ensure_screen_enabled DLL_CALL_GRAPHICS _ensure_screen_enabled,22
+
+.beeb_set_mode_1 DLL_CALL_GRAPHICS _beeb_set_mode_1,23
+.graphics_show_credits_screen DLL_CALL_GRAPHICS _graphics_show_credits_screen,24
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -904,6 +924,10 @@ ENDIF
 	EQUB LO(_set_up_text_sprite)				 ; 18
 	EQUB LO(_graphics_pause_save_screen)		 ; 19
 	EQUB LO(_graphics_pause_show_text_sprite)	 ; 20
+	EQUB LO(_disable_screen)					 ; 21
+	EQUB LO(_ensure_screen_enabled)				 ; 22
+	EQUB LO(_beeb_set_mode_1)					 ; 23
+	EQUB LO(_graphics_show_credits_screen)		 ; 24
 }
 
 .graphics_table_HI
@@ -929,6 +953,10 @@ ENDIF
 	EQUB HI(_set_up_text_sprite)				 ; 18
 	EQUB HI(_graphics_pause_save_screen)		 ; 19
 	EQUB HI(_graphics_pause_show_text_sprite)	 ; 20
+	EQUB HI(_disable_screen)					 ; 21
+	EQUB HI(_ensure_screen_enabled)				 ; 22
+	EQUB HI(_beeb_set_mode_1)					 ; 23
+	EQUB HI(_graphics_show_credits_screen)		 ; 24
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"
