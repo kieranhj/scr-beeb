@@ -326,6 +326,28 @@ SID_MSB_SHIFT = 3
 
     \\ BEEB AUDIO - handle engine tone generation
 
+        LDA noise_sfx_override_engine
+        BEQ handle_engine_tone
+
+    \\ Otherwise we're handling noise
+
+        LDA SID_FREHI2
+        ASL A:ASL A         ; BEEB multiple by 4 otherwise sounds crap
+        TAX
+
+    \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
+
+        LDA sid_to_psg_freq_tone_LO, X
+        ORA #$C0            ; tone 1
+        JSR psg_strobe
+
+        LDA sid_to_psg_freq_tone_HI, X
+        JSR psg_strobe
+
+        RTS
+
+    .handle_engine_tone
+
     \\ Select 8 bits from Voice 1 frequency high & low bytes
 
         LDA SID_FRELO1
@@ -356,6 +378,7 @@ SID_MSB_SHIFT = 3
         ORA #%11110000
         JSR psg_strobe
 
+        .return
         rts
 }
 
@@ -377,6 +400,9 @@ SID_MSB_SHIFT = 3
 	sta $fe40
     rts
 }
+
+.noise_sfx_override_engine
+EQUB 0
 
 .vsync_counter
 EQUB 0

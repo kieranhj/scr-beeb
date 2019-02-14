@@ -462,18 +462,17 @@ L_AEC1 = L_AEC0 + 1
  
 		equb $01,$81,$0F,$E0
 .sid_sfx1_freq_high	\\ Used in crash effect
-		equb $64,$08,$1E,$80						; sfx #1 - crash?
+		equb $64,$08,$1E,$80						; sfx #1 - smash & edge grind
 		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $6400, pulse width $0800
 
-	; one will be hole and the other edge grind / wrecked
-
-		equb $01,$81,$0F,$E0,$14,$08,$1E,$80		; sfx #2 - game update?
+		equb $01,$81,$0F,$E0,$14,$08,$1E,$80		; sfx #2 - collide with opponent
 		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $1400 = 312Hz, pulse width $0800
 		; SN76489 reg = 400 ($190)
 
-		equb $01,$81,$00,$F0,$03,$08,$03,$80		; sfx #3 - game update?
+		equb $01,$81,$00,$F0,$30,$08,$03,$80		; sfx #3 - suspension bounce
 		; voice 2, random wave, decay 0/attack 0, sustain 15/release 0, freq $0300 = 47Hz, pulse width $0800
 		; SN76489 reg = 2660 (beyond max $3FF of course)
+		; changed to freq $3000 for BEEB!
 
 		equb $01,$41,$02,$00,$64,$98,$01,$80		; sfx #4 - damage creak
 		; voice 2, pulse wave, decay 2/attack 0, sustain 0/release 0, freq $6400 = 1560Hz, pulse width $0800 = 50% (square wave)

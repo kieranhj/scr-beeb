@@ -811,16 +811,42 @@ ENDIF
 		CMP #$01
 		BNE return
 
-	\\ Handle pulse tones first
+	\\ What type of sfx?
 
 		LDA SID_VCREG2
 		AND #$40
+		BNE handle_pulse_sfx
+
+	\\ Handle random wave sfx
+
+		LDA SID_VCREG2
+		AND #$80
 		BEQ return
+
+	\\ If we've already turned off periodic noise, don't do it again
+
+		LDA noise_sfx_override_engine
+		BMI return
+
+		LDA #&FF
+		STA noise_sfx_override_engine
+
+	\\ Generate white noise controlled by tone 1
+
+		LDA #%11100111
+		JSR psg_strobe
+
+	\\ Actual tone will be set in interrupt handler
+
+		RTS
+
+	\\ Handle pulse tone sfx
+
+		.handle_pulse_sfx
 
 	\\ Get SID frequency value for voice 2 (high byte only)
 
-		LDA SID_FREHI2
-		TAX
+		LDX SID_FREHI2
 
 	\\ Map to SN76489 register values
 
@@ -836,9 +862,6 @@ ENDIF
 
 		.return
 		rts				;86C4 60
-
-.watch_X
-	equb 0
 
 .sid_pulse_waveform_width
 	equb $00
