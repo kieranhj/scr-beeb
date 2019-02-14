@@ -6,6 +6,7 @@ _JUST_ONE_TRACK_FOR_SAVING_RAM = FALSE
 
 .core_data_start
 
+\\ Save game
 PAGE_ALIGN
 .L_8000	skip $C0
 L_801B	= L_8000 + $1B
@@ -21,6 +22,7 @@ L_807E	= L_8000 + $7E
 L_807F	= L_8000 + $7F
 L_8080	= L_8000 + $80
 L_80A0	= L_8000 + $A0
+L_80C0	= L_8000 + $C0
 
 \\ FONT START at $80C0
 .font_data
@@ -240,13 +242,13 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 .frontend_strings_2_cancel
 		equb "Cancel",$FF
 .frontend_strings_2_load_from_tape
-		equb "LOAD from Tape",$FF
+		equb "Load Hall of Fame",$FF
 .frontend_strings_2_load_from_disc
-		equb "LOAD from Disc",$FF
+		equb "Load Game",$FF
 .frontend_strings_2_save_to_tape
-		equb "SAVE to Tape",$FF
+		equb "Save Hall of Fame",$FF
 .frontend_strings_2_save_to_disc
-		equb "SAVE to Disc",$FF
+		equb "Save Game",$FF
 .frontend_strings_2_filename
 		equb $1F,$05,$13,"   Filename?  >",$FF
 .frontend_strings_2_to_the_super_league
@@ -259,6 +261,8 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 		equb "EXCELLENT DRIVING - WELL DONE",$FF
 .frontend_strings_2_hall_of_fame
 		equb "Hall of Fame",$FF
+.frontend_strings_2_catalog
+		equb "@CAT",$FF
 if P%-frontend_strings_2>255:error "frontend_strings_2 too big":endif
 
 .frontend_strings_3
@@ -467,38 +471,6 @@ L_AEC1 = L_AEC0 + 1
 .L_AFD4	equb $12,$11,$1B,$20,$B2,$BD,$20,$56,$AE,$20,$F0,$92,$E9,$E5,$FA,$F3
 		equb $F8,$E3,$ED,$E2,$FE,$8A,$ED,$EF,$E5,$EC,$EC,$8A,$E9,$F8,$EB,$E7
 		equb $E7,$E5,$E4,$EE,$8A,$9B,$93,$92,$92,$56,$AE,$20
-
-.L_B000	equb $00
-.L_B001	equb $0B,$16,$22,$2D,$38,$44,$4F,$5B,$66,$72,$7E,$8A,$95,$A1,$AD,$B9
-		equb $C5,$D2,$DE,$EA,$F7,$03,$10,$1C,$29,$36,$42,$4F,$5C,$69,$76,$83
-		equb $91,$9E,$AB,$B9,$C6,$D4,$E2,$EF,$FD,$0B,$19,$27,$35,$43,$52,$60
-		equb $6E,$7D,$8B,$9A,$A9,$B8,$C7,$D6,$E5,$F4,$03,$12,$22,$31,$41,$50
-		equb $60,$70,$80,$90,$A0,$B0,$C0,$D1,$E1,$F1,$02,$13,$24,$34,$45,$56
-		equb $68,$79,$8A,$9C,$AD,$BF,$D0,$E2,$F4,$06,$18,$2B,$3D,$4F,$62,$74
-		equb $87,$9A,$AD,$C0,$D3,$E6,$F9,$0D,$20,$34,$48,$5C,$70,$84,$98,$AC
-		equb $C0,$D5,$EA,$FE,$13,$28,$3D,$52,$68,$7D,$93,$A8,$BE,$D4,$EA
-
-\* Used to convert a sin value from (0*256 - 1*256) into a cosine value.
-\*
-\* There are 128 values in this table representing sin values increasing in
-\* increments of 1/128.
-\*
-\* Each value is calculated by getting the inverse sin of the sin value, to
-\* give the actual angle, then taking the cosine of this angle.  The result
-\* is then multiplied by 256.
-\*
-\* First 8 values should ideally be 256.
-
-;L_B080
-.cosine_conversion_table
-		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
-		equb $FE,$FE,$FD,$FD,$FD,$FD,$FC,$FC,$FB,$FB,$FB,$FA,$FA,$F9,$F9,$F8
-		equb $F8,$F7,$F7,$F6,$F6,$F5,$F4,$F4,$F3,$F3,$F2,$F1,$F0,$F0,$EF,$EE
-		equb $ED,$EC,$EC,$EB,$EA,$E9,$E8,$E7,$E6,$E5,$E4,$E3,$E2,$E1,$E0,$DF
-		equb $DE,$DD,$DB,$DA,$D9,$D8,$D6,$D5,$D4,$D2,$D1,$CF,$CE,$CC,$CB,$C9
-		equb $C8,$C6,$C5,$C3,$C1,$BF,$BE,$BC,$BA,$B8,$B6,$B4,$B2,$B0,$AE,$AC
-		equb $A9,$A7,$A5,$A2,$A0,$9D,$9B,$98,$95,$92,$8F,$8C,$89,$86,$83,$7F
-		equb $7C,$78,$74,$70,$6C,$68,$63,$5E,$59,$53,$4D,$47,$3F,$37,$2D,$20
 
 \* These first 16 words are used to give offsets to the data definitions of
 \* the different road pieces.  They are stored in low byte, high byte order

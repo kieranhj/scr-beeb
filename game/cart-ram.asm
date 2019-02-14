@@ -127,17 +127,14 @@
 		dec ZP_F7		;8448 C6 F7
 		dec ZP_F5		;844A C6 F5
 		lda ZP_F7		;844C A5 F7
-		cmp #HI(L_4100)		;844E C9 41
+		cmp #HI(screen1_address + $100)		;844E C9 41
 		bcs L_843C		;8450 B0 EA
 		rts				;8452 60
 .L_8453
 		lda #$14		;8453 A9 14
 		sta ZP_52		;8455 85 52
-		ldx #LO(L_4000)		;8457 A2 00
-		ldy #HI(L_4000)		;8459 A0 40
-
-\\ Changing this from #$AA to #&F0 results in entire sky being filled...
-
+		ldx #LO(screen1_address)		;8457 A2 00
+		ldy #HI(screen1_address)		;8459 A0 40
 		lda #BEEB_PIXELS_COLOUR2;845B A9 AA
 		jsr fill_64s		;845D 20 21 89
 		lda #$05		;8460 A9 05
@@ -208,9 +205,24 @@ rts
 		inc write_char_x_pos		;84B2 EE C5 85
 		rts				;84B5 60
 
+\\ VDU 10 = move cursor down
+
+.L_84B6	cmp #$0a
+		bne check_newline
+		inc write_char_y_pos
+		rts
+
+.check_newline
+		cmp #$0d
+		bne check_delete
+		lda #4
+		sta write_char_x_pos
+		rts
+
 \\ VDU 127 = delete
 
-.L_84B6	cmp #$7F		;84B6 C9 7F
+.check_delete
+		cmp #$7F		;84B6 C9 7F
 		bcc plot_glyph		;84B8 90 19
 		bne L_84D2		;84BA D0 16
 
@@ -2202,10 +2214,10 @@ rts
 		pla						;90CA 68
 		beq L_911A				;90CB F0 4D
 
-; L_C77B is set at L_EF8C (kernel-ram) and reset at L_9493 (cart-ram).
+; file_load_save_flag is set at L_EF8C (kernel-ram) and reset at L_9493 (cart-ram).
 ; Is this the load/save flag?
 
-		lda L_C77B		;90CD AD 7B C7
+		lda file_load_save_flag		;90CD AD 7B C7
 		beq L_9106		;90D0 F0 34
 
 ; form S0:<<save game name>> file name.
@@ -2493,25 +2505,25 @@ rts
 		rts				;93A7 60
 }
 
-.L_93A8				; HAS DLL
+.copy_hall_of_fameQ				; HAS DLL
 {
-		eor L_C77B		;93A8 4D 7B C7
+		eor file_load_save_flag		;93A8 4D 7B C7
 		bne L_93DF		;93AB D0 32
-		lda L_C39A		;93AD AD 9A C3
+		lda file_error_flag		;93AD AD 9A C3
 		bmi L_93DF		;93B0 30 2D
-		lda L_C367		;93B2 AD 67 C3
+		lda file_type_id		;93B2 AD 67 C3
 		bmi L_93DF		;93B5 30 28
 		beq L_93DF		;93B7 F0 26
 		cmp #$40		;93B9 C9 40
 		beq L_93C0		;93BB F0 03
 		jmp L_9756		;93BD 4C 56 97
 .L_93C0	jsr disable_ints_and_page_in_RAM		;93C0 20 F1 33
-		lda L_C77B		;93C3 AD 7B C7
+		lda file_load_save_flag		;93C3 AD 7B C7
 		beq L_93E0		;93C6 F0 18
 		ldx #$00		;93C8 A2 00
-.L_93CA	lda L_DE00,X	;93CA BD 00 DE		; I/O 1
+.L_93CA	lda L_DE00,X	;93CA BD 00 DE
 		sta L_4000,X	;93CD 9D 00 40
-		lda L_DF00,X	;93D0 BD 00 DF		; I/O 2
+		lda L_DF00,X	;93D0 BD 00 DF
 		sta L_4100,X	;93D3 9D 00 41
 		dex				;93D6 CA
 		bne L_93CA		;93D7 D0 F1
@@ -2572,7 +2584,7 @@ rts
 		jmp L_93DC		;9445 4C DC 93
 }
 
-.L_9448				; HAS DLL
+.verify_filename				; HAS DLL
 {
 
 ; $00 = save game name starts with none of "DIR ", "HALL" or "MP"
@@ -2624,11 +2636,11 @@ rts
 
 		ldy #$01		;9479 A0 01
 .L_947B
-		sty L_C367		;947B 8C 67 C3
+		sty file_type_id		;947B 8C 67 C3
 
 ; skip this next bit if loading
 
-		lda L_C77B		;947E AD 7B C7
+		lda file_load_save_flag		;947E AD 7B C7
 		beq L_9491		;9481 F0 0E
 
 ; branch taken if name starts with "DIR "
@@ -2650,7 +2662,7 @@ rts
 ; name starts with "MP".
 ; branch taken if single-player mode.
 
-		lda L_31A1		;948C AD A1 31
+		lda number_players		;948C AD A1 31
 		beq file_name_is_not_suitable ;948F F0 0E
 		
 .L_9491
@@ -2662,11 +2674,11 @@ rts
 		
 .L_9493
 
-; dir requested, so return with C=0 (no error) and L_C77B reset (load
-; data). The value of L_C367 is used later to figure out what to do.
+; dir requested, so return with C=0 (no error) and file_load_save_flag reset (load
+; data). The value of file_type_id is used later to figure out what to do.
 
 		lda #$00		;9493 A9 00
-		sta L_C77B		;9495 8D 7B C7
+		sta file_load_save_flag		;9495 8D 7B C7
 		clc				;9498 18
 		rts				;9499 60
 
@@ -2674,7 +2686,7 @@ rts
 
 ; branch taken if single-player mode
 
-		lda L_31A1		;949A AD A1 31
+		lda number_players		;949A AD A1 31
 		beq L_9491		;949D F0 F2
 		
 .file_name_is_not_suitable
@@ -2914,7 +2926,7 @@ rts
 		clc				;973C 18
 		beq L_9745		;973D F0 06
 		lda #$81		;973F A9 81
-		sta L_C39A		;9741 8D 9A C3
+		sta file_error_flag		;9741 8D 9A C3
 		sec				;9744 38
 .L_9745	rts				;9745 60
 }
@@ -2935,7 +2947,7 @@ rts
 
 .L_9756				; in Cart
 {
-		lda L_C77B		;9756 AD 7B C7
+		lda file_load_save_flag		;9756 AD 7B C7
 		beq L_9784		;9759 F0 29
 		ldx #$7F		;975B A2 7F
 .L_975D	lda L_AE40,X	;975D BD 40 AE
@@ -2950,7 +2962,7 @@ rts
 		sta L_40E0,X	;9774 9D E0 40
 .L_9777	dex				;9777 CA
 		bpl L_975D		;9778 10 E3
-		lda L_31A1		;977A AD A1 31
+		lda number_players		;977A AD A1 31
 		sta L_40DC		;977D 8D DC 40
 		jsr L_96A8		;9780 20 A8 96
 		rts				;9783 60
@@ -2970,7 +2982,7 @@ rts
 .L_97A5	dex				;97A5 CA
 		bpl L_978B		;97A6 10 E3
 		lda L_40DC		;97A8 AD DC 40
-		sta L_31A1		;97AB 8D A1 31
+		sta number_players		;97AB 8D A1 31
 .L_97AE	rts				;97AE 60
 }
 
@@ -3050,7 +3062,7 @@ equb $74						; STEER LEFT
 .store_restore_control_keys			; HAS DLL
 {
 		sta ZP_14		;9846 85 14
-		lda L_31A1		;9848 AD A1 31
+		lda number_players		;9848 AD A1 31
 		beq L_986E		;984B F0 21
 		lda L_31A4		;984D AD A4 31
 		sec				;9850 38
@@ -3900,7 +3912,7 @@ equb $74						; STEER LEFT
 		jsr print_msg_3		;3177 20 DC A1		; "Track:  The "
 		ldx current_track		;317A AE 7D C7
 		jsr print_track_name		;317D 20 92 38
-		lda L_31A1		;3180 AD A1 31
+		lda number_players		;3180 AD A1 31
 		beq L_318F		;3183 F0 0A
 		lda L_C71A		;3185 AD 1A C7
 		beq L_318F		;3188 F0 05
@@ -6666,7 +6678,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		lda #$80		;3052 A9 80
 		sta L_31A0		;3054 8D A0 31
 		lda #$00		;3057 A9 00
-		sta L_31A1		;3059 8D A1 31
+		sta number_players		;3059 8D A1 31
 		ldy #$02		;305C A0 01
 		ldx #menu_screen_offsets_initial_menu-menu_screen_offsets ;305E A2 10
 		jsr kernel_do_menu_screen		;3060 20 36 EE
@@ -6682,12 +6694,12 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 		jsr kernel_do_menu_screen		;3073 20 36 EE
 		cmp #$00		;3076 C9 00
 		bne L_3087		;3078 D0 0D
-		inc L_31A1		;307A EE A1 31
+		inc number_players		;307A EE A1 31
 .L_307D	jsr kernel_get_entered_name		;307D 20 7F ED
-		lda L_31A1		;3080 AD A1 31
+		lda number_players		;3080 AD A1 31
 		cmp #$07		;3083 C9 07
 		bcc L_306D		;3085 90 E6
-.L_3087	lda L_31A1		;3087 AD A1 31
+.L_3087	lda number_players		;3087 AD A1 31
 		beq L_306D		;308A F0 E1
 .L_308C	lda #$00		;308C A9 00
 		sta L_31A0		;308E 8D A0 31
@@ -6725,11 +6737,11 @@ jmp do_initial_screen
 		jsr set_text_cursor		;30C1 20 6B 10
 		ldx #$00		;30C4 A2 00		; "TRACK BONUS POINTS"
 		jsr print_msg_1		;30C6 20 A5 32
-		lda L_31A1		;30C9 AD A1 31
+		lda number_players		;30C9 AD A1 31
 		cmp #$05		;30CC C9 05
 		bcc L_30D3		;30CE 90 03
 		jsr set_write_char_half_row_flag		;30D0 20 84 38
-.L_30D3	ldx L_31A1		;30D3 AE A1 31
+.L_30D3	ldx number_players		;30D3 AE A1 31
 		lda L_3190,X	;30D6 BD 90 31
 		tay				;30D9 A8
 		clc				;30DA 18
@@ -6737,18 +6749,18 @@ jmp do_initial_screen
 		sta L_3845		;30DD 8D 45 38
 		jsr print_track_title		;30E0 20 70 31
 		jsr print_race_times		;30E3 20 CF 91
-		lda L_31A1		;30E6 AD A1 31
+		lda number_players		;30E6 AD A1 31
 		cmp #$06		;30E9 C9 06
 		beq L_30F4		;30EB F0 07
 		cmp #$05		;30ED C9 05
 		beq L_30F4		;30EF F0 03
 		jsr clear_write_char_half_row_flag		;30F1 20 1F 36
-.L_30F4	ldx L_31A1		;30F4 AE A1 31
+.L_30F4	ldx number_players		;30F4 AE A1 31
 		lda L_3198,X	;30F7 BD 98 31
 		sta L_321D		;30FA 8D 1D 32
 		clc				;30FD 18
 		adc #$02		;30FE 69 02
-		ldy L_31A1		;3100 AC A1 31
+		ldy number_players		;3100 AC A1 31
 		cpy #$07		;3103 C0 07
 		bne L_310A		;3105 D0 03
 		sec				;3107 38
@@ -6788,7 +6800,7 @@ jmp do_initial_screen
 		jsr print_msg_3		;3155 20 DC A1
 .L_3158	lda #$0E		;3158 A9 0E
 		sta ZP_19		;315A 85 19
-		lda L_31A1		;315C AD A1 31
+		lda number_players		;315C AD A1 31
 		clc				;315F 18
 		adc #$02		;3160 69 02
 		jsr plot_menu_option		;3162 20 5A 38
@@ -6805,7 +6817,7 @@ jmp do_initial_screen
 .L_3389_from_game_start			; called from game_start
 {
 		ldx #$06		;3389 A2 06
-		lda L_31A1		;338B AD A1 31
+		lda number_players		;338B AD A1 31
 		beq L_33E8		;338E F0 58
 		jsr disable_ints_and_page_in_RAM		;3390 20 F1 33
 		ldx #$01		;3393 A2 01
@@ -6853,7 +6865,7 @@ jmp do_initial_screen
 		dex				;33DE CA
 		bpl L_3398		;33DF 10 B7
 		jsr page_in_IO_and_enable_ints		;33E1 20 FC 33
-		ldx L_31A1		;33E4 AE A1 31
+		ldx number_players		;33E4 AE A1 31
 		inx				;33E7 E8
 .L_33E8	stx L_31A3		;33E8 8E A3 31
 		lda #$00		;33EB A9 00
@@ -6866,7 +6878,7 @@ jmp do_initial_screen
 		jsr kernel_L_E8C2		;3626 20 C2 E8
 		lda ZP_50		;3629 A5 50
 		sta ZP_C7		;362B 85 C7
-		lda L_31A1		;362D AD A1 31
+		lda number_players		;362D AD A1 31
 		beq L_3638		;3630 F0 06
 		jsr do_end_of_race_screen		;3632 20 92 30
 		jmp L_361C		;3635 4C 1C 36

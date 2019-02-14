@@ -1539,7 +1539,7 @@ jsr dash_reset
 
 .L_1F06				; only called from Kernel?
 {
-		lda L_31A1		;1F06 AD A1 31
+		lda number_players		;1F06 AD A1 31
 		beq L_1F10		;1F09 F0 05
 		lda L_C77F		;1F0B AD 7F C7
 		bne L_1F47		;1F0E D0 37
@@ -1621,7 +1621,7 @@ jsr dash_reset
 .do_load_save_game
 {
 		lda #$00		;2AAE A9 00
-		sta L_C39A		;2AB0 8D 9A C3
+		sta file_error_flag		;2AB0 8D 9A C3
 		lda #BEEB_PIXELS_COLOUR2		;2AB3 A9 07
 		sta menu_option_colour		;2AB5 8D 53 39
 		ldy #$13		;2AB8 A0 13
@@ -1632,9 +1632,18 @@ jsr dash_reset
 		sta menu_option_colour		;2AC4 8D 53 39
 		jsr set_write_char_half_row_flag		;2AC7 20 84 38
 
+; BEEB check for *CAT
+
+		LDA L_0840
+		CMP #$02
+		BNE not_catalog
+		JMP do_catalog
+		.not_catalog
+
+IF _NOT_BEEB
 ; branch taken if load
 
-		lda L_C77B		;2ACA AD 7B C7
+		lda file_load_save_flag		;2ACA AD 7B C7
 		beq L_2AE9		;2ACD F0 1A
 
 ; save
@@ -1651,7 +1660,8 @@ jsr dash_reset
 
 		ldx #file_string_file_name_maybe-file_strings ;2AE4 A2 99
 		jsr cart_write_file_string		;2AE6 20 E2 95
-		
+ENDIF
+
 .L_2AE9
 
 		ldx #frontend_strings_2_filename-frontend_strings_2	;2AE9 A2 94		; "   Filename?  >"
@@ -1659,27 +1669,73 @@ jsr dash_reset
 		ldx #$78		;2AEE A2 78
 		ldy #$D5		;2AF0 A0 D5
 		lda #$C0		;2AF2 A9 C0
-		jsr L_EDAB		;2AF4 20 AB ED
+		jsr get_entered_string		;2AF4 20 AB ED
 		bit L_EE35		;2AF7 2C 35 EE
 		bpl L_2AFD		;2AFA 10 01
 		rts				;2AFC 60
 		
 .L_2AFD
 
+\\ BEEB terminate file name for OSFILE:
+
+		{
+			LDX #11
+			.find_loop
+			LDA L_AEC1, X
+			CMP #$20
+			BNE done_loop
+			DEX
+			BPL find_loop
+			.done_loop
+			INX
+			STX file_name_length
+		}
+
+		LDA #13
+		STA L_AEC1,X
+
+; set file_type_id
+
+		LDA L_0840		; option 0 = HoF
+		BNE is_game
+
+		; Hall of Fame
+		LDA #$40
+		BNE set_file_type_id
+
+		.is_game
+		LDA number_players
+		BEQ set_file_type_id
+
+		LDA #1	; 1 = MP otherwise SP
+
+		.set_file_type_id
+		STA file_type_id
+
 ; verify file name
 
-		jsr cart_L_9448		;2AFD 20 48 94
+		\\jsr cart_verify_filename		;2AFD 20 48 94
 
 ; branch taken if file name not valid
+; NOTE that DLL system doesn't pass status flags back so the
+; carry test isn't likely to be correct anyway
 
-		bcs L_2AE9		;2B00 B0 E7
+		\\bcs L_2AE9		;2B00 B0 E7
 
 		jsr clear_write_char_half_row_flag		;2B02 20 1F 36
 		jsr cart_save_rndQ_stateQ		;2B05 20 2C 16
-		lda #$00		;2B08 A9 00
-		jsr disable_screen_and_change_border_colour ;2B0A 20 BB 3F
+
+		\\ Don't blank the screen
+		\\lda #$00		;2B08 A9 00
+		\\jsr disable_screen_and_change_border_colour ;2B0A 20 BB 3F
+
+; if saving then copy Hall of Fame data from L_DE00 down to L_4000
+
+\\ BEEB - will need to find somewhere not in screen RAM!
+
 		lda #$01		;2B0D A9 01
-		jsr cart_L_93A8		;2B0F 20 A8 93
+		jsr cart_copy_hall_of_fameQ		;2B0F 20 A8 93
+
 		ldx #$00		;2B12 A2 00
 		lda #$20		;2B14 A9 20
 .L_2B16	sta L_0400,X	;2B16 9D 00 04
@@ -1690,6 +1746,7 @@ jsr dash_reset
 		cpx #$FA		;2B23 E0 FA
 		bne L_2B16		;2B25 D0 EF
 
+IF _NOT_BEEB
 		lda #C64_VIC_IRQ_DISABLE		;2B27 A9 00
 		sta VIC_IRQMASK		;2B29 8D 1A D0		; VIC
 
@@ -1712,8 +1769,13 @@ jsr dash_reset
 		sta L_0314,X	;2B40 9D 14 03
 		dex				;2B43 CA
 		bpl L_2B3D		;2B44 10 F7
+ENDIF
+
+\\ No idea what this does...
+
 		jsr L_E544		;2B46 20 44 E5
 
+IF _NOT_BEEB
 		lda #$C0		;2B49 A9 C0
 		sta VIC_EXTCOL		;2B4B 8D 20 D0		; VIC
 		sta VIC_BGCOL0		;2B4E 8D 21 D0		; VIC
@@ -1735,7 +1797,7 @@ jsr dash_reset
 ; http://sta.c64.org/cbm64krnfunc.html
 
 		ldy L_0840		;2B60 AC 40 08
-		ldx L_2C21,Y	;2B63 BE 21 2C device number - 1 (tape) or 8
+		ldx c64_device,Y	;2B63 BE 21 2C device number - 1 (tape) or 8
 						;(disk)
 		lda #$00		;2B66 A9 00 file logical number = 0
 		ldy #$00		;2B68 A0 00 secondary address = 0
@@ -1743,7 +1805,7 @@ jsr dash_reset
 
 ; branch taken if not "DIR *"
 
-		bit L_C367		;2B6D 2C 67 C3
+		bit file_type_id		;2B6D 2C 67 C3
 		bpl L_2B7B		;2B70 10 09
 
 ; SETNAM for catalogue
@@ -1772,10 +1834,11 @@ jsr dash_reset
 		ldy #HI(L_AEC1)	;2B88 A0 AE
 .L_2B8A
 		jsr KERNEL_SETNAM		;2B8A 20 BD FF
+ENDIF
 
 ; branch taken if load
 
-		lda L_C77B		;2B8D AD 7B C7
+		lda file_load_save_flag		;2B8D AD 7B C7
 		beq L_2BB9		;2B90 F0 27
 
 ; set LSB of save start address - $00 in all cases.
@@ -1785,7 +1848,7 @@ jsr dash_reset
 
 ; Branch taken if not "HALL*" or "MP*"
 
-		lda L_C367		;2B96 AD 67 C3
+		lda file_type_id		;2B96 AD 67 C3
 		beq L_2BAB		;2B99 F0 10
 
 ; Multiplayer/HoF save??
@@ -1797,9 +1860,10 @@ jsr dash_reset
 		clc					 ;2B9F 18
 		adc #HI(L_4000)-1	 ;2BA0 69 3F   0x42 = HALL, 0x41 = MP
 		tay					 ;2BA2 A8      MSB of where to stop saving
-		ldx #$00			 ;2BA3 A2 00   LSB or where to stop saving
+		ldx #LO(L_4000)			 ;2BA3 A2 00   LSB or where to stop saving
 
 ; set MSB of save start address
+
 		lda #HI(L_4000)			;2BA5 A9 40
 		sta ZP_FC				;2BA7 85 FC
 
@@ -1813,11 +1877,11 @@ jsr dash_reset
 
 ; set LSB of save end address.
 
-		ldx #$C0		;2BAB A2 C0
+		ldx #LO(L_80C0)		;2BAB A2 C0
 
 ; set MSB of save start address and MSB of save end address.
 
-		ldy #$80		;2BAD A0 80
+		ldy #HI(L_80C0)		;2BAD A0 80
 		sty ZP_FC		;2BAF 84 FC
 
 ; start = $8000, end = $80c0
@@ -1831,23 +1895,61 @@ jsr dash_reset
 
 ; set load address to $8000
 
-		ldx #$00		;2BB9 A2 00
-		ldy #$80		;2BBB A0 80
+		ldx #LO(L_8000)		;2BB9 A2 00
+;		ldy #HI(L_8000)		;2BBB A0 80
 
 ; branch taken if not "DIR *", "HALL*" or "MP*"
 
-		lda L_C367		;2BBD AD 67 C3
-		beq L_2BC4		;2BC0 F0 02
+;		lda file_type_id		;2BBD AD 67 C3
+;		beq L_2BC4		;2BC0 F0 02
 
 ; name is "DIR *", "HALL*" or "MP*"
 
 ; set load address to $4000
 
-		ldy #$40		;2BC2 A0 40
+		ldy #HI(L_4000)		;2BC2 A0 40
+
+\ For BEEB always load to L_4000 as safer
+
 .L_2BC4
 		lda #$00		;2BC4 A9 00 load file
 		jsr KERNEL_LOAD			;2BC6 20 D5 FF
+
 .L_2BC9
+
+		lda file_type_id		;2BBD AD 67 C3
+		bne not_sp		;2BC0 F0 02
+
+		\ BEEB check file size of SP game
+
+		LDA osfile_params_save_addr+1
+		BNE sp_error
+		LDA osfile_params_save_addr
+		CMP #$C0
+		BEQ sp_ok
+
+		\ Incorrect data found
+
+		.sp_error
+		LDA #$81
+		STA file_error_flag
+		BNE L_2C04
+
+		.sp_ok
+		\ Copy down $C0 bytes to save game location
+		{
+			LDX #0
+			.sp_loop
+			LDA L_4000,X
+			STA L_8000,X
+			INX
+			CPX #$C0
+			BNE sp_loop
+		}
+
+		.not_sp
+
+IF _NOT_BEEB
 		; put error flag in L_C301 bit 7
 		ror L_C301		;2BC9 6E 01 C3
 		jsr KERNEL_READST		;2BCC 20 B7 FF
@@ -1872,7 +1974,8 @@ jsr dash_reset
 
 		pla				;2BE3 68
 		sta L_A000		;2BE4 8D 00 A0
-		
+ENDIF
+
 		ldy #$4B		;2BE7 A0 4B
 		jsr delay_approx_Y_25ths_sec		;2BE9 20 EB 3F
 		
@@ -1881,21 +1984,63 @@ jsr dash_reset
 		bit L_C301		;2BF0 2C 01 C3
 		bpl L_2BFC		;2BF3 10 07
 		lda #$80		;2BF5 A9 80
-		sta L_C39A		;2BF7 8D 9A C3
+		sta file_error_flag		;2BF7 8D 9A C3
 		bne L_2C04		;2BFA D0 08
 		
 .L_2BFC
 
 ; branch taken if not "DIR *"
 
-		lda L_C367		;2BFC AD 67 C3
+		lda file_type_id		;2BFC AD 67 C3
 		bpl L_2C04		;2BFF 10 03
+
+.do_catalog
 
 ; show directory??
 
-		jsr cart_L_95EA		;2C01 20 EA 95
-		
-.L_2C04	jsr disable_screen	;2C04 20 BE 3F
+\\		jsr cart_L_95EA		;2C01 20 EA 95
+
+	; tell the rest of the system we're doing a dir command
+
+		LDA #$80
+		STA file_type_id
+
+	; cls - move to shared fn as also used in do_hall_of_fame_screen
+
+	{
+		lda #$7F		;9904 A9 5F
+		sta ZP_1F		;9906 85 1F
+		ldy #$00		;9908 A0 00
+		sty ZP_1E		;990A 84 1E
+		tya				;990C 98
+	.wipe_loop	sta (ZP_1E),Y	;990D 91 1E
+		dey				;990F 88
+		bne wipe_loop		;9910 D0 FB
+		dec ZP_1F		;9912 C6 1F
+		ldx ZP_1F		;9914 A6 1F
+		cpx #$40		;9916 E0 40
+		bcs wipe_loop		;9918 B0 F3
+	}
+
+	; set text cursor to 0,0
+
+		LDX #4:LDY #2
+		JSR cart_set_text_cursor
+
+	; issue *CAT
+
+		LDX #LO(oscli_cat)
+		LDY #HI(oscli_cat)
+		JSR oscli
+
+	; wait for key press
+
+		JSR debounce_fire_and_wait_for_fire
+
+.L_2C04
+
+IF _NOT_BEEB
+		jsr disable_screen	;2C04 20 BE 3F
 		sei				;2C07 78
 		lda #$2B		;2C08 A9 2B			; $2B=disable screen, 25 rows, bitmap graphics mode
 		sta VIC_SCROLY		;2C0A 8D 11 D0		; VIC
@@ -1903,18 +2048,72 @@ jsr dash_reset
 		cli				;2C10 58
 		lda #C64_VIC_IRQ_RASTERCMP		;2C11 A9 01
 		sta VIC_IRQMASK		;2C13 8D 1A D0		; VIC
+ENDIF
+
+; if loading then merge Hall of Fame data with existing
+
 		lda #$00		;2C16 A9 00
-		jsr cart_L_93A8		;2C18 20 A8 93
+		jsr cart_copy_hall_of_fameQ		;2C18 20 A8 93
+
 		ldy #$09		;2C1B A0 09
 		jsr cart_load_rndQ_stateQ		;2C1D 20 37 16
 		rts				;2C20 60
 
-.L_2C21
+.c64_device
 equb $01						; tape device
 equb $08						; disk device
 
-.L_94D6 equb "$"
+.L_94D6		equb "$"
+.oscli_cat	EQUB "CAT",13
 }
+
+.KERNEL_SAVE
+{
+	STX osfile_params_save_end
+	STY osfile_params_save_end+1
+
+	LDA ZP_FB
+	STA osfile_params_save_addr
+	STA osfile_params_load_addr
+
+	LDA ZP_FC
+	STA osfile_params_save_addr+1
+	STA osfile_params_load_addr+1
+
+    LDX #LO(savegame_params)
+    LDY #HI(savegame_params)
+    LDA #0
+    JSR osfile
+
+	RTS
+}
+
+.KERNEL_LOAD
+{
+	STX osfile_params_load_addr
+	STY osfile_params_load_addr+1
+
+	LDX #LO(savegame_params)
+	LDY #HI(savegame_params)
+	LDA #&FF
+    JSR osfile
+
+	RTS
+}
+
+.savegame_params
+EQUW L_AEC1
+; file load address
+.osfile_params_load_addr
+EQUD $FFFF
+; file exec address
+EQUD 0
+; start address or length
+.osfile_params_save_addr
+EQUD $FFFF
+; end address of attributes
+.osfile_params_save_end
+EQUD $FFFF
 
 ; only called from game update (move to kernel?)
 .L_2D89_from_game_update
@@ -2149,7 +2348,7 @@ equb $08						; disk device
 
 .print_division_table
 {
-		lda L_31A1		;36AD AD A1 31
+		lda number_players		;36AD AD A1 31
 		bne L_36AA		;36B0 D0 F8
 		lda #$80		;36B2 A9 80
 		sta L_C356		;36B4 8D 56 C3
@@ -2311,40 +2510,69 @@ equb $08						; disk device
 		rts				;9318 60
 }
 
-.L_94D7				; only called from Kernel?
+.show_file_done_message				; only called from Kernel?
 {
-		lda L_C39A		;94D7 AD 9A C3
+		lda file_error_flag		;94D7 AD 9A C3
 		bmi L_94E1		;94DA 30 05
-		lda L_C367		;94DC AD 67 C3
+		lda file_type_id		;94DC AD 67 C3
 		bmi L_9526		;94DF 30 45
+
 .L_94E1	jsr disable_screen				;94E1 20 00 35
 		jsr set_up_screen_for_frontend		;94E4 20 04 35
+
 		lda #$01		;94E7 A9 01
 		sta ZP_19		;94E9 85 19
+
+		lda file_type_id
+		bmi write_error_message
+
 		jsr plot_menu_option_2		;94EB 20 58 38
 		ldx #$0C		;94EE A2 0C
 		jsr print_driver_name		;94F0 20 8B 38
-		lda L_C39A		;94F3 AD 9A C3
+		lda file_error_flag		;94F3 AD 9A C3
 		bpl L_94FD		;94F6 10 05
 		ldx #file_strings_not-file_strings		;94F8 A2 00
 		jsr cart_write_file_string		;94FA 20 E2 95
-.L_94FD	ldy L_C77B		;94FD AC 7B C7
+
+.L_94FD	ldy file_load_save_flag		;94FD AC 7B C7
 		ldx file_strings_offset,Y	;9500 BE 2A 95
 		jsr cart_write_file_string		;9503 20 E2 95
-		lda L_C39A		;9506 AD 9A C3
+		lda file_error_flag		;9506 AD 9A C3
 		bpl L_951D		;9509 10 12
+
+.write_error_message
+
 		jsr plot_menu_option_2		;950B 20 58 38
-		lda L_C39A		;950E AD 9A C3
+
+		lda file_error_flag		;950E AD 9A C3
+		cmp #$81
+		beq incorrect_data_found
+
+	; copy error message from the stack
+
+		.use_stack_string
+		LDX #0
+		.error_string_loop
+		LDA $102,X
+		BEQ L_951D
+		JSR cart_write_char
+		INX
+		BNE error_string_loop
+
+	; incorrect data found
+
+	.incorrect_data_found
 		clc				;9511 18
 		adc #$02		;9512 69 02
 		and #$07		;9514 29 07
 		tay				;9516 A8
 		ldx file_strings_offset,Y	;9517 BE 2A 95
 		jsr cart_write_file_string		;951A 20 E2 95
+
 .L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
 		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
 		jsr clear_write_char_half_row_flag		;9523 20 1F 36
-.L_9526	lda L_C39A		;9526 AD 9A C3
+.L_9526	lda file_error_flag		;9526 AD 9A C3
 		rts				;9529 60
 }
 
@@ -5122,7 +5350,7 @@ ENDIF
 		ldx L_C77F		;E890 AE 7F C7
 		lda #$00		;E893 A9 00
 .L_E895	sta L_C360		;E895 8D 60 C3
-		ldx L_31A1		;E898 AE A1 31
+		ldx number_players		;E898 AE A1 31
 		beq L_E8A2		;E89B F0 05
 		cmp L_C718		;E89D CD 18 C7
 		bne L_E8AB		;E8A0 D0 09
@@ -5141,7 +5369,7 @@ ENDIF
 
 .L_E8C2
 {
-		lda L_31A1		;E8C2 AD A1 31
+		lda number_players		;E8C2 AD A1 31
 		beq L_E8D3		;E8C5 F0 0C
 		eor #$FF		;E8C7 49 FF
 		clc				;E8C9 18
@@ -5165,7 +5393,7 @@ ENDIF
 .L_E8E5
 {
 		jsr L_E8C2		;E8E5 20 C2 E8
-		lda L_31A1		;E8E8 AD A1 31
+		lda number_players		;E8E8 AD A1 31
 		beq L_E8FD		;E8EB F0 10
 		lda #$0B		;E8ED A9 0B
 		sec				;E8EF 38
@@ -5281,7 +5509,7 @@ ENDIF
 		cmp L_C728,Y	;E9DB D9 28 C7
 		bcc L_E9F5		;E9DE 90 15
 		bne L_EA04		;E9E0 D0 22
-		lda L_31A1		;E9E2 AD A1 31
+		lda number_players		;E9E2 AD A1 31
 		beq L_E9EF		;E9E5 F0 08
 		sty ZP_14		;E9E7 84 14
 		cpx ZP_14		;E9E9 E4 14
@@ -5778,14 +6006,14 @@ L_EBDD	= L_EBE7 - $A			;!
 		ldy #$BD		;ED9F A0 BD
 		lda #$0B		;EDA1 A9 0B
 		sec				;EDA3 38
-		sbc L_31A1		;EDA4 ED A1 31
+		sbc number_players		;EDA4 ED A1 31
 		asl A			;EDA7 0A
 		asl A			;EDA8 0A
 		asl A			;EDA9 0A
 		asl A			;EDAA 0A
 }
 \\
-.L_EDAB
+.get_entered_string
 {
 		sta ZP_0B		;EDAB 85 0B
 		lda #$0B		;EDAD A9 0B
@@ -5885,7 +6113,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		cpy ZP_0C				;EE4F C4 0C
 		bne L_EE5E				;EE51 D0 0B
 	\\ Colour of menu item when actually selected
-		lda #BEEB_PIXELS_COLOUR3 ; $5A		;EE53 A9 0A		; WAS $0A could be BEEB_PIXELS_COLOUR3?
+		lda #BEEB_PIXELS_COLOUR3 ; $5A		;EE53 A9 0A
 		
 		ldy ZP_0F		;EE55 A4 0F
 		bne L_EE5B		;EE57 D0 02
@@ -6022,16 +6250,16 @@ equb frontend_strings_2_cancel-frontend_strings_2				   ; $07
 .menu_screen_offsets_load
 equb frontend_strings_2_load_from_tape-frontend_strings_2		   ; $08
 equb frontend_strings_2_load_from_disc-frontend_strings_2		   ; $09
+equb frontend_strings_2_catalog-frontend_strings_2
 equb frontend_strings_2_cancel-frontend_strings_2				   ; $0a
-equb $00												; "select" $0b
 .menu_screen_offsets_save
 if menu_screen_offsets_save-menu_screen_offsets_load<>4
 error "please fix up code around EF97"
 endif
 equb frontend_strings_2_save_to_tape-frontend_strings_2 ; $0c
 equb frontend_strings_2_save_to_disc-frontend_strings_2 ; $0d
+equb frontend_strings_2_catalog-frontend_strings_2
 equb frontend_strings_2_cancel-frontend_strings_2		; $0e
-equb $00												; "select" $0f
 .menu_screen_offsets_initial_menu
 equb frontend_strings_3_single_player_league-frontend_strings_3 ; $10
 equb frontend_strings_3_multiplayer-frontend_strings_3			; $11
@@ -6057,6 +6285,7 @@ equb $00														; $1f
 		bne L_EF0F		;EF07 D0 06
 		jsr do_hall_of_fame_screen		;EF09 20 D2 98
 		jmp do_main_menu_dwim		;EF0C 4C 3A EF
+
 .L_EF0F	jsr do_practice_menu		;EF0F 20 A2 98
 		cmp #$02		;EF12 C9 02
 		bcs do_main_menu_dwim		;EF14 B0 24
@@ -6069,15 +6298,17 @@ equb $00														; $1f
 		adc L_C76C		;EF23 6D 6C C7
 		jsr select_track		;EF26 20 2F 30
 		jmp delay_approx_4_5ths_sec		;EF29 4C E9 3F
+
 .L_EF2C	lda #$00		;EF2C A9 00
 		jsr L_F6D7_in_kernel		;EF2E 20 D7 F6
 		lda #$80		;EF31 A9 80
 		sta L_C76C		;EF33 8D 6C C7
 		rts				;EF36 60
+
 .L_EF37	jsr delay_approx_4_5ths_sec		;EF37 20 E9 3F
 \\
 .do_main_menu_dwim
-{
+\\{
 		lda L_31A8		;EF3A AD A8 31
 		bne L_EF0F		;EF3D D0 D0
 		lda #$01		;EF3F A9 01
@@ -6104,7 +6335,8 @@ equb $00														; $1f
 		bne L_EF77		;EF6F D0 06
 		jsr disable_screen		;EF71 20 00 35
 		jmp game_start		;EF74 4C 22 3B
-.L_EF77	lda L_31A1		;EF77 AD A1 31
+
+.L_EF77	lda number_players		;EF77 AD A1 31
 		bne L_EF86		;EF7A D0 0A
 		jsr disable_screen ;EF7C 20 BE 3F
 		lda #$80		;EF7F A9 80
@@ -6112,56 +6344,136 @@ equb $00														; $1f
 		bcc L_EFF4		;EF84 90 6E
 .L_EF86	jsr L_E85B		;EF86 20 5B E8
 		jmp L_EFF4		;EF89 4C F4 EF
-.L_EF8C	sta L_C77B		;EF8C 8D 7B C7
+
+.L_EF8C	sta file_load_save_flag		;EF8C 8D 7B C7
 		asl A			;EF8F 0A
 		asl A			;EF90 0A
 		clc				;EF91 18
 		adc #menu_screen_offsets_load-menu_screen_offsets ;EF92 69 08
 		tax				;EF94 AA
-		ldy #$00		;EF95 A0 00
-.L_EF97	lda L_8000,Y	;EF97 B9 00 80
-		sta L_7B00,Y	;EF9A 99 00 7B
-		dey				;EF9D 88
-		bne L_EF97		;EF9E D0 F7
+
+\ _NOT_BEEB writing to screen RAM
+;		ldy #$00		;EF95 A0 00
+;.L_EF97	lda L_8000,Y	;EF97 B9 00 80
+;		sta L_7B00,Y	;EF9A 99 00 7B
+;		dey				;EF9D 88
+;		bne L_EF97		;EF9E D0 F7
+
 		lda L_C77E		;EFA0 AD 7E C7
 		sta L_F000		;EFA3 8D 00 F0
 		jsr delay_approx_4_5ths_sec		;EFA6 20 E9 3F
-		ldy #$02		;EFA9 A0 02
+		ldy #$03		;EFA9 A0 02
 		lda L_0840		;EFAB AD 40 08
 		jsr do_menu_screen		;EFAE 20 36 EE
-		cmp #$02		;EFB1 C9 02
+		cmp #$03		;EFB1 C9 02
 		bcs L_EF37		;EFB3 B0 82
 		sta L_0840		;EFB5 8D 40 08
+
 		lda #$00		;EFB8 A9 00
 		jsr L_F6D7_in_kernel		;EFBA 20 D7 F6
+
+\\ BEEB set up new BRK handler for file operations:
+
+		LDA BRKV:STA prev_brk
+		LDA BRKV+1:STA prev_brk+1
+
+		LDA #LO(file_error_handler):STA BRKV
+		LDA #HI(file_error_handler):STA BRKV+1
+
+\\ BEEB store any ZP vars that might be mangled by FS operations
+
+		JSR beeb_store_zp_vars
+
 		jsr do_load_save_game		;EFBD 20 AE 2A
+
 		bit L_EE35		;EFC0 2C 35 EE
 		bmi L_EFFD		;EFC3 30 38
-		lda L_C367		;EFC5 AD 67 C3
+		lda file_type_id		;EFC5 AD 67 C3
 		bne L_EFF1		;EFC8 D0 27
-		lda L_C39A		;EFCA AD 9A C3
-		bmi L_EFE0		;EFCD 30 11
-		lda L_C77B		;EFCF AD 7B C7
-		bne L_EFE0		;EFD2 D0 0C
+		lda file_error_flag		;EFCA AD 9A C3
+		bmi do_file_result_message		;EFCD 30 11
+		lda file_load_save_flag		;EFCF AD 7B C7
+		bne do_file_result_message		;EFD2 D0 0C
+
 		lda #$80		;EFD4 A9 80
 		jsr L_F6D7_in_kernel		;EFD6 20 D7 F6
+
 		bcc L_EFF1		;EFD9 90 16
 		lda #$81		;EFDB A9 81
-		sta L_C39A		;EFDD 8D 9A C3
-.L_EFE0	ldy #$00		;EFE0 A0 00
+		sta file_error_flag		;EFDD 8D 9A C3
+
+.do_file_result_message
+
+		ldy #$00		;EFE0 A0 00
 		lda L_F000		;EFE2 AD 00 F0
 		sta L_C77E		;EFE5 8D 7E C7
-.L_EFE8	lda L_7B00,Y	;EFE8 B9 00 7B
-		sta L_8000,Y	;EFEB 99 00 80
-		dey				;EFEE 88
-		bne L_EFE8		;EFEF D0 F7
-.L_EFF1	jsr L_94D7		;EFF1 20 D7 94
-.L_EFF4	jsr disable_screen		;EFF4 20 00 35
+
+\ _NOT_BEEB writing to screen RAM
+;.L_EFE8	lda L_7B00,Y	;EFE8 B9 00 7B
+;		sta L_8000,Y	;EFEB 99 00 80
+;		dey				;EFEE 88
+;		bne L_EFE8		;EFEF D0 F7
+
+.L_EFF1
+
+\\ BEEB terminate file name string for menu
+
+		LDX file_name_length
+		LDA #$FF
+		STA L_AEC1, X
+
+		jsr show_file_done_message		;EFF1 20 D7 94
+
+.L_EFF4
+	; not sure why menu colour doesn't get reset but reset it?
+
+		lda #BEEB_PIXELS_COLOUR2		;2AB3 A9 07
+		sta menu_option_colour		;2AB5 8D 53 39
+
+		jsr disable_screen		;EFF4 20 00 35
 		jsr set_up_screen_for_frontend		;EFF7 20 04 35
 		jsr print_division_table		;EFFA 20 AD 36
-.L_EFFD	jmp do_main_menu_dwim		;EFFD 4C 3A EF
 
-.L_F000	equb $00
+.L_EFFD
+
+\\ BEEB restore previous BRK handler
+
+		LDA prev_brk:STA BRKV
+		LDA prev_brk+1:STA BRKV+1
+
+\\ BEEB restore any ZP vars that might be mangled by FS operations
+
+		JSR beeb_restore_zp_vars
+
+		jmp do_main_menu_dwim		;EFFD 4C 3A EF
+
+.L_F000				equb $00
+.prev_brk			EQUW 0
+.file_name_length	EQUB 0
+\\}
+
+.beeb_store_zp_vars
+{
+	LDX #$A0
+	.store_zp_loop
+	LDA $00,X
+	STA $300,X
+	INX
+	CPX #$D0
+	BCC store_zp_loop
+	RTS
+}
+
+.beeb_restore_zp_vars
+{
+	LDX #$A0
+	.store_zp_loop
+	LDA $300,X
+	STA $00,X
+	INX
+	CPX #$D0
+	BCC store_zp_loop
+	RTS
 }
 
 ; X=0 (main menu)
@@ -7260,7 +7572,7 @@ jmp update_top_of_hud_done
 		bit ZP_19		;F765 24 19
 		bpl L_F78A		;F767 10 21
 		ldx #$1A		;F769 A2 1A
-.L_F76B	lda L_31A1		;F76B AD A1 31
+.L_F76B	lda number_players		;F76B AD A1 31
 		beq L_F774		;F76E F0 04
 		cpx #$18		;F770 E0 18
 		bcc L_F77A		;F772 90 06
@@ -8522,7 +8834,7 @@ skip $f0
 		bpl L_3EB8		;3EC8 10 EE
 		lda #$C0		;3ECA A9 C0
 		sta L_C43F		;3ECC 8D 3F C4
-		ldx L_31A1		;3ECF AE A1 31
+		ldx number_players		;3ECF AE A1 31
 		beq L_3EDD		;3ED2 F0 09
 		ldx L_31A4		;3ED4 AE A4 31
 		lda L_83B0,X	;3ED7 BD B0 83

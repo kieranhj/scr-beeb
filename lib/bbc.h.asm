@@ -18,7 +18,8 @@ osnewl = &FFE7
 BRKV=&202
 IRQ1V = &204
 IRQ2V = &206
-EVENTV = &0220
+EVENTV = &220
+WRCHV = $20E
 
 \\ Internal Key Number not INKEY!
 ; see http://beebwiki.mdfs.net/Keyboard

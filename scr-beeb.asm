@@ -82,9 +82,6 @@ ENDMACRO
 ; C64 KERNEL DEFINES
 ; *****************************************************************************
 
-; Not sure what this is used for - depends on which C64 bank is paged in?
-L_A000 = $A000		; Cold Start Vector?
-
 KERNEL_RAM_VECTORS = $FD30
 
 KERNEL_READST	= $FFB7	; Read the I/O Status Word
@@ -92,15 +89,20 @@ KERNEL_SETLFS	= $FFBA	; Set Logical File Number, Device Number, and Secondary Ad
 KERNEL_SETNAM	= $FFBD	; Set Filename Parameters
 KERNEL_OPEN 	= $FFC0	; Open a Logical I/O File
 KERNEL_CLOSE	= $FFC3	; Close a Logical I/O File
-KERNEL_LOAD		= $FFD5	; Load RAM from a device
-KERNEL_SAVE		= $FFD8	; Save RAM to a device
+;KERNEL_LOAD	= $FFD5	; Load RAM from a device
+;KERNEL_SAVE	= $FFD8	; Save RAM to a device
 KERNEL_GETIN	= $FFE4	; Get One Byte from the Input Device
 
-BEEB_VIC_BASE = $300	; $D000
-BEEB_SID_BASE = $330	; $D400
+BEEB_VIC_BASE	= $300	; $D000
+BEEB_SID_BASE	= $330	; $D400
 ; BEEB_COLOR_BASE = $D800	
-BEEB_CIA1_BASE = $350	; $DC00
-BEEB_CIA2_BASE = $360	; $DD00
+BEEB_CIA1_BASE	= $350	; $DC00
+BEEB_CIA2_BASE	= $360	; $DD00
+
+; Not sure what this is used for - depends on which C64 bank is paged in?
+L_A000 = $370	;$A000		; Cold Start Vector?
+
+; NOTE! space from $03A0 to $03D0 is used to store ZP vars during FS operations
 
 VIC_SP0X 	= BEEB_VIC_BASE + $00	; Sprite 0 Horizontal Position
 VIC_SP0Y	= BEEB_VIC_BASE + $01 	; Sprite 0 Vertical Position
@@ -1072,10 +1074,14 @@ GUARD disksys_loadto_addr
 
 		lda #0:sta _L_D000,X	; d0
 		lda #0:sta _L_D100,X	; d1
-		lda #0:sta _L_D200,X	; d2
-		lda #0:sta _L_D300,X	; d3
-		lda #0:sta _L_D400,x	; d4
-		lda #0:sta _L_D500,x	; d5
+
+; Claimed for file operation workspace
+;		lda #0:sta _L_D200,X	; d2
+;		lda #0:sta _L_D300,X	; d3
+;		lda #0:sta _L_D400,x	; d4
+
+; Claimed for cosine table
+;		lda #0:sta _L_D500,x	; d5
 
 ; Claimed for SID>SN76489 frequency tables
 ;		lda #0:sta _L_D600,x	; d6
@@ -1089,6 +1095,7 @@ GUARD disksys_loadto_addr
 		
 		lda L_AE00,X	;422A BD 00 AE
 		sta L_DC00,X	;422D 9D 00 DC
+
 		lda L_7B00,X	;4230 BD 00 7B
 		sta L_DD00,X	;4233 9D 00 DD
 		dex				;4236 CA
@@ -1133,6 +1140,9 @@ GUARD disksys_loadto_addr
 	
 	LDA #LO(irq_handler):STA IRQ1V
 	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
+
+	LDA #LO(cart_write_char):STA WRCHV
+	LDA #HI(cart_write_char):STA WRCHV+1
 
 if _DEBUG
     lda #LO(brk_handler):sta BRKV+0
@@ -1337,49 +1347,49 @@ screen2_address = $6000
 
 		; pointing to screen 1
 
-L_3FF1	= screen1_address-$F
-L_3FF6	= screen1_address-$A
-L_3FFA	= screen1_address-$6
+;L_3FF1	= screen1_address-$F
+;L_3FF6	= screen1_address-$A
+;L_3FFA	= screen1_address-$6
 
-L_4000	= screen1_address+$0000
-IF (L_4000 AND 255)<>0
-error "L_4000 must be page aligned"
-ENDIF
-L_4001	= screen1_address+$0001
-L_4008	= screen1_address+$0008
-L_400C	= screen1_address+$000c
-L_400D	= screen1_address+$000d
-L_400E	= screen1_address+$000e
-L_4010	= screen1_address+$0010
-L_4020	= screen1_address+$0020	
-L_4025	= screen1_address+$0025
-L_40A0	= screen1_address+$00a0
-L_40DC	= screen1_address+$00dc
-L_40E0	= screen1_address+$00e0
-L_4100	= screen1_address+$0100
-L_410C	= screen1_address+$010c
-L_410D	= screen1_address+$010d
-L_410E	= screen1_address+$010e
-L_4120	= screen1_address+$0120
-L_4130	= screen1_address+$0130
-L_4136	= screen1_address+$0136			
-L_4148	= screen1_address+$0148			
-L_4150	= screen1_address+$0150
-L_41E0	= screen1_address+$01e0
-L_4268	= screen1_address+$0268
-L_42A0	= screen1_address+$02a0
-L_4300	= screen1_address+$0300
-L_43E0	= screen1_address+$03e0
-L_4520	= screen1_address+$0520
-L_4660	= screen1_address+$0660
-L_47A0	= screen1_address+$07a0
-L_48E0	= screen1_address+$08e0
-L_4A00	= screen1_address+$0a00
-L_4A20	= screen1_address+$0a20
-L_4B60	= screen1_address+$0b60
-L_4CA0	= screen1_address+$0ca0
-L_4DE0	= screen1_address+$0de0
-L_4F20	= screen1_address+$0f20
+\L_4000	= screen1_address+$0000	; screen
+\IF (L_4000 AND 255)<>0
+\error "L_4000 must be page aligned"
+\ENDIF
+;L_4001	= screen1_address+$0001
+;L_4008	= screen1_address+$0008
+\L_400C	= screen1_address+$000c	; save
+\L_400D	= screen1_address+$000d	; save
+\L_400E	= screen1_address+$000e	; save
+;L_4010	= screen1_address+$0010
+\L_4020	= screen1_address+$0020	; save
+\L_4025	= screen1_address+$0025	; save
+\L_40A0	= screen1_address+$00a0	; save
+\L_40DC	= screen1_address+$00dc	; save
+\L_40E0	= screen1_address+$00e0 ; save
+\L_4100	= screen1_address+$0100 ; crash
+\L_410C	= screen1_address+$010c ; save
+\L_410D	= screen1_address+$010d ; save
+\L_410E	= screen1_address+$010e	; save
+\L_4120	= screen1_address+$0120	; crash
+;L_4130	= screen1_address+$0130
+;L_4136	= screen1_address+$0136			
+;L_4148	= screen1_address+$0148			
+;L_4150	= screen1_address+$0150
+;L_41E0	= screen1_address+$01e0
+;L_4268	= screen1_address+$0268
+;L_42A0	= screen1_address+$02a0
+\L_4300	= screen1_address+$0300	; save
+;L_43E0	= screen1_address+$03e0
+;L_4520	= screen1_address+$0520
+;L_4660	= screen1_address+$0660
+;L_47A0	= screen1_address+$07a0
+;L_48E0	= screen1_address+$08e0
+;L_4A00	= screen1_address+$0a00
+;L_4A20	= screen1_address+$0a20
+;L_4B60	= screen1_address+$0b60
+;L_4CA0	= screen1_address+$0ca0
+;L_4DE0	= screen1_address+$0de0
+;L_4F20	= screen1_address+$0f20
 
 L_5740	= screen1_address+$1740
 
@@ -1681,3 +1691,11 @@ PRINT "  Free =", ~(&3000 - title_screen_loader_end)
 PRINT "-------"
 SAVE "Loader",title_screen_loader_start,title_screen_loader_end
 PRINT "-------"
+
+; *****************************************************************************
+; Additional files for the disk...
+; *****************************************************************************
+
+PUTFILE "data/Hall.bin", "HALL", &0
+PUTFILE "data/KCSave.bin", "KCSAVE", &0
+PUTFILE "data/MPSave.bin", "MPSAVE", &0
