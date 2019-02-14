@@ -805,29 +805,30 @@ ENDIF
 		lda (ZP_F8),Y	;86BF B1 F8
 		sta sid_voice_flags,X	;86C1 9D C8 86
 
-	\\ BEEB AUDIO
+	\\ BEEB AUDIO - handle voice 2 (sfx)
 
-		CPX #1
+		LDA sid_current_voice
+		CMP #$01
 		BNE return
 
-	\\ Only handle SFX
+	\\ Handle pulse tones first
 
-		LDA SID_VCREG1, X
+		LDA SID_VCREG2
 		AND #$40
-		BNE return
+		BEQ return
 
-	\\ Skip random for now - only handle pulse
+	\\ Get SID frequency value for voice 2 (high byte only)
 
-		LDA SID_FREHI1, X
-		ASL A:ASL A
+		LDA SID_FREHI2
 		TAX
-		STX watch_X
 
-        LDA sid_to_psg_freq_table_LO, X
+	\\ Map to SN76489 register values
+
+		LDA sid_to_psg_freq_tone_LO, X
 		ORA #$A0		; tone 2 freq
         JSR psg_strobe
 
-        LDA sid_to_psg_freq_table_HI, X
+		LDA sid_to_psg_freq_tone_HI, X
         JSR psg_strobe
 
 		LDA #$b0

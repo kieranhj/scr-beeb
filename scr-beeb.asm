@@ -1072,8 +1072,9 @@ GUARD disksys_loadto_addr
 
 ; HAZEL.
 
-		lda #0:sta _L_D000,X	; d0
-		lda #0:sta _L_D100,X	; d1
+; Claimed for SID>SN76489 frequency tables
+;		lda #0:sta _L_D000,X	; d0
+;		lda #0:sta _L_D100,X	; d1
 
 ; Claimed for file operation workspace
 ;		lda #0:sta _L_D200,X	; d2

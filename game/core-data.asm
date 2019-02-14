@@ -446,7 +446,6 @@ L_AEC1 = L_AEC0 + 1
 		equb "HIGH JUMP       "
 		equb "ROLLER COASTER  "
 
-\\ This data is unknown so far! - used by sid_play_sound
 ;L_AF80
 .sid_sound_data
 	\\ Byte 0 = voice# for this data
@@ -457,22 +456,28 @@ L_AEC1 = L_AEC0 + 1
 	\\ Byte 5 = Pulse Waveform Width (high nybble)
 	\\ Byte 6 = voice flags
 
-		equb $01,$41,$05,$00,$50,$98,$04,$80		; sfx #0 - confirm?
-		; voice 2, pulse wave, decay 5/attack 0, sustain 0/release 0, freq $5000, pulse width $0400
+		equb $01,$41,$05,$00,$50,$98,$04,$80		; sfx #0 - confirm keys
+		; voice 2, pulse wave, decay 5/attack 0, sustain 0/release 0, freq $5000 = 1248Hz, pulse width $0400 = 25% wave
+		; SN76489 reg = 100
  
 		equb $01,$81,$0F,$E0
 .sid_sfx1_freq_high	\\ Used in crash effect
 		equb $64,$08,$1E,$80						; sfx #1 - crash?
 		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $6400, pulse width $0800
 
+	; one will be hole and the other edge grind / wrecked
+
 		equb $01,$81,$0F,$E0,$14,$08,$1E,$80		; sfx #2 - game update?
-		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $1400, pulse width $0800
+		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $1400 = 312Hz, pulse width $0800
+		; SN76489 reg = 400 ($190)
 
 		equb $01,$81,$00,$F0,$03,$08,$03,$80		; sfx #3 - game update?
-		; voice 2, random wave, decay 0/attack 0, sustain 15/release 0, freq $0300, pulse width $0800
+		; voice 2, random wave, decay 0/attack 0, sustain 15/release 0, freq $0300 = 47Hz, pulse width $0800
+		; SN76489 reg = 2660 (beyond max $3FF of course)
 
-		equb $01,$41,$02,$00,$64,$98,$01,$80		; sfx #4 - damage?
-		; voice 2, pulse wave, decay 2/attack 0, sustain 0/release 0, freq $6400, pulse width $0800
+		equb $01,$41,$02,$00,$64,$98,$01,$80		; sfx #4 - damage creak
+		; voice 2, pulse wave, decay 2/attack 0, sustain 0/release 0, freq $6400 = 1560Hz, pulse width $0800 = 50% (square wave)
+		; SN76489 reg = 80 ($50)
 
 		equb $02,$00,$00,$FF,$50,$07,$FF,$80		; configure engine tone voice 3
 		equb $00,$00,$00,$CF,$50,$07,$FF,$80		; configure engine tone voice 1
