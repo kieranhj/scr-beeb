@@ -7,11 +7,11 @@ beeb_readptr    = ZP_20             ; read ptr
 
 .beeb_code_start
 
-TIMER_PartA = 32*64 - 2*64 + 1*64 -2    ; character row 0, scanline 1
+TIMER_PartA = 32*64 + 3*8*64 - 2*64 + 1*64 -2    ; character row 0, scanline 1
 TIMER_PartB = 8*64 -2                   ; character row 1, scanline 1
 TIMER_PartC = 18*8*64 -2                ; character row 19, scanline 1
 
-TIMER_Preview = 8*21*64 - 1*64 -2              ; character row 20, scanline 1
+TIMER_Preview = 8*20*64 - 1*64 -2              ; character row 20, scanline 1
 TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
 
 CRTC_R8_DisplayEnableValue=%11000000
@@ -106,7 +106,7 @@ ENDIF
 	LDA #25:STA &FE01		; 25 rows = 200 scanlines
 
     LDA #7:STA &FE00        ; R7 = vsync
-    LDA #35:STA &FE01       ; vsync at row 35
+    LDA #32:STA &FE01       ; vsync at row 35
 
     \\ Set screen1 visible as our front end
 
@@ -235,7 +235,7 @@ ENDIF
     LDA #6:STA &FE01        ; at row 19, with 25 total in the display
 
     LDA #7:STA &FE00        ; R7 = vsync
-    LDA #16:STA &FE01       ; vsync at row 35
+    LDA #16-3:STA &FE01       ; vsync at row 35-3=32
 
     \\ Set screen2 character row 0 as top line of next frame
 

@@ -1864,7 +1864,7 @@ rts
 	EQUB 38					; R4  vertical total
 	EQUB 0					; R5  vertical total adjust
 	EQUB 25					; R6  vertical displayed
-	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB 32					; R7  vertical position; 35=top of screen
 	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
 	EQUB 7					; R9  scanlines per row
 	EQUB 32					; R10 cursor start
