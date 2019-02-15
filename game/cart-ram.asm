@@ -2798,7 +2798,8 @@ rts
 		bne L_95DE		;95E7 D0 F5
 		rts				;95E9 60
 
-.L_95EA			; HAS DLL
+IF 0
+.L_95EA			; HAS DLL - C64 SHOW DIRECTORY - UNUSED
 {
 		ldx #$00		;95EA A2 00
 		lda #$01		;95EC A9 01
@@ -2871,6 +2872,7 @@ rts
 		bne L_961B		;966F D0 AA
 		jmp debounce_fire_and_wait_for_fire		;9671 4C 96 36
 }
+ENDIF
 
 .L_967E				; in Cart
 {

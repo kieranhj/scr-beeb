@@ -1030,6 +1030,6 @@ ENDIF
 .file_string_file_name_maybe
 		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
 
-.L_9674	equb "DIRECTORY:"
+;.L_9674	equb "DIRECTORY:"
 
 .core_data_end

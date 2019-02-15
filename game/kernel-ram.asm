@@ -1979,8 +1979,8 @@ ENDIF
 		ldy #$4B		;2BE7 A0 4B
 		jsr delay_approx_Y_25ths_sec		;2BE9 20 EB 3F
 		
-		lda #C64_IO_NO_KERNAL		;2BEC A9 35
-		sta RAM_SELECT		;2BEE 85 01
+	;	lda #C64_IO_NO_KERNAL		;2BEC A9 35
+	;	sta RAM_SELECT		;2BEE 85 01
 		bit L_C301		;2BF0 2C 01 C3
 		bpl L_2BFC		;2BF3 10 07
 		lda #$80		;2BF5 A9 80
@@ -2617,8 +2617,8 @@ EQUD $FFFF
 		dey				;98F1 88
 		dex				;98F2 CA
 		bpl L_98E5		;98F3 10 F0
-		lda #C64_IO_NO_KERNAL		;98F5 A9 35
-		sta RAM_SELECT		;98F7 85 01
+	;	lda #C64_IO_NO_KERNAL		;98F5 A9 35
+	;	sta RAM_SELECT		;98F7 85 01
 		cli				;98F9 58
 		lda #$01		;98FA A9 01		; 'MODE 1'
 		jsr cart_sysctl		;98FC 20 25 87
