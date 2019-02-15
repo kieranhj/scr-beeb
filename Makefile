@@ -41,7 +41,7 @@ build:
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
 
-	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -boot Loader -v > compile.txt
+	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -boot Loader -v > compile.txt
 
 	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'safe to load to' | grep -Evi '^-+'
 

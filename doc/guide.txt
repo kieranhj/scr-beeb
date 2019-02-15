@@ -1,0 +1,185 @@
+STUNT CAR RACER
+by Geoff Crammond
+
+BBC Master version
+Ported by Bitshifters
+
+
+===========
+HOW TO PLAY
+===========
+
+Taken from
+https://www.c64-wiki.com/wiki/Stunt_Car_Racer
+
+
+Keyboard controls
+-----------------
+The keyboard controls differ a bit to avoid that more than two keys need to be pressed at the same time. Speeding up forwards is switched off by pressing one of the two brake / backward keys and the car will go in freewheel until another button is pressed.
+
+S / D   = steer left/right
+RETURN  = speed up heavily forward
+SPACE   = brake hard/ speed up backward
+* or :  = brake/speed up backward
+
+Redefine keys
+-------------
+This is done from the cockpit. First the game is "paused" by pressing the "P" key. Then press the "F1" key, the message "Pause" on the screen is changed to "Define Keys". Then the computer asks for the keys that you want to use as controls. After that you will be prompted to confirm the keys. Press the desired keys once again and you get back to the game. If you use other keys, you have to repeat the complete process and then leave the pause mode with pressing "O". In the mode for several players every player can define his keys any time during the race (preferably at the start). They are saved for each player. 
+
+Further controls
+----------------
+On the page "Name Selection" enter your name and press the key "RETURN" to continue.
+During the race the game can be paused any time be pressing the key "P" and continued by pressing "O".
+
+You can leave a race or a practice drive by pressing the "C="-key. Note that you will then lose a race and the points for the best round.
+
+You can return to the start screen by pressing the key "F1" in the "Next-Race" screen while confirming the menu point "Replay Season" with the fire button.
+
+Training mode 
+-------------
+You can train every track by choosing "Practice" in the main menu and then the league with the corresponding track.
+
+Division 1: The Drawbridge / The Ski Jump 
+Division 2: The Rollercoaster / The High Jump 
+Division 3: The Big Ramp / The Stepping Stones 
+Division 4: The Hump Back / The Little Ramp
+
+If you are in the "Super Ligue" and choose the "Practice" mode, you can use extra power and speed on every track.
+
+Each training lasts three rounds. After that you car is repaired (only damages caused by the training) and refuelled. Further practice rounds can be chosen.
+
+The displays
+------------
+Round display: The given number with the prefix "L" corresponds to the laps absolved and is at the lower left of the screen.
+
+Boost: This display with the prefix "B" shows the availabe additional fuel.
+
+Below this you see the advance (-) or the backlog to the opponent.
+At the lower right the current and last lap time is shown.
+
+The flag display at the left is alight if you are in the lead.
+
+The stopwatch display at the right lights up as soon as you have reached to best lap time.
+
+Start of the race and damages
+=============================
+
+Start the race
+--------------
+At the beginning of the race a crane will lift you from the side of the track over the start line and the message "Drop Start" appears on the screen. After a short break it will let your car fall down in the track. If you lose your way a crane will pick up your car and hoist it onto the track again over the next suitable place. The crane avoids curves and gaps. If the message "Press Fire" appears, you need to press the fire button so the crane will give your car free. But watch out that you are over the track, or you will fall off again. 
+
+Damages at the car 
+------------------
+Damages at the carriage: A crack at the upper rim of the screen elongated from left to right indicates the state. Hard landings or boisterous manner of driving elongate it. When it reaches the right side, your car will be removed from the race, your opponent is declared winner and all points will be awarded to him. 
+
+Structural damages: Some crashes cause damages at the main beam of the car. These are permanent and stay during the following races and seasons. The crack at the upper rim will elongated faster when crashing. Only in division 4 you start with a completely undamaged car. 
+
+Races: League for one player
+============================
+Aim 
+---
+The aim of the game is to be first in the first Stunt Car Racer league. There are four leagues, which contain each three drivers and two tracks. For first class drivers there is also the Super League. 
+
+Super League 
+------------
+You can only go up into the Super League after winning the title in the first league. There you get the chance to measure with other great drivers. Furthermore, the races take place with far stronger engines and better brakes. You start in the fourth league of the Super League and on the same tracks as in the normal league, i.e. "Hump Back" and "Little Ramp". The biggest difference is that both your opponents and you can drive twice as fast. Your aim is to fight your way through all four leagues to be Super League Master. 
+
+A racing season 
+---------------
+A complete racing season comprises six races in arbitrary order with three drivers and two tracks. You do not take part in two of the six races, they take place behind the scenes. It can well happen that the first race is announced as "Race 3 of 6". The race leader of a league goes up to the next league. 
+
+Training 
+--------
+You can train on two tracks of your current league before a racing season starts. 
+
+Score 
+-----
+Victory = 2 points 
+Best lap time = 1 point 
+If a season ends in a draw, the driver with the most points in the best lap time score will go up. 
+
+Racing: Mode for several players
+================================
+
+Drivers' championship 
+---------------------
+Up to eight players can take part in the drivers' championship. The championship can contain up to four racing seasons. Each season takes place on two tracks of a league. The players can collect points by driving against the computer driver. Special bonus points per track are awarded for the fastest lap time and shortest racing time (sum of all laps of a track). 
+
+Acces to the tracks 
+-------------------
+As there is no moving up from the fourth league, you have to load a saved position from a single player game to get access to other leagues. The more leagues you can access the greater is the choice of the tracks for the race. With access to four leagues all eight tracks can be used in a four season long championship. The leagues of the Super League can also be used to get more power and speed. 
+
+Saving the score 
+----------------
+The score, which is name, points, etc. of the player can be saved before the next season starts. The championship can be continued at a later point of time. To save a score of a championship , choose the "Save" option and put the letters "MP" (MultiPlayer) in front of the file names. 
+
+Restart of a championship 
+-------------------------
+Choose the option "Replay" if you want to restart a championship without having to enter the names anew. If you restart the whole game and want to return to the single player / multi player menu, press the key "F1" and the option "Replay" at the same time. 
+
+Racing season for several players 
+---------------------------------
+A racing seasons consists of two rounds, one of each track of a league. In one round all players drive one after the other against the computer. In each race there are two points for the victory and one point for the best lap time. It is possible to leave out the races left in the current round when the next racing program page appears. Press the "F1" key and the fire button at the same time, by this you get to the track bonus screen at the end of the round. 
+
+Hall of Fame
+============
+Here you find all track records and the names of the drivers that have set them. By choosing the option "Hall of Fame" in the main menu it can be viewed. There are track records for the fastest lap and fastest racing times (sum of all lap times during a race). Track records can be set during any race, but NOT in the training mode. If a record is broken, the new record appears at the display board at the end of the race. 
+
+Saving the Hall of Fame 
+-----------------------
+You can save the Hall of Fame by choosing the menu option "Save" and a file name that starts with the letters "HALL". 
+
+Loading the Hall of Fame 
+------------------------
+Previously saved data of the Hall of Fame can be loaded with the help of the menu item "Load" and the corresponding file name. Here it is not important whether new records were set before loading the Hall of Fame, as only records are accepted which are better than the current ones while loading. This means, that several files of the Hall of Fame can be connected by just loading all of them. Saving after that creates the ideal Hall of Fame. 
+
+Load/Save/Replay
+================
+When choosing this option another menu with the options Load, Save and Replay is provided. 
+
+Load/Save 
+---------
+<Explaing BBC load/save procedure>
+
+Whether you load or save, you always have to enter a file name. File names that start with certain combination of letters have a special meaning. 
+Each other file name is interpreted as the score of a single game. 
+By pressing the key "Esc" while entering a file name you get back to the main menu. A message "File name inappropiate" appears e.g. if you use a file name starting with MP for saving a score of a single player game. 
+You need to use an empty formatted disk to save all files as e.g. the Hall of Fame, single player score, multi player score. Do not use the original game disk! 
+
+Replay 
+------
+This can be used to repeat the last season in the single player mode. Here everything is reset to the state as it was at the start of the last season. This spares you reloading a score if the racing season ended with a relegation. 
+
+Reset game 
+----------
+
+If you press the key "F1" while the option "Replay" is chosen the game is reset completely and you return to the single player / multi player menu. 
+
+General hints
+=============
+On each track find the best places for overtaking and use the booster to end an overtaking manoeuvre as fast as possible.
+
+Before the first landing at the start take back constantly full throttle, then during moving sideways into the final starting position go with full throttle (and with turbo). By this you should go through the first curve first, at least in division 4 and 3.
+
+When you emerge from a bend, do not look at the rim of the track but forwards into the middle.
+
+If you use the joystick, you do not have the keep pressing it forward all the time. After reaching the desired speed leave it in neutral position and steer from there, this enhances the auto-alignment of the racing car.
+
+Although it is generally important to absolve a race as fast as possible, there are places on certain tracks, the need to be driven with the exact appropriate speed. "The Stepping Stones" is such a place in a track, which need to be jumped with constant speed.
+
+Other tracks, as e.g. "High Jump" need a minimum speed at certain places, a bit too slow and you are already in a gap in front of a road pillar.
+
+Hints for certain tracks
+========================
+
+"The Little Ramp": Simple ramp that can be mastered with 160 km/h to 200 km/h. The gap after the following curve can be done without any problem with a speed of 140-170 km/h. With lots of swing the following jump can also have a middle soft landing, but you do not have to take the risk if you only want to beat the computer opponent.
+
+The Hump Back: "Full throttle low-altitude flight" over the "humps" is faster than to keep constant road contact. After the second ridge comes an unclear curve-gap-curve combination during which you better drive more cautiously.
+
+"The Stepping Stones": When jumping to the first "stone" you have to drive 150 km/h so that you can jump all gaps with full speed.
+
+"The Big Ramp": The first two jumps can be done with 170 or 160 km/h, the big one needs at least 200 km/h and therefore has to be driven to very carefully (but with full throttle) starting already in the curve.
+
+"The High Jump": Right from the start with maximum throttle with turbo, take the curve on the outer track with full throttle and approach the jump with 205 km/h. After a successful landing it is worth taking the risk to stay longer on the gas pedal and take the next jump after one curve also with more than 200 km/h. After that you should drive more cautiously again, as the following bend exit leads to a straight sloping to the left.
+
+"The Roller Coaster": After the first curve you need to do a full braking to not shoot over the second curve.
