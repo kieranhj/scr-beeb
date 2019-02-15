@@ -1,5 +1,6 @@
 STUNT CAR RACER
 by Geoff Crammond
+with graphics by John Cumming
 
 BBC Master version
 Ported by Bitshifters
@@ -45,7 +46,7 @@ See separate file 'GUIDE' on this disc
 
 
 CREDITS
-Ported by Kieran Connell
+BBC Master Port by Kieran Connell
 BBC Graphics Code by Tom Seddon
 BBC Graphics by John 'Dethmunk' Blythe
 
