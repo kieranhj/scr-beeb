@@ -319,7 +319,34 @@ SID_MSB_SHIFT = 3
     \\ Voice 3 Frequency Control (low byte)
 
 		sta SID_FRELO3		;CF31 8D 0E D4	; SID
+
+    \\ Update Voice 2 for sound effects
+
 		jsr sid_update_voice_2		;CF34 20 EF 86
+
+    \\ BEEB AUDIO - handle engine tone generation
+
+        LDA noise_sfx_override_engine
+        BEQ handle_engine_tone
+
+    \\ Otherwise we're handling noise
+
+        LDA SID_FREHI2
+        ASL A:ASL A         ; BEEB multiple by 4 otherwise sounds crap
+        TAX
+
+    \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
+
+        LDA sid_to_psg_freq_tone_LO, X
+        ORA #$C0            ; tone 1
+        JSR psg_strobe
+
+        LDA sid_to_psg_freq_tone_HI, X
+        JSR psg_strobe
+
+        RTS
+
+    .handle_engine_tone
 
     \\ Select 8 bits from Voice 1 frequency high & low bytes
 
@@ -336,10 +363,11 @@ SID_MSB_SHIFT = 3
 
     \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
 
-        LDA sid_to_psg_freq_table_LO, X
+        LDA sid_to_psg_freq_noise_LO, X
+        ORA #$C0            ; tone 1
         JSR psg_strobe
 
-        LDA sid_to_psg_freq_table_HI, X
+        LDA sid_to_psg_freq_noise_HI, X
         JSR psg_strobe
 
     \\ We can't twiddle the pulse width but we can just tickle the volume
@@ -350,6 +378,7 @@ SID_MSB_SHIFT = 3
         ORA #%11110000
         JSR psg_strobe
 
+        .return
         rts
 }
 
@@ -371,6 +400,9 @@ SID_MSB_SHIFT = 3
 	sta $fe40
     rts
 }
+
+.noise_sfx_override_engine
+EQUB 0
 
 .vsync_counter
 EQUB 0

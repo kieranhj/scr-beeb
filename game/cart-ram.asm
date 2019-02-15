@@ -799,9 +799,68 @@ ENDIF
 		lda sid_release_cycle_to_vsyncs,Y	;86B7 B9 DF 86
 		sta sid_voice_release_time,X	;86BA 9D D0 86
 
+	\\ Byte 6 = voice flags
+
 		ldy #$06		;86BD A0 06
 		lda (ZP_F8),Y	;86BF B1 F8
 		sta sid_voice_flags,X	;86C1 9D C8 86
+
+	\\ BEEB AUDIO - handle voice 2 (sfx)
+
+		LDA sid_current_voice
+		CMP #$01
+		BNE return
+
+	\\ What type of sfx?
+
+		LDA SID_VCREG2
+		AND #$40
+		BNE handle_pulse_sfx
+
+	\\ Handle random wave sfx
+
+		LDA SID_VCREG2
+		AND #$80
+		BEQ return
+
+	\\ If we've already turned off periodic noise, don't do it again
+
+		LDA noise_sfx_override_engine
+		BMI return
+
+		LDA #&FF
+		STA noise_sfx_override_engine
+
+	\\ Generate white noise controlled by tone 1
+
+		LDA #%11100111
+		JSR psg_strobe
+
+	\\ Actual tone will be set in interrupt handler
+
+		RTS
+
+	\\ Handle pulse tone sfx
+
+		.handle_pulse_sfx
+
+	\\ Get SID frequency value for voice 2 (high byte only)
+
+		LDX SID_FREHI2
+
+	\\ Map to SN76489 register values
+
+		LDA sid_to_psg_freq_tone_LO, X
+		ORA #$A0		; tone 2 freq
+        JSR psg_strobe
+
+		LDA sid_to_psg_freq_tone_HI, X
+        JSR psg_strobe
+
+		LDA #$b0
+		JSR psg_strobe	; tone 2 max vol
+
+		.return
 		rts				;86C4 60
 
 .sid_pulse_waveform_width

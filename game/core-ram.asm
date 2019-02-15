@@ -1475,6 +1475,7 @@ NEXT
 	; Bit 7:  Disconnect output of voice 4, 1=voice 3 off
 
 	\\ Volume = 5, all filters on, disconnect voice 3?
+
 		lda #$F5		;3F3C A9 F5
 		sta SID_SIGVOL		;3F3E 8D 18 D4
 
@@ -1694,6 +1695,19 @@ ENDIF
 
 	; silence Beeb voice
 
+		CPX #$01
+		BNE not_sfx
+
+		LDA noise_sfx_override_engine
+		BEQ not_sfx
+
+		LDA #0
+		STA noise_sfx_override_engine
+
+        LDA #%11100011   ; noise control freq 1
+        JSR psg_strobe
+
+		.not_sfx
 		LDA psg_silence_voice, X
 		JSR psg_strobe
 }

@@ -480,9 +480,9 @@ ENDIF
 ; *****************************************************************************
 
 SID_TO_FREQ = 0.060959458   ;PAL=0.0587254762649536; NTSC=
-FREQ_TO_NOISE = 7.5
+FREQ_TO_NOISE = 10
 
-.sid_to_psg_freq_table_LO
+.sid_to_psg_freq_noise_LO
 {
     FOR r,0,255,1
 
@@ -503,12 +503,13 @@ FREQ_TO_NOISE = 7.5
 
 ;    PRINT "r=",r," sid reg=",~sid_reg," sid freq=",sid_freq, " beeb freq=",beeb_freq," beeb reg=",~beeb_reg
 
-    EQUB %11000000 OR (beeb_reg AND &F)     ; tone 1 freq LO
+	; We can ORA in channel number at run time
+    EQUB (beeb_reg AND &F)     ; tone 1 freq LO
 
     NEXT
 }
 
-.sid_to_psg_freq_table_HI
+.sid_to_psg_freq_noise_HI
 {
     FOR r,0,255,1
 
@@ -532,6 +533,58 @@ FREQ_TO_NOISE = 7.5
     EQUB beeb_reg >> 4              ; tone 1 freq HI
 
     NEXT
+}
+
+.sid_to_psg_freq_tone_LO
+{
+    FOR r,0,255,1
+
+    sid_reg = r << 8		; high reg only
+    sid_freq = sid_reg * SID_TO_FREQ
+    beeb_freq = sid_freq
+
+    beeb_div = (32.0 * beeb_freq)
+    IF beeb_div > 0
+        IF (4000000.0 / beeb_div) > &3FF
+            beeb_reg = &3FF
+        ELSE
+            beeb_reg = 4000000.0 / beeb_div
+        ENDIF
+    ELSE
+        beeb_reg = &3FF
+    ENDIF
+
+;    PRINT "tone=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg
+
+	EQUB (beeb_reg AND &F)
+
+	NEXT
+}
+
+.sid_to_psg_freq_tone_HI
+{
+    FOR r,0,255,1
+
+    sid_reg = r << 8		; high reg only
+    sid_freq = sid_reg * SID_TO_FREQ
+    beeb_freq = sid_freq
+
+    beeb_div = (32.0 * beeb_freq)
+    IF beeb_div > 0
+        IF (4000000.0 / beeb_div) > &3FF
+            beeb_reg = &3FF
+        ELSE
+            beeb_reg = 4000000.0 / beeb_div
+        ENDIF
+    ELSE
+        beeb_reg = &3FF
+    ENDIF
+
+;    PRINT "tone=",r," sid reg=",~sid_reg," freq=",sid_freq, " beeb reg=",~beeb_reg
+
+	EQUB (beeb_reg >> 4)
+
+	NEXT
 }
 
 .L_B000	equb $00
@@ -615,8 +668,9 @@ FREQ_TO_NOISE = 7.5
 
 ; These are free
 
-._L_D000:skip 256
-._L_D100:skip 256
+; Claimed for SID>SN76489 frequency tables
+;;._L_D000:skip 256
+;._L_D100:skip 256
 
 ; Claimed for save game workspace
 ;._L_D200:skip 256
