@@ -54,3 +54,15 @@ build:
 b2_test:
 	curl -G 'http://localhost:48075/reset/b2' --data-urlencode "config=Master 128 (MOS 3.20)"
 	curl -H 'Content-Type:application/binary' --upload-file 'scr-beeb.ssd' 'http://localhost:48075/run/b2?name=scr-beeb.ssd'
+
+##########################################################################
+##########################################################################
+
+.PHONY:tom_beeblink
+tom_beeblink: DEST=~/beeb/beeb-files/stuff
+tom_beeblink:
+	cp ./scr-beeb.ssd $(DEST)/ssds/0/s.scr-beeb
+	touch $(DEST)/ssds/0/s.scr-beeb.inf
+
+	rm -Rf $(DEST)/scr-beeb/0
+	ssd_extract --not-emacs -o $(DEST)/scr-beeb/0/ -0 ./scr-beeb.ssd
