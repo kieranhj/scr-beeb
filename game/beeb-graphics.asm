@@ -1982,12 +1982,14 @@ jsr beeb_set_crtc_regs
 
 lda #ULA_MODE_7:sta $fe20
 
+lda $fe34:ora #%00000100:sta $fe34 ; page in shadow RAM
+
 ; Unpack keys screen
 ldx #lo(keys_screen):ldy #hi(keys_screen)
 lda #$7c
 jsr PUCRUNCH_UNPACK
 
-lda $fe34:and #%11111110:sta $fe34 ; display main RAM
+lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
 
 lda #19:jsr osbyte
 
@@ -2015,6 +2017,7 @@ jsr $ffe0
 
 lda #19:jsr osbyte
 
+; disable screen
 lda #8:sta $fe00:lda #$30:sta $fe01
 
 rts
