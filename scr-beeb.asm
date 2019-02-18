@@ -871,7 +871,7 @@ GUARD disksys_loadto_addr
 		bne clear_loop
 		inc clear_loop+2
 		ldy clear_loop+2
-		cpy #HI(hazel_end) + 1
+		cpy #HI(hazel_end)
 		bcc clear_loop
 	}
 
