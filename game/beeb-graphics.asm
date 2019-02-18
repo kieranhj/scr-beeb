@@ -1882,10 +1882,6 @@ ldx #lo(beeb_mode2_crtc_regs)
 ldy #hi(beeb_mode2_crtc_regs)
 jsr beeb_set_crtc_regs
 
-lda #6:sta $fe00:lda #32:sta $fe01
-lda #12:sta $fe00:lda #$06:sta $fe01
-lda #13:sta $fe00:lda #$00:sta $fe01
-
 lda #ULA_MODE_2:sta $fe20
 
 ; Page in shadow RAM, display shadow RAM
