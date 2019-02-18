@@ -35,6 +35,8 @@ brk_stack_max_size=16
 .brk_rom:equb 0
 
 .*graphics_debug_handle_brk
+bit brk_got_info:bmi halt		; just give up on a double brk (e.g.,
+								; due to brk in IRQ routine)
 lda $fc:sta brk_a
 stx brk_x
 sty brk_y
