@@ -170,7 +170,7 @@ ENDIF
 {
     ldx #255
     stx &fe43
-    sta &fe41
+    sta &fe4f
     inx
     stx &fe40
     lda &fe40
