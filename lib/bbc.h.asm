@@ -197,6 +197,7 @@ ULA_MODE_1 = &D8
 ULA_MODE_2 = &F4
 ULA_MODE_4 = &88
 ULA_MODE_5 = &C4
+ULA_MODE_7 = &4B
 
 \\ Macro to reset any mapped characters
 \\ since BeebASM doesn't have any feature for this

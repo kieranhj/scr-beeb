@@ -166,6 +166,9 @@ incbin "build/scr-beeb-preview-bg.pu"
 .credits_screen
 incbin "build/scr-beeb-credits.pu"
 
+.keys_screen
+incbin "build/keys.mode7.pu"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1826,7 +1829,7 @@ lda #CRTC_R8_DisplayDisableValue
 
 .set_r8_value
 {
-:sta irq_handler_load_r8_value+1
+sta irq_handler_load_r8_value+1
 lda vsync_counter:.loop:cmp vsync_counter:beq loop
 rts
 }
@@ -1916,7 +1919,6 @@ rts
 	EQUB HI($3000/8)		; R12 screen start address, high
 	EQUB LO($3000/8)		; R13 screen start address, low
 }
-
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1961,6 +1963,80 @@ bne copy_main_ram_to_shadow_ram_loop
 
 jsr beeb_set_mode_1
 rts
+}
+
+; assumes main RAM is paged in and shadow RAM is displayed.
+._graphics_show_keys_screen
+{
+
+; disable screen
+lda #19:jsr osbyte
+lda #8:sta $fe00:lda #$30:sta $fe01
+
+lda #13:sta beeb_max_crtc_reg
+ldx #lo(beeb_mode7_crtc_regs)
+ldy #hi(beeb_mode7_crtc_regs)
+jsr beeb_set_crtc_regs
+
+lda #ULA_MODE_7:sta $fe20
+
+; Unpack keys screen
+ldx #lo(keys_screen):ldy #hi(keys_screen)
+lda #$7c
+jsr PUCRUNCH_UNPACK
+
+lda $fe34:and #%11111110:sta $fe34 ; display main RAM
+
+lda #19:jsr osbyte
+
+; disabled output + interlace sync/video
+lda #8:sta $fe00:lda #%11110011:sta $fe01
+
+; Seems to take my TV nearly half a second to fully settle down after
+; the mode change, presumably due to the change in interlace
+; sync/video mode. 3 vsyncs is enough to avoid the worst of it.
+;
+; (The picture still adjusts itself slightly, but when the other
+; option is a half second pause, it's fine.)
+
+lda #3:sta nvsyncs
+.loop
+lda #19:jsr osbyte
+dec nvsyncs:bne loop
+
+; enable output + interlace sync/video
+lda #8:sta $fe00:lda #%11010011:sta $fe01
+
+lda #15:jsr osbyte
+
+jsr $ffe0
+
+lda #19:jsr osbyte
+
+lda #8:sta $fe00:lda #$30:sta $fe01
+
+rts
+
+.nvsyncs:equb 0
+
+.beeb_mode7_crtc_regs
+{
+	EQUB 63					; R0  horizontal total
+	EQUB 40					; R1  horizontal displayed
+	EQUB 51					; R2  horizontal position
+	EQUB &24				; R3  sync width 40 = &28
+	EQUB 30					; R4  vertical total
+	EQUB 2					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 27					; R7  vertical position; 35=top of screen
+	EQUB $30				; R8  interlace; &30 = HIDE SCREEN
+	EQUB 18					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB $28				; R12 screen start address, high
+	EQUB $00				; R13 screen start address, low
+}
+
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

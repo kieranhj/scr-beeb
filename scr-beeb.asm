@@ -884,6 +884,8 @@ GUARD disksys_loadto_addr
 
 	\\ FS is now unusable as HAZEL has been trashed
 
+	jsr graphics_show_keys_screen
+
 	; Save off original top of HUD.
 {
 		SWR_SELECT_SLOT BEEB_KERNEL_SLOT
@@ -1687,6 +1689,11 @@ ldx #disable_tube-text:jmp print
 
 ldx #0:jsr clear_display_ram	; clear main RAM
 ldx #1:jsr clear_display_ram	; clear shadow RAM
+
+; set flashing colours off - stop the OS IRQ routine from fiddling
+; with the video ULA.
+lda #9:ldx #0:jsr osbyte
+lda #10:ldx #0:jsr osbyte
 
 lda #19:jsr osbyte
 
