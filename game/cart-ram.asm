@@ -160,6 +160,24 @@ sta write_char_colour_mask
 rts
 }
 
+
+write_char_leftmost_column=4
+
+; Just as write_char, but with a bodge when past column 40...
+.write_char_oswrch_replacement
+{
+pha
+lda write_char_x_pos
+cmp #write_char_leftmost_column+40
+bcc fall_through
+sbc #40
+sta write_char_x_pos
+inc write_char_y_pos
+.fall_through
+pla
+; fall through to write_char
+}
+
 ; Print char.
 ; entry: A	= char to print	(also 127=del, 9=space,	VDU31 a	la OSWRCH)
 .write_char			; HAS DLL
@@ -215,7 +233,7 @@ rts
 .check_newline
 		cmp #$0d
 		bne check_delete
-		lda #4
+		lda #write_char_leftmost_column
 		sta write_char_x_pos
 		rts
 

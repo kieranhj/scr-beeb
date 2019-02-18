@@ -1163,8 +1163,8 @@ GUARD disksys_loadto_addr
 	LDA #LO(irq_handler):STA IRQ1V
 	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
 
-	LDA #LO(cart_write_char):STA WRCHV
-	LDA #HI(cart_write_char):STA WRCHV+1
+	LDA #LO(cart_write_char_oswrch_replacement):STA WRCHV
+	LDA #HI(cart_write_char_oswrch_replacement):STA WRCHV+1
 
 if _DEBUG
     lda #LO(brk_handler):sta BRKV+0

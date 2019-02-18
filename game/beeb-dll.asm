@@ -504,7 +504,7 @@ ENDIF
 .cart_sid_play_sound DLL_CALL_CART sid_play_sound, 2	; only called from Kernel
 .cart_sid_update_voice_2 BRK
 .cart_sysctl DLL_CALL_CART sysctl, 4
-.cart_print_3space DLL_CALL_CART print_3space, 5	; not required in DLL
+.cart_write_char_oswrch_replacement DLL_CALL_CART write_char_oswrch_replacement,5
 .cart_print_2space DLL_CALL_CART print_2space, 6
 .cart_print_space DLL_CALL_CART print_space, 7
 .cart_L_91B4 DLL_CALL_CART L_91B4, 8			; small fn - move to Core?
@@ -589,7 +589,7 @@ ENDIF
 	EQUB LO(sid_play_sound)
 	EQUB 0;LO(sid_update_voice_2)
 	EQUB LO(sysctl)
-	EQUB LO(print_3space)
+	EQUB LO(write_char_oswrch_replacement)
 	EQUB LO(print_2space)
 	EQUB LO(print_space)
 	EQUB LO(L_91B4)
@@ -671,7 +671,7 @@ ENDIF
 	EQUB HI(sid_play_sound)
 	EQUB 0;HI(sid_update_voice_2)
 	EQUB HI(sysctl)
-	EQUB HI(print_3space)
+	EQUB HI(write_char_oswrch_replacement)
 	EQUB HI(print_2space)
 	EQUB HI(print_space)
 	EQUB HI(L_91B4)
