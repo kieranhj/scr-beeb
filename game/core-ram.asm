@@ -597,6 +597,8 @@ ENDIF
 		ldx #$EF		;3617 A2 EF		; " 1pt"
 		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
+\\ Oops! On C64 this drops through to this function which has been moved on BEEB
+		JMP clear_write_char_half_row_flag
 
 .debounce_fire_and_wait_for_fire
 {

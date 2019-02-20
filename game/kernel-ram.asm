@@ -993,7 +993,7 @@
 		lda #$80		;0FCD A9 80
 		sta L_C376,X	;0FCF 9D 76 C3
 ;.L_0FD2
-		inc L_C378,X	;0FD2 FE 78 C3
+		inc L_C378,X	;0FD2 FE 78 C3	; TRAINER - set $C3 to $08 so opponents can never win - seems a bit dangerous!
 ;L_0FD3	= *-2			;!
 ;L_0FD4	= *-1			;!
 .L_0FD5	lda L_C378,X	;0FD5 BD 78 C3
@@ -1979,8 +1979,8 @@ ENDIF
 		ldy #$4B		;2BE7 A0 4B
 		jsr delay_approx_Y_25ths_sec		;2BE9 20 EB 3F
 		
-		lda #C64_IO_NO_KERNAL		;2BEC A9 35
-		sta RAM_SELECT		;2BEE 85 01
+	;	lda #C64_IO_NO_KERNAL		;2BEC A9 35
+	;	sta RAM_SELECT		;2BEE 85 01
 		bit L_C301		;2BF0 2C 01 C3
 		bpl L_2BFC		;2BF3 10 07
 		lda #$80		;2BF5 A9 80
@@ -2617,8 +2617,8 @@ EQUD $FFFF
 		dey				;98F1 88
 		dex				;98F2 CA
 		bpl L_98E5		;98F3 10 F0
-		lda #C64_IO_NO_KERNAL		;98F5 A9 35
-		sta RAM_SELECT		;98F7 85 01
+	;	lda #C64_IO_NO_KERNAL		;98F5 A9 35
+	;	sta RAM_SELECT		;98F7 85 01
 		cli				;98F9 58
 		lda #$01		;98FA A9 01		; 'MODE 1'
 		jsr cart_sysctl		;98FC 20 25 87
@@ -6888,7 +6888,7 @@ equb $00														; $1f
 		sta ZP_6B		;F2DC 85 6B
 		lda ZP_B6		;F2DE A5 B6
 		sta L_C36F		;F2E0 8D 6F C3
-		lda #$0F		;F2E3 A9 0F
+		lda #$0F		;F2E3 A9 0F			; TRAINER - set #$0F to #$00 for faster recovery after crashing
 		sta L_C368		;F2E5 8D 68 C3		; Crash Timer
 		jsr cart_L_2C64		;F2E8 20 64 2C
 .L_F2EB	rts				;F2EB 60
@@ -7302,7 +7302,7 @@ equb $00														; $1f
 		sty L_C36E		;F62E 8C 6E C3
 		sed				;F631 F8
 		sec				;F632 38
-		sbc #$01		;F633 E9 01
+		sbc #$01		;F633 E9 01			TRAINER - set #$01 to #$00 for endless boost
 ;L_F634	= *-1			;!
 		cld				;F635 D8
 		sta boost_reserve		;F636 8D 6A C7

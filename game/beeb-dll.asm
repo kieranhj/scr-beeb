@@ -504,7 +504,7 @@ ENDIF
 .cart_sid_play_sound DLL_CALL_CART sid_play_sound, 2	; only called from Kernel
 .cart_sid_update_voice_2 BRK
 .cart_sysctl DLL_CALL_CART sysctl, 4
-.cart_print_3space DLL_CALL_CART print_3space, 5	; not required in DLL
+.cart_write_char_oswrch_replacement DLL_CALL_CART write_char_oswrch_replacement,5
 .cart_print_2space DLL_CALL_CART print_2space, 6
 .cart_print_space DLL_CALL_CART print_space, 7
 .cart_L_91B4 DLL_CALL_CART L_91B4, 8			; small fn - move to Core?
@@ -516,7 +516,7 @@ ENDIF
 .cart_copy_hall_of_fameQ DLL_CALL_CART copy_hall_of_fameQ, 14
 .cart_verify_filename DLL_CALL_CART verify_filename, 15
 .cart_write_file_string DLL_CALL_CART write_file_string, 16
-.cart_L_95EA DLL_CALL_CART L_95EA, 17
+.cart_L_95EA BRK	;DLL_CALL_CART L_95EA, 17
 .cart_maybe_define_keys DLL_CALL_CART maybe_define_keys, 18
 .cart_store_restore_control_keys DLL_CALL_CART store_restore_control_keys, 19
 .cart_print_lap_time_Q DLL_CALL_CART print_lap_time_Q, 20
@@ -589,7 +589,7 @@ ENDIF
 	EQUB LO(sid_play_sound)
 	EQUB 0;LO(sid_update_voice_2)
 	EQUB LO(sysctl)
-	EQUB LO(print_3space)
+	EQUB LO(write_char_oswrch_replacement)
 	EQUB LO(print_2space)
 	EQUB LO(print_space)
 	EQUB LO(L_91B4)
@@ -601,7 +601,7 @@ ENDIF
 	EQUB LO(copy_hall_of_fameQ)
 	EQUB LO(verify_filename)
 	EQUB LO(write_file_string)
-	EQUB LO(L_95EA)
+	EQUB 0;LO(L_95EA)
 	EQUB LO(maybe_define_keys)
 	EQUB LO(store_restore_control_keys)
 	EQUB LO(print_lap_time_Q)
@@ -671,7 +671,7 @@ ENDIF
 	EQUB HI(sid_play_sound)
 	EQUB 0;HI(sid_update_voice_2)
 	EQUB HI(sysctl)
-	EQUB HI(print_3space)
+	EQUB HI(write_char_oswrch_replacement)
 	EQUB HI(print_2space)
 	EQUB HI(print_space)
 	EQUB HI(L_91B4)
@@ -683,7 +683,7 @@ ENDIF
 	EQUB HI(copy_hall_of_fameQ)
 	EQUB HI(verify_filename)
 	EQUB HI(write_file_string)
-	EQUB HI(L_95EA)
+	EQUB 0;HI(L_95EA)
 	EQUB HI(maybe_define_keys)
 	EQUB HI(store_restore_control_keys)
 	EQUB HI(print_lap_time_Q)
@@ -896,6 +896,7 @@ ENDIF
 
 .beeb_set_mode_1 DLL_CALL_GRAPHICS _beeb_set_mode_1,23
 .graphics_show_credits_screen DLL_CALL_GRAPHICS _graphics_show_credits_screen,24
+.graphics_show_keys_screen DLL_CALL_GRAPHICS _graphics_show_keys_screen,25
 
 ; *****************************************************************************
 \\ Function addresses
@@ -928,6 +929,7 @@ ENDIF
 	EQUB LO(_ensure_screen_enabled)				 ; 22
 	EQUB LO(_beeb_set_mode_1)					 ; 23
 	EQUB LO(_graphics_show_credits_screen)		 ; 24
+	EQUB LO(_graphics_show_keys_screen)			 ; 25
 }
 
 .graphics_table_HI
@@ -957,6 +959,7 @@ ENDIF
 	EQUB HI(_ensure_screen_enabled)				 ; 22
 	EQUB HI(_beeb_set_mode_1)					 ; 23
 	EQUB HI(_graphics_show_credits_screen)		 ; 24
+	EQUB HI(_graphics_show_keys_screen)			 ; 25
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

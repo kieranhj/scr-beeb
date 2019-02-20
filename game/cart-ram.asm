@@ -160,6 +160,42 @@ sta write_char_colour_mask
 rts
 }
 
+
+write_char_leftmost_column=4
+
+; Just as write_char, but with a bodge when past column 40. This is
+; for making *CAT output look OK when the filing system doesn't print
+; any newlines... it is as exactly as clever (or not) as necessary for
+; that, and definitely no more.
+.write_char_oswrch_replacement
+{
+pha
+lda write_char_x_pos
+cmp #write_char_leftmost_column+40
+bcc fall_through
+sbc #40
+sta write_char_x_pos
+inc write_char_y_pos
+.fall_through
+pla
+; fall through to write_char_ascii
+}
+
+; As write_char, but with a more ASCII-y character set. This is mainly
+; for *CAT output, but it's also used for printing menu captions, so
+; that the *CAT menu option can have a * in its name...
+.write_char_ascii
+{
+sec:ror write_char_frontend_ascii
+jsr write_char
+asl write_char_frontend_ascii
+rts
+}
+
+; If bit 7 is set, (try to) print ASCII chars rather than the Stunt
+; Car Racer set. Not compatible with the VDU 127 bodge.
+.write_char_frontend_ascii:brk
+
 ; Print char.
 ; entry: A	= char to print	(also 127=del, 9=space,	VDU31 a	la OSWRCH)
 .write_char			; HAS DLL
@@ -215,7 +251,7 @@ rts
 .check_newline
 		cmp #$0d
 		bne check_delete
-		lda #4
+		lda #write_char_leftmost_column
 		sta write_char_x_pos
 		rts
 
@@ -263,11 +299,33 @@ rts
 
 	ldx irq_mode
 	cpx #$40
-	bne plot_gylph_mode_1
+	bne plot_glyph_mode_1
 	jmp plot_glyph_mode_4
 
-	.plot_gylph_mode_1
+	.plot_glyph_mode_1
 
+		bit write_char_frontend_ascii
+		bpl stunt_car_racer_glyph
+
+		cmp #33
+		bcc stunt_car_racer_glyph
+
+		cmp #33+(ascii_glyphs_1_end-ascii_glyphs_1_begin) div 8
+		bcc ascii_glyph_1
+
+		;  more ranges here??
+		
+		jmp stunt_car_racer_glyph
+
+.ascii_glyph_1
+		sec
+		sbc #33
+		asl a:asl a:asl a
+		adc #LO(ascii_glyphs_1_begin):sta ZP_F0
+		lda #0:adc #HI(ascii_glyphs_1_begin):sta ZP_F1
+		jmp got_glyph_address
+
+.stunt_car_racer_glyph
 ; Calculate address of glyph data
 
 		asl A			;84D3 0A
@@ -288,6 +346,7 @@ rts
 
 ; Character x position *8
 
+.got_glyph_address
 		lda write_char_x_pos		;84E9 AD C5 85
 		asl A			;84EC 0A
 		asl A			;84ED 0A
@@ -2798,7 +2857,8 @@ rts
 		bne L_95DE		;95E7 D0 F5
 		rts				;95E9 60
 
-.L_95EA			; HAS DLL
+IF 0
+.L_95EA			; HAS DLL - C64 SHOW DIRECTORY - UNUSED
 {
 		ldx #$00		;95EA A2 00
 		lda #$01		;95EC A9 01
@@ -2871,6 +2931,7 @@ rts
 		bne L_961B		;966F D0 AA
 		jmp debounce_fire_and_wait_for_fire		;9671 4C 96 36
 }
+ENDIF
 
 .L_967E				; in Cart
 {
@@ -3887,7 +3948,7 @@ equb $74						; STEER LEFT
 		equb "TRACK  DRIVER   LAP-TIME    DRIVER  RACE-TIME",$FF
 }
 
-.L_A1C7	jsr write_char			;A1C7 20 6F 84 (not an entry point)
+.L_A1C7	jsr write_char_ascii	;A1C7 20 6F 84 (not an entry point)
 		inx						;A1CA E8
 .print_msg_2		; HAS DLL
 {
@@ -3899,7 +3960,7 @@ equb $74						; STEER LEFT
 		rts				;A1D7 60
 }
 
-.L_A1D8	jsr write_char			;A1D8 20 6F 84 (not an entry point)
+.L_A1D8	jsr write_char_ascii	;A1D8 20 6F 84 (not an entry point)
 		inx						;A1DB E8
 .print_msg_3					; HAS DLL
 {
@@ -3920,7 +3981,7 @@ equb $74						; STEER LEFT
 		rts				;A1F1 60
 }
 
-.L_3023	jsr write_char		;3023 20 6F 84
+.L_3023	jsr write_char_ascii		;3023 20 6F 84
 		inx				;3026 E8
 .print_msg_4
 {
@@ -3991,10 +4052,12 @@ equb $74						; STEER LEFT
 		sta CIA1_CIAPRA		;081C 8D 00 DC			; CIA1
 		lda CIA1_CIAPRB		;081F AD 01 DC			; CIA1
 		cmp #$BF		;0822 C9 BF
-		beq L_0826		;0824 F0 00
+		beq L_0826		;0824 F0 00		; TRAINER - replace L_0826 with L_0827 to press 'Q' to win current race
 ;L_0825	= *-1			;!
 .L_0826	rts				;0826 60
 }
+
+; Press 'Q' to win current race? Y/N
 
 \\ Presumably these are debug fns previously called from above?
 IF _TODO
@@ -4939,7 +5002,7 @@ jmp start_of_frame_finish
 		beq L_1B91		;1B8D F0 02
 		bcs L_1B92		;1B8F B0 01
 .L_1B91	rts				;1B91 60
-.L_1B92	inc ZP_25		;1B92 E6 25
+.L_1B92	inc ZP_25		;1B92 E6 25		; TRAINER - set INC to RTS ($60) for endless damage
 		ldy L_1C15		;1B94 AC 15 1C
 		jsr rndQ		;1B97 20 B9 29
 		lsr A			;1B9A 4A
@@ -7779,6 +7842,145 @@ PAGE_ALIGN
 		equb $C6,$FF,$B0,$FF,$90,$FF,$67,$FF,$35,$FB,$FF,$B9,$FF,$6F,$FF,$1E
 		equb $C5,$FF,$65,$FF,$FF,$92,$FF,$1F,$A5,$FF,$26,$A1,$FF,$16,$87,$F1
 		equb $FF,$57,$B8,$FF,$15,$6C,$C0,$FF,$0F,$59,$A0,$E2,$FF,$21,$5C,$93
+
+.ascii_glyphs_1_begin
+; characters from the ZX Spectrum ROM.
+
+; $21 - Character: '!'          CHR$(33)
+
+        EQUB    %00000000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00000000
+        EQUB    %00010000
+        EQUB    %00000000
+
+; $22 - Character: '"'          CHR$(34)
+
+        EQUB    %00000000
+        EQUB    %00100100
+        EQUB    %00100100
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+
+; $23 - Character: '#'          CHR$(35)
+
+        EQUB    %00000000
+        EQUB    %00100100
+        EQUB    %01111110
+        EQUB    %00100100
+        EQUB    %00100100
+        EQUB    %01111110
+        EQUB    %00100100
+        EQUB    %00000000
+
+; $24 - Character: '$'          CHR$(36)
+
+        EQUB    %00000000
+        EQUB    %00001000
+        EQUB    %00111110
+        EQUB    %00101000
+        EQUB    %00111110
+        EQUB    %00001010
+        EQUB    %00111110
+        EQUB    %00001000
+
+; $25 - Character: '%'          CHR$(37)
+
+        EQUB    %00000000
+        EQUB    %01100010
+        EQUB    %01100100
+        EQUB    %00001000
+        EQUB    %00010000
+        EQUB    %00100110
+        EQUB    %01000110
+        EQUB    %00000000
+
+; $26 - Character: '&'          CHR$(38)
+
+        EQUB    %00000000
+        EQUB    %00010000
+        EQUB    %00101000
+        EQUB    %00010000
+        EQUB    %00101010
+        EQUB    %01000100
+        EQUB    %00111010
+        EQUB    %00000000
+
+; $27 - Character: '''          CHR$(39)
+
+        EQUB    %00000000
+        EQUB    %00001000
+        EQUB    %00010000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+
+; $28 - Character: '('          CHR$(40)
+
+        EQUB    %00000000
+        EQUB    %00000100
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00000100
+        EQUB    %00000000
+
+; $29 - Character: ')'          CHR$(41)
+
+        EQUB    %00000000
+        EQUB    %00100000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00100000
+        EQUB    %00000000
+
+; $2A - Character: '*'          CHR$(42)
+
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00010100
+        EQUB    %00001000
+        EQUB    %00111110
+        EQUB    %00001000
+        EQUB    %00010100
+        EQUB    %00000000
+
+; $2B - Character: '+'          CHR$(43)
+
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00111110
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00000000
+
+; $2C - Character: ','          CHR$(44)
+
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00010000
+.ascii_glyphs_1_end
+
+if (ascii_glyphs_1_end-ascii_glyphs_1_begin) MOD 8<>0:error "oops":endif
+if (ascii_glyphs_1_end-ascii_glyphs_1_begin)>256:error "oops":endif
 
 ; *****************************************************************************
 ; *****************************************************************************

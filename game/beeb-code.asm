@@ -92,6 +92,10 @@ IF 0
     ; PLA:TAY:PLA:TAX
 ENDIF
 
+    TXA:PHA:TYA:PHA
+    JSR beeb_update_music
+    PLA:TAY:PLA:TAX
+
     JMP also_return
 
     .not_header
@@ -387,7 +391,7 @@ SID_MSB_SHIFT = 3
 	ldy #255
 	sty $fe43
 	
-	sta $fe41
+	sta $fe4f
 	lda #0
 	sta $fe40
 	nop
@@ -553,5 +557,246 @@ LDA #LO(game_start_return_here_after_brk-1):PHA
 ; jump back into frontend to report error
 jmp do_file_result_message
 }
+
+.beeb_update_music
+{
+    lda $f4:pha
+    lda #BEEB_MUSIC_SLOT:sta $f4:sta $fe30
+    JSR vgm_update
+    pla:sta $f4:sta $fe30
+    rts
+}
+
+.decoder_start
+
+
+;-------------------------------
+; lz4 decoder
+;-------------------------------
+
+
+
+; fetch a byte from the current decode buffer at the current read ptr offset
+; returns byte in A, clobbers Y
+.lz_fetch_buffer
+{
+    lda &ffff           ; *** SELF MODIFIED ***
+    inc lz_fetch_buffer+1
+    rts
+}
+
+; push byte into decode buffer
+; clobbers Y, preserves A
+.lz_store_buffer    ; called twice - 4 byte overhead, 6 byte function. Cheaper to inline.
+{
+    sta &ffff   ; *** SELF MODIFIED ***
+    inc lz_store_buffer+1
+    rts                 ; [6] (1)
+}
+
+; provide these vars as cleaner addresses for the code address to be self modified
+lz_window_src = lz_fetch_buffer + 1 ; window read ptr LO (2 bytes) - index, 3 references
+lz_window_dst = lz_store_buffer + 1 ; window write ptr LO (2 bytes) - index, 3 references
+
+
+
+; Calculate a multi-byte lz4 style length into zp_temp
+; On entry A contains the initial counter value (LO)
+; Returns 16-bit length in A/X (A=LO, X=HI)
+; Clobbers Y, zp_temp+0, zp_temp+1
+.lz_fetch_count
+
+    ldx #0
+    cmp #15             ; >=15 signals byte extend
+    bne lz_fetch_count_done
+    sta zp_temp+0
+    stx zp_temp+1
+
+.fetch
+.fetchByte1
+
+    jsr lz_fetch_byte
+    tay
+    clc
+    adc zp_temp+0
+    sta zp_temp+0
+
+    lda zp_temp+1   ; [3zp 4abs](2)
+    adc #0          ; [2](2)
+    sta zp_temp+1   ; [3zp 4abs](2)
+
+    cpy #255            ; 255 signals byte extend       
+    beq fetch
+    tax
+    lda zp_temp+0
+
+.lz_fetch_count_done
+
+    ; A/X now contain count (LO/HI)
+    rts
+
+
+
+
+
+; decode a byte from the currently selected register stream
+; unlike typical lz style unpackers we are using a state machine
+; because it is necessary for us to be able to decode a byte at a time from 8 separate streams
+.lz_decode_byte
+
+    ; decoder state is:
+    ;  empty - fetch new token & prepare
+    ;  literal - decode new literal
+    ;  match - decode new match
+
+    ; lz4 block format:
+    ;  [TOKEN][LITERAL LENGTH][LITERALS][...][MATCH OFFSET][MATCH LENGTH]
+
+; try fetching a literal byte from the stream
+.try_literal
+
+    lda zp_literal_cnt+0        ; [3 zp][4 abs]
+    bne is_literal              ; [2, +1, +2]
+    lda zp_literal_cnt+1        ; [3 zp][4 abs]
+    beq try_match               ; [2, +1, +2]
+
+.is_literal
+.fetchByte2
+
+    ; fetch a literal & stash in decode buffer
+    jsr lz_fetch_byte           ; [6] +6 RTS
+    jsr lz_store_buffer         ; [6] +6 RTS
+    sta stashA+1   ; **SELF MODIFICATION**
+
+    ; for all literals
+    dec zp_literal_cnt+0        ; [5 zp][6 abs]
+    bne end_literal             ; [2, +1, +2]
+    lda zp_literal_cnt+1        ; [3 zp][4 abs]
+    beq begin_matches           ; [2, +1, +2]
+    dec zp_literal_cnt+1        ; [5 zp][6 abs]
+    bne end_literal
+
+.begin_matches
+
+    ; literals run completed
+    ; now fetch match offset & length
+
+.fetchByte3
+
+    ; get match offset LO
+    jsr lz_fetch_byte     
+
+    ; set buffer read ptr
+    ;sta zp_temp
+    sta stashS+1 ; **SELF MODIFICATION**
+    lda lz_window_dst + 0 ; *** SELF MODIFYING CODE ***
+    sec
+.stashS
+    sbc #0 ; **SELFMODIFIED**
+    ;sbc zp_temp
+    sta lz_window_src + 0 ; *** SELF MODIFYING CODE ***
+
+IF LZ4_FORMAT
+    ; fetch match offset HI, but ignore it.
+    ; this implementation only supports 8-bit windows.
+.fetchByte4
+    jsr lz_fetch_byte    
+ENDIF
+
+    ; fetch match length
+    lda zp_match_cnt+0
+    jsr lz_fetch_count
+    ; match length is always+4 (0=4)
+    ; cant do this before because we need to detect 15
+
+    clc                  ; [2] (1)
+    adc #4               ; [2] (2)
+    sta zp_match_cnt+0   ; [3 zp, 4 abs] (2)
+    bcc store_hi         ; [2, +1, +2]    (2)
+    inx                  ; [2] (1)
+    ;inc zp_match_cnt+1  ; [5 zp, 6 abs]  (2)
+.store_hi
+    stx zp_match_cnt+1   ; [3 zp, 4 abs](2)
+
+.end_literal
+.stashA
+    lda #0 ;**SELFMODIFIED - See above**
+    rts
+
+
+; try fetching a matched byte from the stream
+.try_match
+
+    lda zp_match_cnt+1
+    bne is_match
+    lda zp_match_cnt+0
+    ; all matches done, so get a new token.
+    beq try_token
+
+.is_match
+
+    jsr lz_fetch_buffer    ; fetch matched byte from decode buffer
+    jsr lz_store_buffer    ; stash in decode buffer
+    sta stashAA+1 ; **SELF MODIFICATION**
+
+    ; for all matches
+    ; we know match cnt is at least 1
+    lda zp_match_cnt+0
+    bne skiphi
+    dec zp_match_cnt+1
+.skiphi
+    dec zp_match_cnt+0
+
+.end_match
+.stashAA
+    lda #0 ; **SELF MODIFIED - See above **
+    rts
+
+
+; then token parser
+.try_token
+.fetchByte5
+    ; fetch a token
+    jsr lz_fetch_byte     
+
+    tax
+    ldy #0
+
+    ; unpack match length from token (bottom 4 bits)
+    and #&0f
+    sta zp_match_cnt+0
+    sty zp_match_cnt+1
+
+    ; unpack literal length from token (top 4 bits)
+    txa
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+
+    ; fetch literal extended length, passing in A
+    jsr lz_fetch_count
+    sta zp_literal_cnt+0
+    stx zp_literal_cnt+1
+
+    ; if no literals, begin the match sequence
+    ; and fetch one match byte
+    cmp #0
+    bne has_literals
+
+    jsr begin_matches
+    jmp try_match
+
+.has_literals
+    ; ok now go back to literal parser so we can return a byte
+    ; if no literals, logic will fall through to matches
+    jmp try_literal
+
+
+
+
+
+
+.decoder_end
 
 .beeb_code_end

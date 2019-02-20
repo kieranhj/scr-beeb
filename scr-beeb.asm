@@ -13,7 +13,7 @@ INCLUDE "lib/bbc.h.asm"
 ; *****************************************************************************
 
 bootstrap_address = $3f00
-disksys_loadto_addr = $4300     ; SCR only (TEMP)
+disksys_loadto_addr = $4200     ; SCR only (TEMP)
 
 MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
 
@@ -27,6 +27,7 @@ BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
 BEEB_GRAPHICS_SLOT = 6
+BEEB_MUSIC_SLOT = 7
 
 BEEB_PIXELS_COLOUR1 = &0F	; C64=$55
 BEEB_PIXELS_COLOUR2 = &F0	; C64=$AA
@@ -214,8 +215,8 @@ C64_VIC_IRQ_RASTERCMP = $01
 BEEB_ZP_OFFSET = &800
 BEEB_ZP_REMAP = $E0 - $50		; remap $E0 onwards to $40 onwards
 
-DATA_6510	= $00	; 6510 On-Chip I/O DATA Direction Register
-RAM_SELECT	= $01	; 6510 RAM Selection Register
+_DATA_6510	= $00	; 6510 On-Chip I/O DATA Direction Register
+_RAM_SELECT	= $01	; 6510 RAM Selection Register
 ZP_02	= $02
 ZP_03	= $03
 ZP_04	= $04
@@ -714,6 +715,8 @@ vic_sprite_ptr5=$5ffd
 vic_sprite_ptr6=$5ffe
 vic_sprite_ptr7=$5fff
 
+INCLUDE "lib/vgmplayer.h.asm"
+
 ; *****************************************************************************
 ; CORE RAM: $0800 - $4000
 ;
@@ -836,6 +839,13 @@ GUARD disksys_loadto_addr
 	lda #hi(beeb_graphics_start)
 	jsr disksys_load_file
 
+	SWR_SELECT_SLOT BEEB_MUSIC_SLOT
+	
+	ldx #lo(beeb_music_filename)
+	ldy #hi(beeb_music_filename)
+	lda #hi(beeb_music_start)
+	jsr disksys_load_file
+
 	\\ HAZEL must be last as stomping on FS workspace
 
 	LDX #LO(hazel_filename)
@@ -861,7 +871,7 @@ GUARD disksys_loadto_addr
 		bne clear_loop
 		inc clear_loop+2
 		ldy clear_loop+2
-		cpy #HI(hazel_end) + 1
+		cpy #HI(hazel_end)
 		bcc clear_loop
 	}
 
@@ -873,6 +883,8 @@ GUARD disksys_loadto_addr
 	JSR disksys_copy_block
 
 	\\ FS is now unusable as HAZEL has been trashed
+
+	jsr graphics_show_keys_screen
 
 	; Save off original top of HUD.
 {
@@ -1124,6 +1136,15 @@ GUARD disksys_loadto_addr
 
 	; BEEB LATE INIT
 
+	SWR_SELECT_SLOT BEEB_MUSIC_SLOT
+
+    ; initialize the vgm player with a vgc data stream
+    lda #hi(vgm_stream_buffers)
+    ldx #lo(vgm_data)
+    ldy #hi(vgm_data)
+    sec
+    jsr vgm_init
+
 	; BEEB SET INTERRUPT HANDLER
 
     SEI
@@ -1142,8 +1163,8 @@ GUARD disksys_loadto_addr
 	LDA #LO(irq_handler):STA IRQ1V
 	LDA #HI(irq_handler):STA IRQ1V+1		; set interrupt handler
 
-	LDA #LO(cart_write_char):STA WRCHV
-	LDA #HI(cart_write_char):STA WRCHV+1
+	LDA #LO(cart_write_char_oswrch_replacement):STA WRCHV
+	LDA #HI(cart_write_char_oswrch_replacement):STA WRCHV+1
 
 if _DEBUG
     lda #LO(brk_handler):sta BRKV+0
@@ -1159,6 +1180,7 @@ endif
 	\\ paged in. As we're in the loader above $3000 we need to copy some
 	\\ code down to spare RAM ($300) to copy a page at a time w/ bank swaps.
 
+	IF 0
 	{
 		LDX #0
 
@@ -1171,6 +1193,7 @@ endif
 
 		JSR &300
 	}
+	ENDIF
 
 	\\ Clear lower RAM
 
@@ -1261,6 +1284,7 @@ equb LO(screen1_address/8)		; R13
 	; LDA #LO(screen1_address/8):STA &FE01
 }
 
+IF 0
 .copy_to_shadow
 {
 	; COPY DATA FROM MAIN TO SHADOW RAM
@@ -1299,11 +1323,13 @@ equb LO(screen1_address/8)		; R13
 	RTS
 }
 .copy_to_shadow_end
+ENDIF
 
 .core_filename EQUS "Core", 13
 .kernel_filename EQUS "Kernel", 13
 .cart_filename EQUS "Cart", 13
 .beeb_graphics_filename EQUS "Beebgfx",13
+.beeb_music_filename EQUS "Beebmus",13
 .hazel_filename EQUS "Hazel", 13
 .data_filename EQUS "Data", 13
 
@@ -1506,10 +1532,14 @@ PRINT "--------"
 SAVE "Cart", cart_start, cart_end, 0
 PRINT "--------"
 
+; *****************************************************************************
+\\ Beeb Graphics RAM
+; *****************************************************************************
+
 PRINT "***"
 CLEAR &8000,&C000
 ORG &8000
-GUARD &C000
+GUARD &8000 + + MAX_LOADABLE_ROM_SIZE
 
 include "game/beeb-graphics.asm"
 
@@ -1522,6 +1552,28 @@ PRINT "  Size =", ~(beeb_graphics_end - beeb_graphics_start)
 PRINT "  Free =", ~(&C000 - beeb_graphics_end)
 PRINT "--------"
 SAVE "Beebgfx", beeb_graphics_start, beeb_graphics_end, 0
+PRINT "--------"
+
+; *****************************************************************************
+\\ Beeb Music RAM
+; *****************************************************************************
+
+PRINT "***"
+CLEAR &8000,&D000
+ORG &8000
+GUARD &C000
+
+include "game/beeb-music.asm"
+
+PRINT "--------"
+PRINT "Beeb music RAM"
+PRINT "--------"
+PRINT "  Start =", ~beeb_music_start
+PRINT "  End =", ~beeb_music_end
+PRINT "  Size =", ~(beeb_music_end - beeb_music_start)
+PRINT "  Free =", ~(&C000 - beeb_music_end)
+PRINT "--------"
+SAVE "Beebmus", beeb_music_start, beeb_music_end, 0
 PRINT "--------"
 
 ; *****************************************************************************
@@ -1642,6 +1694,11 @@ ldx #disable_tube-text:jmp print
 ldx #0:jsr clear_display_ram	; clear main RAM
 ldx #1:jsr clear_display_ram	; clear shadow RAM
 
+; set flashing colours off - stop the OS IRQ routine from fiddling
+; with the video ULA.
+lda #9:ldx #0:jsr osbyte
+lda #10:ldx #0:jsr osbyte
+
 lda #19:jsr osbyte
 
 lda #22:jsr oswrch
@@ -1697,6 +1754,11 @@ PRINT "-------"
 ; Additional files for the disk...
 ; *****************************************************************************
 
+IF _DEBUG
 PUTFILE "data/Hall.bin", "HALL", &0
 PUTFILE "data/KCSave.bin", "KCSAVE", &0
 PUTFILE "data/MPSave.bin", "MPSAVE", &0
+ENDIF
+
+PUTFILE "doc/readme.txt", "Readme", &0
+PUTFILE "doc/Guide.txt", "Guide", &0
