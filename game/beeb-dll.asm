@@ -514,7 +514,7 @@ ENDIF
 .cart_print_track_records DLL_CALL_CART print_track_records, 12
 .cart_copy_track_records_Q DLL_CALL_CART copy_track_records_Q, 13
 .cart_copy_hall_of_fameQ DLL_CALL_CART copy_hall_of_fameQ, 14
-.cart_verify_filename DLL_CALL_CART verify_filename, 15
+.cart_verify_filename BRK	;DLL_CALL_CART verify_filename, 15
 .cart_write_file_string DLL_CALL_CART write_file_string, 16
 .cart_L_95EA BRK	;DLL_CALL_CART L_95EA, 17
 .cart_maybe_define_keys DLL_CALL_CART maybe_define_keys, 18
@@ -599,7 +599,7 @@ ENDIF
 	EQUB LO(print_track_records)
 	EQUB LO(copy_track_records_Q)
 	EQUB LO(copy_hall_of_fameQ)
-	EQUB LO(verify_filename)
+	EQUB 0;LO(verify_filename)
 	EQUB LO(write_file_string)
 	EQUB 0;LO(L_95EA)
 	EQUB LO(maybe_define_keys)
@@ -681,7 +681,7 @@ ENDIF
 	EQUB HI(print_track_records)
 	EQUB HI(copy_track_records_Q)
 	EQUB HI(copy_hall_of_fameQ)
-	EQUB HI(verify_filename)
+	EQUB 0;HI(verify_filename)
 	EQUB HI(write_file_string)
 	EQUB 0;HI(L_95EA)
 	EQUB HI(maybe_define_keys)

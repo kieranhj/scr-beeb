@@ -2702,6 +2702,7 @@ rts
 		jmp L_93DC		;9445 4C DC 93
 }
 
+IF 0
 .verify_filename				; HAS DLL
 {
 
@@ -2844,7 +2845,7 @@ rts
 .L_94D0	equb "HALL"
 .L_94D4	equb "MP"
 }
-
+ENDIF
 
 \\ Data moved from file_strings_offset to Hazel RAM
 
