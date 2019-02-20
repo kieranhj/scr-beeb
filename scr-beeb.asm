@@ -13,7 +13,7 @@ INCLUDE "lib/bbc.h.asm"
 ; *****************************************************************************
 
 bootstrap_address = $3f00
-disksys_loadto_addr = $4300     ; SCR only (TEMP)
+disksys_loadto_addr = $4200     ; SCR only (TEMP)
 
 MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
 
@@ -1180,6 +1180,7 @@ endif
 	\\ paged in. As we're in the loader above $3000 we need to copy some
 	\\ code down to spare RAM ($300) to copy a page at a time w/ bank swaps.
 
+	IF 0
 	{
 		LDX #0
 
@@ -1192,6 +1193,7 @@ endif
 
 		JSR &300
 	}
+	ENDIF
 
 	\\ Clear lower RAM
 
@@ -1282,6 +1284,7 @@ equb LO(screen1_address/8)		; R13
 	; LDA #LO(screen1_address/8):STA &FE01
 }
 
+IF 0
 .copy_to_shadow
 {
 	; COPY DATA FROM MAIN TO SHADOW RAM
@@ -1320,6 +1323,7 @@ equb LO(screen1_address/8)		; R13
 	RTS
 }
 .copy_to_shadow_end
+ENDIF
 
 .core_filename EQUS "Core", 13
 .kernel_filename EQUS "Kernel", 13
@@ -1535,7 +1539,7 @@ PRINT "--------"
 PRINT "***"
 CLEAR &8000,&C000
 ORG &8000
-GUARD &C000
+GUARD &8000 + + MAX_LOADABLE_ROM_SIZE
 
 include "game/beeb-graphics.asm"
 
@@ -1557,7 +1561,7 @@ PRINT "--------"
 PRINT "***"
 CLEAR &8000,&D000
 ORG &8000
-GUARD &D000
+GUARD &C000
 
 include "game/beeb-music.asm"
 

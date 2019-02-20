@@ -587,43 +587,39 @@ FREQ_TO_NOISE = 10
 	NEXT
 }
 
-.L_B000	equb $00
-.L_B001	equb $0B,$16,$22,$2D,$38,$44,$4F,$5B,$66,$72,$7E,$8A,$95,$A1,$AD,$B9
-		equb $C5,$D2,$DE,$EA,$F7,$03,$10,$1C,$29,$36,$42,$4F,$5C,$69,$76,$83
-		equb $91,$9E,$AB,$B9,$C6,$D4,$E2,$EF,$FD,$0B,$19,$27,$35,$43,$52,$60
-		equb $6E,$7D,$8B,$9A,$A9,$B8,$C7,$D6,$E5,$F4,$03,$12,$22,$31,$41,$50
-		equb $60,$70,$80,$90,$A0,$B0,$C0,$D1,$E1,$F1,$02,$13,$24,$34,$45,$56
-		equb $68,$79,$8A,$9C,$AD,$BF,$D0,$E2,$F4,$06,$18,$2B,$3D,$4F,$62,$74
-		equb $87,$9A,$AD,$C0,$D3,$E6,$F9,$0D,$20,$34,$48,$5C,$70,$84,$98,$AC
-		equb $C0,$D5,$EA,$FE,$13,$28,$3D,$52,$68,$7D,$93,$A8,$BE,$D4,$EA
 
-\* Used to convert a sin value from (0*256 - 1*256) into a cosine value.
-\*
-\* There are 128 values in this table representing sin values increasing in
-\* increments of 1/128.
-\*
-\* Each value is calculated by getting the inverse sin of the sin value, to
-\* give the actual angle, then taking the cosine of this angle.  The result
-\* is then multiplied by 256.
-\*
-\* First 8 values should ideally be 256.
+.file_strings
+.file_strings_not
+		equb " NOT",$FF
+.file_strings_loaded
+		equb " loaded",$FF
+.file_strings_saved
+		equb " saved",$FF
+.file_strings_incorrect_data_found
+		equb "Incorrect data found ",$FF
+.file_strings_file_name_already_exists
+		equb "File name already exists",$FF
+.file_strings_problem_encountered
+		equb "Problem encountered",$FF
+.file_strings_file_name_is_not_suitable
+		equb "File name is not suitable",$FF
+.file_strings_insert_game_position_save
+		equb $1F,$05,$13,"Insert game position save ",$FF
+.file_strings_tape
+		equb "tape",$FF
+.file_strings_disc
+		equb "disc",$FF
+.file_string_file_name_maybe
+		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
 
-;L_B080
-.cosine_conversion_table
-		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
-		equb $FE,$FE,$FD,$FD,$FD,$FD,$FC,$FC,$FB,$FB,$FB,$FA,$FA,$F9,$F9,$F8
-		equb $F8,$F7,$F7,$F6,$F6,$F5,$F4,$F4,$F3,$F3,$F2,$F1,$F0,$F0,$EF,$EE
-		equb $ED,$EC,$EC,$EB,$EA,$E9,$E8,$E7,$E6,$E5,$E4,$E3,$E2,$E1,$E0,$DF
-		equb $DE,$DD,$DB,$DA,$D9,$D8,$D6,$D5,$D4,$D2,$D1,$CF,$CE,$CC,$CB,$C9
-		equb $C8,$C6,$C5,$C3,$C1,$BF,$BE,$BC,$BA,$B8,$B6,$B4,$B2,$B0,$AE,$AC
-		equb $A9,$A7,$A5,$A2,$A0,$9D,$9B,$98,$95,$92,$8F,$8C,$89,$86,$83,$7F
-		equb $7C,$78,$74,$70,$6C,$68,$63,$5E,$59,$53,$4D,$47,$3F,$37,$2D,$20
+;.L_9674	equb "DIRECTORY:"
 
 .hazel_data_end
 
 ; These are used as temporary storage for some reason
 ; Not sure if still valid in Master memory map but...
 
+PAGE_ALIGN
 .L_DC00	skip $E0
 .L_DCE0	skip $20
 .L_DD00 skip $100
