@@ -2624,6 +2624,8 @@ EQUD $FFFF
 		jsr cart_sysctl		;98FC 20 25 87
 		lda #$06		;98FF A9 06
 		sta VIC_EXTCOL		;9901 8D 20 D0
+
+IF 0
 		; BEEB was $5F but need to clear entire MODE 1 screen
 		lda #$7F		;9904 A9 5F
 		sta ZP_1F		;9906 85 1F
@@ -2637,28 +2639,34 @@ EQUD $FFFF
 		ldx ZP_1F		;9914 A6 1F
 		cpx #$40		;9916 E0 40
 		bcs L_990D		;9918 B0 F3
+ELSE
+	\\ BEEB just clear by unpacking our screen
+
+		JSR unpack_hall_of_fame
+ENDIF
+
 		ldx #$00		;991A A2 00
 		ldy #$00		;991C A0 00
 		jsr get_colour_map_ptr		;991E 20 FA 38
 		ldx #$18		;9921 A2 18
 		lda #$06		;9923 A9 06
-		jsr fill_colourmap_solid		;9925 20 16 39
+	;	jsr fill_colourmap_solid		;9925 20 16 39
 		lda #$08		;9928 A9 08
 		sta ZP_19		;992A 85 19
 .L_992C	ldx #$24		;992C A2 24
 		lda #$08		;992E A9 08
-		jsr fill_colourmap_solid		;9930 20 16 39
+	;	jsr fill_colourmap_solid		;9930 20 16 39
 		dec ZP_19		;9933 C6 19
 		bne L_992C		;9935 D0 F5
 		ldx #$34		;9937 A2 34
 		lda #$01		;9939 A9 01
-		jsr fill_colourmap_solid		;993B 20 16 39
+	;	jsr fill_colourmap_solid		;993B 20 16 39
 		lda #$01		;993E A9 01
 		sta write_char_pixel_offset		;9940 8D D9 C3
 		lda #$02		;9943 A9 02
 		sta write_char_pixel_offset		;9945 8D D9 C3
 		ldx #$3B		;9948 A2 3B		; "HALL of FAME"
-		jsr cart_print_msg_1		;994A 20 A5 32
+	;	jsr cart_print_msg_1		;994A 20 A5 32
 		lda L_C71A		;994D AD 1A C7
 		beq L_9957		;9950 F0 05
 		ldx #$4B		;9952 A2 4B		; "SUPER LEAGUE"

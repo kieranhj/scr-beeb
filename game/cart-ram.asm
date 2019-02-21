@@ -7986,6 +7986,15 @@ if (ascii_glyphs_1_end-ascii_glyphs_1_begin)>256:error "oops":endif
 ; *****************************************************************************
 ; *****************************************************************************
 
-; INCLUDE "lib/beeb-plot-font.asm"
+._unpack_hall_of_fame
+{
+    LDA #HI(screen1_address)
+    LDX #LO(hall_of_game_screen)
+    LDY #HI(hall_of_game_screen)
+    JMP PUCRUNCH_UNPACK
+}
+
+.hall_of_game_screen
+INCBIN "build/scr-beeb-hof.pu"
 
 .cart_end

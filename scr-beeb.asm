@@ -909,62 +909,7 @@ GUARD disksys_loadto_addr
 		dex				;40AD CA
 		bpl L_40A7		;40AE 10 F7         ; copy $80 bytes from $5780 to $C280
 
-; 		ldx #$0B		;40B0 A2 0B
-; .L_40B2	lda L_DAB6,X	;40B2 BD B6 DA
-; 		sta L_C6C0,X	;40B5 9D C0 C6
-; 		dex				;40B8 CA
-; 		bpl L_40B2		;40B9 10 F7         ; copy 13 bytes from $DAB6 to $C6C0
-
-; Blats $1F to a load of locations around $5CXX - screen RAM?
-
-; 		ldx #$1F		;40BB A2 1F
-; 		ldy #$00		;40BD A0 00
-; .L_40BF	lda #$0F		;40BF A9 0F
-; 		sta ZP_08		;40C1 85 08
-; 		lda #HI(vic_screen_mem_page0)		;40C3 A9 5C
-; 		sta ZP_1F		;40C5 85 1F
-; 		txa				;40C7 8A
-; 		clc				;40C8 18
-; 		adc #$54		;40C9 69 54
-; 		sta ZP_1E		;40CB 85 1E
-; .L_40CD	lda ZP_08		;40CD A5 08
-; 		cmp L_40EF,X	;40CF DD EF 40
-; 		bcc L_40E9		;40D2 90 15
-; 		lda #$1E		;40D4 A9 1E
-; 		sta (ZP_1E),Y	;40D6 91 1E
-; 		lda ZP_1E		;40D8 A5 1E
-; 		clc				;40DA 18
-; 		adc #$28		;40DB 69 28
-; 		sta ZP_1E		;40DD 85 1E
-; 		lda ZP_1F		;40DF A5 1F
-; 		adc #$00		;40E1 69 00
-; 		sta ZP_1F		;40E3 85 1F
-; 		dec ZP_08		;40E5 C6 08
-; 		bpl L_40CD		;40E7 10 E4
-; .L_40E9	dex				;40E9 CA
-; 		bpl L_40BF		;40EA 10 D3
-
-; More setup weirdness for COLOR RAM
-
-; .L_411F	ldx #$0F		;411F A2 0F
-; .L_4121	lda #$08		;4121 A9 08
-; 		sta L_DB54,X	;4123 9D 54 DB
-; 		dex				;4126 CA
-; 		bpl L_4121		;4127 10 F8     ; write 16 bytes COLOR RAM
-		
-        ; lda #$21		;4129 A9 21
-		; sta L_5EAC		;412B 8D AC 5E
-		; sta L_5ED4		;412E 8D D4 5E
-		; sta L_5EFC		;4131 8D FC 5E
-		; sta L_5ECB		;4134 8D CB 5E
-		; sta L_5EF3		;4137 8D F3 5E
-		; sta L_5F1B		;413A 8D 1B 5F  ; setup screen RAM?
-
-		; lda #$0C		;413D A9 0C
-		; sta L_DAD4		;413F 8D D4 DA
-		; sta L_DAFC		;4142 8D FC DA
-		; sta L_DAF3		;4145 8D F3 DA
-		; sta L_DB1B		;4148 8D 1B DB  ; COLOR RAM
+\\ <SNIP C64 SETUP CODE TO COPY DATA THAT IS NOW IN PLACE>
 
 		ldx #$00		;414B A2 00
 .L_414D
@@ -1006,57 +951,7 @@ GUARD disksys_loadto_addr
 		dex				;4176 CA
 		bpl L_415E		;4177 10 E5     ; copy $18*4 = 96 bytes from $75XX to C2XX
 
-\\ Think this is sprite data
-
-; 		ldx #$00		;4179 A2 00
-; .L_417B
-; 		lda #0;L_63E0,X	;417B BD E0 63
-; 		sta L_5800,X	;417E 9D 00 58
-; 		lda #0;L_6520,X	;4181 BD 20 65
-; 		sta L_5900,X	;4184 9D 00 59
-; 		dex				;4187 CA
-; 		bne L_417B		;4188 D0 F1     ; copy 2x pages from $63E0 to $5800
-
-\\ Think this is sprite data
-
-; 		ldx #$3F		;418A A2 3F
-; .L_418C	lda #0;L_66E0,X	;418C BD E0 66
-; 		sta L_5A00,X	;418F 9D 00 5A
-; 		lda #0;L_6920,X	;4192 BD 20 69
-; 		sta L_5A40,X	;4195 9D 40 5A
-; 		; lda L_6B60,X	;4198 BD 60 6B
-; 		; sta L_7F40,X	;419B 9D 40 7F
-; 		; lda #0;L_6BA0,X	;419E BD A0 6B
-; 		; sta L_57C0,X	;41A1 9D C0 57
-; 		dex				;41A4 CA
-; 		bpl L_418C		;41A5 10 E5     ; copy $40*4 = 256 bytes from $6XX0 to $5XX0
-
-\\ Think this is sprite data
-
-; 		ldx #$7F		;41A7 A2 7F
-; .L_41A9	lda #0;L_6D20,X	;41A9 BD 20 6D
-; 		sta L_5A80,X	;41AC 9D 80 5A
-; 		lda #0;L_6A20,X	;41AF BD 20 6A
-; 		sta L_5B00,X	;41B2 9D 00 5B
-; 		lda #0;L_6DE0,X	;41B5 BD E0 6D
-; 		sta L_5B80,X	;41B8 9D 80 5B
-; 		dex				;41BB CA
-; 		bpl L_41A9		;41BC 10 EB     ; copy $80*3 = 384 bytes from $6DX0 to $5XX0
-
-\\ Think this is screen RAM area
-
-; 		lda #$00		;41BE A9 00
-; 		ldx #$03		;41C0 A2 03
-; .L_41C2	sta L_5C26,X	;41C2 9D 26 5C
-; 		sta L_5C4E,X	;41C5 9D 4E 5C
-; 		sta L_5C76,X	;41C8 9D 76 5C
-; 		sta L_5C9E,X	;41CB 9D 9E 5C
-; 		sta L_5CC6,X	;41CE 9D C6 5C
-; 		sta L_5CEE,X	;41D1 9D EE 5C
-; 		sta L_5D16,X	;41D4 9D 16 5D
-; 		sta L_5D3E,X	;41D7 9D 3E 5D
-; 		dex				;41DA CA
-; 		bpl L_41C2		;41DB 10 E5     ; wipe 4*8 = 32 bytes in $5XXX
+\\ <SNIP C64 SETUP CODE TO COPY DATA THAT IS NOW IN PLACE>
 
 	; C64 page in RAM over IO space at $D000
 	; jsr L_33F1 (disable_ints_and_page_in_RAM)
@@ -1359,119 +1254,11 @@ PRINT "--------"
 PAGE_ALIGN
 PRINT "SAFE TO LOAD TO =", ~P%
 
-	; Comments from Fandal:
-
-		;;; screen 1 - originally od $4000, nyni od $0800
-		
-		;;; from screen 1 was actually a picture area used $4140 until $57bf
-		;;; the first line ($4000 - $413f) was used for other purposes
-		;;; the last sixth row ($57c0- $5fff) was used for other purposes ($840 bytes)
-		
-		; first line screens 1, which is not displayed and which is used for other purposes - 320 bytes
-
 screen1_address = $4000
 screen2_address = $6000
 
-		; pointing to screen 1
-
-;L_3FF1	= screen1_address-$F
-;L_3FF6	= screen1_address-$A
-;L_3FFA	= screen1_address-$6
-
-\L_4000	= screen1_address+$0000	; screen
-\IF (L_4000 AND 255)<>0
-\error "L_4000 must be page aligned"
-\ENDIF
-;L_4001	= screen1_address+$0001
-;L_4008	= screen1_address+$0008
-\L_400C	= screen1_address+$000c	; save
-\L_400D	= screen1_address+$000d	; save
-\L_400E	= screen1_address+$000e	; save
-;L_4010	= screen1_address+$0010
-\L_4020	= screen1_address+$0020	; save
-\L_4025	= screen1_address+$0025	; save
-\L_40A0	= screen1_address+$00a0	; save
-\L_40DC	= screen1_address+$00dc	; save
-\L_40E0	= screen1_address+$00e0 ; save
-\L_4100	= screen1_address+$0100 ; crash
-\L_410C	= screen1_address+$010c ; save
-\L_410D	= screen1_address+$010d ; save
-\L_410E	= screen1_address+$010e	; save
-\L_4120	= screen1_address+$0120	; crash
-;L_4130	= screen1_address+$0130
-;L_4136	= screen1_address+$0136			
-;L_4148	= screen1_address+$0148			
-;L_4150	= screen1_address+$0150
-;L_41E0	= screen1_address+$01e0
-;L_4268	= screen1_address+$0268
-;L_42A0	= screen1_address+$02a0
-\L_4300	= screen1_address+$0300	; save
-;L_43E0	= screen1_address+$03e0
-;L_4520	= screen1_address+$0520
-;L_4660	= screen1_address+$0660
-;L_47A0	= screen1_address+$07a0
-;L_48E0	= screen1_address+$08e0
-;L_4A00	= screen1_address+$0a00
-;L_4A20	= screen1_address+$0a20
-;L_4B60	= screen1_address+$0b60
-;L_4CA0	= screen1_address+$0ca0
-;L_4DE0	= screen1_address+$0de0
-;L_4F20	= screen1_address+$0f20
-
 L_5740	= screen1_address+$1740
-
-;L_6026	= screen2_address+$0026
-;L_6027	= screen2_address+$0027
-;L_6028	= screen2_address+$0028
-;track_preview_border_0	= screen2_address+$0130
-
-;track_preview_border_1	= screen2_address+$0270
-;L_62A0	= screen2_address+$02a0
-;track_preview_border_2	= screen2_address+$03b0
-;L_63E0	= screen2_address+$03e0
-;track_preview_border_3	= screen2_address+$04f0
-;L_6520	= screen2_address+$0520
-;L_6660	= screen2_address+$0660
-;L_66E0	= screen2_address+$06e0
-;L_67A0	= screen2_address+$07a0
-;L_68E0	= screen2_address+$08e0
-;L_6920	= screen2_address+$0920
-;L_6A20	= screen2_address+$0a20
-;L_6B60	= screen2_address+$0b60
-;L_6BA0	= screen2_address+$0ba0
-;L_6CA0	= screen2_address+$0ca0
-;L_6D20	= screen2_address+$0d20
-;L_6D6A	= screen2_address+$0d6a
-;L_6DE0	= screen2_address+$0de0
-;L_6F20	= screen2_address+$0f20
-;L_7060	= screen2_address+$1060
-;L_71A0	= screen2_address+$11a0
-;L_7658  = screen2_address+$1658
-;L_76A0	= screen2_address+$16a0 ; the bottom of the left wheel ($7680 is beginning C64 row)
-
 L_7740	= screen2_address+$1740
-
-;L_7798	= screen2_address+$1798 ; the bottom of the right wheel
-;L_77E0	= screen2_address+$17e0 ; bottom of the left wheel ($77c0 is beginning C64 row)
-;L_78D8	= screen2_address+$18d8 ; the bottom of the right wheel
-;L_7AA6	= screen2_address+$1aa6 ; left upper corner of the speedometer ($7A40 is beginning C64 row)
-;L_7AA7	= screen2_address+$1aa7 ; left upper corner of the speedometer
-;L_7B00	= screen2_address+$1b00
-;L_7C00	= screen2_address+$1c00
-;L_7C53	= screen2_address+$1c53
-;L_7C74	= screen2_address+$1c74
-;L_7D00	= screen2_address+$1d00
-;L_7E00	= screen2_address+$1e00 ; OK
-;L_7F00	= screen2_address+$1f00 ; OK
-
-		; space behind the screen 2 ($7f40-$7fff) - 192 byte
-
-;L_7F80	= screen2_address+$1f80
-;L_7F81	= screen2_address+$1f81
-;L_7F82	= screen2_address+$1f82
-;L_7FC0	= screen2_address+$1fc0
-;L_7FC1	= screen2_address+$1fc1
-;L_7FC2	= screen2_address+$1fc2
 
 PRINT "***"
 ORG &6000

@@ -577,6 +577,7 @@ ENDIF
 .plot_menu_option DLL_CALL_CART _plot_menu_option, 72
 .clear_write_char_half_row_flag DLL_CALL_CART _clear_write_char_half_row_flag, 73
 .set_write_char_colour_mask DLL_CALL_CART _set_write_char_colour_mask, 74
+.unpack_hall_of_fame DLL_CALL_CART _unpack_hall_of_fame, 75
 
 ; *****************************************************************************
 \\ Function addresses
@@ -662,6 +663,7 @@ ENDIF
 	EQUB LO(_plot_menu_option)
 	EQUB LO(_clear_write_char_half_row_flag)
 	EQUB LO(_set_write_char_colour_mask)
+	EQUB LO(_unpack_hall_of_fame)
 }
 
 .cart_table_HI
@@ -744,6 +746,7 @@ ENDIF
 	EQUB HI(_plot_menu_option)
 	EQUB HI(_clear_write_char_half_row_flag)
 	EQUB HI(_set_write_char_colour_mask)
+	EQUB HI(_unpack_hall_of_fame)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
