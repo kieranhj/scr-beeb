@@ -1004,8 +1004,8 @@ GUARD disksys_loadto_addr
 		lda L_AE00,X	;422A BD 00 AE
 		sta L_DC00,X	;422D 9D 00 DC
 
-		lda L_7B00,X	;4230 BD 00 7B
-		sta L_DD00,X	;4233 9D 00 DD
+	;	lda L_7B00,X	;4230 BD 00 7B
+	;	sta L_DD00,X	;4233 9D 00 DD
 		dex				;4236 CA
 		bne L_41E2		;4237 D0 A9
 

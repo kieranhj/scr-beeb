@@ -2702,7 +2702,7 @@ rts
 		jmp L_93DC		;9445 4C DC 93
 }
 
-IF 0
+IF _NOT_BEEB
 .verify_filename				; HAS DLL
 {
 
@@ -2849,16 +2849,7 @@ ENDIF
 
 \\ Data moved from file_strings_offset to Hazel RAM
 
-.L_95DE			; not an entry point
-		jsr write_char		;95DE 20 6F 84
-		inx				;95E1 E8
-.write_file_string			; HAS DLL
-		lda file_strings,X	;95E2 BD 35 95
-		cmp #$FF		;95E5 C9 FF
-		bne L_95DE		;95E7 D0 F5
-		rts				;95E9 60
-
-IF 0
+IF _NOT_BEEB
 .L_95EA			; HAS DLL - C64 SHOW DIRECTORY - UNUSED
 {
 		ldx #$00		;95EA A2 00

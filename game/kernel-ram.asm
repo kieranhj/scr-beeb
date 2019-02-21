@@ -1649,17 +1649,17 @@ IF _NOT_BEEB
 ; save
 
 		ldx #file_strings_insert_game_position_save-file_strings ;2ACF A2 71
-		jsr cart_write_file_string		;2AD1 20 E2 95
+		jsr write_file_string		;2AD1 20 E2 95
 		lda L_0840		;2AD4 AD 40 08
 		clc				;2AD7 18
 		adc #$09		;2AD8 69 09
 		tay				;2ADA A8 - "tape" or "disc"
 		ldx file_strings_offset,Y	;2ADB BE 2A 95
-		jsr cart_write_file_string		;2ADE 20 E2 95
+		jsr write_file_string		;2ADE 20 E2 95
 		jsr debounce_fire_and_wait_for_fire		;2AE1 20 96 36
 
 		ldx #file_string_file_name_maybe-file_strings ;2AE4 A2 99
-		jsr cart_write_file_string		;2AE6 20 E2 95
+		jsr write_file_string		;2AE6 20 E2 95
 ENDIF
 
 .L_2AE9
@@ -2532,11 +2532,11 @@ EQUD $FFFF
 		lda file_error_flag		;94F3 AD 9A C3
 		bpl L_94FD		;94F6 10 05
 		ldx #file_strings_not-file_strings		;94F8 A2 00
-		jsr cart_write_file_string		;94FA 20 E2 95
+		jsr write_file_string		;94FA 20 E2 95
 
 .L_94FD	ldy file_load_save_flag		;94FD AC 7B C7
 		ldx file_strings_offset,Y	;9500 BE 2A 95
-		jsr cart_write_file_string		;9503 20 E2 95
+		jsr write_file_string		;9503 20 E2 95
 		lda file_error_flag		;9506 AD 9A C3
 		bpl L_951D		;9509 10 12
 
@@ -2567,7 +2567,7 @@ EQUD $FFFF
 		and #$07		;9514 29 07
 		tay				;9516 A8
 		ldx file_strings_offset,Y	;9517 BE 2A 95
-		jsr cart_write_file_string		;951A 20 E2 95
+		jsr write_file_string		;951A 20 E2 95
 
 .L_951D	jsr ensure_screen_enabled		;951D 20 9E 3F
 		jsr debounce_fire_and_wait_for_fire		;9520 20 96 36
@@ -8849,5 +8849,40 @@ skip $f0
 		sta L_C719		;3EDA 8D 19 C7
 .L_3EDD	jmp kernel_L_F6A6		;3EDD 4C A6 F6
 }
+
+.L_95DE			; not an entry point
+		jsr cart_write_char		;95DE 20 6F 84
+		inx				;95E1 E8
+.write_file_string			; HAS DLL
+		lda file_strings,X	;95E2 BD 35 95
+		cmp #$FF		;95E5 C9 FF
+		bne L_95DE		;95E7 D0 F5
+		rts				;95E9 60
+
+.file_strings
+.file_strings_not
+		equb " NOT",$FF
+.file_strings_loaded
+		equb " loaded",$FF
+.file_strings_saved
+		equb " saved",$FF
+.file_strings_incorrect_data_found
+		equb "Incorrect data found ",$FF
+.file_strings_file_name_already_exists
+		equb "File name already exists",$FF
+.file_strings_problem_encountered
+		equb "Problem encountered",$FF
+.file_strings_file_name_is_not_suitable
+		equb "File name is not suitable",$FF
+.file_strings_insert_game_position_save
+		equb $1F,$05,$13,"Insert game position save ",$FF
+.file_strings_tape
+		equb "tape",$FF
+.file_strings_disc
+		equb "disc",$FF
+.file_string_file_name_maybe
+		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
+
+;.L_9674	equb "DIRECTORY:"
 
 .kernel_end

@@ -342,8 +342,9 @@ L_A36F	= L_A200 + $16F
 ;L_A440 = color_ram_ptrs_LO + $40
 
 .pixel_masks_1
+
 	\\ Pixel masks %00 11 11 11, %11 00 11 11, %11 11 00 11, %11 11 11 00
-IF 1
+
 		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
 		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
 		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
@@ -352,16 +353,7 @@ IF 1
 		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
 		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
 		equb &77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE,&77,&BB,&DD,&EE
-ELSE
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-		equb $3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC,$3F,$CF,$F3,$FC
-ENDIF
+
 	\\ Pixel masks %01 11 11 11, %11 01 11 11, %11 11 01 11, %11 11 11 01
 
 ; L_A4C0
@@ -587,42 +579,20 @@ FREQ_TO_NOISE = 10
 	NEXT
 }
 
-
-.file_strings
-.file_strings_not
-		equb " NOT",$FF
-.file_strings_loaded
-		equb " loaded",$FF
-.file_strings_saved
-		equb " saved",$FF
-.file_strings_incorrect_data_found
-		equb "Incorrect data found ",$FF
-.file_strings_file_name_already_exists
-		equb "File name already exists",$FF
-.file_strings_problem_encountered
-		equb "Problem encountered",$FF
-.file_strings_file_name_is_not_suitable
-		equb "File name is not suitable",$FF
-.file_strings_insert_game_position_save
-		equb $1F,$05,$13,"Insert game position save ",$FF
-.file_strings_tape
-		equb "tape",$FF
-.file_strings_disc
-		equb "disc",$FF
-.file_string_file_name_maybe
-		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
-
-;.L_9674	equb "DIRECTORY:"
-
 .hazel_data_end
 
 ; These are used as temporary storage for some reason
 ; Not sure if still valid in Master memory map but...
 
 PAGE_ALIGN
+\\ Core BSS
+
+PAGE_ALIGN
 .L_DC00	skip $E0
 .L_DCE0	skip $20
-.L_DD00 skip $100
+
+\\ UNUSED?
+;.L_DD00 skip $100
 
 ; Believe these are high score tables
 
