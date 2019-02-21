@@ -538,8 +538,8 @@ if _DEBUG
 .brk_handler
 {
 lda $f4:pha
-lda #BEEB_GRAPHICS_SLOT:sta $f4:sta $fe30
-jmp graphics_debug_handle_brk
+lda #BEEB_CART_SLOT:sta $f4:sta $fe30
+jmp debug_handle_brk
 }
 endif
 
