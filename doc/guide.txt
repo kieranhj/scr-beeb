@@ -31,7 +31,7 @@ Further controls
 On the page "Name Selection" enter your name and press the key "RETURN" to continue.
 During the race the game can be paused any time be pressing the key "P" and continued by pressing "O".
 
-You can leave a race or a practice drive by pressing the "C="-key. Note that you will then lose a race and the points for the best round.
+You can leave a race or a practice drive by pressing the "Escape"-key. Note that you will then lose a race and the points for the best round.
 
 You can return to the start screen by pressing the key "F1" in the "Next-Race" screen while confirming the menu point "Replay Season" with the fire button.
 

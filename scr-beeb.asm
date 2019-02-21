@@ -1040,6 +1040,9 @@ GUARD disksys_loadto_addr
     sec
     jsr vgm_init
 
+	\\ Turns out the game has a dependency on running with Kernel as default bank
+	SWR_SELECT_SLOT BEEB_KERNEL_SLOT
+
 	; BEEB SET INTERRUPT HANDLER
 
     SEI
