@@ -792,7 +792,7 @@ ENDIF
 		equb $1C		; $0E - highlighted option
 .menu_option_colour
 		equb BEEB_PIXELS_COLOUR1
-		equb $1C,$5A	; $10 - menu_colour_map_stuff - NO LONGER USED, print_results_table, do_end_of_race_screen
+		equb $1C,$5A	; $10 - menu_colour_map_stuff - NO LONGER USED, print_results_table, do_end_of_race_screen - NO LONGER USED
 		equb $14,$5A	; $12 - set_up_screen_for_menu - NO LONGER USED
 		equb $14,BEEB_PIXELS_COLOUR2	; $14 - print_track_records
 		equb $0C,$5A	; $16 - unused?

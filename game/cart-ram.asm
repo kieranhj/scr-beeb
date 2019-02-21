@@ -6842,9 +6842,9 @@ jmp do_initial_screen
 		ldx #$04		;30AD A2 04
 		ldy #$09		;30AF A0 09
 		jsr get_colour_map_ptr		;30B1 20 FA 38
-		ldx #$10		;30B4 A2 10
-		lda #$01		;30B6 A9 01
-		jsr fill_colourmap_solid		;30B8 20 16 39
+	;	ldx #$10		;30B4 A2 10
+	;	lda #$01		;30B6 A9 01
+	;	jsr fill_colourmap_solid		;30B8 20 16 39
 		ldy #$09		;30BB A0 09
 		ldx #$0B		;30BD A2 0B
 		ldy #$09		;30BF A0 09
