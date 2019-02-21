@@ -8,8 +8,8 @@ beeb_readptr    = ZP_20             ; read ptr
 .beeb_code_start
 
 TIMER_PartA = 32*64 + 3*8*64 - 2*64 + 1*64 -2    ; character row 0, scanline 1
-TIMER_PartB = 8*64 -2                   ; character row 1, scanline 1
-TIMER_PartC = 18*8*64 -2                ; character row 19, scanline 1
+TIMER_PartB = 16*64 -2                   ; character row 2, scanline 1
+TIMER_PartC = 17*8*64 -2                ; character row 19, scanline 1
 
 TIMER_Preview = 8*20*64 - 1*64 -2              ; character row 20, scanline 1
 TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
@@ -158,10 +158,10 @@ ENDIF
 	LDA #HI(TIMER_PartB):STA &FE45		; R5=T1 High-Order Counter
 
     LDA #4:STA &FE00        ; R4 = vertical total
-    LDA #0:STA &FE01        ; status bar is just one character row
+    LDA #1:STA &FE01        ; status bar is two rows
 
     LDA #6:STA &FE00        ; R6 = vertical displayed
-    LDA #1:STA &FE01        ; just one row visible
+    LDA #2:STA &FE01        ; two rows visible
 
     LDA #7:STA &FE00        ; R7 = vsync
     LDA #&FF:STA &FE01      ; vsync never - vertical rupture
@@ -176,10 +176,10 @@ ENDIF
     \\ Screen 1
 
 	LDA #12:STA &FE00
-	LDA #HI((screen1_address + 320)/8):STA &FE01
+	LDA #HI((screen1_address + 640)/8):STA &FE01
 
 	LDA #13:STA &FE00
-	LDA #LO((screen1_address + 320)/8):STA &FE01
+	LDA #LO((screen1_address + 640)/8):STA &FE01
 
     BNE also_return
 
@@ -188,10 +188,10 @@ ENDIF
     \\ Screen 2
 
 	LDA #12:STA &FE00
-	LDA #HI((screen2_address + 320)/8):STA &FE01
+	LDA #HI((screen2_address + 640)/8):STA &FE01
 
 	LDA #13:STA &FE00
-	LDA #LO((screen2_address + 320)/8):STA &FE01
+	LDA #LO((screen2_address + 640)/8):STA &FE01
 
     BNE irq_return
 
@@ -205,7 +205,7 @@ ENDIF
 	LDA #HI(TIMER_PartC):STA &FE45		; R5=T1 High-Order Counter
 
     LDA #4:STA &FE00        ; R4 = vertical total
-    LDA #17:STA &FE01       ; gameplay part is 18 rows
+    LDA #16:STA &FE01       ; gameplay part is 18 rows
 
     LDA #6:STA &FE00        ; R6 = vertical displayed
     LDA #18:STA &FE01       ; all 18 rows are visible
