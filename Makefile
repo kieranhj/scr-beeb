@@ -9,13 +9,13 @@ BEEBASM?=beebasm
 build:
 	mkdir -p ./build
 
-	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
 
-	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./graphics/scr-beeb-header.png 5
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-header.dat --160 --palette 0143 ./graphics/scr-beeb-header.png 5
 
-	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
 
-	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-menu.dat --palette 0143 ./graphics/scr-beeb-menu.png 1
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-menu.dat --palette 0143 ./graphics/scr-beeb-menu.png 1
 
 	$(PYTHON) bin/flames.py > build/flames-tables.asm
 
@@ -27,11 +27,13 @@ build:
 
 	$(PYTHON) bin/track_preview.py > build/track-preview.asm
 
-	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
 
-	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-wrecked.dat --160 ./graphics/scr-beeb-wrecked.png 5 --palette 0143
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-wrecked.dat --160 ./graphics/scr-beeb-wrecked.png 5 --palette 0143
 
-	$(PYTHON) bin/png2bbc.py -o build/scr-beeb-winner.dat --160 ./graphics/scr-beeb-winner.png 5 --palette 0124
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-winner.dat --160 ./graphics/scr-beeb-winner.png 5 --palette 0124
+
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hof.dat --palette 0143 ./graphics/HallFame_BBC.png 1
 
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-title-screen.dat" build/scr-beeb-title-screen.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-menu.dat" build/scr-beeb-menu.pu
@@ -41,6 +43,7 @@ build:
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "data/keys.mode7.bin" build/keys.mode7.pu
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-hof.dat" build/scr-beeb-hof.pu
 
 	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -boot Loader -v > compile.txt
 

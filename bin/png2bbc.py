@@ -56,7 +56,8 @@ def main(options):
                        options.mode,
                        options._160,
                        -1 if options.transparent_output else None,
-                       options.transparent_rgb)
+                       options.transparent_rgb,
+                       not options.quiet)
 
     if len(image[0])%pixels_per_byte!=0:
         print>>sys.stderr,'FATAL: Mode %d image width must be a multiple of %d'%(options.mode,pixels_per_byte)
@@ -140,6 +141,7 @@ if __name__=='__main__':
                         type=int,
                         nargs=3,
                         help='specify opaque RGB to be interpreted as transparent')
+    parser.add_argument('-q','--quiet',action='store_true',help='don\'t print warnings')
     parser.add_argument('input_path',metavar='FILE',help='load PNG data fro %(metavar)s')
     parser.add_argument('mode',type=int,help='screen mode')
     main(parser.parse_args())

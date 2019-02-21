@@ -103,7 +103,8 @@ def load_png(path,
              mode,
              halve_width=False,
              transparent_physical_index=None,
-             transparent_rgb=None):
+             transparent_rgb=None,
+             print_warnings=True):
     '''loads PATH, a PNG representing a BBC screen in mode MODE, returning
     a 2d array of BBC physical colour indexes for the caller to disentangle.
 
@@ -158,7 +159,8 @@ transparent.
                 for i in range(3):
                     if p[i]!=0 and p[i]!=255:
                         p=find_closest_rgb(p)
-                        print>>sys.stderr,'Non-BBC Micro colour %s at (%d,%d) - using %s'%(pixels[y][x],x,y,p)
+                        if print_warnings:
+                            print>>sys.stderr,'Non-BBC Micro colour %s at (%d,%d) - using %s'%(pixels[y][x],x,y,p)
                         break
 
                 pidx=rgbs.index((p[0],p[1],p[2]))
