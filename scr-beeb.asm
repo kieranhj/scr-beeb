@@ -12,8 +12,40 @@ INCLUDE "lib/bbc.h.asm"
 ; GLOBAL DEFINES
 ; *****************************************************************************
 
-bootstrap_address = $3f00
-disksys_loadto_addr = $4200     ; SCR only (TEMP)
+; Load process:
+;
+; 1. $.Loader - loads into main RAM, below $3000. Loads title screen
+; to shadow RAM, displays it, and runs $.Loader2
+;
+; 2. $.Loader2 - loads into main RAM between $4e00 and $6000. Loads
+; more stuff as follows:
+;
+; 2.1. <<ROM banks>> - $0e00 - $4e00 (buffered, then copied out)
+; 2.2. $.Core        - $0e00 - $3f00 (in situ)
+; 2.3. $.Data        - $6000 - $8000 (in situ)
+; 2.4. $.Hazel       - <<wherever fits>> (buffered, then copied out)
+;
+; Loader2 has to start at >=$4e00, because there must be 16K somewhere
+; for loading the ROMs. The address of this 16K is not important, but
+; $.Loader2 is too large to start at $3f00 (as required to leave room
+; for loading $.Core) while still leaving 16K free from $4000, so that
+; limits things. And it has to finish <$6000, because that's where
+; $.Data has to end up.
+;
+; And $.Hazel has to be able to fit somewhere in this region too
+; (again, exact address unimportant), along with $.Loader2, because it
+; has to be loaded into main RAM before being copied out.
+;
+; This is all probably not as data-driven as it should be.
+
+; Where ROM banks are buffered to when being loaded.
+disksys_loadto_addr = $0e00
+
+; Where $.Hazel is loaded to.
+hazel_load_addr=$4000
+
+; Where loader2 should live.
+loader2_addr=$4e00
 
 MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
 
@@ -733,7 +765,7 @@ INCLUDE "lib/vgmplayer.h.asm"
 
 PRINT "***"
 ORG &E00
-GUARD bootstrap_address		; using .boot_start doesn't seem to guard?
+GUARD hazel_load_addr		; using .boot_start doesn't seem to guard?
 
 \\ Core Code
 
@@ -763,9 +795,9 @@ PRINT "--------"
 SAVE "Core", core_start, P%, 0
 PRINT "--------"
 
-CLEAR &3f00, &8000
-ORG bootstrap_address
-GUARD disksys_loadto_addr
+CLEAR loader2_addr, &8000
+ORG loader2_addr
+GUARD &6000
 
 .boot_start
 
@@ -811,12 +843,7 @@ GUARD disksys_loadto_addr
 
     LDA &FE34:ORA #&8:STA &FE34
 
-	; BEEB LOAD MODULES
-
-	LDX #LO(core_filename)
-	LDY #HI(core_filename)
-	LDA #HI(core_start)
-	JSR disksys_load_file
+; Load ROMs first, as they use the space later required by $.Core.
 
 	SWR_SELECT_SLOT BEEB_CART_SLOT
 
@@ -846,11 +873,18 @@ GUARD disksys_loadto_addr
 	lda #hi(beeb_music_start)
 	jsr disksys_load_file
 
+; Load $.Core.
+
+	LDX #LO(core_filename)
+	LDY #HI(core_filename)
+	LDA #HI(core_start)
+	JSR disksys_load_file
+
 	\\ HAZEL must be last as stomping on FS workspace
 
 	LDX #LO(hazel_filename)
 	LDY #HI(hazel_filename)
-	LDA #HI(disksys_loadto_addr)
+	LDA #HI(hazel_load_addr)
 	JSR disksys_load_direct
 
 	\\ Load boot data to screen
@@ -877,7 +911,7 @@ GUARD disksys_loadto_addr
 
 	\\ Now copy data from screen1 up to Hazel
 
-	LDA #HI(disksys_loadto_addr)
+	LDA #HI(hazel_load_addr)
 	LDX #HI(hazel_data_start)
 	LDY #HI(hazel_data_end - hazel_data_start + &FF)
 	JSR disksys_copy_block
@@ -1264,6 +1298,7 @@ L_5740	= screen1_address+$1740
 L_7740	= screen2_address+$1740
 
 PRINT "***"
+clear &6000,&8000
 ORG &6000
 GUARD &8000
 INCLUDE "game/boot-data.asm"
@@ -1407,7 +1442,7 @@ PRINT "--------"
 
 ; Manual guard, as hazel_end and hazel_start are forward references
 ; above.
-IF disksys_loadto_addr+(hazel_data_end-hazel_data_start)>boot_data_start
+IF hazel_load_addr+(hazel_data_end-hazel_data_start)>loader2_addr
 ERROR "Hazel data too large"
 ENDIF
 
