@@ -29,8 +29,11 @@ incbin "build/scr-beeb-preview-bg.pu"
 .credits_screen
 incbin "build/scr-beeb-credits.pu"
 
-.keys_screen
+.keys_screen_pu
 incbin "build/keys.mode7.pu"
+
+.trainer_screen_pu
+incbin "build/trainer.mode7.pu"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1828,34 +1831,40 @@ jsr beeb_set_mode_1
 rts
 }
 
-; assumes main RAM is paged in and shadow RAM is displayed.
-._graphics_show_keys_screen
+.page_in_shadow_RAM
 {
-
-; disable screen
-lda #19:jsr osbyte
-lda #8:sta $fe00:lda #$30:sta $fe01
-
-lda #13:sta beeb_max_crtc_reg
-ldx #lo(beeb_mode7_crtc_regs)
-ldy #hi(beeb_mode7_crtc_regs)
-jsr beeb_set_crtc_regs
-
-lda #ULA_MODE_7:sta $fe20
-
+pha
 lda $fe34:ora #%00000100:sta $fe34 ; page in shadow RAM
+pla
+rts
+}
 
-; Unpack keys screen
-ldx #lo(keys_screen):ldy #hi(keys_screen)
-lda #$7c
-jsr PUCRUNCH_UNPACK
-
+.page_in_main_RAM
+{
+pha
 lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
+pla
+rts
+}
+
+.unpack_mode7
+{
+stx reload_x+1:sty reload_y+1
 
 lda #19:jsr osbyte
 
 ; disabled output + interlace sync/video
 lda #8:sta $fe00:lda #%11110011:sta $fe01
+
+jsr page_in_shadow_RAM
+
+; Unpack keys screen
+.reload_x:ldx #$ff
+.reload_y:ldy #$ff
+lda #$7c
+jsr PUCRUNCH_UNPACK
+
+jsr page_in_main_RAM
 
 ; Seems to take my TV nearly half a second to fully settle down after
 ; the mode change, presumably due to the change in interlace
@@ -1872,10 +1881,60 @@ dec nvsyncs:bne loop
 ; enable output + interlace sync/video
 lda #8:sta $fe00:lda #%11010011:sta $fe01
 
-lda #15:jsr osbyte
+rts
 
-jsr $ffe0
+.nvsyncs:equb 0
 
+}
+
+; assumes main RAM is paged in and shadow RAM is displayed.
+._graphics_show_keys_screen
+{
+ldy #0
+.trainers_init_loop
+tya:pha
+ldx trainers_table,y
+ldy trainers_data+0,x			; rom slot
+lda trainers_data+1,x:sta ZP_1E	; addr LSB
+lda trainers_data+2,x:sta ZP_1F	; addr MSB
+jsr trainer_read_mem
+sta trainers_data+4,x			; original value
+pla:tay
+iny
+cpy #trainers_table_end-trainers_table
+bne trainers_init_loop
+
+; disable key repeat
+lda #11:ldx #0:jsr osbyte
+
+; flush all buffers
+lda #15:ldx #0:jsr osbyte
+
+lda #$e1:jsr setup_fkeys		  ; f keys
+lda #$e2:jsr setup_fkeys		  ; f keys+shift
+lda #$e3:jsr setup_fkeys		  ; f keys+ctrl
+lda #$e4:jsr setup_fkeys		  ; f keys+shift+ctrl
+lda #229:ldx #1:ldy #0:jsr osbyte ; disable Escape
+
+; disable screen
+lda #19:jsr osbyte
+lda #8:sta $fe00:lda #$30:sta $fe01
+
+lda #13:sta beeb_max_crtc_reg
+ldx #lo(beeb_mode7_crtc_regs)
+ldy #hi(beeb_mode7_crtc_regs)
+jsr beeb_set_crtc_regs
+
+lda #ULA_MODE_7:sta $fe20
+
+.keys_screen
+ldx #lo(keys_screen_pu):ldy #hi(keys_screen_pu):jsr unpack_mode7
+
+jsr osrdch
+
+and #$df
+; cmp #'T':beq trainer_screen
+.done
 lda #19:jsr osbyte
 
 ; disable screen
@@ -1883,7 +1942,124 @@ lda #8:sta $fe00:lda #$30:sta $fe01
 
 rts
 
-.nvsyncs:equb 0
+.trainer_screen
+ldx #lo(trainer_screen_pu):ldy #hi(trainer_screen_pu):jsr unpack_mode7
+
+jsr trainers_update
+
+.trainer_screen_loop
+jsr osrdch:tax
+
+and #$df:cmp #'I':beq keys_screen
+
+txa:and #$f0:cmp #$10:beq trainer_fkey
+
+jmp done
+
+.trainer_fkey
+txa:and #$0f:cmp #trainers_table_end-trainers_table:bcs trainer_screen_loop
+tax
+lda trainer_states,x:eor #1:sta trainer_states,x
+jsr trainers_update
+jmp trainer_screen_loop
+
+.trainers_update
+{
+trainer_x=34
+trainer_y=10
+lda #<($7c00+trainer_x+trainer_y*40):sta ZP_20
+lda #>($7c00+trainer_x+trainer_y*40):sta ZP_21
+ldx #0
+.loop
+ldy trainer_states,x
+
+; ; poke appropriate byte
+; lda trainer_states,x:lsr a		; C=1 if on, C=0 if off
+; lda trainers_table,x:adc #0:tay	; Y=offset+1 if on, Y=offset+0 if
+; 								; off
+; lda trainers_data+0,y:pha		; cheat byte if on, default byte if
+; 								; off
+; ldy trainers_table,x			; Y=offset
+; lda trainers_data+3,y:sta ZP_1E	; address LSB
+; lda trainers_data+4,y:sta ZP_1F	; address MSB
+; lda trainers_data+2,y:tay		; ROM slot
+; pla								; value
+; jsr trainer_write_mem
+
+; ; update on/off text
+; ldy trainer_states,x
+; lda trainer_onoff+4,y:pha
+; lda trainer_onoff+2,y:pha
+; lda trainer_onoff+0,y:pha
+; ldy #0
+; jsr page_in_shadow_RAM
+; pla:sta (ZP_20),y:iny
+; pla:sta (ZP_20),y:iny
+; pla:sta (ZP_20),y
+; jsr page_in_main_RAM
+; clc
+; lda ZP_20:adc #80:sta ZP_20
+; lda ZP_21:adc #0:sta ZP_21
+
+inx
+cpx #trainers_table_end-trainers_table:bne loop
+rts
+}
+
+
+.setup_fkeys
+ldx #16							; produce 16+n for f key n
+ldy #0							; replace old value
+jmp osbyte
+
+.trainers_table
+equb trainer_endless_boost-trainers_data
+equb trainer_endless_damage-trainers_data
+equb trainer_faster_crashes-trainers_data
+equb trainer_opponents_cant_win-trainers_data
+; equb trainer_q_to_win-trainers_data
+.trainers_table_end
+
+.trainers_data
+
+; each trainer item:
+;
+; +0 equb byte that was there originally
+; +1 equb byte to poke there when trainer active
+; +2 equb ROM slot
+; +3 equw address to poke
+;
+; luckily, each trainer only involves a 1-byte poke...
+
+.trainer_endless_boost
+equb 0
+equb 0							; amount to subtract
+equb BEEB_KERNEL_SLOT
+equw L_F633+1
+
+.trainer_endless_damage
+equb 0
+equb $60						; RTS
+equb BEEB_CART_SLOT
+equw L_1B92
+
+.trainer_faster_crashes
+equb 0
+equb 0							; reduced timer value
+equb BEEB_KERNEL_SLOT
+equw L_F2E3+1
+
+.trainer_opponents_cant_win
+equb 0
+equb $2c						; BIT abs, not INC abs,X
+equb BEEB_KERNEL_SLOT
+equw L_0FD2
+
+.trainer_onoff
+equb "OOfnf "
+
+.trainer_states
+FOR i,1,trainers_table_end-trainers_table:EQUB 0:NEXT
 
 .beeb_mode7_crtc_regs
 {
@@ -1902,7 +2078,6 @@ rts
 	EQUB $28				; R12 screen start address, high
 	EQUB $00				; R13 screen start address, low
 }
-
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

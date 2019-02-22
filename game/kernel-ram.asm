@@ -992,7 +992,7 @@
 		bne L_0FC7		;0FCB D0 FA
 		lda #$80		;0FCD A9 80
 		sta L_C376,X	;0FCF 9D 76 C3
-;.L_0FD2
+.*L_0FD2
 		inc L_C378,X	;0FD2 FE 78 C3	; TRAINER - set $C3 to $08 so opponents can never win - seems a bit dangerous!
 ;L_0FD3	= *-2			;!
 ;L_0FD4	= *-1			;!
@@ -6896,6 +6896,7 @@ equb $00														; $1f
 		sta ZP_6B		;F2DC 85 6B
 		lda ZP_B6		;F2DE A5 B6
 		sta L_C36F		;F2E0 8D 6F C3
+.*L_F2E3
 		lda #$0F		;F2E3 A9 0F			; TRAINER - set #$0F to #$00 for faster recovery after crashing
 		sta L_C368		;F2E5 8D 68 C3		; Crash Timer
 		jsr cart_L_2C64		;F2E8 20 64 2C
@@ -7310,6 +7311,7 @@ equb $00														; $1f
 		sty L_C36E		;F62E 8C 6E C3
 		sed				;F631 F8
 		sec				;F632 38
+.*L_F633
 		sbc #$01		;F633 E9 01			TRAINER - set #$01 to #$00 for endless boost
 ;L_F634	= *-1			;!
 		cld				;F635 D8

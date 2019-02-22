@@ -56,10 +56,30 @@ L_7AA7=L_6000+$1AA7
 
 ; end of in-game screen data.
 
-  		skip 64					; previously some sprite data
+; Seems to be the only place left for this stuff to go...
 
-; buffer for in-game text sprites.
+; in: Y=slot, ZP_1E=addr
+; out: A=byte
+.trainer_read_mem
+{
+lda $f4:pha
+sty $f4:sty $fe30
+ldy #0:lda (ZP_1E),y
+pla
+sta $f4:sta $fe30
+rts
+}
 
-.L_7F80
+; in: Y=slot, ZP_1E=addr, A=value
+.trainer_write_mem
+{
+pha
+lda $f4:sta reload_slot+1
+sty $f4:sty $fe30
+pla:ldy #0:sta (ZP_1E),y
+.reload_slot:ldy #$ff
+sty $f4:sty $fe30
+rts
+}
 
 .boot_data_end

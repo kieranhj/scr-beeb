@@ -43,6 +43,7 @@ build:
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "data/keys.mode7.bin" build/keys.mode7.pu
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "data/trainer.mode7.bin" build/trainer.mode7.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-hof.dat" build/scr-beeb-hof.pu
 
 	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -boot Loader -v > compile.txt

@@ -1268,6 +1268,7 @@ ORG &6000
 GUARD &8000
 INCLUDE "game/boot-data.asm"
 
+
 ; *****************************************************************************
 \\ Boot DATA area
 ; *****************************************************************************
@@ -1329,7 +1330,7 @@ PRINT "--------"
 PRINT "***"
 CLEAR &8000,&C000
 ORG &8000
-GUARD &8000 + + MAX_LOADABLE_ROM_SIZE
+GUARD &8000 + MAX_LOADABLE_ROM_SIZE
 
 include "game/beeb-graphics.asm"
 
