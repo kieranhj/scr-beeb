@@ -58,9 +58,9 @@ L_7AA7=L_6000+$1AA7
 
 ; The original cheats modified the code, but no reason to have to do
 ; that here...
-
-.trainers_any_active:equb 0
-
+;
+; Bit 7 of each byte is set if the cheat is active - these flags are
+; tested with BIT.
 .trainer_flags:
 .trainer_flag_endless_boost:equb 0 ; index 0 = endless boost
 .trainer_flag_infinite_damage:equb 0 ; index 1 = infinite damage

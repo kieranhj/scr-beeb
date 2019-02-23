@@ -1947,15 +1947,12 @@ last_addr=$7c00+trainer_x+(trainer_y+(num_trainers-1)*2)*40
 lda #<last_addr:sta ZP_20
 lda #>last_addr:sta ZP_21
 
-lda #0:sta trainers_any_active
 lda #num_trainers-1:sta index
 {
 .trainers_loop
 ldy index
 
 lda trainer_flags,y:asl a:lda #0:adc #0:tax
-
-ora trainers_any_active:sta trainers_any_active
 
 ldy #0
 jsr page_in_shadow_RAM

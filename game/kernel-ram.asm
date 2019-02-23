@@ -6315,6 +6315,17 @@ equb frontend_strings_2_practise-frontend_strings_2				; $1c
 equb frontend_strings_2_practise-frontend_strings_2				; $1d
 equb frontend_strings_2_cancel-frontend_strings_2				; $1e
 equb $00														; $1f
+.menu_screen_offsets_load_save_replay_cheater
+equb frontend_strings_2_replay-frontend_strings_2
+equb frontend_strings_2_cancel-frontend_strings_2
+equb $00
+equb $00
+.menu_screen_offsets_main_menu_cheater
+equb frontend_strings_2_hall_of_fame-frontend_strings_2 ; $00
+equb frontend_strings_2_practise-frontend_strings_2		; $01
+equb frontend_strings_2_start_the_racing_season-frontend_strings_2 ; $02
+equb frontend_strings_2_replay-frontend_strings_2 ; $03
+
 
 .L_EF06	tay				;EF06 A8
 		bne L_EF0F		;EF07 D0 06
@@ -6351,19 +6362,47 @@ equb $00														; $1f
 		bpl L_EF48		;EF44 10 02
 		lda #$02		;EF46 A9 02
 .L_EF48	ldy #$03		;EF48 A0 03
+		jsr trainers_any_active
 		ldx #menu_screen_offsets_main_menu-menu_screen_offsets ;EF4A A2 00
+		bcc got_main_menu_options
+		ldx #menu_screen_offsets_main_menu_cheater-menu_screen_offsets
+.got_main_menu_options
 		jsr do_menu_screen		;EF4C 20 36 EE
 		cmp #$02		;EF4F C9 02
 		beq L_EF2C		;EF51 F0 D9
 		bcc L_EF06		;EF53 90 B1
+
+; load/save/replay
+
 		jsr delay_approx_4_5ths_sec		;EF55 20 E9 3F
+		
+		jsr trainers_any_active
+		bcc load_save_replay_no_cheat
+
+.load_save_replay_cheat
+		ldy #$01
+		lda #$01
+		ldx #menu_screen_offsets_load_save_replay_cheater-menu_screen_offsets
+		jsr do_menu_screen
+
+		cmp #1					; cancel?
+		beq L_EF37				; taken if cancel
+		bne replay				; taken if replay
+
+
+.load_save_replay_no_cheat
 		ldy #$03		;EF58 A0 03
 		lda #$03		;EF5A A9 03
 		ldx #menu_screen_offsets_load_save_replay-menu_screen_offsets ;EF5C A2 04
 		jsr do_menu_screen		;EF5E 20 36 EE
-		cmp #$02		;EF61 C9 02
-		bcc L_EF8C		;EF63 90 27
-		bne L_EF37		;EF65 D0 D0
+
+		cmp #$02		;EF61 C9 02 replay?
+		bcc L_EF8C		;EF63 90 27 taken if load/save
+		bne L_EF37		;EF65 D0 D0 taken if cancel
+
+; Replay
+
+.replay
 		jsr cart_L_1611		;EF67 20 11 16
 		ldx #KEY_DEF_REDEFINE		;EF6A A2 20
 		jsr poll_key_with_sysctl		;EF6C 20 C9 C7
@@ -6401,7 +6440,10 @@ equb $00														; $1f
 		lda L_0840		;EFAB AD 40 08
 		jsr do_menu_screen		;EFAE 20 36 EE
 		cmp #$03		;EFB1 C9 02
-		bcs L_EF37		;EFB3 B0 82
+		; bcs L_EF37		;EFB3 B0 82
+		bcc not_cancel
+		jmp L_EF37
+.not_cancel
 		sta L_0840		;EFB5 8D 40 08
 
 		lda #$00		;EFB8 A9 00
@@ -8920,5 +8962,23 @@ skip $f0
 		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
 
 ;.L_9674	equb "DIRECTORY:"
+
+.trainers_any_active
+{
+pha
+txa:pha
+lda $fe34:pha
+lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
+lda #0
+ldx #num_trainers-1
+.loop
+ora trainer_flags,x
+dex:bpl loop
+asl a
+pla:sta $fe34
+pla:tax
+pla
+rts
+}
 
 .kernel_end
