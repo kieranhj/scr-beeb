@@ -830,11 +830,18 @@ bpl loop
 jmp dash_storebuf
 }
 
-; 2 pixels + 5 unmasked columns.
+; 2 pixels + 5 unmasked columns + 1 pixel.
+;
+; (There's an extra column that wants erasing in this case - a full
+; m/s/h lap time ends up plotting pixels in every available column...)
 .dash_clear_east
 {
 lda #$33:jsr dash_clear_1_column_masked
+jsr dash_clear_5_columns_unmasked
+lda #$88:jsr dash_clear_1_column_masked
+rts
 }
+
 .dash_clear_5_columns_unmasked
 {
 jsr dash_clearbuf
