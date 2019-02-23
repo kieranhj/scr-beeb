@@ -1941,19 +1941,36 @@ ldx #lo(trainer_screen_pu):ldy #hi(trainer_screen_pu):jsr unpack_mode7
 
 ; draw flags on screen, and apply cheats.
 
+lda #19:jsr osbyte
+
+disabled_message_y=7
+disabled_addr=$7c00+(disabled_message_y-1)*40
+
 trainer_x=34
 trainer_y=10
 last_addr=$7c00+trainer_x+(trainer_y+(num_trainers-1)*2)*40
 lda #<last_addr:sta ZP_20
 lda #>last_addr:sta ZP_21
 
-lda #num_trainers-1:sta index
+; sneakily hide the 'load/save disabled' message with a misplaced
+; double height code.
+jsr page_in_shadow_RAM
+lda #141:sta disabled_addr
+jsr page_in_main_RAM
+
+ldy #num_trainers-1
 {
 .trainers_loop
-ldy index
+tya:pha
 
-lda trainer_flags,y:asl a:lda #0:adc #0:tax
+lda trainer_flags,y:asl a:lda #0:rol a:tax:beq show_state
 
+; at least one cheat is on, so unhide the load/save disabled message.
+jsr page_in_shadow_RAM
+lda #0:sta disabled_addr
+jsr page_in_main_RAM
+
+.show_state
 ldy #0
 jsr page_in_shadow_RAM
 lda trainer_onoff+0,x:sta (ZP_20),y:iny
@@ -1965,7 +1982,7 @@ sec
 lda ZP_20:sbc #80:sta ZP_20
 lda ZP_21:sbc #0:sta ZP_21
 
-dec index
+pla:tay:dey
 bpl trainers_loop
 }
 
@@ -1973,15 +1990,17 @@ jsr osrdch:tax
 
 and #$df:cmp #'I':bne not_keys_screen:jmp keys_screen:.not_keys_screen
 
-txa:and #$f0:cmp #$10:bne screens_done
+txa:and #$f0:cmp #$10:beq handle_f_key
 
+jmp screens_done
+
+.handle_f_key
 txa:and #$0f:cmp #num_trainers:bcs trainer_screen_loop
 tay
 lda trainer_flags,y:eor #$80:sta trainer_flags,y
 jmp trainer_screen_loop
 }
 
-.index:equb 0
 .trainer_onoff:equb "OOfnf "
 
 .setup_fkeys
