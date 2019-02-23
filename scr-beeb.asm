@@ -87,6 +87,8 @@ KEY_DEF_QUIT = IKN_esc			;$2F	; Commodore
 KEY_DEF_CONTINUE = IKN_o		;$34	; O
 KEY_DEF_CANCEL = IKN_esc		;$3F	; run stop?
 
+KEY_DEF_WIN_TRAINER = IKN_q		; cheat!
+
 KEY_MENU_OPTION_1 = IKN_1
 KEY_MENU_OPTION_2 = IKN_2
 KEY_MENU_OPTION_3 = IKN_3

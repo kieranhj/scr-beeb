@@ -4196,18 +4196,18 @@ equb $74						; STEER LEFT
 ; Press 'Q' to win current race? Y/N
 
 \\ Presumably these are debug fns previously called from above?
-.win_current_race
-{
-.L_0827	lda L_C354		;0827 AD 54 C3
-		sta L_C378		;082A 8D 78 C3
-		rts				;082D 60
+; .win_current_race
+; {
+; .L_0827	lda L_C354		;0827 AD 54 C3
+; 		sta L_C378		;082A 8D 78 C3
+; 		rts				;082D 60
 ; .L_082E	txa				;082E 8A
 ; 		cmp #$01		;082F C9 01
 ; 		beq L_0837		;0831 F0 04
 ; 		inc L_C378,X	;0833 FE 78 C3
 ; 		rts				;0836 60
 ; .L_0837	jmp L_0FD5		;0837 4C D5 0F
-}
+; }
 
 .reset_sprites		; HAS DLL
 {
@@ -5137,7 +5137,11 @@ jmp start_of_frame_finish
 		beq L_1B91		;1B8D F0 02
 		bcs L_1B92		;1B8F B0 01
 .L_1B91	rts				;1B91 60
-.*L_1B92	inc ZP_25		;1B92 E6 25		; TRAINER - set INC to RTS ($60) for endless damage
+.*L_1B92
+		bit trainer_flag_infinite_damage
+		bmi L_1B91
+
+		inc ZP_25		;1B92 E6 25		; TRAINER - set INC to RTS ($60) for endless damage
 		ldy L_1C15		;1B94 AC 15 1C
 		jsr rndQ		;1B97 20 B9 29
 		lsr A			;1B9A 4A

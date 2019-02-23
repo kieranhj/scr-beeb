@@ -56,30 +56,17 @@ L_7AA7=L_6000+$1AA7
 
 ; end of in-game screen data.
 
-; Seems to be the only place left for this stuff to go...
+; The original cheats modified the code, but no reason to have to do
+; that here...
 
-; in: Y=slot, ZP_1E=addr
-; out: A=byte
-.trainer_read_mem
-{
-lda $f4:pha
-sty $f4:sty $fe30
-ldy #0:lda (ZP_1E),y
-pla
-sta $f4:sta $fe30
-rts
-}
+.trainers_any_active:equb 0
 
-; in: Y=slot, ZP_1E=addr, A=value
-.trainer_write_mem
-{
-pha
-lda $f4:sta reload_slot+1
-sty $f4:sty $fe30
-pla:ldy #0:sta (ZP_1E),y
-.reload_slot:ldy #$ff
-sty $f4:sty $fe30
-rts
-}
+.trainer_flags:
+.trainer_flag_endless_boost:equb 0 ; index 0 = endless boost
+.trainer_flag_infinite_damage:equb 0 ; index 1 = infinite damage
+.trainer_flag_faster_crashes:equb 0 ; index 2 = faster crash recovery
+.trainer_flag_opponent_cant_win:equb 0 ; index 3 = opponents can never win
+.trainer_flag_q_to_win:equb 0 ; index 4 = press Q to win
+num_trainers=P%-trainer_flags
 
 .boot_data_end

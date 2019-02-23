@@ -907,7 +907,20 @@
 
 ; add 0.2 seconds to lap times 0 and 1.
 
-.L_0F35	ldx #$01		;0F35 A2 01
+.L_0F35
+
+		bit trainer_flag_q_to_win
+		bpl update_lap_times
+
+		lda #$79:ldx #KEY_DEF_WIN_TRAINER OR $80:jsr osbyte
+		txa:bpl update_lap_times
+
+		; this little snippet is the cheat code
+.L_0827	lda L_C354		;0827 AD 54 C3
+		sta L_C378		;082A 8D 78 C3
+
+.update_lap_times
+		ldx #$01		;0F35 A2 01
 .L_0F37	jsr L_109C		;0F37 20 9C 10
 		jsr L_0FAD		;0F3A 20 AD 0F
 		dex				;0F3D CA
@@ -993,6 +1006,16 @@
 		lda #$80		;0FCD A9 80
 		sta L_C376,X	;0FCF 9D 76 C3
 .*L_0FD2
+
+		bit trainer_flag_opponent_cant_win ; 
+		bpl normal				; if cheat off, do the normal thing
+
+; this is the bit of code that was at L_082E in the hacked version
+
+  	    cpx #$01				; opponent?
+		beq L_0FD5				; don't let them win if so...
+
+.normal
 		inc L_C378,X	;0FD2 FE 78 C3	; TRAINER - set $C3 to $08 so opponents can never win - seems a bit dangerous!
 ;L_0FD3	= *-2			;!
 ;L_0FD4	= *-1			;!
@@ -1198,6 +1221,10 @@
 		jmp L_1130		;110D 4C 30 11
 .L_1110	lda L_C352		;1110 AD 52 C3
 		beq L_1143		;1113 F0 2E
+		
+		bit trainer_flag_infinite_damage
+		bmi L_1130
+		
 		lda L_C35C		;1115 AD 5C C3
 		cmp #$14		;1118 C9 14
 		bcc L_1139		;111A 90 1D
@@ -6896,8 +6923,12 @@ equb $00														; $1f
 		sta ZP_6B		;F2DC 85 6B
 		lda ZP_B6		;F2DE A5 B6
 		sta L_C36F		;F2E0 8D 6F C3
-.*L_F2E3
+.L_F2E3
 		lda #$0F		;F2E3 A9 0F			; TRAINER - set #$0F to #$00 for faster recovery after crashing
+		bit trainer_flag_faster_crashes
+		bpl got_crash_timer
+		lda #$00
+.got_crash_timer
 		sta L_C368		;F2E5 8D 68 C3		; Crash Timer
 		jsr cart_L_2C64		;F2E8 20 64 2C
 .L_F2EB	rts				;F2EB 60
@@ -7312,8 +7343,11 @@ equb $00														; $1f
 		sed				;F631 F8
 		sec				;F632 38
 .*L_F633
+		bit trainer_flag_endless_boost
+		bmi boost_updated
 		sbc #$01		;F633 E9 01			TRAINER - set #$01 to #$00 for endless boost
 ;L_F634	= *-1			;!
+.boost_updated
 		cld				;F635 D8
 		sta boost_reserve		;F636 8D 6A C7
 
