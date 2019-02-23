@@ -1392,6 +1392,10 @@ NEXT
 		sta boost_reserve		;3E9F 8D 6A C7
 		lda L_C719		;3EA2 AD 19 C7
 		sta L_C37E		;3EA5 8D 7E C3
+
+		; reset boost flame flags
+		lda #$49:jsr cart_sysctl
+
 }
 \\
 .L_3EA8

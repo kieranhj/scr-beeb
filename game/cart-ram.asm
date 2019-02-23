@@ -1111,10 +1111,7 @@ ENDIF
 ;                     do nothing if load??
 ;           return with C set on error
 ; A=$48 ->  fill in-game sky
-; A=$49 ->	draw animated flames
-; A=$4A ->	erase flames
-; A=$4B ->  draw left wheel
-; A=$4C ->  draw right whee
+; A=$49 ->	reset boost flame flags for new game
 ; A=$55 ->	fill scanlines (A=value, YX=ptr, byte_52=count)
 ; A=$81 ->	poll for key X (like OSBYTE $81)
 
@@ -1207,42 +1204,21 @@ ENDIF
 		jmp sysctl_copy_menu_header_graphic		;8773 F0 4F
 .not_32
 		cmp #$55		;8775 C9 55
-		beq sysctl_fill_55_thunk;8777 F0 21
+		bne not_55
+		lda #BEEB_PIXELS_COLOUR1
+		jmp fill_64s
+.not_55
 		; cmp #$34		;8779 C9 34
 		; beq L_879D		;877B F0 20
 		cmp #$48
-		beq fill_in_game_sky_thunk
+		bne not_48
+		jmp fill_in_game_sky
+.not_48
 		cmp #$49
-		beq draw_flames_thunk
-		cmp #$4a
-		beq erase_flames_thunk
-		cmp #$4b
-		bne not_4b
-		jmp graphics_draw_left_wheel
-.not_4b
-		cmp #$4c
-		bne not_4c
-		jmp graphics_draw_right_wheel
-.not_4c
+		bne not_49
+		jmp sysctl_reset_flames
+.not_49
 		rts				;877D 60
-
-.L_877E	
-
-.L_8781	
-
-.L_8786	
-
-.L_878B	
-
-.L_878F	
-
-.L_8793	
-
-.sysctl_fill_55_thunk lda #BEEB_PIXELS_COLOUR1:jmp fill_64s
-;.L_879D	jmp copy_stuff		;879D 4C 6A 88		BEEB TODO copy_stuff
-.fill_in_game_sky_thunk jmp fill_in_game_sky
-.draw_flames_thunk jmp sysctl_draw_flames
-.erase_flames_thunk jmp sysctl_erase_flames
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1252,6 +1228,21 @@ ENDIF
 ; from...
 .flames_frame:equb 0
 .flames_visible:equb 0,0
+
+.sysctl_reset_flames
+{
+; The game copies the engine graphic from the $7xxx buffer to the
+; $5xxx buffer on startup (see L_8428_in_cart), so the buffer contents
+; and flames_visible flags can get out of sync.
+;
+; A simple fix: mark flames as visible in both buffers, so they will
+; both get erased on startup. No problem if they're already erased...
+;
+lda #1
+sta flames_visible+0
+sta flames_visible+1
+rts
+}
 
 .sysctl_erase_flames
 {
@@ -4257,22 +4248,21 @@ bcc tyre_sprites_updated
 jsr kernel_update_tyre_spritesQ
 .tyre_sprites_updated
 
-; Erase flames. Do this first, if doing it at all, because the erase
-; isn't masked.
-{bit ZP_72:bmi ok:lda #$4A:jsr cart_sysctl:.ok} ; erase flames
+; Erase flames. Do this first, because the erase isn't masked.
+jsr sysctl_erase_flames
 
 ; Left wheel.
 ldx #0:jsr get_wheel_y:tay
 lda vic_sprite_ptr5:sec:sbc #$65:tax
-lda #$4b:jsr cart_sysctl		; draw left wheel
+jsr graphics_draw_left_wheel
 
 ; Right wheel.
 ldx #1:jsr get_wheel_y:tay
 lda vic_sprite_ptr7:sec:sbc #$60:tax
-lda #$4c:jsr cart_sysctl		; draw right wheel
+jsr graphics_draw_right_wheel
 
 ; Draw flames.
-{bit ZP_72:bpl ok:lda #$49:jsr cart_sysctl:.ok} ; draw flames
+{bit ZP_72:bpl ok:jsr sysctl_draw_flames:.ok} ; draw flames
 
 rts
 
