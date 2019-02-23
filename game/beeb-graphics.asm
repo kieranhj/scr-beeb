@@ -1878,13 +1878,19 @@ lda #3:sta nvsyncs
 lda #19:jsr osbyte
 dec nvsyncs:bne loop
 
-; enable output + interlace sync/video
-lda #8:sta $fe00:lda #%11010011:sta $fe01
-
 rts
 
 .nvsyncs:equb 0
 
+}
+
+.mode7_getch
+{
+lda #19:jsr osbyte
+; enable output + interlace sync/video
+lda #8:sta $fe00:lda #%11010011:sta $fe01
+jsr osrdch
+rts
 }
 
 ; assumes main RAM is paged in and shadow RAM is displayed.
@@ -1918,7 +1924,7 @@ lda #ULA_MODE_7:sta $fe20
 .keys_screen
 ldx #lo(keys_screen_pu):ldy #hi(keys_screen_pu):jsr unpack_mode7
 
-jsr osrdch
+jsr mode7_getch
 
 and #$df
 cmp #'T':beq trainer_screen
@@ -1940,8 +1946,6 @@ ldx #lo(trainer_screen_pu):ldy #hi(trainer_screen_pu):jsr unpack_mode7
 .trainer_screen_loop
 
 ; draw flags on screen, and apply cheats.
-
-lda #19:jsr osbyte
 
 disabled_message_y=7
 disabled_addr=$7c00+(disabled_message_y-1)*40
@@ -1986,7 +1990,7 @@ pla:tay:dey
 bpl trainers_loop
 }
 
-jsr osrdch:tax
+jsr mode7_getch:tax
 
 and #$df:cmp #'I':bne not_keys_screen:jmp keys_screen:.not_keys_screen
 
