@@ -450,6 +450,11 @@ rts
 		bit write_char_frontend_ascii
 		bpl stunt_car_racer_glyph
 
+		; Skip 0, as per normal OSWRCH. Master DFS pads the title with
+		; 0 bytes, and prints them as part of *CAT...
+		cmp #0
+		beq L_84D2
+
 		cmp #33
 		bcc stunt_car_racer_glyph
 
