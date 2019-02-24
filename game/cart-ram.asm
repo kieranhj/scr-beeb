@@ -2597,10 +2597,10 @@ rts
 {
 		lda #$0E		;91CF A9 0E
 		sta ZP_19		;91D1 85 19
-		lda #BEEB_PIXELS_COLOUR2		;91D3 A9 0A
+		lda #BEEB_PIXELS_COLOUR1		;91D3 A9 0A
 		sta menu_option_colour		;91D5 8D 53 39
 		jsr plot_menu_option_3		;91D8 20 54 38
-		lda #BEEB_PIXELS_COLOUR1		;91DB A9 0F
+		lda #BEEB_PIXELS_COLOUR2		;91DB A9 0F
 		sta menu_option_colour		;91DD 8D 53 39
 		ldx #$23		;91E0 A2 23		; "Race Time: "
 		jsr print_msg_1		;91E2 20 A5 32
