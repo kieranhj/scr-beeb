@@ -3,7 +3,7 @@ by Geoff Crammond
 with graphics by John Cumming
 
 BBC Master version
-Ported by Bitshifters
+Ported by the Bitshifters Collective
 
 
 ABOUT
@@ -29,11 +29,13 @@ CONTROLS
 - Boost = Return
 - Brake / Reverse = * or :
 - Boost backwards = Space
+- Quit race = Escape
 
 - Pause = P
 - Unpase = O
-- Quit game = Escape
 - Redefine keys = F1 (whilst paused)
+
+- Toggle music = M
 
 To reset the game entirely hold 'F1'
 whilst selecting the 'Replay' option
@@ -46,18 +48,29 @@ See separate file 'GUIDE' on this disc
 
 
 CREDITS
-BBC Master Port by Kieran Connell
-BBC Graphics Code by Tom Seddon
-BBC Graphics by John 'Dethmunk' Blythe
+BBC Master port by Kieran Connell
+Additional programming by Tom Seddon
+Music conversion & code by Simon Morris
+BBC graphics by John 'Dethmunk' Blythe
+
+Music 'Outrun Europa' by Matt Furniss
+composed for the Atari ST YM2149F
+sound chip.
+
+Lovingly converted for the BBC Micro
+SN76489 sound chip by Simon Morris.
 
 
 CONTACT
 Visit our BBC Retro Coding webpage
 https://bitshifters.github.io
+
 Find us on Facebook
 https://www.facebook.com/bitshiftrs/
+
 Say hello on Twitter
 https://twitter.com/khconnell
+
 Join the Acorn community at Stardot
 http://stardot.org.uk/forums/
 
@@ -71,7 +84,6 @@ Matt Godbolt
 Richard 'Tricky' Broadhurst
 Rich Talbot-Watkins
 Sarah Walker
-Simon Morris
 Stewart Badger
 All our friends & supporters on Stardot
 
@@ -82,8 +94,12 @@ Project 64 - David Holz, Cris Berneburg
 
 TOOLS USED
 BeebAsm, b-em emulator, b2 emulator
-jsbeeb emulator, Pucrunch, Visual
-Studio Code, GitHub & more
+jsbeeb emulator, pucrunch, Visual
+Studio Code, GitHub & more...
+
+https://github.com/simondotm/ym2149f
+https://github.com/simondotm/vgm-packer
+https://github.com/mist64/pucrunch
 
 
 TECHNICAL SUPPORT
@@ -119,5 +135,5 @@ if possible.
 
 
 RELEASE NOTES
-XX/2/2019 Version 1.0
+1/3/2019 Version 1.0
 Initial release!
