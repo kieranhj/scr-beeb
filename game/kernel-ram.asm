@@ -4033,7 +4033,7 @@ IF _NOT_BEEB
 		lda #$01		;CDB1 A9 01
 		sta VIC_VICIRQ		;CDB3 8D 19 D0
 
-		lda irq_mode		;CDB6 AD F8 3D
+		lda game_control_state		;CDB6 AD F8 3D
 		beq irq_handler_return		;CDB9 F0 ED
 		bpl irq_handler_cont		;CDBB 10 9F
 
@@ -5364,7 +5364,7 @@ ENDIF
 		ldx #$7F		;E85E A2 7F
 .L_E860	lda #$00		;E860 A9 00
 		sta L_C700,X	;E862 9D 00 C7
-		sta irq_mode		;E865 8D F8 3D
+		sta game_control_state		;E865 8D F8 3D
 		jsr rndQ		;E868 20 B9 29
 		cpx #$0C		;E86B E0 0C
 		bcs L_E873		;E86D B0 04
@@ -7743,7 +7743,7 @@ IF _NOT_BEEB
 		lda CIA1_CIAPRA		;F7E9 AD 00 DC			; CIA1
 		eor #$FF		;F7EC 49 FF
 		bne L_F802		;F7EE D0 12
-		ldy irq_mode		;F7F0 AC F8 3D
+		ldy game_control_state		;F7F0 AC F8 3D
 		bmi L_F802		;F7F3 30 0D
 ENDIF
 
@@ -8907,7 +8907,7 @@ skip $f0
 		lda #$01		;350C A9 01		; 'MODE 1'
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
-		sta irq_mode		;3513 8D F8 3D
+		sta game_control_state		;3513 8D F8 3D
 
 		jsr cart_draw_menu_header		;3509 20 49 1C
 		jsr cart_prep_menu_graphics		;3516 20 F1 39

@@ -1069,7 +1069,7 @@ NEXT
 		
 		jsr initialise_game_vars		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
-		sta irq_mode		;3C40 8D F8 3D
+		sta game_control_state		;3C40 8D F8 3D
 
 		JSR beeb_music_stop
 
@@ -1116,7 +1116,7 @@ NEXT
 .L_3C8E	lda #$00		;3C8E A9 00
 		jsr disable_screen_and_change_border_colour ;3C90 20 BB 3F
 		lda #$00		;3C93 A9 00
-		sta irq_mode		;3C95 8D F8 3D
+		sta game_control_state		;3C95 8D F8 3D
 		rts				;3C98 60
 }
 
@@ -1147,7 +1147,7 @@ NEXT
 .setup_car
 		jsr kernel_setup_car_on_trackQ		;3CC6 20 88 F4
 		jsr cart_L_2C64		;3CC9 20 64 2C
-		bit irq_mode		;3CCC 2C F8 3D
+		bit game_control_state		;3CCC 2C F8 3D
 		bmi L_3CDD		;3CCF 30 0C
 		jsr cart_reset_sprites		;3CD1 20 84 14
 		jsr cart_draw_trackQ		;3CD4 20 7A 16
@@ -1162,7 +1162,7 @@ NEXT
 		jsr kernel_game_update		;3CEC 20 41 08
 		lda #$80		;3CEF A9 80
 		sta L_C307		;3CF1 8D 07 C3
-		sta irq_mode		;3CF4 8D F8 3D
+		sta game_control_state		;3CF4 8D F8 3D
 		ldy #$03		;3CF7 A0 03
 		jsr delay_approx_Y_25ths_sec		;3CF9 20 EB 3F
 		jsr ensure_screen_enabled		;3CFC 20 9E 3F
@@ -1276,7 +1276,7 @@ NEXT
 .L_3DB5	lda #$00		;3DB5 A9 00
 		jsr disable_screen_and_change_border_colour ;3DB7 20 BB 3F
 		lda #$00		;3DBA A9 00
-		sta irq_mode		;3DBC 8D F8 3D
+		sta game_control_state		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
 		jsr kernel_silence_all_voices_with_sysctl		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7

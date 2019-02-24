@@ -440,7 +440,7 @@ rts
 
 ; Super hack balls!
 
-	ldx irq_mode
+	ldx game_control_state
 	cpx #$40
 	bne plot_glyph_mode_1
 	jmp plot_glyph_mode_4
@@ -6694,7 +6694,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 
 .clear_screen_with_sysctl	;'F'
 {
-		ldx irq_mode		;2C23 AE F8 3D
+		ldx game_control_state		;2C23 AE F8 3D
 		lda #$45		;2C26 A9 45
 		jmp sysctl		;2C28 4C 25 87
 }

@@ -37,6 +37,10 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #HI(TIMER_PartA):STA &FE45		; R5=T1 High-Order Counter
 
     INC vsync_counter
+
+    LDA game_control_state
+    STA irq_mode
+
     LDA #0
     STA irq_part
 
@@ -78,15 +82,17 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     \\ Front end
 
     .enter_frontend
+    \\ Don't actually need any of this code now as set all CRTC regs directly when required
+    IF 0
     LDA #4:STA &FE00        ; R4 = vertical total
-    LDA #39:STA &FE01       ; 39 rows standard
+    LDA #39:STA &FE01       ; 39 rows standard  <- this was causing a resync! Should be 38 but actually not needed at all
 
 	LDA #6:STA &FE00		; R6 = vertical displayed
 	LDA #25:STA &FE01		; 25 rows = 200 scanlines
 
     LDA #7:STA &FE00        ; R7 = vsync
     LDA #32:STA &FE01       ; vsync at row 35
-
+    
     \\ Set screen1 visible as our front end
 
 	LDA #12:STA &FE00
@@ -94,6 +100,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 
 	LDA #13:STA &FE00
 	LDA #LO(screen1_address/8):STA &FE01
+    ENDIF
 
     \\ Don't set a new timer, just return
 
@@ -237,6 +244,9 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     LDA &FC
     RTI
 
+    .irq_mode
+    EQUB 0
+
     .irq_part
     EQUB 0
 }
@@ -307,6 +317,11 @@ SID_MSB_SHIFT = 3
 
         LDA irq_audio_pause
         BNE return
+
+    \\ BEEB - skip audio handling if we're exiting
+
+        LDA game_control_state
+        BPL return
 
     \\ BEEB AUDIO - handle engine tone generation
 
