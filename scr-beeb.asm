@@ -790,7 +790,7 @@ PRINT "--------"
 PRINT "  Start =", ~core_start
 PRINT "  End =", ~P%
 PRINT "  Size =", ~(P% - core_start)
-PRINT "  Free =", ~(boot_start - P%)
+PRINT "  Free =", ~(hazel_load_addr - P%)
 PRINT "  DLL Jump Table Size =", ~(beeb_dll_end - beeb_dll_start)
 PRINT "  Core Data Size =", ~(core_data_end - core_data_start)
 PRINT "--------"

@@ -1071,6 +1071,8 @@ NEXT
 		lda #$40		;3C3E A9 40
 		sta irq_mode		;3C40 8D F8 3D
 
+		JSR beeb_music_stop
+
 		ldx #$7C		;3C43 A2 7C
 .L_3C45	lda #$08		;3C45 A9 08
 		sta L_0200+1,X	;3C47 9D 01 02
@@ -1490,30 +1492,30 @@ NEXT
 	\\ Silence noise channel
 
 		LDA #$ff
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Silence tone 1
 
 		LDA #$df
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Set noise channel to tone 1 freq
 
         LDA #%11100011   ; noise control freq 1
-        JSR psg_strobe
+        JSR sn_write
 
 	\\ Set tone 1 to lowest freq
 
 		LDA #$CF
-		JSR psg_strobe
+		JSR sn_write
 
 		LDA #$3F
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Set noise channel to max vol
 
         LDA #%11110000  ; noise volume max
-        JSR psg_strobe
+        JSR sn_write
 
 		rts				;3F41 60
 }
@@ -1701,7 +1703,9 @@ ENDIF
 
 	; silence Beeb voice
 
-		CPX #$01
+		TXA:PHA:TAY
+
+		CPY #$01
 		BNE not_sfx
 
 		LDA noise_sfx_override_engine
@@ -1711,15 +1715,17 @@ ENDIF
 		STA noise_sfx_override_engine
 
         LDA #%11100011   ; noise control freq 1
-        JSR psg_strobe
+        JSR sn_write
 
 		.not_sfx
-		LDA psg_silence_voice, X
-		JSR psg_strobe
+		LDA psg_silence_voice, Y
+		JSR sn_write
+
+		PLA:TAX
 }
 \\
 .sid_return	rts				;8724 60
 
-.psg_silence_voice EQUB $ff, $bf, $9f
+.psg_silence_voice EQUB $ff, $bf, $df
 
 .core_end

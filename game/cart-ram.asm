@@ -1041,7 +1041,7 @@ ENDIF
 	\\ Generate white noise controlled by tone 1
 
 		LDA #%11100111
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Actual tone will be set in interrupt handler
 
@@ -1053,19 +1053,19 @@ ENDIF
 
 	\\ Get SID frequency value for voice 2 (high byte only)
 
-		LDX SID_FREHI2
+		LDY SID_FREHI2
 
 	\\ Map to SN76489 register values
 
-		LDA sid_to_psg_freq_tone_LO, X
+		LDA sid_to_psg_freq_tone_LO, Y
 		ORA #$A0		; tone 2 freq
-        JSR psg_strobe
+        JSR sn_write
 
-		LDA sid_to_psg_freq_tone_HI, X
-        JSR psg_strobe
+		LDA sid_to_psg_freq_tone_HI, Y
+        JSR sn_write
 
 		LDA #$b0
-		JSR psg_strobe	; tone 2 max vol
+		JSR sn_write	; tone 2 max vol
 
 		.return
 		rts				;86C4 60

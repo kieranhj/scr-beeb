@@ -158,39 +158,6 @@ ENDIF
 
 
 ;-------------------------------------------
-; Sound chip routines
-;-------------------------------------------
-
-
-
-; Write data to SN76489 sound chip
-; A contains data to be written to sound chip
-; clobbers X, A is non-zero on exit
-.sn_write
-{
-    ldx #255
-    stx &fe43
-    sta &fe4f
-    inx
-    stx &fe40
-    lda &fe40
-    ora #8
-    sta &fe40
-    rts ; 21 bytes
-}
-
-; Reset SN76489 sound chip to a default (silent) state
-.sn_reset
-{
-	\\ Zero volume on all channels
-	lda #&9f : jsr sn_write
-	lda #&bf : jsr sn_write
-	lda #&df : jsr sn_write
-	lda #&ff : jmp sn_write
-}
-
-
-;-------------------------------------------
 ; local vgm workspace
 ;-------------------------------------------
 

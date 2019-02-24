@@ -69,32 +69,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 
     \\ Menus
 
-IF 0
-    ; LDA irq_part
-    ; BNE menu_options
-
-    ; \\ Header
-    ; LDA irq_part
-    ; BNE menu_options
-
-	; LDA #LO(TIMER_Menu):STA &FE44		; R4=T1 Low-Order Latches (write)
-	; LDA #HI(TIMER_Menu):STA &FE45		; R5=T1 High-Order Counter
-    
-    ; TXA:PHA:TYA:PHA
-    ; JSR beeb_set_mode_5
-    ; PLA:TAY:PLA:TAX
-    ; INC irq_part
-    ; JMP also_return
-
-    ; .menu_options
-    ; TXA:PHA:TYA:PHA
-    ; JSR beeb_set_mode_4
-    ; PLA:TAY:PLA:TAX
-ENDIF
-
-    TXA:PHA:TYA:PHA
-    JSR beeb_update_music
-    PLA:TAY:PLA:TAX
+    JSR beeb_music_update
 
     JMP also_return
 
@@ -337,16 +312,16 @@ SID_MSB_SHIFT = 3
 
         LDA SID_FREHI2
         ASL A:ASL A         ; BEEB multiple by 4 otherwise sounds crap
-        TAX
+        TAY
 
     \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
 
-        LDA sid_to_psg_freq_tone_LO, X
+        LDA sid_to_psg_freq_tone_LO, Y
         ORA #$C0            ; tone 1
-        JSR psg_strobe
+        JSR sn_write
 
-        LDA sid_to_psg_freq_tone_HI, X
-        JSR psg_strobe
+        LDA sid_to_psg_freq_tone_HI, Y
+        JSR sn_write
 
         RTS
 
@@ -363,16 +338,16 @@ SID_MSB_SHIFT = 3
     \\ Use them to index our conversion table
 
         LDA SID_FREHI1
-        TAX
+        TAY
 
     \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
 
-        LDA sid_to_psg_freq_noise_LO, X
+        LDA sid_to_psg_freq_noise_LO, Y
         ORA #$C0            ; tone 1
-        JSR psg_strobe
+        JSR sn_write
 
-        LDA sid_to_psg_freq_noise_HI, X
-        JSR psg_strobe
+        LDA sid_to_psg_freq_noise_HI, Y
+        JSR sn_write
 
     \\ We can't twiddle the pulse width but we can just tickle the volume
     \\ Gives a slight reverbaration effect to give some texture to the tone
@@ -380,30 +355,47 @@ SID_MSB_SHIFT = 3
         LDA SID_PWLO1
         AND #$01
         ORA #%11110000
-        JSR psg_strobe
+        JSR sn_write
 
         .return
         rts
 }
 
-.psg_strobe
+
+
+;-------------------------------------------
+; Sound chip routines
+;-------------------------------------------
+
+
+
+; Write data to SN76489 sound chip
+; A contains data to be written to sound chip
+; clobbers X, A is non-zero on exit
+.sn_write
 {
-	ldy #255
-	sty $fe43
-	
-	sta $fe4f
-	lda #0
-	sta $fe40
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	lda #$08
-	sta $fe40
-    rts
+    ldx #255
+    stx &fe43
+    sta &fe4f
+    inx
+    stx &fe40
+    lda &fe40
+    ora #8
+    sta &fe40
+    rts ; 21 bytes
 }
+
+; Reset SN76489 sound chip to a default (silent) state
+.sn_reset
+{
+	\\ Zero volume on all channels
+	lda #&9f : jsr sn_write
+	lda #&bf : jsr sn_write
+	lda #&df : jsr sn_write
+	lda #&ff : jmp sn_write
+}
+
+
 
 .noise_sfx_override_engine
 EQUB 0
@@ -558,12 +550,36 @@ LDA #LO(game_start_return_here_after_brk-1):PHA
 jmp do_file_result_message
 }
 
-.beeb_update_music
+.beeb_music_playing
+EQUB 0
+
+.beeb_music_play
 {
+    LDA #1
+    STA beeb_music_playing
+    RTS
+}
+
+.beeb_music_stop
+{
+    LDA #0
+    STA beeb_music_playing
+    JMP sn_reset
+}
+
+.beeb_music_update
+{
+    LDA beeb_music_playing
+    BEQ not_playing
+
     lda $f4:pha
     lda #BEEB_MUSIC_SLOT:sta $f4:sta $fe30
+    TXA:PHA:TYA:PHA
     JSR vgm_update
+    PLA:TAY:PLA:TAX
     pla:sta $f4:sta $fe30
+
+    .not_playing
     rts
 }
 

@@ -4329,6 +4329,12 @@ ENDIF
 		jsr cart_sysctl		;E0FD 20 25 87
 		dex				;E100 CA
 		bpl L_E0FB		;E101 10 F8
+
+\\ BEEB don't forget have an extra sound channel
+
+		LDA #$9F
+		JSR sn_write
+
 		rts				;E103 60
 }
 
@@ -8898,9 +8904,13 @@ skip $f0
 		jsr cart_sysctl		;350E 20 25 87
 		lda #$41		;3511 A9 41
 		sta irq_mode		;3513 8D F8 3D
+
 		jsr cart_draw_menu_header		;3509 20 49 1C
 		jsr cart_prep_menu_graphics		;3516 20 F1 39
 		jsr set_up_screen_for_menu		;3519 20 1F 35
+
+		JSR beeb_music_play
+
 		jmp ensure_screen_enabled		;351C 4C 9E 3F
 }
 
