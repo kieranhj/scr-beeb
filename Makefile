@@ -35,6 +35,7 @@ build:
 
 	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hof.dat --palette 0143 ./graphics/HallFame_BBC.png 1
 
+	$(PYTHON) bin/teletext2bin.py data/keys.mode7.txt build/keys.mode7.bin
 	$(PYTHON) bin/teletext2bin.py data/trainer.mode7.txt build/trainer.mode7.bin
 
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-title-screen.dat" build/scr-beeb-title-screen.pu
@@ -44,7 +45,7 @@ build:
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-preview-bg.dat" build/scr-beeb-preview-bg.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "data/keys.mode7.bin" build/keys.mode7.pu
+	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/keys.mode7.bin" build/keys.mode7.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/trainer.mode7.bin" build/trainer.mode7.pu
 	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-hof.dat" build/scr-beeb-hof.pu
 

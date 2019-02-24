@@ -1,0 +1,25 @@
+ÑùÉç        Stunt Car Racer          å ú
+ÑùÉç        Stunt Car Racera           ú
+                                        
+           by Geoff Crammond            
+ÜPorted to BBC Master by Kieran Connell 
+Ü    and the Bitshifters Collective     
+                                        
+áKeys:Ö      S  `  Steer left           
+Ö            D  `  Steer right          
+Ç       RETURN  `  Boost                
+É       * or :  `  Brake/reverse        
+É        SPACE  `  Hard brake/reverse   
+Å       Escape  `  Leave race           
+                                        
+Ü            P  `  Pause                
+             O  `  Unpause              
+Ü           F1  `  Redefine keys        
+                   (whilst paused)      
+Ü            M  `  Toggle menu music    
+                                        
+   For more help *TYPE README on disc   
+     *TYPE GUIDE for 'How to Play'      
+                                        
+Ñùá      PRESSà'T'âFOR TRAINER        ú 
+Ñùá   OR ANY OTHER KEY TO CONTINUE    ú 
