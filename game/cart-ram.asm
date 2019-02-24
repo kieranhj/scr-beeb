@@ -440,7 +440,7 @@ rts
 
 ; Super hack balls!
 
-	ldx irq_mode
+	ldx game_control_state
 	cpx #$40
 	bne plot_glyph_mode_1
 	jmp plot_glyph_mode_4
@@ -1041,7 +1041,7 @@ ENDIF
 	\\ Generate white noise controlled by tone 1
 
 		LDA #%11100111
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Actual tone will be set in interrupt handler
 
@@ -1053,19 +1053,19 @@ ENDIF
 
 	\\ Get SID frequency value for voice 2 (high byte only)
 
-		LDX SID_FREHI2
+		LDY SID_FREHI2
 
 	\\ Map to SN76489 register values
 
-		LDA sid_to_psg_freq_tone_LO, X
+		LDA sid_to_psg_freq_tone_LO, Y
 		ORA #$A0		; tone 2 freq
-        JSR psg_strobe
+        JSR sn_write
 
-		LDA sid_to_psg_freq_tone_HI, X
-        JSR psg_strobe
+		LDA sid_to_psg_freq_tone_HI, Y
+        JSR sn_write
 
 		LDA #$b0
-		JSR psg_strobe	; tone 2 max vol
+		JSR sn_write	; tone 2 max vol
 
 		.return
 		rts				;86C4 60
@@ -6694,7 +6694,7 @@ L_27BE	= *-2			;! _SELF_MOD LOCAL
 
 .clear_screen_with_sysctl	;'F'
 {
-		ldx irq_mode		;2C23 AE F8 3D
+		ldx game_control_state		;2C23 AE F8 3D
 		lda #$45		;2C26 A9 45
 		jmp sysctl		;2C28 4C 25 87
 }

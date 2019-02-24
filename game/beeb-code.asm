@@ -37,6 +37,10 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #HI(TIMER_PartA):STA &FE45		; R5=T1 High-Order Counter
 
     INC vsync_counter
+
+    LDA game_control_state
+    STA irq_mode
+
     LDA #0
     STA irq_part
 
@@ -69,32 +73,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 
     \\ Menus
 
-IF 0
-    ; LDA irq_part
-    ; BNE menu_options
-
-    ; \\ Header
-    ; LDA irq_part
-    ; BNE menu_options
-
-	; LDA #LO(TIMER_Menu):STA &FE44		; R4=T1 Low-Order Latches (write)
-	; LDA #HI(TIMER_Menu):STA &FE45		; R5=T1 High-Order Counter
-    
-    ; TXA:PHA:TYA:PHA
-    ; JSR beeb_set_mode_5
-    ; PLA:TAY:PLA:TAX
-    ; INC irq_part
-    ; JMP also_return
-
-    ; .menu_options
-    ; TXA:PHA:TYA:PHA
-    ; JSR beeb_set_mode_4
-    ; PLA:TAY:PLA:TAX
-ENDIF
-
-    TXA:PHA:TYA:PHA
-    JSR beeb_update_music
-    PLA:TAY:PLA:TAX
+    JSR beeb_music_update
 
     JMP also_return
 
@@ -103,15 +82,17 @@ ENDIF
     \\ Front end
 
     .enter_frontend
+    \\ Don't actually need any of this code now as set all CRTC regs directly when required
+    IF 0
     LDA #4:STA &FE00        ; R4 = vertical total
-    LDA #39:STA &FE01       ; 39 rows standard
+    LDA #39:STA &FE01       ; 39 rows standard  <- this was causing a resync! Should be 38 but actually not needed at all
 
 	LDA #6:STA &FE00		; R6 = vertical displayed
 	LDA #25:STA &FE01		; 25 rows = 200 scanlines
 
     LDA #7:STA &FE00        ; R7 = vsync
     LDA #32:STA &FE01       ; vsync at row 35
-
+    
     \\ Set screen1 visible as our front end
 
 	LDA #12:STA &FE00
@@ -119,6 +100,7 @@ ENDIF
 
 	LDA #13:STA &FE00
 	LDA #LO(screen1_address/8):STA &FE01
+    ENDIF
 
     \\ Don't set a new timer, just return
 
@@ -262,6 +244,9 @@ ENDIF
     LDA &FC
     RTI
 
+    .irq_mode
+    EQUB 0
+
     .irq_part
     EQUB 0
 }
@@ -328,6 +313,16 @@ SID_MSB_SHIFT = 3
 
 		jsr sid_update_voice_2		;CF34 20 EF 86
 
+    \\ BEEB - skip audio handling if paused
+
+        LDA irq_audio_pause
+        BNE return
+
+    \\ BEEB - skip audio handling if we're exiting
+
+        LDA game_control_state
+        BPL return
+
     \\ BEEB AUDIO - handle engine tone generation
 
         LDA noise_sfx_override_engine
@@ -337,16 +332,16 @@ SID_MSB_SHIFT = 3
 
         LDA SID_FREHI2
         ASL A:ASL A         ; BEEB multiple by 4 otherwise sounds crap
-        TAX
+        TAY
 
     \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
 
-        LDA sid_to_psg_freq_tone_LO, X
+        LDA sid_to_psg_freq_tone_LO, Y
         ORA #$C0            ; tone 1
-        JSR psg_strobe
+        JSR sn_write
 
-        LDA sid_to_psg_freq_tone_HI, X
-        JSR psg_strobe
+        LDA sid_to_psg_freq_tone_HI, Y
+        JSR sn_write
 
         RTS
 
@@ -363,16 +358,16 @@ SID_MSB_SHIFT = 3
     \\ Use them to index our conversion table
 
         LDA SID_FREHI1
-        TAX
+        TAY
 
     \\ Low and high frequency bytes for tone 1 that controls periodic noise freq
 
-        LDA sid_to_psg_freq_noise_LO, X
+        LDA sid_to_psg_freq_noise_LO, Y
         ORA #$C0            ; tone 1
-        JSR psg_strobe
+        JSR sn_write
 
-        LDA sid_to_psg_freq_noise_HI, X
-        JSR psg_strobe
+        LDA sid_to_psg_freq_noise_HI, Y
+        JSR sn_write
 
     \\ We can't twiddle the pulse width but we can just tickle the volume
     \\ Gives a slight reverbaration effect to give some texture to the tone
@@ -380,30 +375,49 @@ SID_MSB_SHIFT = 3
         LDA SID_PWLO1
         AND #$01
         ORA #%11110000
-        JSR psg_strobe
+        JSR sn_write
 
         .return
         rts
 }
 
-.psg_strobe
+
+
+;-------------------------------------------
+; Sound chip routines
+;-------------------------------------------
+
+
+
+; Write data to SN76489 sound chip
+; A contains data to be written to sound chip
+; clobbers X, A is non-zero on exit
+.sn_write
 {
-	ldy #255
-	sty $fe43
-	
-	sta $fe4f
-	lda #0
-	sta $fe40
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	lda #$08
-	sta $fe40
-    rts
+    ldx #255
+    stx &fe43
+    sta &fe4f
+    inx
+    stx &fe40
+    lda &fe40
+    ora #8
+    sta &fe40
+    rts ; 21 bytes
 }
+
+; Reset SN76489 sound chip to a default (silent) state
+.sn_reset
+{
+	\\ Zero volume on all channels
+	lda #&9f : jsr sn_write
+	lda #&bf : jsr sn_write
+	lda #&df : jsr sn_write
+	lda #&ff : jmp sn_write
+}
+
+
+.irq_audio_pause
+EQUB 0
 
 .noise_sfx_override_engine
 EQUB 0
@@ -558,12 +572,70 @@ LDA #LO(game_start_return_here_after_brk-1):PHA
 jmp do_file_result_message
 }
 
-.beeb_update_music
+.beeb_music_playing
+EQUB 0
+
+.beeb_music_state
+EQUB 1
+
+.beeb_music_debounce
+EQUB 0
+
+.beeb_music_play
 {
+    LDA beeb_music_state
+    STA beeb_music_playing
+    RTS
+}
+
+.beeb_music_stop
+{
+    LDA #0
+    STA beeb_music_playing
+    JMP sn_reset
+}
+
+.beeb_music_toggle
+{
+	ldx #KEY_MENU_MUSIC
+	jsr poll_key_with_sysctl
+    beq pressing_m
+    
+    \\ Not pressing M
+    LDA #0
+    STA beeb_music_debounce
+    .return
+    RTS
+
+    .pressing_m
+    LDA beeb_music_debounce
+    BNE return
+
+    LDA #1
+    STA beeb_music_debounce
+
+    \\ Toggle music state
+    LDA beeb_music_state
+    EOR #1
+    STA beeb_music_state    
+    BEQ beeb_music_stop
+
+    JMP beeb_music_play
+}
+
+.beeb_music_update
+{
+    LDA beeb_music_playing
+    BEQ not_playing
+
     lda $f4:pha
     lda #BEEB_MUSIC_SLOT:sta $f4:sta $fe30
+    TXA:PHA:TYA:PHA
     JSR vgm_update
+    PLA:TAY:PLA:TAX
     pla:sta $f4:sta $fe30
+
+    .not_playing
     rts
 }
 

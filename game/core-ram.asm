@@ -1069,7 +1069,9 @@ NEXT
 		
 		jsr initialise_game_vars		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
-		sta irq_mode		;3C40 8D F8 3D
+		sta game_control_state		;3C40 8D F8 3D
+
+		JSR beeb_music_stop
 
 		ldx #$7C		;3C43 A2 7C
 .L_3C45	lda #$08		;3C45 A9 08
@@ -1114,7 +1116,7 @@ NEXT
 .L_3C8E	lda #$00		;3C8E A9 00
 		jsr disable_screen_and_change_border_colour ;3C90 20 BB 3F
 		lda #$00		;3C93 A9 00
-		sta irq_mode		;3C95 8D F8 3D
+		sta game_control_state		;3C95 8D F8 3D
 		rts				;3C98 60
 }
 
@@ -1145,7 +1147,7 @@ NEXT
 .setup_car
 		jsr kernel_setup_car_on_trackQ		;3CC6 20 88 F4
 		jsr cart_L_2C64		;3CC9 20 64 2C
-		bit irq_mode		;3CCC 2C F8 3D
+		bit game_control_state		;3CCC 2C F8 3D
 		bmi L_3CDD		;3CCF 30 0C
 		jsr cart_reset_sprites		;3CD1 20 84 14
 		jsr cart_draw_trackQ		;3CD4 20 7A 16
@@ -1160,7 +1162,7 @@ NEXT
 		jsr kernel_game_update		;3CEC 20 41 08
 		lda #$80		;3CEF A9 80
 		sta L_C307		;3CF1 8D 07 C3
-		sta irq_mode		;3CF4 8D F8 3D
+		sta game_control_state		;3CF4 8D F8 3D
 		ldy #$03		;3CF7 A0 03
 		jsr delay_approx_Y_25ths_sec		;3CF9 20 EB 3F
 		jsr ensure_screen_enabled		;3CFC 20 9E 3F
@@ -1274,7 +1276,7 @@ NEXT
 .L_3DB5	lda #$00		;3DB5 A9 00
 		jsr disable_screen_and_change_border_colour ;3DB7 20 BB 3F
 		lda #$00		;3DBA A9 00
-		sta irq_mode		;3DBC 8D F8 3D
+		sta game_control_state		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
 		jsr kernel_silence_all_voices_with_sysctl		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7
@@ -1427,6 +1429,11 @@ NEXT
 .pause_loop
 {
 		jsr kernel_silence_all_voices_with_sysctl		;3EED 20 F9 E0
+
+	\\ BEEB - don't update the audio in IRQ when paused
+
+		LDA #1:STA irq_audio_pause
+
 		jsr graphics_pause_save_screen
 		lda #$00		;3EF0 A9 00
 		sta ZP_10		;3EF2 85 10
@@ -1490,30 +1497,34 @@ NEXT
 	\\ Silence noise channel
 
 		LDA #$ff
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Silence tone 1
 
 		LDA #$df
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Set noise channel to tone 1 freq
 
         LDA #%11100011   ; noise control freq 1
-        JSR psg_strobe
+        JSR sn_write
 
 	\\ Set tone 1 to lowest freq
 
 		LDA #$CF
-		JSR psg_strobe
+		JSR sn_write
 
 		LDA #$3F
-		JSR psg_strobe
+		JSR sn_write
 
 	\\ Set noise channel to max vol
 
         LDA #%11110000  ; noise volume max
-        JSR psg_strobe
+        JSR sn_write
+
+	\\ BEEB - allow the engine note to be updated in IRQ
+
+		LDA #0:STA irq_audio_pause
 
 		rts				;3F41 60
 }
@@ -1701,7 +1712,9 @@ ENDIF
 
 	; silence Beeb voice
 
-		CPX #$01
+		TXA:PHA:TAY
+
+		CPY #$01
 		BNE not_sfx
 
 		LDA noise_sfx_override_engine
@@ -1711,15 +1724,17 @@ ENDIF
 		STA noise_sfx_override_engine
 
         LDA #%11100011   ; noise control freq 1
-        JSR psg_strobe
+        JSR sn_write
 
 		.not_sfx
-		LDA psg_silence_voice, X
-		JSR psg_strobe
+		LDA psg_silence_voice, Y
+		JSR sn_write
+
+		PLA:TAX
 }
 \\
 .sid_return	rts				;8724 60
 
-.psg_silence_voice EQUB $ff, $bf, $9f
+.psg_silence_voice EQUB $ff, $bf, $df
 
 .core_end
