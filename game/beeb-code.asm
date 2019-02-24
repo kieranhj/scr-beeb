@@ -303,6 +303,11 @@ SID_MSB_SHIFT = 3
 
 		jsr sid_update_voice_2		;CF34 20 EF 86
 
+    \\ BEEB - skip audio handling if paused
+
+        LDA irq_audio_pause
+        BNE return
+
     \\ BEEB AUDIO - handle engine tone generation
 
         LDA noise_sfx_override_engine
@@ -396,6 +401,8 @@ SID_MSB_SHIFT = 3
 }
 
 
+.irq_audio_pause
+EQUB 0
 
 .noise_sfx_override_engine
 EQUB 0
@@ -553,9 +560,15 @@ jmp do_file_result_message
 .beeb_music_playing
 EQUB 0
 
+.beeb_music_state
+EQUB 1
+
+.beeb_music_debounce
+EQUB 0
+
 .beeb_music_play
 {
-    LDA #1
+    LDA beeb_music_state
     STA beeb_music_playing
     RTS
 }
@@ -565,6 +578,34 @@ EQUB 0
     LDA #0
     STA beeb_music_playing
     JMP sn_reset
+}
+
+.beeb_music_toggle
+{
+	ldx #KEY_MENU_MUSIC
+	jsr poll_key_with_sysctl
+    beq pressing_m
+    
+    \\ Not pressing M
+    LDA #0
+    STA beeb_music_debounce
+    .return
+    RTS
+
+    .pressing_m
+    LDA beeb_music_debounce
+    BNE return
+
+    LDA #1
+    STA beeb_music_debounce
+
+    \\ Toggle music state
+    LDA beeb_music_state
+    EOR #1
+    STA beeb_music_state    
+    BEQ beeb_music_stop
+
+    JMP beeb_music_play
 }
 
 .beeb_music_update

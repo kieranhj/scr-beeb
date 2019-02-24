@@ -6247,6 +6247,10 @@ L_EBDD	= L_EBE7 - $A			;!
 		and #$10		;EECE 29 10
 		sta ZP_0F		;EED0 85 0F
 		bne L_EF03		;EED2 D0 2F
+
+		\\ BEEB toggle music
+		JSR beeb_music_toggle
+
 		ldy ZP_31		;EED4 A4 31
 		iny				;EED6 C8
 .L_EED7	ldx menu_keys,Y	;EED7 BE 0C F8

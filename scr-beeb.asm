@@ -94,6 +94,8 @@ KEY_MENU_OPTION_2 = IKN_2
 KEY_MENU_OPTION_3 = IKN_3
 KEY_MENU_OPTION_4 = IKN_4
 
+KEY_MENU_MUSIC = IKN_m
+
 KEY_RETURN = IKN_return
 KEY_RIGHT_SHIFT = IKN_shift		;$26	; right shift
 KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift

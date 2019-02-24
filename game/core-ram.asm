@@ -1429,6 +1429,11 @@ NEXT
 .pause_loop
 {
 		jsr kernel_silence_all_voices_with_sysctl		;3EED 20 F9 E0
+
+	\\ BEEB - don't update the audio in IRQ when paused
+
+		LDA #1:STA irq_audio_pause
+
 		jsr graphics_pause_save_screen
 		lda #$00		;3EF0 A9 00
 		sta ZP_10		;3EF2 85 10
@@ -1516,6 +1521,10 @@ NEXT
 
         LDA #%11110000  ; noise volume max
         JSR sn_write
+
+	\\ BEEB - allow the engine note to be updated in IRQ
+
+		LDA #0:STA irq_audio_pause
 
 		rts				;3F41 60
 }
