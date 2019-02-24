@@ -1222,8 +1222,9 @@
 .L_1110	lda L_C352		;1110 AD 52 C3
 		beq L_1143		;1113 F0 2E
 		
-		bit trainer_flag_infinite_damage
-		bmi L_1130
+\\ Intended to remove damage holes but generates too much white noise so removed for now!
+;		bit trainer_flag_infinite_damage
+;		bmi L_1130
 		
 		lda L_C35C		;1115 AD 5C C3
 		cmp #$14		;1118 C9 14

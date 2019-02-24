@@ -1160,6 +1160,11 @@ NEXT
 		jsr cart_L_14D0_from_main_loop		;3CE6 20 D0 14	; update scratches and scrapes?
 		jsr flip_display_page		;3CE9 20 42 3F
 		jsr kernel_game_update		;3CEC 20 41 08
+
+	\\ BEEB - stop the engine note being updated until it has been initialised
+
+		LDA #1:STA irq_audio_pause
+
 		lda #$80		;3CEF A9 80
 		sta L_C307		;3CF1 8D 07 C3
 		sta game_control_state		;3CF4 8D F8 3D
