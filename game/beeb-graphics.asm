@@ -1636,7 +1636,9 @@ RBOTS=$90
 ; Pause mode isn't like in-game mode, but the differences aren't too
 ; hard to work around...
 
-; Copies contents of front buffer to back buffer, or vice versa, so the 
+; Copies contents of front buffer to back buffer, or vice versa, so
+; that in the pause/race over state (which doesn't do any drawing) the
+; in-game text can be erased.
 ._graphics_pause_save_screen
 {
 sec								; front->back

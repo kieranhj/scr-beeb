@@ -7200,6 +7200,9 @@ equb frontend_strings_2_replay-frontend_strings_2 ; $03
 		beq L_F485		;F4A2 F0 E1
 		dey				;F4A4 88
 		bpl L_F49E		;F4A5 10 F7
+
+; sprp2 (or thereabouts...) in Amiga code
+
 .L_F4A7	ldy #$00		;F4A7 A0 00
 		tya				;F4A9 98
 .L_F4AA	sta L_0100,Y	;F4AA 99 00 01

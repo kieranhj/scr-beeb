@@ -1189,29 +1189,21 @@ NEXT
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
 
-; Handle pause mode. There's a tiny amount of mucking about to ensure
-; that when pause mode is entered, there's no text sprite on screen,
-; because pause mode just draws on top of whatever's there already.
+; Handle pause mode/race over.
+;
+; These two states don't do a page flip, so the in-game text is drawn
+; to the front buffer, on top of whatever's there. So when entering
+; either of these two states, don't draw any in-game text.
 
   		ldx #KEY_DEF_PAUSE
 		jsr poll_key_with_sysctl
-		php						; Z=1 if entering pause.
+		bne not_pause
 
-		beq in_game_text_sprites_drawn
-		jsr graphics_draw_in_game_text_sprites
-.in_game_text_sprites_drawn
-		
-		IF _DEBUG
-		JSR graphics_draw_debug_framerate
-		ENDIF
-
-		jsr flip_display_page		;3D2C 20 42 3F
-
-		plp
-		bne pause_mode_done
+		jsr flip_display_page
 		jsr pause_loop
-.pause_mode_done
+		jmp flipped_display_page
 
+.not_pause
 		lda L_C351		;3D32 AD 51 C3
 		and L_C306		;3D35 2D 06 C3
 		bpl L_3D69		;3D38 10 2F
@@ -1228,9 +1220,15 @@ NEXT
 		ldy #$0B		;3D4B A0 0B
 		jsr kernel_L_114D_with_color_ram		;3D4D 20 4D 11
 
-.L_3D50	ldy #$3C		;3D50 A0 3C PRESS FIRE
+; race over
+
+.L_3D50
+		jsr flip_display_page
+		jsr graphics_pause_save_screen
+		
+		ldy #$3C		;3D50 A0 3C PRESS FIRE
 		lda #$04		;3D52 A9 04
-		jsr set_up_text_sprite		;3D54 20 A9 12
+		jsr graphics_pause_show_text_sprite
 		lda #$FF		;3D57 A9 FF
 		sta ZP_11		;3D59 85 11
 		lda #$F8		;3D5B A9 F8
@@ -1240,7 +1238,15 @@ NEXT
 		jsr debounce_fire_and_wait_for_fire		;3D63 20 96 36
 		jmp L_3DAB		;3D66 4C AB 3D
 
-.L_3D69	lda ZP_2F		;3D69 A5 2F
+.L_3D69
+		jsr graphics_draw_in_game_text_sprites
+IF _DEBUG
+		jsr graphics_draw_debug_framerate
+ENDIF
+		jsr flip_display_page
+		
+.flipped_display_page
+        lda ZP_2F		;3D69 A5 2F
 		bne L_3D95		;3D6B D0 28
 		ldy ZP_6B		;3D6D A4 6B
 		bpl L_3D95		;3D6F 10 24
