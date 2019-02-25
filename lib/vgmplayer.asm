@@ -142,8 +142,9 @@ ENDIF
     lda vgm_loop
     beq no_looping
     ; restart if looping
-    ldx vgm_source+0
-    ldy vgm_source+1
+    \\ SCR ONLY HACK LOOP ADDRESS
+    ldx #LO(vgm_data_loop);vgm_source+0
+    ldy #HI(vgm_data_loop);vgm_source+1
     lda vgm_loop
     asl a ; -> C
     lda vgm_buffers

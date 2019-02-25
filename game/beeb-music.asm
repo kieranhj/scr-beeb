@@ -1,6 +1,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+_LOOPED_TUNE = TRUE
+
 .vgm_buffer_start
 
 ; reserve space for the vgm decode buffers (8x256 = 2Kb)
@@ -30,8 +32,17 @@ INCLUDE "lib/vgmplayer.asm"
 
 ;PAGE_ALIGN
 ; include your tune of choice here, some samples provided....
-.vgm_data
+.vgm_data_intro
+IF _LOOPED_TUNE
+INCBIN "data/outruneu_intro.vgc"
+ENDIF
+
+.vgm_data_loop
+IF _LOOPED_TUNE
+INCBIN "data/outruneu_loop.vgc"
+ELSE
 INCBIN "data/outruneu.vgc"
+ENDIF
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

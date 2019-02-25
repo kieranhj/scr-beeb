@@ -1073,8 +1073,8 @@ GUARD &6000
 
     ; initialize the vgm player with a vgc data stream
     lda #hi(vgm_stream_buffers)
-    ldx #lo(vgm_data)
-    ldy #hi(vgm_data)
+    ldx #lo(vgm_data_intro)
+    ldy #hi(vgm_data_intro)
     sec
     jsr vgm_init
 
