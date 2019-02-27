@@ -1585,10 +1585,10 @@ PRINT "-------"
 ; *****************************************************************************
 
 IF _DEBUG
-PUTFILE "data/Hall.bin", "HALL", &0
-PUTFILE "data/KCSave.bin", "KCSAVE", &0
-PUTFILE "data/MPSave.bin", "MPSAVE", &0
+PUTFILE "data/HALL.bin", "HALL", &0
+PUTFILE "data/KCSAVE.bin", "KCSAVE", &0
+PUTFILE "data/MPSAVE.bin", "MPSAVE", &0
 ENDIF
 
 PUTFILE "doc/readme.txt", "Readme", &0
-PUTFILE "doc/Guide.txt", "Guide", &0
+PUTFILE "doc/guide.txt", "Guide", &0
