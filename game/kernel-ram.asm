@@ -3178,54 +3178,76 @@ ENDIF
 ; 
 ; entry: A	= first	value, byte_15 = second	value
 ; result: A = result MSB, byte_14 = result	LSB
-
+multmp = $00  ; unused on C64!
+multmp2 = $01 ;
 .mul_8_8_16bit
 {
-		sta ZP_14		;C782 85 14
-		lda #$00		;C784 A9 00
-		lsr ZP_14		;C786 46 14
-		bcc L_C78D		;C788 90 03
-		clc				;C78A 18
-		adc ZP_15		;C78B 65 15
-.L_C78D	ror A			;C78D 6A
-		ror ZP_14		;C78E 66 14
-		bcc L_C795		;C790 90 03
-		clc				;C792 18
-		adc ZP_15		;C793 65 15
-.L_C795	ror A			;C795 6A
-		ror ZP_14		;C796 66 14
-		bcc L_C79D		;C798 90 03
-		clc				;C79A 18
-		adc ZP_15		;C79B 65 15
-.L_C79D	ror A			;C79D 6A
-		ror ZP_14		;C79E 66 14
-		bcc L_C7A5		;C7A0 90 03
-		clc				;C7A2 18
-		adc ZP_15		;C7A3 65 15
-.L_C7A5	ror A			;C7A5 6A
-		ror ZP_14		;C7A6 66 14
-		bcc L_C7AD		;C7A8 90 03
-		clc				;C7AA 18
-		adc ZP_15		;C7AB 65 15
-.L_C7AD	ror A			;C7AD 6A
-		ror ZP_14		;C7AE 66 14
-		bcc L_C7B5		;C7B0 90 03
-		clc				;C7B2 18
-		adc ZP_15		;C7B3 65 15
-.L_C7B5	ror A			;C7B5 6A
-		ror ZP_14		;C7B6 66 14
-		bcc L_C7BD		;C7B8 90 03
-		clc				;C7BA 18
-		adc ZP_15		;C7BB 65 15
-.L_C7BD	ror A			;C7BD 6A
-		ror ZP_14		;C7BE 66 14
-		bcc L_C7C5		;C7C0 90 03
-		clc				;C7C2 18
-		adc ZP_15		;C7C3 65 15
-.L_C7C5	ror A			;C7C5 6A
-		ror ZP_14		;C7C6 66 14
-		rts				;C7C8 60
+	phx
+	;sta ZP_14
+	;ldx ZP_15
+	;cpx ZP_14
+	;bcc sorted
+	;txa
+	;ldx ZP_14
+	cmp ZP_15
+	beq same
+	bcs sorted
+	tax
+	beq zero
+	lda ZP_15
+	bne s2
+.sorted
+	ldx ZP_15
+	beq zero
+.s2
+	sta multmp
+	stx multmp2
+	phy
+	sec
+	sbc multmp2
+	tay
+	ldx multmp
+	lda sqtab_lsb,x
+	sbc sqtab_lsb,y
+	sta ZP_14
+	lda sqtab_msb,x
+	sbc sqtab_msb,y
+	sta multmp
+	clc
+	ldx multmp2
+	lda ZP_14
+	adc sqtab_lsb,x
+	sta ZP_14
+	lda multmp
+	adc sqtab_msb,x
+	ror a
+	ror ZP_14
+	ply
+	plx
+	rts
+.same
+	tax
+	lda sqtab_lsb,x
+	sta ZP_14
+	lda sqtab_msb,x
+	plx
+	rts
+.zero
+	lda #0
+	sta ZP_14
+	plx
+	rts
 }
+
+ALIGN &100
+.sqtab_lsb
+FOR i,0,255,1
+equb <(i*i)
+NEXT
+.sqtab_msb
+FOR i,0,255,1
+equb >(i*i)
+NEXT
 
 ; get sin and cos.
 ; 
