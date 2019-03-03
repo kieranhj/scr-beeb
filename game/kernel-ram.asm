@@ -6149,13 +6149,17 @@ L_EBDD	= L_EBE7 - $A			;!
 
 ; Moved to Hazel
 ;.L_EE35	equb $00
-
+;menu_lastitem = ZP_10
+.menu_lastitem
+	equb 0
 .do_menu_screen
 {
 		dey				;EE36 88
 		sty ZP_31		;EE37 84 31 Y = num items
 		stx ZP_30		;EE39 86 30 X = base index
 		sta ZP_0C		;EE3B 85 0C A = selected item
+		sec
+		ror menu_lastitem
 		jsr set_up_screen_for_menu		;EE3D 20 1F 35
 		ldx #$00		;EE40 A2 00		; "SELECT"
 		stx ZP_0F		;EE42 86 0F
@@ -6163,16 +6167,33 @@ L_EBDD	= L_EBE7 - $A			;!
 ; L_31A0 selects which menu screen this is.
 
 		jsr cart_print_msg_2	;EE44 20 CB A1 "SELECT"
-.L_EE47
+		bra menu_changed
+.menu_loop
+		lda ZP_0C
+		cmp menu_lastitem
+		bne menu_changed
+		lda ZP_0F
+		bne menu_changed
+		jmp L_EEB2
+.menu_changed
 ; ZP_19 = current item.
-		lda #$00				;EE47 A9 00
-		sta ZP_19				;EE49 85 19
+		;lda #$00				;EE47 A9 00
+		stz ZP_19				;EE49 85 19
 .L_EE4B
 ; ZP_19 = ZP_17 = curent item.
 		ldy ZP_19				;EE4B A4 19
 		sty ZP_17				;EE4D 84 17
-		
+
 ; Handle selected item.
+		bit menu_lastitem
+		bmi menu_doall
+		cpy ZP_0C
+		beq menu_doall
+		cpy menu_lastitem
+		beq menu_doall
+		inc ZP_19
+		jmp L_EE90
+.menu_doall
 		cpy ZP_0C				;EE4F C4 0C
 		bne L_EE5E				;EE51 D0 0B
 	\\ Colour of menu item when actually selected
@@ -6255,16 +6276,20 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda #$ff:jsr set_write_char_colour_mask
 		
 		lda ZP_0F		;EEB2 A5 0F
-		beq L_EEC1		;EEB4 F0 0B
+		beq menu_poll		;EEB4 F0 0B
 		jsr clear_write_char_half_row_flag ;EEB6 20 1F 36
-		ldy #$07		;EEB9 A0 07
+		ldy #$03		;EEB9 A0 07
 		jsr delay_approx_Y_25ths_sec ;EEBB 20 EB 3F
 		lda ZP_0C		;EEBE A5 0C
 		rts				;EEC0 60
+
+.menu_poll
+		lda ZP_0C
+		sta menu_lastitem
 .L_EEC1	jsr check_game_keys		;EEC1 20 9E F7
 		bne L_EEC1		;EEC4 D0 FB
-		ldy #$02		;EEC6 A0 02
-		jsr delay_approx_Y_25ths_sec		;EEC8 20 EB 3F
+		;ldy #$02		;EEC6 A0 02
+		;jsr delay_approx_Y_25ths_sec		;EEC8 20 EB 3F
 .L_EECB	jsr check_game_keys		;EECB 20 9E F7
 		and #$10		;EECE 29 10
 		sta ZP_0F		;EED0 85 0F
@@ -6279,15 +6304,16 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr poll_key_with_sysctl		;EEDA 20 C9 C7
 		bne L_EEE4		;EEDD D0 05
 		sty ZP_0C		;EEDF 84 0C
-		jmp L_EE47		;EEE1 4C 47 EE
+		jmp menu_loop		;EEE1 4C 47 EE
 .L_EEE4	dey				;EEE4 88
 		bpl L_EED7		;EEE5 10 F0
 		ldx ZP_0C		;EEE7 A6 0C
 		lda ZP_66		;EEE9 A5 66
-		and #$03		;EEEB 29 03
+		and #$0C		;EEEB 29 03
 		beq L_EECB		;EEED F0 DC
-		and #$01		;EEEF 29 01
+		and #$04		;EEEF 29 01
 		beq L_EEFA		;EEF1 F0 07
+.menu_up
 		dex				;EEF3 CA
 		bpl L_EF01		;EEF4 10 0B
 		ldx #$00		;EEF6 A2 00
@@ -6295,9 +6321,10 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_EEFA	cpx ZP_31		;EEFA E4 31
 		beq L_EF00		;EEFC F0 02
 		bcs L_EF01		;EEFE B0 01
+.menu_down
 .L_EF00	inx				;EF00 E8
 .L_EF01	stx ZP_0C		;EF01 86 0C
-.L_EF03	jmp L_EE47		;EF03 4C 47 EE
+.L_EF03	jmp menu_loop		;EF03 4C 47 EE
 
 \\ Moved from further up RAM as only used in this function
 \\ Looks like menu string offsets?
