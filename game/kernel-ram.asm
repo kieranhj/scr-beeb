@@ -6192,7 +6192,10 @@ L_EBDD	= L_EBE7 - $A			;!
 		cpy menu_lastitem
 		beq menu_doall
 		inc ZP_19
-		jmp L_EE90
+		lda ZP_31
+		cmp ZP_17
+		bcc L_EEB2
+		bra L_EE4B
 .menu_doall
 		cpy ZP_0C				;EE4F C4 0C
 		bne L_EE5E				;EE51 D0 0B
