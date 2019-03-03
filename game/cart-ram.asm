@@ -5575,8 +5575,8 @@ MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
 		inx				;1ED6 E8
 		cpx number_of_road_sections		;1ED7 EC 64 C7
 		bcc L_1EDE		;1EDA 90 02
-		;ldx #$00		;1EDC A2 00
-.L_1EDE	stz L_C375		;1EDE 8E 75 C3
+		ldx #$00		;1EDC A2 00
+.L_1EDE		stx L_C375		;1EDE 8E 75 C3
 .L_1EE1	rts				;1EE1 60
 }
 
