@@ -5422,7 +5422,7 @@ MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
 		cmp #$80		;1D6F C9 80
 		bcs L_1D79		;1D71 B0 06
 .L_1D73	jsr L_209C		;1D73 20 9C 20
-		jmp L_1D86		;1D76 4C 86 1D
+		bra L_1D86		;1D76 4C 86 1D
 .L_1D79	lda #$00		;1D79 A9 00
 		sta L_C369		;1D7B 8D 69 C3
 		sta ZP_E0		;1D7E 85 E0
@@ -5438,7 +5438,7 @@ MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
 		cmp #$0E		;1D94 C9 0E
 		bcs L_1DCB		;1D96 B0 33
 .L_1D98	jsr L_1E30		;1D98 20 30 1E
-		jmp L_1E00		;1D9B 4C 00 1E
+		bra L_1E00		;1D9B 4C 00 1E
 .L_1D9E	bit L_C36A		;1D9E 2C 6A C3
 		bmi L_1DC5		;1DA1 30 22
 		cmp #$32		;1DA3 C9 32
@@ -5447,16 +5447,16 @@ MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
 		and #$02		;1DAA 29 02
 		beq L_1DBF		;1DAC F0 11
 		jsr L_1E5A		;1DAE 20 5A 1E
-		jmp L_1DE1		;1DB1 4C E1 1D
+		bra L_1DE1		;1DB1 4C E1 1D
 .L_1DB4	cmp #$C8		;1DB4 C9 C8
 		bcs L_1DCB		;1DB6 B0 13
 		lda opponent_attributes,X	;1DB8 BD E0 AE
 		and #$20		;1DBB 29 20
 		beq L_1DCB		;1DBD F0 0C
 .L_1DBF	jsr L_1E3C		;1DBF 20 3C 1E
-		jmp L_1DE1		;1DC2 4C E1 1D
+		bra L_1DE1		;1DC2 4C E1 1D
 .L_1DC5	jsr L_1E3C		;1DC5 20 3C 1E
-		jmp L_1E00		;1DC8 4C 00 1E
+		bra L_1E00		;1DC8 4C 00 1E
 .L_1DCB	ldy #$40		;1DCB A0 40
 		lda opponent_attributes,X	;1DCD BD E0 AE
 		and #$08		;1DD0 29 08
@@ -5575,8 +5575,8 @@ MENU_AREA_ADDRESS = screen1_address + MENU_AREA_TOP * $280 + MENU_AREA_LEFT * 16
 		inx				;1ED6 E8
 		cpx number_of_road_sections		;1ED7 EC 64 C7
 		bcc L_1EDE		;1EDA 90 02
-		ldx #$00		;1EDC A2 00
-.L_1EDE	stx L_C375		;1EDE 8E 75 C3
+		;ldx #$00		;1EDC A2 00
+.L_1EDE	stz L_C375		;1EDE 8E 75 C3
 .L_1EE1	rts				;1EE1 60
 }
 
