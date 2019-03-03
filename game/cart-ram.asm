@@ -1,3 +1,4 @@
+CPU 1
 .cart_start
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1117,6 +1118,10 @@ ENDIF
 
 .sysctl		; HAS DLL
 {
+		cmp #$81		;8769 C9 81
+		bne not_81
+		jmp poll_key		;877E 4C D2 85
+.not_81
 		cmp #$3C		;8725 C9 3C
 		bne not_3C
 		jmp move_draw_bridgeQ
@@ -1191,10 +1196,6 @@ ENDIF
 		stx L_85D0			;878F 8E D0 85
 		rts				;8792 60
 .not_20
-		cmp #$81		;8769 C9 81
-		bne not_81
-		jmp poll_key		;877E 4C D2 85
-.not_81
 		cmp #$15		;876D C9 15
 		bne not_15
 		jmp sid_silence_voice
@@ -1700,7 +1701,7 @@ ENDIF
 		lda ZP_1F		;8B1C A5 1F
 		sbc #$01		;8B1E E9 01
 		sta ZP_1F		;8B20 85 1F
-		jmp L_8AE9		;8B22 4C E9 8A
+		bra L_8AE9		;8B22 4C E9 8A
 .L_8B25	txa				;8B25 8A
 		clc				;8B26 18
 		adc #$04		;8B27 69 04
@@ -1722,7 +1723,7 @@ ENDIF
 		lsr A			;8B42 4A
 		lsr A			;8B43 4A
 		sta L_01C1,X	;8B44 9D C1 01
-		jmp L_8B25		;8B47 4C 25 8B
+		bra L_8B25		;8B47 4C 25 8B
 .L_8B4A	lda #$07		;8B4A A9 07
 		sta L_01C1,X	;8B4C 9D C1 01
 		bne L_8B25		;8B4F D0 D4
@@ -1952,7 +1953,7 @@ ENDIF
 .L_8D82	tax				;8D82 AA
 		lda L_8E67,X	;8D83 BD 67 8E
 		sta ZP_2A		;8D86 85 2A
-		jmp L_8DC5		;8D88 4C C5 8D
+		bra L_8DC5		;8D88 4C C5 8D
 .L_8D8B
 ; fill pattern for columns underneath AI car
 		lda #BEEB_PIXELS_COLOUR2		;8D8B A9 AA			; BEEB_PIXELS_COLOUR2?
@@ -2088,7 +2089,7 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		sec				;8E82 38
 		sbc L_C34F		;8E83 ED 4F C3
 		bne L_8E8B		;8E86 D0 03
-		jmp L_8F02		;8E88 4C 02 8F
+		bra L_8F02		;8E88 4C 02 8F
 .L_8E8B	bmi L_8EC7		;8E8B 30 3A
 		sta ZP_51		;8E8D 85 51
 		dec ZP_51		;8E8F C6 51
@@ -2115,12 +2116,12 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		txa				;8EB3 8A
 		sec				;8EB4 38
 		sbc #$04		;8EB5 E9 04
-		jmp L_8EA0		;8EB7 4C A0 8E
+		bra L_8EA0		;8EB7 4C A0 8E
 .L_8EBA	tax				;8EBA AA
 		lda bar_values,X	;8EBB BD 09 8F
 		sta L_7AA6,Y	;8EBE 99 A6 7A
 		sta L_7AA7,Y	;8EC1 99 A7 7A
-		jmp L_8F02		;8EC4 4C 02 8F
+		bra L_8F02		;8EC4 4C 02 8F
 .L_8EC7	eor #$FF		;8EC7 49 FF
 		clc				;8EC9 18
 		adc #$01		;8ECA 69 01
@@ -2151,7 +2152,7 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		txa				;8EFB 8A
 		sec				;8EFC 38
 		sbc #$04		;8EFD E9 04
-		jmp L_8EE8		;8EFF 4C E8 8E
+		bra L_8EE8		;8EFF 4C E8 8E
 .L_8F02	lda L_C34E		;8F02 AD 4E C3
 		sta L_C34F		;8F05 8D 4F C3
 		rts				;8F08 60
@@ -2180,7 +2181,7 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		sta ZP_A0		;8F1E 85 A0
 		bne L_8F77		;8F20 D0 55
 .L_8F22	ldy L_C778		;8F22 AC 78 C7
-		jmp L_8F2E		;8F25 4C 2E 8F
+		bra L_8F2E		;8F25 4C 2E 8F
 .L_8F28	txa				;8F28 8A
 		cmp L_075E,Y	;8F29 D9 5E 07
 		beq L_8F33		;8F2C F0 05
@@ -2205,7 +2206,7 @@ equb %11110000 ; %10101010 ; $AA - 2 2 2 2
 		sbc #$0A		;8F54 E9 0A
 		sta ZP_14		;8F56 85 14
 		lda L_8F80		;8F58 AD 80 8F
-		jmp L_8F69		;8F5B 4C 69 8F
+		bra L_8F69		;8F5B 4C 69 8F
 .L_8F5E	lda ZP_14		;8F5E A5 14
 		clc				;8F60 18
 		adc #$0A		;8F61 69 0A
@@ -2554,7 +2555,7 @@ rts
 .L_911A	lda #L_9123_end-L_9123	;911A A9 02
 		ldy #HI(L_9123)			;911C A0 91
 		ldx #LO(L_9123)			;911E A2 23
-		jmp L_90E3				;9120 4C E3 90
+		bra L_90E3				;9120 4C E3 90
 
 ;https://en.wikipedia.org/wiki/Commodore_DOS#DOS_commands
 ;
@@ -2808,7 +2809,7 @@ rts
 		inx				;9406 E8
 		dey				;9407 88
 		bne L_9400		;9408 D0 F6
-		jmp L_9412		;940A 4C 12 94
+		bra L_9412		;940A 4C 12 94
 .L_940D	txa				;940D 8A
 		clc				;940E 18
 		adc #$10		;940F 69 10
@@ -2831,7 +2832,7 @@ rts
 		inx				;9435 E8
 		dey				;9436 88
 		bne L_942F		;9437 D0 F6
-		jmp L_9441		;9439 4C 41 94
+		bra L_9441		;9439 4C 41 94
 .L_943C	txa				;943C 8A
 		clc				;943D 18
 		adc #$10		;943E 69 10
@@ -3026,7 +3027,7 @@ IF _NOT_BEEB
 		cpx #$00		;962A E0 00
 		bne L_9634		;962C D0 06
 		jsr debounce_fire_and_wait_for_fire		;962E 20 96 36
-		jmp L_960D		;9631 4C 0D 96
+		bra L_960D		;9631 4C 0D 96
 .L_9634	lda (ZP_1E),Y	;9634 B1 1E
 		and #$3F		;9636 29 3F
 		sta (ZP_20),Y	;9638 91 20

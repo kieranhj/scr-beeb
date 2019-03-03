@@ -21,7 +21,7 @@
 ; ...
 ; $FF00 = Vectors
 ; *****************************************************************************
-
+CPU 1
 .kernel_start
 
 ; *****************************************************************************
@@ -2918,7 +2918,7 @@ ENDIF
 		inx				;9DC1 E8
 		jsr cart_L_9C14		;9DC2 20 14 9C
 		sta ZP_4B		;9DC5 85 4B
-		jmp L_9DFC		;9DC7 4C FC 9D
+		bra L_9DFC		;9DC7 4C FC 9D
 .L_9DCA	lda ZP_9E		;9DCA A5 9E
 		sec				;9DCC 38
 		sbc ZP_C0		;9DCD E5 C0
@@ -3047,7 +3047,7 @@ ENDIF
 		bpl L_A0CF		;A0C5 10 08
 		ldy L_C3A4		;A0C7 AC A4 C3
 		sty ZP_14		;A0CA 84 14
-		jmp L_A0DC		;A0CC 4C DC A0
+		bra L_A0DC		;A0CC 4C DC A0
 .L_A0CF	lda #$80		;A0CF A9 80
 		sec				;A0D1 38
 		sbc L_C3A4		;A0D2 ED A4 C3
@@ -3093,9 +3093,9 @@ ENDIF
 		ror L_C359		;A124 6E 59 C3
 		lda #$10		;A127 A9 10
 		sta ZP_15		;A129 85 15
-		lda #$00		;A12B A9 00
-		sta ZP_14		;A12D 85 14
-		sta ZP_16		;A12F 85 16
+		;lda #$00		;A12B A9 00
+		stz ZP_14		;A12D 85 14
+		stz ZP_16		;A12F 85 16
 		rts				;A131 60
 }
 
@@ -5311,8 +5311,7 @@ ENDIF
 .L_E808
 {
 		sta ZP_16		;E808 85 16
-		ldy #$00		;E80A A0 00
-		lda (ZP_9A),Y	;E80C B1 9A
+		lda (ZP_9A)	;E80C B1 9A
 		clc				;E80E 18
 		adc #$07		;E80F 69 07
 		sta ZP_9F		;E811 85 9F
@@ -6638,8 +6637,7 @@ equb frontend_strings_2_replay-frontend_strings_2 ; $03
 		ldy #$01		;F08E A0 01
 		lda (ZP_9A),Y	;F090 B1 9A
 		sta ZP_B2		;F092 85 B2
-		dey				;F094 88
-		lda (ZP_9A),Y	;F095 B1 9A
+		lda (ZP_9A)	;F095 B1 9A
 		tay				;F097 A8
 		lda (ZP_9A),Y	;F098 B1 9A
 		iny				;F09A C8
@@ -8213,7 +8211,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		jmp L_FBFB		;FB46 4C FB FB
 .L_FB49	cpy #$C0		;FB49 C0 C0
 		bcc L_FB66		;FB4B 90 19
-		jmp L_FB5C		;FB4D 4C 5C FB
+		bra L_FB5C		;FB4D 4C 5C FB
 .L_FB50	clc				;FB50 18
 		adc ZP_52		;FB51 65 52
 		bcc L_FB5C		;FB53 90 07
@@ -8225,7 +8223,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		cpx ZP_89		;FB5D E4 89
 		bcc L_FB50		;FB5F 90 EF
 		beq L_FB50		;FB61 F0 ED
-		jmp L_FB18		;FB63 4C 18 FB
+		bra L_FB18		;FB63 4C 18 FB
 .L_FB66	sta ZP_0F		;FB66 85 0F
 		txa				;FB68 8A
 		and #$FC		;FB69 29 FC
@@ -8244,7 +8242,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		lda Q_pointers_HI,Y	;FB81 B9 00 A6
 		adc ZP_12		;FB84 65 12
 		sta ZP_1F		;FB86 85 1F
-		jmp L_FBBF		;FB88 4C BF FB
+		bra L_FBBF		;FB88 4C BF FB
 .L_FB8B	inx				;FB8B E8
 		lda ZP_0F		;FB8C A5 0F
 		adc ZP_52		;FB8E 65 52
@@ -8263,7 +8261,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		lda ZP_1F		;FBA6 A5 1F
 		sbc #$01		;FBA8 E9 01
 		sta ZP_1F		;FBAA 85 1F
-		jmp L_FBBF		;FBAC 4C BF FB
+		bra L_FBBF		;FBAC 4C BF FB
 ;L_FBAF
 		cmp L_C580,X	;FBAF DD 80 C5
 		bcc L_FBD9		;FBB2 90 25
@@ -8302,7 +8300,7 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		bcc L_FB8B		;FBF3 90 96
 		inc ZP_1F		;FBF5 E6 1F
 		clc				;FBF7 18
-		jmp L_FB8B		;FBF8 4C 8B FB
+		bra L_FB8B		;FBF8 4C 8B FB
 .L_FBFB	inc ZP_89		;FBFB E6 89
 ;L_FBFD
 		jmp L_FA2E		;FBFD 4C 2E FA
@@ -8444,9 +8442,8 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 
 .L_FCC5_in_kernel
 {
-		lda #$00		;FCC5 A9 00
-		sta ZP_8B		;FCC7 85 8B
-		sta ZP_8C		;FCC9 85 8C
+		stz ZP_8B		;FCC7 85 8B
+		stz ZP_8C		;FCC9 85 8C
 		lda L_A200,Y	;FCCB B9 00 A2
 		sta ZP_4F		;FCCE 85 4F
 		lda L_A24C,Y	;FCD0 B9 4C A2
@@ -8548,9 +8545,9 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		bcc L_FD9A		;FD94 90 04
 .L_FD96	sta ZP_7F		;FD96 85 7F
 		stx ZP_7D		;FD98 86 7D
-.L_FD9A	lda #$00		;FD9A A9 00
-		sta ZP_7B		;FD9C 85 7B
-		sta ZP_7C		;FD9E 85 7C
+.L_FD9A	;lda #$00		;FD9A A9 00
+		stz ZP_7B		;FD9C 85 7B
+		stz ZP_7C		;FD9E 85 7C
 		lda #$01		;FDA0 A9 01
 		sta ZP_81		;FDA2 85 81
 		lda ZP_7D		;FDA4 A5 7D
@@ -8573,11 +8570,11 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		cmp #$40		;FDC3 C9 40
 		bcs L_FDB0		;FDC5 B0 E9
 		ldx ZP_81		;FDC7 A6 81
-		lda #$00		;FDC9 A9 00
-		sta ZP_7D		;FDCB 85 7D
-		sta ZP_7E		;FDCD 85 7E
+		;lda #$00		;FDC9 A9 00
+		stz ZP_7D		;FDCB 85 7D
+		stz ZP_7E		;FDCD 85 7E
 		lda ZP_74		;FDCF A5 74
-		jmp L_FE18		;FDD1 4C 18 FE
+		bra L_FE18		;FDD1 4C 18 FE
 .L_FDD4	lda L_C365		;FDD4 AD 65 C3
 		bpl L_FDAE		;FDD7 10 D5
 		lda #$3F		;FDD9 A9 3F
