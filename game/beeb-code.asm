@@ -23,6 +23,8 @@ CRTC_R8_DisplayEnableValue=%11000000
 ;                           ++------ - 11 = disable cursor
 CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 
+CPU 1
+
 .irq_handler
 {
 	LDA &FE4D
@@ -41,8 +43,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     LDA game_control_state
     STA irq_mode
 
-    LDA #0
-    STA irq_part
+    STZ irq_part
 
 	lda #8:sta $fe00
 
@@ -65,7 +66,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     BEQ enter_frontend			; taken if $00
 
     BPL in_frontend				; taken if <$80
-    JMP in_game
+    BRA in_game
 
     .in_frontend
     CMP #&40					
@@ -75,7 +76,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 
     JSR beeb_music_update
 
-    JMP also_return
+    BRA also_return
 
     .not_header
 
@@ -115,17 +116,17 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #LO(TIMER_Preview):STA &FE44		; R4=T1 Low-Order Latches (write)
 	LDA #HI(TIMER_Preview):STA &FE45		; R5=T1 High-Order Counter
     
-    TXA:PHA:TYA:PHA
+    PHX:PHY
     JSR beeb_set_mode_5
-    PLA:TAY:PLA:TAX
+    PLY:PLX
     INC irq_part
-    JMP also_return
+    BRA also_return
 
     .preview_bottom
-    TXA:PHA:TYA:PHA
+    PHX:PHY
     JSR beeb_set_mode_4
-    PLA:TAY:PLA:TAX
-    JMP also_return
+    PLY:PLX
+    BRA also_return
 
     .in_game
 
@@ -236,9 +237,9 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     INC irq_part
 
     \\ An audio test...
-    TXA:PHA:TYA:PHA
+    PHX:PHY
     JSR irq_audio_update
-    PLA:TAY:PLA:TAX
+    PLY:PLX
 
     .irq_return
     LDA &FC
