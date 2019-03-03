@@ -2,16 +2,20 @@ STUNT CAR RACER
 by Geoff Crammond
 with graphics by John Cumming
 
-BBC Master version
-Ported by the Bitshifters Collective
+Originally published for C64
+by MicroStyle (c) 1989
+
+
+Ported to the BBC Master by
+the Bitshifters Collective!
 
 
 ABOUT
 This port was inspired by the work of
 Fandal who converted the original C64
 version of the game to the Atari XE
-starting only with a raw 6502 dis-
-assembly of the 64K memory map.
+starting only with a 6502 disassembly
+of the raw 64K memory map.
 
 From the same starting point we have
 painstakingly pieced together the
@@ -35,7 +39,7 @@ CONTROLS
 - Unpase = O
 - Redefine keys = F1 (whilst paused)
 
-- Toggle music = M
+- Toggle menu music = M
 
 To reset the game entirely hold 'F1'
 whilst selecting the 'Replay' option
@@ -53,8 +57,8 @@ Additional programming by Tom Seddon
 Music conversion & code by Simon Morris
 BBC graphics by John 'Dethmunk' Blythe
 
-Music 'Outrun Europa' by Matt Furniss
-composed for the Atari ST YM2149F
+'Out Run Europa' music composed by
+Matt Furniss for the Atari ST YM2149F
 sound chip.
 
 Lovingly converted for the BBC Micro
@@ -77,6 +81,8 @@ http://stardot.org.uk/forums/
 
 MANY THANKS
 Geoff Crammond
+John Cumming
+Matt Furniss
 Fandal & Irgendwer
 HEx
 Inverse Phase
