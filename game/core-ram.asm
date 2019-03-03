@@ -18,7 +18,7 @@
 ; ...
 ; $3F00 = System code? (page flip, VIC control, misc)
 ; *****************************************************************************
-
+CPU 1
 .core_start
 
 .L_2458				; SELF-MOD CODE from update_track_preview
@@ -714,8 +714,7 @@ IF 0
 		ldy ZP_C6		;3913 A4 C6
 		rts				;3915 60
 ELSE
-	LDA #0
-	STA ZP_1F
+	STZ ZP_1F
 
 	; X*16
 	TXA
@@ -735,8 +734,7 @@ ELSE
 	STA ZP_1F
 
 	LDY ZP_1E
-	LDA #0
-	STA ZP_1E
+	STZ ZP_1E
 	RTS
 ENDIF
 }
@@ -748,7 +746,7 @@ ENDIF
 {
 		sta ZP_15		;3916 85 15
 .L_3918
-		LDA #0:STA ZP_C6
+		STZ ZP_C6
 
 		lda menu_colourmap_table,X	;3918 BD 44 39
 
@@ -762,17 +760,22 @@ ENDIF
 		inx				;391D E8
 		lda menu_colourmap_table,X	;391E BD 44 39
 		inx				;3921 E8
+		ldx ZP_C6
 .L_3922
 		sta (ZP_1E),Y	;3922 91 1E
-
+		dec ZP_14
+		beq done
 		iny				;3924 C8
-		bne L_3929		;3925 D0 02
+		bne L_3922		;3925 D0 02
 		inc ZP_1F		;3927 E6 1F
-.L_3929	dec ZP_14		;3929 C6 14
-		bne L_3922		;392B D0 F5
-
+		bra L_3922
+.done
+		iny
+		bne d2
+		inc ZP_1F
+.d2
 		; BEEB HI byte of count after *16
-		DEC ZP_C6
+		DEX
 		BPL L_3922
 
 		dec ZP_15		;392D C6 15
@@ -818,10 +821,10 @@ IF 0	\\ used by fill_colourmap_varying - now removed
 ENDIF
 
 ; A=width in chars
-.plot_menu_line_colour_2
-		sta ZP_14		;3A3C 85 14
-		lda #BEEB_PIXELS_COLOUR2;3A3E A9 AA
-		bne plot_menu_line		;3A40 D0 11
+;.plot_menu_line_colour_2
+;		sta ZP_14		;3A3C 85 14
+;		lda #BEEB_PIXELS_COLOUR2;3A3E A9 AA
+;		bne plot_menu_line		;3A40 D0 11
 \\
 ; Y=47 + A*8
 .plot_menu_item_line
@@ -851,32 +854,29 @@ ENDIF
 \\ Rewritten horizontal line draw routine for MODE 1
 
 		jsr get_mode1_menu_screen_ptr
-
-		.loop
+		ldy #8
+		clc
+		ldx ZP_14		;3A61 C6 14
+.loop
 		lda ZP_16		;3A58 A5 16
 
-		ldy #0
+		sta (ZP_1E)	;3A5A 91 1E
 		sta (ZP_1E),Y	;3A5A 91 1E
-		ldy #8
-		sta (ZP_1E),Y	;3A5A 91 1E
-
-		clc
 		lda ZP_1E
 		adc #16
 		sta ZP_1E
-		lda ZP_1F
-		adc #0
-		sta ZP_1F
-
-		dec ZP_14		;3A61 C6 14
+		bcc skip
+		inc ZP_1F
+		clc
+.skip
+		dex
 		bne loop		;3A63 D0 F0
 		rts				;3A65 60
 }
 
 .get_mode1_menu_screen_ptr
 {
-	lda #0
-	sta ZP_1F
+	stz ZP_1F
 
 	; (X-$30) * 4 for char address
 

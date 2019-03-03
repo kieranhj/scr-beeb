@@ -337,7 +337,7 @@ lda #$d8:sta wheel_copy_corner_wr0+1:sta wheel_copy_corner_wr1+1
 lda #$78:sta wheel_copy_corner_wr0+2:sta wheel_copy_corner_wr1+2
 lda #hud_right_corner_byte
 inx:inx							; copy from right column
-jmp wheel_copy_corner
+bra wheel_copy_corner
 }
 
 ; Copy wheel data into the bottom left corner, followed by blank if
