@@ -6,10 +6,14 @@ beeb_writeptr   = ZP_1E             ; write ptr
 beeb_readptr    = ZP_20             ; read ptr
 
 .beeb_code_start
-
 TIMER_PartA = 32*64 + 3*8*64 - 2*64 + 1*64 -2    ; character row 0, scanline 1
-TIMER_PartB = 16*64 -2                   ; character row 2, scanline 1
-TIMER_PartC = 17*8*64 -2                ; character row 19, scanline 1
+TIMER_PartA_Ingame = 32*64 + 3*8*64 - 2*64 + 11*64 -2    ; character row 1, scanline 6
+TIMER_PartB = 5*64 -2                   ; character row 2, scanline 1
+TIMER_PartC = (17*8+4)*64 -2                ; character row 19, scanline 1
+
+;TIMER_PartA = 32*64 + 3*8*64 - 2*64 + 8*64 -2 ; character row 0, scanline 1
+;TIMER_PartB = (17*8+2)*64 -2                   ; character row 2, scanline 1
+;TIMER_PartC = (6*8)*64 -2                   ; character row 19, scanline 1
 
 TIMER_Preview = 8*20*64 - 1*64 -2              ; character row 20, scanline 1
 TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
@@ -34,14 +38,24 @@ CPU 1
     \\ Otherwise vsync
     .irq_vsync
     STA &FE4D
-
-	LDA #LO(TIMER_PartA):STA &FE44		; R4=T1 Low-Order Latches (write)
-	LDA #HI(TIMER_PartA):STA &FE45		; R5=T1 High-Order Counter
-
-    INC vsync_counter
-
+{
     LDA game_control_state
     STA irq_mode
+    BPL vsync_frontend				; taken if <$80
+	; in game
+    LDA #LO(TIMER_PartA_Ingame):STA &FE44		; R4=T1 Low-Order Latches (write)
+    LDA #HI(TIMER_PartA_Ingame):STA &FE45		; R5=T1 High-Order Counter
+    BRA back
+.vsync_frontend
+
+    LDA #LO(TIMER_PartA):STA &FE44		; R4=T1 Low-Order Latches (write)
+    LDA #HI(TIMER_PartA):STA &FE45		; R5=T1 High-Order Counter
+
+.back
+}
+
+	INC vsync_counter
+
 
     STZ irq_part
 
@@ -164,7 +178,7 @@ CPU 1
 	LDA #13:STA &FE00
 	LDA #LO((screen1_address + 640)/8):STA &FE01
 
-    BNE also_return
+    BNE return_the_third
 
     .show_screen2
 
@@ -176,7 +190,14 @@ CPU 1
 	LDA #13:STA &FE00
 	LDA #LO((screen2_address + 640)/8):STA &FE01
 
-    BNE irq_return
+    .return_the_third
+	;; set palette
+	LDA #&80 + PAL_cyan : STA &FE21
+	LDA #&90 + PAL_cyan : STA &FE21
+	LDA #&C0 + PAL_cyan : STA &FE21
+	LDA #&D0 + PAL_cyan : STA &FE21
+    LDA &FC
+    RTI
 
     .not_partA
     CMP #1
@@ -202,7 +223,7 @@ CPU 1
 	LDA #LO((screen2_address + 19*320)/8):STA &FE01
 
     INC irq_part
-    BNE irq_return
+    BRA irq_return
 
     .not_partB
     IF _DEBUG
@@ -231,6 +252,12 @@ CPU 1
 
 	LDA #13:STA &FE00
 	LDA #LO(screen2_address/8):STA &FE01
+
+	;; set palette
+	LDA #&80 + PAL_blue : STA &FE21
+	LDA #&90 + PAL_blue : STA &FE21
+	LDA #&C0 + PAL_blue : STA &FE21
+	LDA #&D0 + PAL_blue : STA &FE21
 
     \\ Don't set a new timer as this is the last one
 
