@@ -6251,6 +6251,7 @@ L_EBDD	= L_EBE7 - $A			;!
 
 		\\ BEEB toggle music
 		JSR beeb_music_toggle
+		JSR graphics_sound_volume_keys
 
 		ldy ZP_31		;EED4 A4 31
 		iny				;EED6 C8
@@ -7716,6 +7717,9 @@ jmp update_top_of_hud_done
 .L_F7B9	lsr ZP_15		;F7B9 46 15
 		dey				;F7BB 88
 		bpl L_F7AB		;F7BC 10 ED
+
+		jsr graphics_sound_volume_keys
+		
 		lda ZP_14		;F7BE A5 14
 		tax				;F7C0 AA
 		tay				;F7C1 A8

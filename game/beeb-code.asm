@@ -394,6 +394,20 @@ SID_MSB_SHIFT = 3
 ; clobbers X, A is non-zero on exit
 .sn_write
 {
+	tax
+	bpl write					; taken if latch byte
+	bit sn_attenuation_register_mask
+	beq write					; taken if not attenuation register
+
+	and #$f0					; %xrrr0000
+	sta remask+1
+	txa							; %xrrrvvvv
+	and #$0f					; %0000vvvv
+	tax
+ 	lda sn_volume_table,x
+.remask:ora #$ff
+
+.write
     ldx #255
     stx &fe43
     sta &fe4f
@@ -403,7 +417,11 @@ SID_MSB_SHIFT = 3
     ora #8
     sta &fe40
     rts ; 21 bytes
+
+.sn_attenuation_register_mask:equb $10
 }
+
+.sn_volume_table:equb 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
 
 ; Reset SN76489 sound chip to a default (silent) state
 .sn_reset

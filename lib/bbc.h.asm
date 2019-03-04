@@ -79,6 +79,27 @@ IKN_minus = 23
 IKN_hat = 24
 IKN_f1 = 113
 
+IKN_keypad_4 = $7A
+IKN_keypad_5 = $7B
+IKN_keypad_2 = $7C
+IKN_keypad_0 = $6A
+IKN_keypad_1 = $6B
+IKN_keypad_3 = $6C
+IKN_keypad_hash = $5A
+IKN_keypad_star = $5B
+IKN_keypad_comma = $5C
+IKN_keypad_slash = $4A
+IKN_keypad_del = $4B
+IKN_keypad_stop = $4C
+IKN_keypad_plus = $3A
+IKN_keypad_minus = $3B
+IKN_keypad_return = $3C
+IKN_keypad_8 = $2A
+IKN_keypad_9 = $2B
+IKN_keypad_6 = $1A
+IKN_keypad_7 = $1B
+
+
 \\ Opcodes
 SEI_OP = $78
 CLI_OP = $58
