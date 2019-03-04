@@ -18,6 +18,8 @@ rem	%PYTHON% bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./
 %PYTHON% bin/teletext2bin.py data/keys.mode7.txt build/keys.mode7.bin
 %PYTHON% bin/teletext2bin.py data/trainer.mode7.txt build/trainer.mode7.bin
 
+%PYTHON% bin/horizon_table.py
+
 bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-title-screen.dat" build\scr-beeb-title-screen.pu
 bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-menu.dat" build\scr-beeb-menu.pu
 bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-credits.dat" build\scr-beeb-credits.pu
