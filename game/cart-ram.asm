@@ -8129,6 +8129,6 @@ if (ascii_glyphs_1_end-ascii_glyphs_1_begin)>256:error "oops":endif
 }
 
 .hall_of_game_screen
-INCBIN "build/scr-beeb-hof.pu"
+INCBIN "build/scr-beeb-hof.exo"
 
 .cart_end

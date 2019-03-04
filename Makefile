@@ -1,7 +1,7 @@
-PUCRUNCH?=pucrunch
+PUCRUNCH?=wine bin/pucrunch.exe -5 -d -c0 -l0x1000
 PYTHON?=python
 BEEBASM?=beebasm
-
+EXO?= exomizer level -c -M256
 ##########################################################################
 ##########################################################################
 
@@ -38,22 +38,35 @@ build:
 	$(PYTHON) bin/teletext2bin.py data/keys.mode7.txt build/keys.mode7.bin
 	$(PYTHON) bin/teletext2bin.py data/trainer.mode7.txt build/trainer.mode7.bin
 
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-title-screen.dat" build/scr-beeb-title-screen.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-menu.dat" build/scr-beeb-menu.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-credits.dat" build/scr-beeb-credits.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-preview.dat" build/scr-beeb-preview.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-preview-bg.dat" build/scr-beeb-preview-bg.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/keys.mode7.bin" build/keys.mode7.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/trainer.mode7.bin" build/trainer.mode7.pu
-	$(PUCRUNCH) -5 -d -c0 -l0x1000 "build/scr-beeb-hof.dat" build/scr-beeb-hof.pu
-
 	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -boot Loader -v > compile.txt
 
 	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'safe to load to' | grep -Evi '^-+'
 
 	$(PYTHON) bin/crc32.py scr-beeb.ssd
+
+.PHONY:crunch
+crunch:
+	$(PUCRUNCH) "build/scr-beeb-title-screen.dat" build/scr-beeb-title-screen.pu
+	$(PUCRUNCH) "build/scr-beeb-menu.dat" build/scr-beeb-menu.pu
+	$(PUCRUNCH) "build/scr-beeb-credits.dat" build/scr-beeb-credits.pu
+	$(PUCRUNCH) "build/scr-beeb-preview.dat" build/scr-beeb-preview.pu
+	$(PUCRUNCH) "build/scr-beeb-preview-bg.dat" build/scr-beeb-preview-bg.pu
+	$(PUCRUNCH) "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
+	$(PUCRUNCH) "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
+	$(PUCRUNCH) "build/keys.mode7.bin" build/keys.mode7.pu
+	$(PUCRUNCH) "build/trainer.mode7.bin" build/trainer.mode7.pu
+	$(PUCRUNCH) "build/scr-beeb-hof.dat" build/scr-beeb-hof.pu
+
+	$(EXO) build/scr-beeb-title-screen.dat@0x3000 -o build/scr-beeb-title-screen.exo
+	$(EXO) build/scr-beeb-menu.dat@0x4000 -o build/scr-beeb-menu.exo
+	$(EXO) build/scr-beeb-credits.dat@0x3000 -o build/scr-beeb-credits.exo
+	$(EXO) build/scr-beeb-preview.dat@0x4000 -o build/scr-beeb-preview.exo
+	$(EXO) build/scr-beeb-preview-bg.dat@0x6280 -o build/scr-beeb-preview-bg.exo
+	#$(EXO) build/scr-beeb-winner.dat build/scr-beeb-winner.exo
+	#$(EXO) build/scr-beeb-wrecked.dat build/scr-beeb-wrecked.exo
+	$(EXO) build/keys.mode7.bin@0x7c00 -o build/keys.mode7.exo
+	$(EXO) build/trainer.mode7.bin@0x7c00 -o build/trainer.mode7.exo
+	$(EXO) build/scr-beeb-hof.dat@0x4000 -o build/scr-beeb-hof.exo
 
 ##########################################################################
 ##########################################################################

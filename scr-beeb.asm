@@ -776,7 +776,8 @@ GUARD hazel_load_addr		; using .boot_start doesn't seem to guard?
 INCLUDE "game/core-ram.asm"
 INCLUDE "game/beeb-dll.asm"
 INCLUDE "game/beeb-code.asm"
-INCLUDE "lib/unpack.asm"		; could probably be move to SWRAM beeb-graphics
+;INCLUDE "lib/unpack.asm"		; could probably be move to SWRAM beeb-graphics
+INCLUDE "lib/exo.s"		; could probably be move to SWRAM beeb-graphics
 
 \\ Core Data
 
