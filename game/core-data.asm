@@ -234,13 +234,13 @@ equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
 .frontend_strings_2_start_the_racing_season
 		equb "Start the Racing Season",$FF
 .frontend_strings_2_load_save_replay
-		equb "Load/Save/Replay       ",$FF
+		equb "Load / Save",$FF
 .frontend_strings_2_load
 		equb "Load",$FF
 .frontend_strings_2_save
 		equb "Save",$FF
 .frontend_strings_2_replay
-		equb "Replay",$FF
+		equb "Restart Season",$FF
 .frontend_strings_2_cancel
 		equb "Cancel",$FF
 .frontend_strings_2_load_from_tape
