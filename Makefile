@@ -1,74 +1,130 @@
-PUCRUNCH?=wine bin/pucrunch.exe -5 -d -c0 -l0x1000
 PYTHON?=python
 BEEBASM?=beebasm
-EXO?= exomizer level -c -M256
+EXO?=exomizer
+
+##########################################################################
+##########################################################################
+
+PNG2BBC_DEPS:=./bin/png2bbc.py ./bin/bbc.py
+EXO_AND_ARGS=$(EXO) level -c -M256
+
 ##########################################################################
 ##########################################################################
 
 .PHONY:build
-build:
+build:\
+	./build/scr-beeb-title-screen.exo\
+	./build/scr-beeb-menu.exo\
+	./build/scr-beeb-credits.exo\
+	./build/scr-beeb-hud.dat\
+	./build/scr-beeb-preview.exo\
+	./build/keys.mode7.exo\
+	./build/trainer.mode7.exo\
+	./build/scr-beeb-hof.exo\
+	./build/track-preview.asm
+
 	mkdir -p ./build
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-header.dat --160 --palette 0143 ./graphics/scr-beeb-header.png 5
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-menu.dat --palette 0143 ./graphics/scr-beeb-menu.png 1
-
 	$(PYTHON) bin/flames.py > build/flames-tables.asm
-
 	$(PYTHON) bin/wheels.py > build/wheels-tables.asm
-
 	$(PYTHON) bin/hud_font.py > build/hud-font-tables.asm
-
 	$(PYTHON) bin/dash_icons.py > build/dash-icons.asm
-
-	$(PYTHON) bin/track_preview.py > build/track-preview.asm
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-wrecked.dat --160 ./graphics/scr-beeb-wrecked.png 5 --palette 0143
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-winner.dat --160 ./graphics/scr-beeb-winner.png 5 --palette 0124
-
-	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hof.dat --palette 0143 ./graphics/HallFame_BBC.png 1
-
-	$(PYTHON) bin/teletext2bin.py data/keys.mode7.txt build/keys.mode7.bin
-	$(PYTHON) bin/teletext2bin.py data/trainer.mode7.txt build/trainer.mode7.bin
-
 	$(PYTHON) bin/horizon_table.py
-
 	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -opt 2 -v > compile.txt
 
 	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'safe to load to' | grep -Evi '^-+'
 
 	$(PYTHON) bin/crc32.py scr-beeb.ssd
 
-.PHONY:crunch
-crunch:
-	$(PUCRUNCH) "build/scr-beeb-title-screen.dat" build/scr-beeb-title-screen.pu
-	$(PUCRUNCH) "build/scr-beeb-menu.dat" build/scr-beeb-menu.pu
-	$(PUCRUNCH) "build/scr-beeb-credits.dat" build/scr-beeb-credits.pu
-	$(PUCRUNCH) "build/scr-beeb-preview.dat" build/scr-beeb-preview.pu
-	$(PUCRUNCH) "build/scr-beeb-preview-bg.dat" build/scr-beeb-preview-bg.pu
-	$(PUCRUNCH) "build/scr-beeb-winner.dat" build/scr-beeb-winner.pu
-	$(PUCRUNCH) "build/scr-beeb-wrecked.dat" build/scr-beeb-wrecked.pu
-	$(PUCRUNCH) "build/keys.mode7.bin" build/keys.mode7.pu
-	$(PUCRUNCH) "build/trainer.mode7.bin" build/trainer.mode7.pu
-	$(PUCRUNCH) "build/scr-beeb-hof.dat" build/scr-beeb-hof.pu
+.PHONY:clean
+clean:
+	rm -Rf ./build
 
-	$(EXO) build/scr-beeb-title-screen.dat@0x3000 -o build/scr-beeb-title-screen.exo
-	$(EXO) build/scr-beeb-menu.dat@0x4000 -o build/scr-beeb-menu.exo
-	$(EXO) build/scr-beeb-credits.dat@0x3000 -o build/scr-beeb-credits.exo
-	$(EXO) build/scr-beeb-preview.dat@0x4000 -o build/scr-beeb-preview.exo
-	$(EXO) build/scr-beeb-preview-bg.dat@0x6280 -o build/scr-beeb-preview-bg.exo
-	#$(EXO) build/scr-beeb-winner.dat build/scr-beeb-winner.exo
-	#$(EXO) build/scr-beeb-wrecked.dat build/scr-beeb-wrecked.exo
-	$(EXO) build/keys.mode7.bin@0x7c00 -o build/keys.mode7.exo
-	$(EXO) build/trainer.mode7.bin@0x7c00 -o build/trainer.mode7.exo
-	$(EXO) build/scr-beeb-hof.dat@0x4000 -o build/scr-beeb-hof.exo
+##########################################################################
+##########################################################################
+
+./build/scr-beeb-title-screen.exo:\
+	./graphics/TitleScreen_BBC.png\
+	$(PNG2BBC_DEPS)
+
+	mkdir -p ./build
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
+	$(EXO_AND_ARGS) build/scr-beeb-title-screen.dat@0x3000 -o build/scr-beeb-title-screen.exo
+
+##########################################################################
+##########################################################################
+
+./build/scr-beeb-menu.exo:\
+	./graphics/scr-beeb-menu.png\
+	$(PNG2BBC_DEPS)
+
+	mkdir -p ./build
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-menu.dat --palette 0143 ./graphics/scr-beeb-menu.png 1
+	$(EXO_AND_ARGS) build/scr-beeb-menu.dat@0x4000 -o build/scr-beeb-menu.exo
+
+##########################################################################
+##########################################################################
+
+./build/scr-beeb-credits.exo:\
+	./graphics/scr-beeb-credits.png
+
+	mkdir -p ./build
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
+	$(EXO_AND_ARGS) build/scr-beeb-credits.dat@0x3000 -o build/scr-beeb-credits.exo
+
+##########################################################################
+##########################################################################
+
+./build/scr-beeb-hud.dat:\
+	./graphics/scr-beeb-hud.png\
+	$(PNG2BBC_DEPS)
+
+	mkdir -p ./build
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
+
+##########################################################################
+##########################################################################
+
+./build/scr-beeb-preview-bg.exo\
+./build/scr-beeb-preview.exo\
+./build/track-preview.asm\
+	:\
+	./graphics/scr-beeb-preview.png\
+	./build/scr-beeb-hud.dat\
+	./bin/track_preview.py\
+	./bin/bbc.py
+
+	$(PYTHON) bin/track_preview.py > build/track-preview.asm
+	$(EXO_AND_ARGS) build/scr-beeb-preview.dat@0x4000 -o build/scr-beeb-preview.exo
+	$(EXO_AND_ARGS) build/scr-beeb-preview-bg.dat@0x6280 -o build/scr-beeb-preview-bg.exo
+
+##########################################################################
+##########################################################################
+
+./build/keys.mode7.exo:\
+	./data/keys.mode7.txt\
+	./bin/teletext2bin.py
+
+	$(PYTHON) bin/teletext2bin.py data/keys.mode7.txt build/keys.mode7.bin
+	$(EXO_AND_ARGS) build/keys.mode7.bin@0x7c00 -o build/keys.mode7.exo
+
+##########################################################################
+##########################################################################
+
+./build/trainer.mode7.exo:\
+	./data/trainer.mode7.txt\
+	./bin/teletext2bin.py
+
+	$(PYTHON) bin/teletext2bin.py data/trainer.mode7.txt build/trainer.mode7.bin
+	$(EXO_AND_ARGS) build/trainer.mode7.bin@0x7c00 -o build/trainer.mode7.exo
+
+##########################################################################
+##########################################################################
+
+./build/scr-beeb-hof.exo:\
+	./graphics/HallFame_BBC.png
+
+	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hof.dat --palette 0143 ./graphics/HallFame_BBC.png 1
+	$(EXO_AND_ARGS) build/scr-beeb-hof.dat@0x4000 -o build/scr-beeb-hof.exo
 
 ##########################################################################
 ##########################################################################
