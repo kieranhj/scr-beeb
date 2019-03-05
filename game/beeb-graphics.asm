@@ -21,19 +21,19 @@ include "build/track-preview.asm"
 include "build/dash-icons.asm"
 
 .track_preview_screen
-incbin "build/scr-beeb-preview.pu"
+incbin "build/scr-beeb-preview.exo"
 
 .track_preview_bg
-incbin "build/scr-beeb-preview-bg.pu"
+incbin "build/scr-beeb-preview-bg.exo"
 
 .credits_screen
-incbin "build/scr-beeb-credits.pu"
+incbin "build/scr-beeb-credits.exo"
 
 .keys_screen_pu
-incbin "build/keys.mode7.pu"
+incbin "build/keys.mode7.exo"
 
 .trainer_screen_pu
-incbin "build/trainer.mode7.pu"
+incbin "build/trainer.mode7.exo"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -167,14 +167,14 @@ equw flames_masked_masks_2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ._graphics_unpack_menu_screen
 {
-    LDA #HI(screen1_address)
+;    LDA #HI(screen1_address)
     LDX #LO(beeb_menu_screen_compressed)
     LDY #HI(beeb_menu_screen_compressed)
     JMP PUCRUNCH_UNPACK
 }
 
 .beeb_menu_screen_compressed
-INCBIN "build/scr-beeb-menu.pu"
+INCBIN "build/scr-beeb-menu.exo"
 
 IF 0
 ._graphics_copy_menu_header_graphic
@@ -1184,7 +1184,7 @@ rts
 
 ._preview_draw_screen
 {
-lda #$40
+;lda #$40
 ldx #LO(track_preview_screen)
 ldy #HI(track_preview_screen)
 
@@ -1196,8 +1196,8 @@ jmp PUCRUNCH_UNPACK
 
 ._preview_unpack_background
 {
-ldx #$80:ldy #$62
-jsr PUCRUNCH_SET_OUTPOS
+;ldx #$80:ldy #$62
+;jsr PUCRUNCH_SET_OUTPOS
 
 ldx #LO(track_preview_bg):ldy #HI(track_preview_bg)
 jmp PUCRUNCH_UNPACK_TO_OUTPOS
@@ -1807,7 +1807,7 @@ jsr disable_screen
 jsr beeb_set_mode_2
 
 ldx #lo(credits_screen):ldy #hi(credits_screen)
-lda #$30
+;lda #$30
 jsr PUCRUNCH_UNPACK
 jsr ensure_screen_enabled
 
@@ -1872,7 +1872,7 @@ jsr page_in_shadow_RAM
 ; Unpack keys screen
 .reload_x:ldx #$ff
 .reload_y:ldy #$ff
-lda #$7c
+;lda #$7c
 jsr PUCRUNCH_UNPACK
 
 jsr page_in_main_RAM
