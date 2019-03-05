@@ -33,7 +33,7 @@ tabl_bi = decrunch_table
 tabl_lo = decrunch_table + 52
 tabl_hi = decrunch_table + 104
 
-get_crunched_byte = $2e
+get_crunched_byte = $20
 .get_crunched_byte_copy
 INPOS = get_crunched_byte+1
 {
@@ -44,6 +44,10 @@ INPOS = get_crunched_byte+1
 .s0a    rts
 }
 .get_crunched_byte_copy_end
+zp_stash_start = $17
+zp_stash_end = $2a ; exclusive
+zp_stash_len = zp_stash_end - zp_stash_start
+.zpstash SKIP zp_stash_len
 ;; refill bits is always inlined
 MACRO mac_refill_bits
         pha
@@ -113,7 +117,17 @@ ENDIF
 .decrunch
 ; -------------------------------------------------------------------
 ; init zeropage, x and y regs. (12 bytes)
-{				;
+{
+{ 	; stash zp
+	phy
+	ldy #zp_stash_len-1
+.loop
+	lda zp_stash_start,Y
+	sta zpstash,Y
+	dey
+	bpl loop
+	ply
+}
 	stx INPOS
         sty INPOS+1
 	lda #$AD ; LDA abs
@@ -338,6 +352,15 @@ ENDIF
         bcs copy_next
 .decr_exit
 ENDIF
+{
+	; unstash zp
+	ldy #zp_stash_len-1
+.loop
+	lda zpstash,Y
+	sta zp_stash_start,Y
+	dey
+	bpl loop
+}
         rts
 ; -------------------------------------------------------------------
 ; the static stable used for bits+offset for lengths 3, 1 and 2 (3 bytes)
