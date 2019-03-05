@@ -20,14 +20,25 @@ rem	%PYTHON% bin/png2bbc.py -o build/scr-beeb-header.dat --160 --palette 0143 ./
 
 %PYTHON% bin/horizon_table.py
 
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-title-screen.dat" build\scr-beeb-title-screen.pu
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-menu.dat" build\scr-beeb-menu.pu
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-credits.dat" build\scr-beeb-credits.pu
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-preview.dat" build\scr-beeb-preview.pu
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-preview-bg.dat" build\scr-beeb-preview-bg.pu
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\keys.mode7.bin" build\keys.mode7.pu
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-hof.dat" build\scr-beeb-hof.pu
-bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\trainer.mode7.bin" build\strainer.mode7.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-title-screen.dat" build\scr-beeb-title-screen.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-menu.dat" build\scr-beeb-menu.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-credits.dat" build\scr-beeb-credits.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-preview.dat" build\scr-beeb-preview.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-preview-bg.dat" build\scr-beeb-preview-bg.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\keys.mode7.bin" build\keys.mode7.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-hof.dat" build\scr-beeb-hof.pu
+rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\trainer.mode7.bin" build\strainer.mode7.pu
 
-..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -boot Loader -v > compile.txt
+bin\exomizer.exe level -c -M256 build/scr-beeb-title-screen.dat@0x3000 -o build/scr-beeb-title-screen.exo
+bin\exomizer.exe level -c -M256 build/scr-beeb-menu.dat@0x4000 -o build/scr-beeb-menu.exo
+bin\exomizer.exe level -c -M256 build/scr-beeb-credits.dat@0x3000 -o build/scr-beeb-credits.exo
+bin\exomizer.exe level -c -M256 build/scr-beeb-preview.dat@0x4000 -o build/scr-beeb-preview.exo
+bin\exomizer.exe level -c -M256 build/scr-beeb-preview-bg.dat@0x6280 -o build/scr-beeb-preview-bg.exo
+rem bin\exomizer.exe level -c -M256 build/scr-beeb-winner.dat build/scr-beeb-winner.exo
+rem bin\exomizer.exe level -c -M256 build/scr-beeb-wrecked.dat build/scr-beeb-wrecked.exo
+bin\exomizer.exe level -c -M256 build/keys.mode7.bin@0x7c00 -o build/keys.mode7.exo
+bin\exomizer.exe level -c -M256 build/trainer.mode7.bin@0x7c00 -o build/trainer.mode7.exo
+bin\exomizer.exe level -c -M256 build/scr-beeb-hof.dat@0x4000 -o build/scr-beeb-hof.exo
+
+..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -opt 2 -v > compile.txt
 %PYTHON% bin\crc32.py scr-beeb.ssd
