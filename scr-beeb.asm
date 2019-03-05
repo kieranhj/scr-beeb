@@ -55,6 +55,8 @@ _DEBUG = FALSE
 
 DEFAULT_TRACK_DRAW_DISTANCE = $02		; $06 for longer draw
 
+DEFAULT_SOUND_VOLUME = 15		; 0=silent, 15=loudest
+
 BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4
 BEEB_CART_SLOT = 5
@@ -99,6 +101,9 @@ KEY_MENU_MUSIC = IKN_m
 KEY_RETURN = IKN_return
 KEY_RIGHT_SHIFT = IKN_shift		;$26	; right shift
 KEY_LEFT_SHIFT = IKN_shift		;$39	; left shift
+
+KEY_VOLUME_UP = IKN_keypad_plus
+KEY_VOLUME_DOWN = IKN_keypad_minus
 
 ; *****************************************************************************
 ; MACROS
@@ -1068,6 +1073,10 @@ GUARD &6000
 		jsr cart_sysctl		;4257 20 25 87  ; copy stuff using sysctl
 
 	; BEEB LATE INIT
+
+    ; The default volume table is good for when
+    ; DEFAULT_SOUND_VOLUME=15, but wants updating otherwise.
+	jsr graphics_update_sound_volume
 
 	SWR_SELECT_SLOT BEEB_MUSIC_SLOT
 

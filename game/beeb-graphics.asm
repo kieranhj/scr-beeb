@@ -2045,4 +2045,64 @@ jmp osbyte
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+._graphics_update_sound_volume
+{
+ldx sound_volume:inx:stx add+1
+lda #0:ldx #15
+.loop
+pha
+lsr a:lsr a:lsr a:lsr a:eor #$0f:sta sn_volume_table,x
+pla
+clc
+.add:adc #$ff
+dex:bpl loop
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+._graphics_sound_volume_keys
+{
+ldx #KEY_VOLUME_UP
+jsr poll_key_with_sysctl
+beq increase
+
+ldx #KEY_VOLUME_DOWN
+jsr poll_key_with_sysctl
+beq decrease
+
+lda #0
+sta sound_volume_debounce
+
+.done
+rts
+
+.decrease
+ldx sound_volume
+beq done
+dex
+jmp volume_changed
+
+.increase
+ldx sound_volume
+inx
+cpx #16
+beq done
+.volume_changed
+lda sound_volume_debounce
+bne done
+stx sound_volume
+jsr graphics_update_sound_volume
+lda #1
+sta sound_volume_debounce
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+.sound_volume:equb DEFAULT_SOUND_VOLUME
+.sound_volume_debounce:equb 0
+
 .beeb_graphics_end
