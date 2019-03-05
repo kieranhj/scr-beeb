@@ -33,16 +33,17 @@ tabl_bi = decrunch_table
 tabl_lo = decrunch_table + 52
 tabl_hi = decrunch_table + 104
 
-.get_crunched_byte
-	INPOS = *+1
+get_crunched_byte = $2e
+.get_crunched_byte_copy
+INPOS = get_crunched_byte+1
 {
-        lda &aaaa       ; ** PARAMETER
         inc INPOS
         bne s0a
         inc INPOS+1
 
 .s0a    rts
 }
+.get_crunched_byte_copy_end
 ;; refill bits is always inlined
 MACRO mac_refill_bits
         pha
@@ -112,10 +113,17 @@ ENDIF
 .decrunch
 ; -------------------------------------------------------------------
 ; init zeropage, x and y regs. (12 bytes)
-				;
+{				;
 	stx INPOS
         sty INPOS+1
-
+	lda #$AD ; LDA abs
+	sta get_crunched_byte
+	ldx #get_crunched_byte_copy_end-get_crunched_byte_copy
+.copyloop
+	lda get_crunched_byte_copy,X
+	sta get_crunched_byte+3,X
+	dex
+	bpl copyloop
         ldy #0
         ldx #3
 .init_zp
@@ -339,7 +347,7 @@ ENDIF
 ; -------------------------------------------------------------------
 .tabl_bit
  equb %11100001, %10001100, %11100010
-
+}
 
 PUCRUNCH_UNPACK = decrunch
 PUCRUNCH_UNPACK_TO_OUTPOS = decrunch
