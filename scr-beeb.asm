@@ -1165,16 +1165,7 @@ endif
 ; here.
 ;
 ; It's the initial horizon table when in game.
-.L_5780	EQUB $BC,$BC,$BC,$BC,$BC,$BC,$BC,$BA,$B9,$B9,$B9,$B9,$B9,$B9,$B7,$B5
-		EQUB $B4,$B4,$B4,$B4,$B4,$B2,$B1,$B0
-		EQUB $B0,$B0,$B0,$AE,$AD,$AD,$AD,$AD,$AF,$BD,$BF,$C0,$C0,$BF,$BE,$BC
-		EQUB $B8,$B8,$B8,$B7,$B6,$B6,$B5,$B5,$B2,$B1,$AF,$AC,$AB,$AB,$AB,$AB
-		EQUB $AB,$AB,$AB,$AC,$B4,$B4,$B4,$B1
-		EQUB $B1,$B4,$B4,$B4,$AC,$AB,$AB,$AB
-		EQUB $AB,$AB,$AB,$AB,$AC,$AD,$AF,$B1
-		EQUB $B5,$B5,$B5,$B6,$B7,$B8,$B8,$B8,$BC,$BD,$BE,$BF,$C0,$BF,$BD,$AF
-		EQUB $AD,$AD,$AD,$AD,$AE,$B0,$B0,$B0,$B0,$B1,$B2,$B4,$B4,$B4,$B4,$B4
-		EQUB $B5,$B7,$B9,$B9,$B9,$B9,$B9,$B9,$BA,$BC,$BC,$BC,$BC,$BC,$BC,$BC
+.L_5780:incbin "build/default_horizon_table.bin"
 }
 
 .set_up_beeb_display
