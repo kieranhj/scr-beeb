@@ -29,6 +29,8 @@ rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\keys.mode7.bin" build\keys.mode7.
 rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\scr-beeb-hof.dat" build\scr-beeb-hof.pu
 rem bin\pucrunch.exe -5 -d -c0 -l0x1000 "build\trainer.mode7.bin" build\strainer.mode7.pu
 
+IF "%1" == "crunch" (
+
 bin\exomizer.exe level -c -M256 build/scr-beeb-title-screen.dat@0x3000 -o build/scr-beeb-title-screen.exo
 bin\exomizer.exe level -c -M256 build/scr-beeb-menu.dat@0x4000 -o build/scr-beeb-menu.exo
 bin\exomizer.exe level -c -M256 build/scr-beeb-credits.dat@0x3000 -o build/scr-beeb-credits.exo
@@ -39,6 +41,10 @@ rem bin\exomizer.exe level -c -M256 build/scr-beeb-wrecked.dat build/scr-beeb-wr
 bin\exomizer.exe level -c -M256 build/keys.mode7.bin@0x7c00 -o build/keys.mode7.exo
 bin\exomizer.exe level -c -M256 build/trainer.mode7.bin@0x7c00 -o build/trainer.mode7.exo
 bin\exomizer.exe level -c -M256 build/scr-beeb-hof.dat@0x4000 -o build/scr-beeb-hof.exo
+
+) ELSE (
+    echo No crunch.
+)
 
 ..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -opt 2 -v > compile.txt
 %PYTHON% bin\crc32.py scr-beeb.ssd

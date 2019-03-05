@@ -2581,7 +2581,7 @@ EQUD $FFFF
 		.use_stack_string
 		LDX #0
 		.error_string_loop
-		LDA $102,X
+		LDA file_error_string,X
 		BEQ L_951D
 		JSR cart_write_char
 		INX

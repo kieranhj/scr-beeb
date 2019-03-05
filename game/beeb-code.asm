@@ -596,9 +596,22 @@ lda #$80:sta file_error_flag
 ; push main loop return address onto stack
 LDA #HI(game_start_return_here_after_brk-1):PHA
 LDA #LO(game_start_return_here_after_brk-1):PHA
+; copy error string
+ldx #0
+.loop
+LDA $102,X
+STA file_error_string,X
+BEQ done
+INX
+CPX #40
+BCC loop
+.done
 ; jump back into frontend to report error
 jmp do_file_result_message
 }
+
+.file_error_string
+SKIP 40
 
 .beeb_music_playing
 EQUB 0
