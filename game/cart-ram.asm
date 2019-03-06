@@ -1039,16 +1039,9 @@ ENDIF
 		lda sid_release_cycle_to_vsyncs,Y	;86B7 B9 DF 86
 		sta sid_voice_release_time,X	;86BA 9D D0 86
 
-	\\ Byte 6 = voice flags
-
-		ldy #$06		;86BD A0 06
-		lda (ZP_F8),Y	;86BF B1 F8
-		sta sid_voice_flags,X	;86C1 9D C8 86
-
 	\\ BEEB AUDIO - handle voice 2 (sfx)
 
-		LDA sid_current_voice
-		CMP #$01
+		CPX #$01
 		BNE return
 
 	\\ What type of sfx?
@@ -1078,7 +1071,7 @@ ENDIF
 
 	\\ Actual tone will be set in interrupt handler
 
-		RTS
+		BRA return
 
 	\\ Handle pulse tone sfx
 
@@ -1101,6 +1094,16 @@ ENDIF
 		JSR sn_write	; tone 2 max vol
 
 		.return
+
+	\\ BEEB - set this last so irq can't process SID stuff before SN write
+
+	\\ Byte 6 = voice flags
+
+		ldy #$06		;86BD A0 06
+		lda (ZP_F8),Y	;86BF B1 F8
+		LDX sid_current_voice
+		sta sid_voice_flags,X	;86C1 9D C8 86
+
 		rts				;86C4 60
 
 .sid_pulse_waveform_width
