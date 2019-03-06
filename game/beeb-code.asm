@@ -6,10 +6,14 @@ beeb_writeptr   = ZP_1E             ; write ptr
 beeb_readptr    = ZP_20             ; read ptr
 
 .beeb_code_start
-
 TIMER_PartA = 32*64 + 3*8*64 - 2*64 + 1*64 -2    ; character row 0, scanline 1
-TIMER_PartB = 16*64 -2                   ; character row 2, scanline 1
-TIMER_PartC = 17*8*64 -2                ; character row 19, scanline 1
+TIMER_PartA_Ingame = 32*64 + 3*8*64 - 2*64 + 11*64 -2    ; character row 1, scanline 6
+TIMER_PartB = 5*64 -2                   ; character row 2, scanline 1
+TIMER_PartC = (17*8+4)*64 -2                ; character row 19, scanline 1
+
+;TIMER_PartA = 32*64 + 3*8*64 - 2*64 + 8*64 -2 ; character row 0, scanline 1
+;TIMER_PartB = (17*8+2)*64 -2                   ; character row 2, scanline 1
+;TIMER_PartC = (6*8)*64 -2                   ; character row 19, scanline 1
 
 TIMER_Preview = 8*20*64 - 1*64 -2              ; character row 20, scanline 1
 TIMER_Menu = 8*8*64 + 4*64 -2                  ; character row 8, scanline 1
@@ -23,6 +27,8 @@ CRTC_R8_DisplayEnableValue=%11000000
 ;                           ++------ - 11 = disable cursor
 CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 
+CPU 1
+
 .irq_handler
 {
 	LDA &FE4D
@@ -32,17 +38,26 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     \\ Otherwise vsync
     .irq_vsync
     STA &FE4D
-
-	LDA #LO(TIMER_PartA):STA &FE44		; R4=T1 Low-Order Latches (write)
-	LDA #HI(TIMER_PartA):STA &FE45		; R5=T1 High-Order Counter
-
-    INC vsync_counter
-
+{
     LDA game_control_state
     STA irq_mode
+    BPL vsync_frontend				; taken if <$80
+	; in game
+    LDA #LO(TIMER_PartA_Ingame):STA &FE44		; R4=T1 Low-Order Latches (write)
+    LDA #HI(TIMER_PartA_Ingame):STA &FE45		; R5=T1 High-Order Counter
+    BRA back
+.vsync_frontend
 
-    LDA #0
-    STA irq_part
+    LDA #LO(TIMER_PartA):STA &FE44		; R4=T1 Low-Order Latches (write)
+    LDA #HI(TIMER_PartA):STA &FE45		; R5=T1 High-Order Counter
+
+.back
+}
+
+	INC vsync_counter
+
+
+    STZ irq_part
 
 	lda #8:sta $fe00
 
@@ -65,7 +80,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
     BEQ enter_frontend			; taken if $00
 
     BPL in_frontend				; taken if <$80
-    JMP in_game
+    BRA in_game
 
     .in_frontend
     CMP #&40					
@@ -75,7 +90,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 
     JSR beeb_music_update
 
-    JMP also_return
+    BRA also_return
 
     .not_header
 
@@ -115,17 +130,17 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #LO(TIMER_Preview):STA &FE44		; R4=T1 Low-Order Latches (write)
 	LDA #HI(TIMER_Preview):STA &FE45		; R5=T1 High-Order Counter
     
-    TXA:PHA:TYA:PHA
+    PHX:PHY
     JSR beeb_set_mode_5
-    PLA:TAY:PLA:TAX
+    PLY:PLX
     INC irq_part
-    JMP also_return
+    BRA also_return
 
     .preview_bottom
-    TXA:PHA:TYA:PHA
+    PHX:PHY
     JSR beeb_set_mode_4
-    PLA:TAY:PLA:TAX
-    JMP also_return
+    PLY:PLX
+    BRA also_return
 
     .in_game
 
@@ -163,7 +178,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #13:STA &FE00
 	LDA #LO((screen1_address + 640)/8):STA &FE01
 
-    BNE also_return
+    BNE return_the_third
 
     .show_screen2
 
@@ -175,7 +190,14 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #13:STA &FE00
 	LDA #LO((screen2_address + 640)/8):STA &FE01
 
-    BNE irq_return
+    .return_the_third
+	;; set palette
+	LDA #&80 + PAL_cyan : STA &FE21
+	LDA #&90 + PAL_cyan : STA &FE21
+	LDA #&C0 + PAL_cyan : STA &FE21
+	LDA #&D0 + PAL_cyan : STA &FE21
+    LDA &FC
+    RTI
 
     .not_partA
     CMP #1
@@ -201,7 +223,7 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #LO((screen2_address + 19*320)/8):STA &FE01
 
     INC irq_part
-    BNE irq_return
+    BRA irq_return
 
     .not_partB
     IF _DEBUG
@@ -231,14 +253,20 @@ CRTC_R8_DisplayDisableValue=CRTC_R8_DisplayEnableValue OR %00110000
 	LDA #13:STA &FE00
 	LDA #LO(screen2_address/8):STA &FE01
 
+	;; set palette
+	LDA #&80 + PAL_blue : STA &FE21
+	LDA #&90 + PAL_blue : STA &FE21
+	LDA #&C0 + PAL_blue : STA &FE21
+	LDA #&D0 + PAL_blue : STA &FE21
+
     \\ Don't set a new timer as this is the last one
 
     INC irq_part
 
     \\ An audio test...
-    TXA:PHA:TYA:PHA
+    PHX:PHY
     JSR irq_audio_update
-    PLA:TAY:PLA:TAX
+    PLY:PLX
 
     .irq_return
     LDA &FC
@@ -586,9 +614,22 @@ lda #$80:sta file_error_flag
 ; push main loop return address onto stack
 LDA #HI(game_start_return_here_after_brk-1):PHA
 LDA #LO(game_start_return_here_after_brk-1):PHA
+; copy error string
+ldx #0
+.loop
+LDA $102,X
+STA file_error_string,X
+BEQ done
+INX
+CPX #40
+BCC loop
+.done
 ; jump back into frontend to report error
 jmp do_file_result_message
 }
+
+.file_error_string
+SKIP 40
 
 .beeb_music_playing
 EQUB 0

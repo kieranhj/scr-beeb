@@ -781,7 +781,8 @@ GUARD hazel_load_addr		; using .boot_start doesn't seem to guard?
 INCLUDE "game/core-ram.asm"
 INCLUDE "game/beeb-dll.asm"
 INCLUDE "game/beeb-code.asm"
-INCLUDE "lib/unpack.asm"		; could probably be move to SWRAM beeb-graphics
+;INCLUDE "lib/unpack.asm"		; could probably be move to SWRAM beeb-graphics
+INCLUDE "lib/exo.asm"		; could probably be move to SWRAM beeb-graphics
 
 \\ Core Data
 
@@ -1173,16 +1174,7 @@ endif
 ; here.
 ;
 ; It's the initial horizon table when in game.
-.L_5780	EQUB $BC,$BC,$BC,$BC,$BC,$BC,$BC,$BA,$B9,$B9,$B9,$B9,$B9,$B9,$B7,$B5
-		EQUB $B4,$B4,$B4,$B4,$B4,$B2,$B1,$B0
-		EQUB $B0,$B0,$B0,$AE,$AD,$AD,$AD,$AD,$AF,$BD,$BF,$C0,$C0,$BF,$BE,$BC
-		EQUB $B8,$B8,$B8,$B7,$B6,$B6,$B5,$B5,$B2,$B1,$AF,$AC,$AB,$AB,$AB,$AB
-		EQUB $AB,$AB,$AB,$AC,$B4,$B4,$B4,$B1
-		EQUB $B1,$B4,$B4,$B4,$AC,$AB,$AB,$AB
-		EQUB $AB,$AB,$AB,$AB,$AC,$AD,$AF,$B1
-		EQUB $B5,$B5,$B5,$B6,$B7,$B8,$B8,$B8,$BC,$BD,$BE,$BF,$C0,$BF,$BD,$AF
-		EQUB $AD,$AD,$AD,$AD,$AE,$B0,$B0,$B0,$B0,$B1,$B2,$B4,$B4,$B4,$B4,$B4
-		EQUB $B5,$B7,$B9,$B9,$B9,$B9,$B9,$B9,$BA,$BC,$BC,$BC,$BC,$BC,$BC,$BC
+.L_5780:incbin "build/default_horizon_table.bin"
 }
 
 .set_up_beeb_display
@@ -1294,7 +1286,7 @@ PRINT "  End =", ~boot_end
 PRINT "  Size =", ~(boot_end - boot_start)
 PRINT "  Entry =", ~scr_entry
 PRINT "--------"
-SAVE "Loader2", boot_start, boot_end, scr_entry
+SAVE "Loader2", boot_start, boot_end, $ff0000+scr_entry,$ff0000+boot_start
 PRINT "--------"
 
 ; *****************************************************************************
@@ -1503,7 +1495,7 @@ CLEAR $0,$8000
 ORG $3000
 GUARD $8000
 INCBIN "build/scr-beeb-title-screen.dat"
-SAVE "Title",$3000,$8000,0
+SAVE "Title",$3000,$8000,$ff3000,$ff3000
 
 ; *****************************************************************************
 ; Title screen loader
@@ -1514,67 +1506,92 @@ ORG $1900
 
 .title_screen_loader_start
 {
-lda #0:ldx #$ff:jsr osbyte		; query machine type
-cpx #3:beq type_ok				; Master 128
-cpx #5:beq type_ok				; Master Compact
-
-ldx #master_required-text
-.print
-lda text,x:jsr osasci:cmp #13:beq done:inx:bne print
-.done:rts
-
+cli
+ldx #$ff:jsr next_osbyte		; 0: query machine type
+; anywhere from 3 to 5 is OK
+cpx #3:bcc type_not_ok                          ; Master 128
+beq hint
+; for Master 128s give specific advice for what to do if no swram
+stz lk_hint
+.hint
+cpx #6:bcc type_ok                              ; Master Compact
+.type_not_ok
+brk:equs 0,"BBC Master required!",0
 .type_ok
-lda #$ea:ldx #0:ldy #255:jsr osbyte ; query Tube presence
-cpx #0:beq tube_ok
-ldx #disable_tube-text:jmp print
+jsr osbyte_zerox;68
+txa:ora #&f0:inc a:beq swram_ok
+.noswram brk:equs 0,"Need sideways RAM in banks 4-7."
+.lk_hint equs 13,"(Set LK18 and LK19 west?)",0
+.swram_ok
+sec:ror &ff:
+ldy #4
+.byteloop
+phy
+jsr osbyte_zerox
+ply
+dey
+bne byteloop
 
-.tube_ok
-
-ldx #0:jsr clear_display_ram	; clear main RAM
-ldx #1:jsr clear_display_ram	; clear shadow RAM
-
-; set flashing colours off - stop the OS IRQ routine from fiddling
-; with the video ULA.
-lda #9:ldx #0:jsr osbyte
-lda #10:ldx #0:jsr osbyte
-
-lda #19:jsr osbyte
-
-lda #22:jsr oswrch
-lda #2:jsr oswrch
-
-lda #10:sta $fe00:lda #32:sta $fe01 ; disable cursor
-
-lda #113:ldx #1:jsr osbyte		; display main RAM
-lda #108:ldx #1:jsr osbyte		; page in shadow RAM
-
-lda #19:jsr osbyte
+ldx #2:jsr next_osbyte		; 113: display shadow RAM
+dex:jsr next_osbyte		; 108: page in shadow RAM
+jsr next_osbyte;19
+ldx #ULA_MODE_2:jsr next_osbyte;154
+ldy #13
+.crtcloop
+sty &FE00
+lda loader_mode2_crtc_regs,Y
+sta &FE01
+dey
+bpl crtcloop
+jsr setpal
+inc inc+1
 
 ldx #LO(load_title):ldy #HI(load_title):jsr oscli
+jsr next_osbyte;19
+jsr setpal
 
-lda #113:ldx #2:jsr osbyte		; display shadow RAM
-lda #108:ldx #0:jsr osbyte		; page in main RAM
-
-lda #19:jsr osbyte
+jsr osbyte_zerox              ; 108: page in main RAM
 
 ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
 
 .load_title:equs "LOAD Title":equb 13
-.run_loader2:equs "RUN Loader2":equb 13
-
-.text
-.master_required:equs "Master required",13
-.disable_tube:equs "Please disable the Tube",13
-
-.clear_display_ram
-lda #108:jsr osbyte				; page in main (X=1) or shadow (X=1)
-lda #$30:sta clear_loop_store+2
-lda #0:sta clear_loop_store+1
-.clear_loop
-.clear_loop_store:sta $3000
-inc clear_loop_store+1:bne clear_loop
-inc clear_loop_store+2:bpl clear_loop
+.run_loader2:equs "/Loader2":equb 13
+.loader_mode2_crtc_regs
+        EQUB 127                                ; R0  horizontal total
+        EQUB 80                                 ; R1  horizontal displayed
+        EQUB 98                                 ; R2  horizontal position
+        EQUB &28                                ; R3  sync width 40 = &28
+        EQUB 38                                 ; R4  vertical total
+        EQUB 0                                  ; R5  vertical total adjust
+        EQUB 32                                 ; R6  vertical displayed
+        EQUB 35                                 ; R7  vertical position; 35=top of screen
+        EQUB &0                                 ; R8  interlace; &30 = HIDE SCREEN
+        EQUB 7                                  ; R9  scanlines per row
+        EQUB 32                                 ; R10 cursor start
+        EQUB 8                                  ; R11 cursor end
+        EQUB HI($3000/8)                ; R12 screen start address, high
+.osbytes
+        EQUB LO($3000/8)                ; R13 screen start address, low
+equb 68,126,234,9,10,113,108,19,154,19,108
+.setpal
+lda #0
+.palloop
+pha
+tax
+lda #155
+jsr osbyte
+pla
+clc
+.inc
+adc #&10
+bcc palloop
 rts
+.osbyte_zerox
+ldx #0
+.next_osbyte
+lda osbytes
+inc next_osbyte+1
+jmp ($20A)
 }
 .title_screen_loader_end
 
@@ -1586,7 +1603,7 @@ PRINT "  End =", ~title_screen_loader_end
 PRINT "  Size =", ~(title_screen_loader_end - title_screen_loader_start)
 PRINT "  Free =", ~(&3000 - title_screen_loader_end)
 PRINT "-------"
-SAVE "Loader",title_screen_loader_start,title_screen_loader_end
+SAVE "!BOOT",title_screen_loader_start,title_screen_loader_end,$ff0000+title_screen_loader_start,$ff0000+title_screen_loader_start
 PRINT "-------"
 
 ; *****************************************************************************

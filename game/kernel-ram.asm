@@ -21,7 +21,7 @@
 ; ...
 ; $FF00 = Vectors
 ; *****************************************************************************
-
+CPU 1
 .kernel_start
 
 ; *****************************************************************************
@@ -2581,7 +2581,7 @@ EQUD $FFFF
 		.use_stack_string
 		LDX #0
 		.error_string_loop
-		LDA $102,X
+		LDA file_error_string,X
 		BEQ L_951D
 		JSR cart_write_char
 		INX
@@ -2918,7 +2918,7 @@ ENDIF
 		inx				;9DC1 E8
 		jsr cart_L_9C14		;9DC2 20 14 9C
 		sta ZP_4B		;9DC5 85 4B
-		jmp L_9DFC		;9DC7 4C FC 9D
+		bra L_9DFC		;9DC7 4C FC 9D
 .L_9DCA	lda ZP_9E		;9DCA A5 9E
 		sec				;9DCC 38
 		sbc ZP_C0		;9DCD E5 C0
@@ -3047,7 +3047,7 @@ ENDIF
 		bpl L_A0CF		;A0C5 10 08
 		ldy L_C3A4		;A0C7 AC A4 C3
 		sty ZP_14		;A0CA 84 14
-		jmp L_A0DC		;A0CC 4C DC A0
+		bra L_A0DC		;A0CC 4C DC A0
 .L_A0CF	lda #$80		;A0CF A9 80
 		sec				;A0D1 38
 		sbc L_C3A4		;A0D2 ED A4 C3
@@ -3093,9 +3093,9 @@ ENDIF
 		ror L_C359		;A124 6E 59 C3
 		lda #$10		;A127 A9 10
 		sta ZP_15		;A129 85 15
-		lda #$00		;A12B A9 00
-		sta ZP_14		;A12D 85 14
-		sta ZP_16		;A12F 85 16
+		;lda #$00		;A12B A9 00
+		stz ZP_14		;A12D 85 14
+		stz ZP_16		;A12F 85 16
 		rts				;A131 60
 }
 
@@ -3178,54 +3178,76 @@ ENDIF
 ; 
 ; entry: A	= first	value, byte_15 = second	value
 ; result: A = result MSB, byte_14 = result	LSB
-
+multmp = $00  ; unused on C64!
+multmp2 = $01 ;
 .mul_8_8_16bit
 {
-		sta ZP_14		;C782 85 14
-		lda #$00		;C784 A9 00
-		lsr ZP_14		;C786 46 14
-		bcc L_C78D		;C788 90 03
-		clc				;C78A 18
-		adc ZP_15		;C78B 65 15
-.L_C78D	ror A			;C78D 6A
-		ror ZP_14		;C78E 66 14
-		bcc L_C795		;C790 90 03
-		clc				;C792 18
-		adc ZP_15		;C793 65 15
-.L_C795	ror A			;C795 6A
-		ror ZP_14		;C796 66 14
-		bcc L_C79D		;C798 90 03
-		clc				;C79A 18
-		adc ZP_15		;C79B 65 15
-.L_C79D	ror A			;C79D 6A
-		ror ZP_14		;C79E 66 14
-		bcc L_C7A5		;C7A0 90 03
-		clc				;C7A2 18
-		adc ZP_15		;C7A3 65 15
-.L_C7A5	ror A			;C7A5 6A
-		ror ZP_14		;C7A6 66 14
-		bcc L_C7AD		;C7A8 90 03
-		clc				;C7AA 18
-		adc ZP_15		;C7AB 65 15
-.L_C7AD	ror A			;C7AD 6A
-		ror ZP_14		;C7AE 66 14
-		bcc L_C7B5		;C7B0 90 03
-		clc				;C7B2 18
-		adc ZP_15		;C7B3 65 15
-.L_C7B5	ror A			;C7B5 6A
-		ror ZP_14		;C7B6 66 14
-		bcc L_C7BD		;C7B8 90 03
-		clc				;C7BA 18
-		adc ZP_15		;C7BB 65 15
-.L_C7BD	ror A			;C7BD 6A
-		ror ZP_14		;C7BE 66 14
-		bcc L_C7C5		;C7C0 90 03
-		clc				;C7C2 18
-		adc ZP_15		;C7C3 65 15
-.L_C7C5	ror A			;C7C5 6A
-		ror ZP_14		;C7C6 66 14
-		rts				;C7C8 60
+	phx
+	;sta ZP_14
+	;ldx ZP_15
+	;cpx ZP_14
+	;bcc sorted
+	;txa
+	;ldx ZP_14
+	cmp ZP_15
+	beq same
+	bcs sorted
+	tax
+	beq zero
+	lda ZP_15
+	bne s2
+.sorted
+	ldx ZP_15
+	beq zero
+.s2
+	sta multmp
+	stx multmp2
+	phy
+	sec
+	sbc multmp2
+	tay
+	ldx multmp
+	lda sqtab_lsb,x
+	sbc sqtab_lsb,y
+	sta ZP_14
+	lda sqtab_msb,x
+	sbc sqtab_msb,y
+	sta multmp
+	clc
+	ldx multmp2
+	lda ZP_14
+	adc sqtab_lsb,x
+	sta ZP_14
+	lda multmp
+	adc sqtab_msb,x
+	ror a
+	ror ZP_14
+	ply
+	plx
+	rts
+.same
+	tax
+	lda sqtab_lsb,x
+	sta ZP_14
+	lda sqtab_msb,x
+	plx
+	rts
+.zero
+	lda #0
+	sta ZP_14
+	plx
+	rts
 }
+
+ALIGN &100
+.sqtab_lsb
+FOR i,0,255,1
+equb <(i*i)
+NEXT
+.sqtab_msb
+FOR i,0,255,1
+equb >(i*i)
+NEXT
 
 ; get sin and cos.
 ; 
@@ -5311,8 +5333,7 @@ ENDIF
 .L_E808
 {
 		sta ZP_16		;E808 85 16
-		ldy #$00		;E80A A0 00
-		lda (ZP_9A),Y	;E80C B1 9A
+		lda (ZP_9A)	;E80C B1 9A
 		clc				;E80E 18
 		adc #$07		;E80F 69 07
 		sta ZP_9F		;E811 85 9F
@@ -6128,13 +6149,17 @@ L_EBDD	= L_EBE7 - $A			;!
 
 ; Moved to Hazel
 ;.L_EE35	equb $00
-
+;menu_lastitem = ZP_10
+.menu_lastitem
+	equb 0
 .do_menu_screen
 {
 		dey				;EE36 88
 		sty ZP_31		;EE37 84 31 Y = num items
 		stx ZP_30		;EE39 86 30 X = base index
 		sta ZP_0C		;EE3B 85 0C A = selected item
+		sec
+		ror menu_lastitem
 		jsr set_up_screen_for_menu		;EE3D 20 1F 35
 		ldx #$00		;EE40 A2 00		; "SELECT"
 		stx ZP_0F		;EE42 86 0F
@@ -6142,16 +6167,36 @@ L_EBDD	= L_EBE7 - $A			;!
 ; L_31A0 selects which menu screen this is.
 
 		jsr cart_print_msg_2	;EE44 20 CB A1 "SELECT"
-.L_EE47
+		bra menu_changed
+.menu_loop
+		lda ZP_0C
+		cmp menu_lastitem
+		bne menu_changed
+		lda ZP_0F
+		bne menu_changed
+		jmp L_EEB2
+.menu_changed
 ; ZP_19 = current item.
-		lda #$00				;EE47 A9 00
-		sta ZP_19				;EE49 85 19
+		;lda #$00				;EE47 A9 00
+		stz ZP_19				;EE49 85 19
 .L_EE4B
 ; ZP_19 = ZP_17 = curent item.
 		ldy ZP_19				;EE4B A4 19
 		sty ZP_17				;EE4D 84 17
-		
+
 ; Handle selected item.
+		bit menu_lastitem
+		bmi menu_doall
+		cpy ZP_0C
+		beq menu_doall
+		cpy menu_lastitem
+		beq menu_doall
+		inc ZP_19
+		lda ZP_31
+		cmp ZP_17
+		bcc L_EEB2
+		bra L_EE4B
+.menu_doall
 		cpy ZP_0C				;EE4F C4 0C
 		bne L_EE5E				;EE51 D0 0B
 	\\ Colour of menu item when actually selected
@@ -6234,16 +6279,20 @@ L_EBDD	= L_EBE7 - $A			;!
 		lda #$ff:jsr set_write_char_colour_mask
 		
 		lda ZP_0F		;EEB2 A5 0F
-		beq L_EEC1		;EEB4 F0 0B
+		beq menu_poll		;EEB4 F0 0B
 		jsr clear_write_char_half_row_flag ;EEB6 20 1F 36
-		ldy #$07		;EEB9 A0 07
+		ldy #$03		;EEB9 A0 07
 		jsr delay_approx_Y_25ths_sec ;EEBB 20 EB 3F
 		lda ZP_0C		;EEBE A5 0C
 		rts				;EEC0 60
+
+.menu_poll
+		lda ZP_0C
+		sta menu_lastitem
 .L_EEC1	jsr check_game_keys		;EEC1 20 9E F7
 		bne L_EEC1		;EEC4 D0 FB
-		ldy #$02		;EEC6 A0 02
-		jsr delay_approx_Y_25ths_sec		;EEC8 20 EB 3F
+		;ldy #$02		;EEC6 A0 02
+		;jsr delay_approx_Y_25ths_sec		;EEC8 20 EB 3F
 .L_EECB	jsr check_game_keys		;EECB 20 9E F7
 		and #$10		;EECE 29 10
 		sta ZP_0F		;EED0 85 0F
@@ -6259,15 +6308,16 @@ L_EBDD	= L_EBE7 - $A			;!
 		jsr poll_key_with_sysctl		;EEDA 20 C9 C7
 		bne L_EEE4		;EEDD D0 05
 		sty ZP_0C		;EEDF 84 0C
-		jmp L_EE47		;EEE1 4C 47 EE
+		jmp menu_loop		;EEE1 4C 47 EE
 .L_EEE4	dey				;EEE4 88
 		bpl L_EED7		;EEE5 10 F0
 		ldx ZP_0C		;EEE7 A6 0C
 		lda ZP_66		;EEE9 A5 66
-		and #$03		;EEEB 29 03
+		and #$0C		;EEEB 29 03
 		beq L_EECB		;EEED F0 DC
-		and #$01		;EEEF 29 01
+		and #$04		;EEEF 29 01
 		beq L_EEFA		;EEF1 F0 07
+.menu_up
 		dex				;EEF3 CA
 		bpl L_EF01		;EEF4 10 0B
 		ldx #$00		;EEF6 A2 00
@@ -6275,9 +6325,10 @@ L_EBDD	= L_EBE7 - $A			;!
 .L_EEFA	cpx ZP_31		;EEFA E4 31
 		beq L_EF00		;EEFC F0 02
 		bcs L_EF01		;EEFE B0 01
+.menu_down
 .L_EF00	inx				;EF00 E8
 .L_EF01	stx ZP_0C		;EF01 86 0C
-.L_EF03	jmp L_EE47		;EF03 4C 47 EE
+.L_EF03	jmp menu_loop		;EF03 4C 47 EE
 
 \\ Moved from further up RAM as only used in this function
 \\ Looks like menu string offsets?
@@ -6639,8 +6690,7 @@ equb frontend_strings_2_replay-frontend_strings_2 ; $03
 		ldy #$01		;F08E A0 01
 		lda (ZP_9A),Y	;F090 B1 9A
 		sta ZP_B2		;F092 85 B2
-		dey				;F094 88
-		lda (ZP_9A),Y	;F095 B1 9A
+		lda (ZP_9A)	;F095 B1 9A
 		tay				;F097 A8
 		lda (ZP_9A),Y	;F098 B1 9A
 		iny				;F09A C8
@@ -8217,7 +8267,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		jmp L_FBFB		;FB46 4C FB FB
 .L_FB49	cpy #$C0		;FB49 C0 C0
 		bcc L_FB66		;FB4B 90 19
-		jmp L_FB5C		;FB4D 4C 5C FB
+		bra L_FB5C		;FB4D 4C 5C FB
 .L_FB50	clc				;FB50 18
 		adc ZP_52		;FB51 65 52
 		bcc L_FB5C		;FB53 90 07
@@ -8229,7 +8279,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		cpx ZP_89		;FB5D E4 89
 		bcc L_FB50		;FB5F 90 EF
 		beq L_FB50		;FB61 F0 ED
-		jmp L_FB18		;FB63 4C 18 FB
+		bra L_FB18		;FB63 4C 18 FB
 .L_FB66	sta ZP_0F		;FB66 85 0F
 		txa				;FB68 8A
 		and #$FC		;FB69 29 FC
@@ -8248,7 +8298,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		lda Q_pointers_HI,Y	;FB81 B9 00 A6
 		adc ZP_12		;FB84 65 12
 		sta ZP_1F		;FB86 85 1F
-		jmp L_FBBF		;FB88 4C BF FB
+		bra L_FBBF		;FB88 4C BF FB
 .L_FB8B	inx				;FB8B E8
 		lda ZP_0F		;FB8C A5 0F
 		adc ZP_52		;FB8E 65 52
@@ -8267,7 +8317,7 @@ L_FAEE	= *-2			;! _SELF_MOD from set_linedraw_colour
 		lda ZP_1F		;FBA6 A5 1F
 		sbc #$01		;FBA8 E9 01
 		sta ZP_1F		;FBAA 85 1F
-		jmp L_FBBF		;FBAC 4C BF FB
+		bra L_FBBF		;FBAC 4C BF FB
 ;L_FBAF
 		cmp L_C580,X	;FBAF DD 80 C5
 		bcc L_FBD9		;FBB2 90 25
@@ -8306,7 +8356,7 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		bcc L_FB8B		;FBF3 90 96
 		inc ZP_1F		;FBF5 E6 1F
 		clc				;FBF7 18
-		jmp L_FB8B		;FBF8 4C 8B FB
+		bra L_FB8B		;FBF8 4C 8B FB
 .L_FBFB	inc ZP_89		;FBFB E6 89
 ;L_FBFD
 		jmp L_FA2E		;FBFD 4C 2E FA
@@ -8448,9 +8498,8 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 
 .L_FCC5_in_kernel
 {
-		lda #$00		;FCC5 A9 00
-		sta ZP_8B		;FCC7 85 8B
-		sta ZP_8C		;FCC9 85 8C
+		stz ZP_8B		;FCC7 85 8B
+		stz ZP_8C		;FCC9 85 8C
 		lda L_A200,Y	;FCCB B9 00 A2
 		sta ZP_4F		;FCCE 85 4F
 		lda L_A24C,Y	;FCD0 B9 4C A2
@@ -8552,9 +8601,9 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		bcc L_FD9A		;FD94 90 04
 .L_FD96	sta ZP_7F		;FD96 85 7F
 		stx ZP_7D		;FD98 86 7D
-.L_FD9A	lda #$00		;FD9A A9 00
-		sta ZP_7B		;FD9C 85 7B
-		sta ZP_7C		;FD9E 85 7C
+.L_FD9A	;lda #$00		;FD9A A9 00
+		stz ZP_7B		;FD9C 85 7B
+		stz ZP_7C		;FD9E 85 7C
 		lda #$01		;FDA0 A9 01
 		sta ZP_81		;FDA2 85 81
 		lda ZP_7D		;FDA4 A5 7D
@@ -8577,11 +8626,11 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		cmp #$40		;FDC3 C9 40
 		bcs L_FDB0		;FDC5 B0 E9
 		ldx ZP_81		;FDC7 A6 81
-		lda #$00		;FDC9 A9 00
-		sta ZP_7D		;FDCB 85 7D
-		sta ZP_7E		;FDCD 85 7E
+		;lda #$00		;FDC9 A9 00
+		stz ZP_7D		;FDCB 85 7D
+		stz ZP_7E		;FDCD 85 7E
 		lda ZP_74		;FDCF A5 74
-		jmp L_FE18		;FDD1 4C 18 FE
+		bra L_FE18		;FDD1 4C 18 FE
 .L_FDD4	lda L_C365		;FDD4 AD 65 C3
 		bpl L_FDAE		;FDD7 10 D5
 		lda #$3F		;FDD9 A9 3F
