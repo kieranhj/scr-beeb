@@ -51,7 +51,7 @@ MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
 
 _TODO = FALSE
 _NOT_BEEB = FALSE
-_DEBUG = FALSE
+_DEBUG = TRUE
 
 DEFAULT_TRACK_DRAW_DISTANCE = $02		; $06 for longer draw
 
@@ -1612,7 +1612,10 @@ PRINT "-------"
 
 IF _DEBUG
 PUTFILE "data/HALL.bin", "HALL", &0
-PUTFILE "data/KCSAVE.bin", "KCSAVE", &0
+PUTFILE "data/DIV1.bin", "DIV1", &0
+PUTFILE "data/DIV2.bin", "DIV2", &0
+PUTFILE "data/DIV3.bin", "DIV3", &0
+PUTFILE "data/SUPER.bin", "SUPER", &0
 PUTFILE "data/MPSAVE.bin", "MPSAVE", &0
 ENDIF
 
