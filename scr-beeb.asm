@@ -51,7 +51,7 @@ MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
 
 _TODO = FALSE
 _NOT_BEEB = FALSE
-_DEBUG = TRUE
+_DEBUG = FALSE
 
 DEFAULT_TRACK_DRAW_DISTANCE = $02		; $06 for longer draw
 
