@@ -901,6 +901,11 @@ ENDIF
 .graphics_show_credits_screen DLL_CALL_GRAPHICS _graphics_show_credits_screen,24
 .graphics_show_keys_screen DLL_CALL_GRAPHICS _graphics_show_keys_screen,25
 
+; Sound is not graphics, but there's no DLL table for the music bank,
+; so...
+.graphics_update_sound_volume DLL_CALL_GRAPHICS _graphics_update_sound_volume,26
+.graphics_sound_volume_keys DLL_CALL_GRAPHICS _graphics_sound_volume_keys,27
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -933,6 +938,8 @@ ENDIF
 	EQUB LO(_beeb_set_mode_1)					 ; 23
 	EQUB LO(_graphics_show_credits_screen)		 ; 24
 	EQUB LO(_graphics_show_keys_screen)			 ; 25
+	EQUB LO(_graphics_update_sound_volume)		 ; 26
+	EQUB LO(_graphics_sound_volume_keys)		 ; 27
 }
 
 .graphics_table_HI
@@ -963,6 +970,8 @@ ENDIF
 	EQUB HI(_beeb_set_mode_1)					 ; 23
 	EQUB HI(_graphics_show_credits_screen)		 ; 24
 	EQUB HI(_graphics_show_keys_screen)			 ; 25
+	EQUB HI(_graphics_update_sound_volume)		 ; 26
+	EQUB HI(_graphics_sound_volume_keys)		 ; 27
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"
