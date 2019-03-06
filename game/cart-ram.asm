@@ -7256,7 +7256,7 @@ jmp do_initial_screen
 		lda L_C71A		;3787 AD 1A C7
 		beq L_3797		;378A F0 0B
 		jsr plot_menu_option_2		;378C 20 58 38
-		ldx #$CE		;378F A2 CE		; "EXCELLENT DRIVING - WELL DONE"
+		ldx #frontend_strings_2_excellent_driving_well_done-frontend_strings_2		;378F A2 CE		; "EXCELLENT DRIVING - WELL DONE"
 		jsr print_msg_2		;3791 20 CB A1
 		jmp L_37CE		;3794 4C CE 37
 .L_3797	jsr plot_menu_option_2		;3797 20 58 38
@@ -7268,7 +7268,7 @@ jmp do_initial_screen
 		ldy ZP_50		;37A7 A4 50
 		bne L_37B6		;37A9 D0 0B
 		jsr plot_menu_option_2		;37AB 20 58 38
-		ldx #$A7		;37AE A2 A7		; "to the SUPER LEAGUE"
+		ldx #frontend_strings_2_to_the_super_league-frontend_strings_2		;37AE A2 A7		; "to the SUPER LEAGUE"
 		jsr print_msg_2		;37B0 20 CB A1
 		jmp L_37CE		;37B3 4C CE 37
 .L_37B6	ldy ZP_8A		;37B6 A4 8A

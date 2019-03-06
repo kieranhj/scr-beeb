@@ -514,7 +514,7 @@ ENDIF
 		lda L_C71A		;3554 AD 1A C7
 		beq L_3564		;3557 F0 0B
 		sty L_E0BD		;3559 8C BD E0
-		ldx #$BB		;355C A2 BB		; "SUPER DIVISION "
+		ldx #frontend_strings_2_super_division-frontend_strings_2		;355C A2 BB		; "SUPER DIVISION "
 		jsr cart_print_msg_2		;355E 20 CB A1
 		jmp L_356C		;3561 4C 6C 35
 .L_3564	sty L_3409		;3564 8C 09 34

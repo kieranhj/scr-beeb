@@ -1615,7 +1615,8 @@ PUTFILE "data/HALL.bin", "HALL", &0
 PUTFILE "data/DIV1.bin", "DIV1", &0
 PUTFILE "data/DIV2.bin", "DIV2", &0
 PUTFILE "data/DIV3.bin", "DIV3", &0
-PUTFILE "data/SUPER.bin", "SUPER", &0
+PUTFILE "data/SUPER1.bin", "SUPER1", &0
+PUTFILE "data/SUPER4.bin", "SUPER4", &0
 PUTFILE "data/MPSAVE.bin", "MPSAVE", &0
 ENDIF
 

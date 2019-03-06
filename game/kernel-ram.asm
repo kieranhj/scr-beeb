@@ -6161,7 +6161,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sec
 		ror menu_lastitem
 		jsr set_up_screen_for_menu		;EE3D 20 1F 35
-		ldx #$00		;EE40 A2 00		; "SELECT"
+		ldx #frontend_strings_2_select-frontend_strings_2		;EE40 A2 00		; "SELECT"
 		stx ZP_0F		;EE42 86 0F
 
 ; L_31A0 selects which menu screen this is.
