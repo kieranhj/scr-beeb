@@ -1039,16 +1039,9 @@ ENDIF
 		lda sid_release_cycle_to_vsyncs,Y	;86B7 B9 DF 86
 		sta sid_voice_release_time,X	;86BA 9D D0 86
 
-	\\ Byte 6 = voice flags
-
-		ldy #$06		;86BD A0 06
-		lda (ZP_F8),Y	;86BF B1 F8
-		sta sid_voice_flags,X	;86C1 9D C8 86
-
 	\\ BEEB AUDIO - handle voice 2 (sfx)
 
-		LDA sid_current_voice
-		CMP #$01
+		CPX #$01
 		BNE return
 
 	\\ What type of sfx?
@@ -1078,7 +1071,7 @@ ENDIF
 
 	\\ Actual tone will be set in interrupt handler
 
-		RTS
+		BRA return
 
 	\\ Handle pulse tone sfx
 
@@ -1101,6 +1094,16 @@ ENDIF
 		JSR sn_write	; tone 2 max vol
 
 		.return
+
+	\\ BEEB - set this last so irq can't process SID stuff before SN write
+
+	\\ Byte 6 = voice flags
+
+		ldy #$06		;86BD A0 06
+		lda (ZP_F8),Y	;86BF B1 F8
+		LDX sid_current_voice
+		sta sid_voice_flags,X	;86C1 9D C8 86
+
 		rts				;86C4 60
 
 .sid_pulse_waveform_width
@@ -7256,7 +7259,7 @@ jmp do_initial_screen
 		lda L_C71A		;3787 AD 1A C7
 		beq L_3797		;378A F0 0B
 		jsr plot_menu_option_2		;378C 20 58 38
-		ldx #$CE		;378F A2 CE		; "EXCELLENT DRIVING - WELL DONE"
+		ldx #frontend_strings_2_excellent_driving_well_done-frontend_strings_2		;378F A2 CE		; "EXCELLENT DRIVING - WELL DONE"
 		jsr print_msg_2		;3791 20 CB A1
 		jmp L_37CE		;3794 4C CE 37
 .L_3797	jsr plot_menu_option_2		;3797 20 58 38
@@ -7268,7 +7271,7 @@ jmp do_initial_screen
 		ldy ZP_50		;37A7 A4 50
 		bne L_37B6		;37A9 D0 0B
 		jsr plot_menu_option_2		;37AB 20 58 38
-		ldx #$A7		;37AE A2 A7		; "to the SUPER LEAGUE"
+		ldx #frontend_strings_2_to_the_super_league-frontend_strings_2		;37AE A2 A7		; "to the SUPER LEAGUE"
 		jsr print_msg_2		;37B0 20 CB A1
 		jmp L_37CE		;37B3 4C CE 37
 .L_37B6	ldy ZP_8A		;37B6 A4 8A

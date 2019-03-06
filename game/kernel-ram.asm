@@ -6161,7 +6161,7 @@ L_EBDD	= L_EBE7 - $A			;!
 		sec
 		ror menu_lastitem
 		jsr set_up_screen_for_menu		;EE3D 20 1F 35
-		ldx #$00		;EE40 A2 00		; "SELECT"
+		ldx #frontend_strings_2_select-frontend_strings_2		;EE40 A2 00		; "SELECT"
 		stx ZP_0F		;EE42 86 0F
 
 ; L_31A0 selects which menu screen this is.
@@ -6427,8 +6427,10 @@ equb frontend_strings_2_replay-frontend_strings_2 ; $03
 .L_EF48	ldy #$03		;EF48 A0 03
 		jsr trainers_any_active
 		ldx #menu_screen_offsets_main_menu-menu_screen_offsets ;EF4A A2 00
+IF _DEBUG = FALSE
 		bcc got_main_menu_options
 		ldx #menu_screen_offsets_main_menu_cheater-menu_screen_offsets
+ENDIF
 .got_main_menu_options
 		jsr do_menu_screen		;EF4C 20 36 EE
 		cmp #$02		;EF4F C9 02
@@ -6438,7 +6440,8 @@ equb frontend_strings_2_replay-frontend_strings_2 ; $03
 ; load/save/replay
 
 		jsr delay_approx_4_5ths_sec		;EF55 20 E9 3F
-		
+
+IF _DEBUG = FALSE	
 		jsr trainers_any_active
 		bcc load_save_replay_no_cheat
 
@@ -6451,7 +6454,7 @@ equb frontend_strings_2_replay-frontend_strings_2 ; $03
 		cmp #1					; cancel?
 		beq L_EF37				; taken if cancel
 		bne replay				; taken if replay
-
+ENDIF
 
 .load_save_replay_no_cheat
 		ldy #$03		;EF58 A0 03

@@ -309,6 +309,9 @@ if P%-frontend_strings_2>255:error "frontend_strings_2 too big":endif
         equb "Credits",$FF
 if P%-frontend_strings_3>255:error "frontend_strings_3 too big":endif
 
+\\ WARNING: Don't change any of these strings below without updating the
+\\ index used to print them for the corresponding print_msg_4 calls !!!
+
 .frontend_strings_4
 		equb $1F,$0F
 .L_3409	equb $09,"DIVISION ",$FF
