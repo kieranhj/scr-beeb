@@ -1951,7 +1951,7 @@ lda &FE34:ora #1:sta &FE34 ; display shadow RAM
 .keys_loop
 jsr mode7_getch
 
-cmp #13:beq keys_loop
+cmp #13:beq keys_done
 and #$df
 beq keys_done
 cmp #'C':beq trainer_screen
@@ -2034,7 +2034,7 @@ jmp osbyte
 {
 	EQUB 63					; R0  horizontal total
 	EQUB 41					; R1  horizontal displayed
-	EQUB 52					; R2  horizontal position
+	EQUB 53					; R2  horizontal position
 	EQUB &24				; R3  sync width 40 = &28
 	EQUB 30					; R4  vertical total
 	EQUB 2					; R5  vertical total adjust
