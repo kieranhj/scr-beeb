@@ -1731,8 +1731,8 @@ rts
     STA &FE34
 
     \\ BEEB ULA SET PALETTE
-    LDX #LO(beeb_mode5_palette)
-    LDY #HI(beeb_mode5_palette)
+    LDX #LO(beeb_mode1_palette)
+    LDY #HI(beeb_mode1_palette)
     JMP beeb_set_palette
 	
 .beeb_mode1_crtc_regs
