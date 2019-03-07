@@ -55,7 +55,7 @@ _DEBUG = FALSE
 
 DEFAULT_TRACK_DRAW_DISTANCE = $02		; $06 for longer draw
 
-DEFAULT_SOUND_VOLUME = 15		; 0=silent, 15=loudest
+DEFAULT_SOUND_VOLUME = 12		; 0=silent, 15=loudest
 
 BEEB_SCREEN_MODE = 4
 BEEB_KERNEL_SLOT = 4

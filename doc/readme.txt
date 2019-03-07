@@ -1,4 +1,6 @@
+
 STUNT CAR RACER
+---------------
 Original concept, design and
 programming by Geoff Crammond
 
@@ -11,6 +13,7 @@ the Bitshifters Collective!
 
 
 ABOUT
+-----
 Legendary video game developer Geoff
 Crammond created many seminal titles
 for the BBC Micro but it seemed a
@@ -44,6 +47,7 @@ of all time.
 
 
 CONTROLS
+--------
 - Steer left = S
 - Steer right = D
 - Boost = Return
@@ -64,11 +68,13 @@ from the File menu.
 
 
 HOW TO PLAY
+-----------
 See separate file 'GUIDE' on this disc
 *TYPE GUIDE to read
 
 
 CREDITS
+-------
 BBC Master port by Kieran Connell
 Additional programming by Tom Seddon
 Additional programming by HEx
@@ -84,6 +90,7 @@ SN76489 sound chip by Simon Morris.
 
 
 CONTACT
+-------
 Visit our BBC Retro Coding webpage
 https://bitshifters.github.io
 
@@ -98,6 +105,7 @@ http://stardot.org.uk/forums/
 
 
 MANY THANKS
+-----------
 Geoff Crammond
 John Cummins
 Matt Furniss
@@ -116,6 +124,7 @@ Project 64 - David Holz, Cris Berneburg
 
 
 TOOLS USED
+----------
 BeebAsm, b-em emulator, b2 emulator
 jsbeeb emulator, Exomizer 3, Visual
 Studio Code, GitHub & more...
@@ -126,6 +135,7 @@ https://bitbucket.org/magli143/exomizer
 
 
 TECHNICAL SUPPORT
+-----------------
 This game requires a standard issue
 BBC Master 128K computer.
 
@@ -155,5 +165,6 @@ if possible.
 
 
 RELEASE NOTES
+-------------
 8/3/2019 Version 1.0
 Initial release!
