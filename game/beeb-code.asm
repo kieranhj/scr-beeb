@@ -510,6 +510,26 @@ EQUW 0
 	EQUB &50 + PAL_black
 	EQUB &60 + PAL_red
 	EQUB &70 + PAL_red
+	EQUB &80 + PAL_cyan
+	EQUB &90 + PAL_cyan
+	EQUB &A0 + PAL_yellow
+	EQUB &B0 + PAL_yellow
+	EQUB &C0 + PAL_cyan
+	EQUB &D0 + PAL_cyan
+	EQUB &E0 + PAL_yellow
+	EQUB &F0 + PAL_yellow
+}
+
+.beeb_mode1_palette
+{
+	EQUB &00 + PAL_black
+	EQUB &10 + PAL_black
+	EQUB &20 + PAL_red
+	EQUB &30 + PAL_red
+	EQUB &40 + PAL_black
+	EQUB &50 + PAL_black
+	EQUB &60 + PAL_red
+	EQUB &70 + PAL_red
 	EQUB &80 + PAL_blue
 	EQUB &90 + PAL_blue
 	EQUB &A0 + PAL_yellow
