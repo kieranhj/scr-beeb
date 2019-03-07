@@ -1739,7 +1739,7 @@ rts
 {
 	EQUB 127				; R0  horizontal total
 	EQUB 80					; R1  horizontal displayed
-	EQUB 98					; R2  horizontal position
+	EQUB 97					; R2  horizontal position
 	EQUB &28				; R3  sync width 40 = &28
 	EQUB 38					; R4  vertical total
 	EQUB 0					; R5  vertical total adjust
@@ -1783,7 +1783,7 @@ rts
 {
 	EQUB 127				; R0  horizontal total
 	EQUB 80					; R1  horizontal displayed
-	EQUB 98					; R2  horizontal position
+	EQUB 97					; R2  horizontal position
 	EQUB &28				; R3  sync width 40 = &28
 	EQUB 38					; R4  vertical total
 	EQUB 0					; R5  vertical total adjust
@@ -1842,66 +1842,10 @@ jsr beeb_set_mode_1
 rts
 }
 
-.page_in_shadow_RAM
-{
-pha
-lda $fe34:ora #%00000100:sta $fe34 ; page in shadow RAM
-pla
-rts
-}
-
-.page_in_main_RAM
-{
-pha
-lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
-pla
-rts
-}
-
-.unpack_mode7
-{
-stx reload_x+1:sty reload_y+1
-
-lda #19:jsr osbyte
-
-; disabled output + interlace sync/video
-lda #8:sta $fe00:lda #%11110011:sta $fe01
-
-jsr page_in_shadow_RAM
-
-; Unpack keys screen
-.reload_x:ldx #$ff
-.reload_y:ldy #$ff
-;lda #$7c
-jsr PUCRUNCH_UNPACK
-
-jsr page_in_main_RAM
-
-; Seems to take my TV nearly half a second to fully settle down after
-; the mode change, presumably due to the change in interlace
-; sync/video mode. 3 vsyncs is enough to avoid the worst of it.
-;
-; (The picture still adjusts itself slightly, but when the other
-; option is a half second pause, it's fine.)
-
-lda #3:sta nvsyncs
-.loop
-lda #19:jsr osbyte
-dec nvsyncs:bne loop
-
-rts
-
-.nvsyncs:equb 0
-
-}
-
 .mode7_getch
 {
 lda #19:jsr osbyte
-; enable output + interlace sync/video
-lda #8:sta $fe00:lda #%11010011:sta $fe01
-jsr osrdch
-rts
+jmp osrdch
 }
 
 ; assumes main RAM is paged in and shadow RAM is displayed.
@@ -1930,48 +1874,116 @@ jsr beeb_set_crtc_regs
 
 lda #ULA_MODE_7:sta $fe20
 
-; Keys screen loop.
+; disabled output + interlace sync/video
+lda #8:sta $fe00:lda #%11110011:sta $fe01
 
-.keys_screen
-ldx #lo(keys_screen_pu):ldy #hi(keys_screen_pu):jsr unpack_mode7
+; Unpack screens
+lda $fe34:ora #%00000100:sta $fe34 ; page in shadow RAM
+ldx #lo(keys_screen_pu):ldy #hi(keys_screen_pu)
+jsr PUCRUNCH_UNPACK
+lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
+; stash screen RAM
+{
+ldy #0
+.stashloop
+lda &7C00,Y
+sta &4000,Y
+lda &7D00,Y
+sta &4100,Y
+lda &7E00,Y
+sta &4200,Y
+lda &7F00,Y
+sta &4300,Y
+iny
+bne stashloop
+}
+ldx #lo(trainer_screen_pu):ldy #hi(trainer_screen_pu)
+jsr PUCRUNCH_UNPACK
 
-jsr mode7_getch
+; Seems to take my TV nearly half a second to fully settle down after
+; the mode change, presumably due to the change in interlace
+; sync/video mode. 3 vsyncs is enough to avoid the worst of it.
+;
+; (The picture still adjusts itself slightly, but when the other
+; option is a half second pause, it's fine.)
 
-and #$df
-cmp #'T':beq trainer_screen
+ldy #3
+.loop
+phy
+lda #19:jsr osbyte
+ply
+dey:bne loop
 
-.screens_done
+; enable output + interlace sync/video
+lda #8:sta $fe00:lda #%11010011:sta $fe01
+
+jsr keys_screen
+
 lda #19:jsr osbyte
 
 ; disable screen
 lda #8:sta $fe00:lda #$30:sta $fe01
 
+; unstash screen RAM
+{
+ldy #0
+.unstashloop	
+lda &4000,Y
+sta &7C00,Y
+lda &4100,Y
+sta &7D00,Y
+lda &4200,Y
+sta &7E00,Y
+lda &4300,Y
+sta &7F00,Y
+iny
+bne unstashloop
+}
+rts
+
+; Keys screen loop.
+
+.keys_screen
+{
+lda #19:jsr osbyte
+lda &FE34:ora #1:sta &FE34 ; display shadow RAM
+
+.keys_loop
+jsr mode7_getch
+
+cmp #13:beq keys_done
+and #$df
+beq keys_done
+cmp #'C':beq trainer_screen
+bra keys_loop
+}
+.keys_done
+.trainer_done
 rts
 
 ; Trainer screen loop.
 
 .trainer_screen
 {
-ldx #lo(trainer_screen_pu):ldy #hi(trainer_screen_pu):jsr unpack_mode7
+lda #19:jsr osbyte
+lda &FE34:and #&FE:sta &FE34 ; display main RAM
 
 .trainer_screen_loop
 
 ; draw flags on screen, and apply cheats.
 
 disabled_message_y=7
-disabled_addr=$7c00+(disabled_message_y-1)*40
+disabled_addr=$7c00+(disabled_message_y-1)*41
 
-trainer_x=34
+trainer_x=36
 trainer_y=10
-last_addr=$7c00+trainer_x+(trainer_y+(num_trainers-1)*2)*40
+last_addr=$7c00+trainer_x+(trainer_y+(num_trainers-1)*2)*41
 lda #<last_addr:sta ZP_20
 lda #>last_addr:sta ZP_21
 
 ; sneakily hide the 'load/save disabled' message with a misplaced
 ; double height code.
-jsr page_in_shadow_RAM
 lda #141:sta disabled_addr
-jsr page_in_main_RAM
 
 ldy #num_trainers-1
 {
@@ -1981,20 +1993,16 @@ tya:pha
 lda trainer_flags,y:asl a:lda #0:rol a:tax:beq show_state
 
 ; at least one cheat is on, so unhide the load/save disabled message.
-jsr page_in_shadow_RAM
-lda #0:sta disabled_addr
-jsr page_in_main_RAM
+stz disabled_addr
 
 .show_state
 ldy #0
-jsr page_in_shadow_RAM
 lda trainer_onoff+0,x:sta (ZP_20),y:iny
 lda trainer_onoff+2,x:sta (ZP_20),y:iny
 lda trainer_onoff+4,x:sta (ZP_20),y:iny
-jsr page_in_main_RAM
 
 sec
-lda ZP_20:sbc #80:sta ZP_20
+lda ZP_20:sbc #82:sta ZP_20
 lda ZP_21:sbc #0:sta ZP_21
 
 pla:tay:dey
@@ -2002,18 +2010,16 @@ bpl trainers_loop
 }
 
 jsr mode7_getch:tax
-
-and #$df:cmp #'I':bne not_keys_screen:jmp keys_screen:.not_keys_screen
-
-txa:and #$f0:cmp #$10:beq handle_f_key
-
-jmp screens_done
+cmp #13:beq trainer_done
+and #$df:beq trainer_done
+cmp #'I':bne not_keys_screen:jmp keys_screen:.not_keys_screen
+txa:and #$f0:cmp #$10:bne trainer_screen_loop
 
 .handle_f_key
 txa:and #$0f:cmp #num_trainers:bcs trainer_screen_loop
 tay
 lda trainer_flags,y:eor #$80:sta trainer_flags,y
-jmp trainer_screen_loop
+bra trainer_screen_loop
 }
 
 .trainer_onoff:equb "OOfnf "
@@ -2027,13 +2033,13 @@ jmp osbyte
 .beeb_mode7_crtc_regs
 {
 	EQUB 63					; R0  horizontal total
-	EQUB 40					; R1  horizontal displayed
-	EQUB 51					; R2  horizontal position
+	EQUB 41					; R1  horizontal displayed
+	EQUB 53					; R2  horizontal position
 	EQUB &24				; R3  sync width 40 = &28
 	EQUB 30					; R4  vertical total
 	EQUB 2					; R5  vertical total adjust
 	EQUB 25					; R6  vertical displayed
-	EQUB 27					; R7  vertical position; 35=top of screen
+	EQUB 28					; R7  vertical position; 35=top of screen
 	EQUB $30				; R8  interlace; &30 = HIDE SCREEN
 	EQUB 18					; R9  scanlines per row
 	EQUB 32					; R10 cursor start

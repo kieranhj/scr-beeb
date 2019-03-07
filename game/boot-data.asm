@@ -56,17 +56,4 @@ L_7AA7=L_6000+$1AA7
 
 ; end of in-game screen data.
 
-; The original cheats modified the code, but no reason to have to do
-; that here...
-;
-; Bit 7 of each byte is set if the cheat is active - these flags are
-; tested with BIT.
-.trainer_flags:
-.trainer_flag_endless_boost:equb 0 ; index 0 = endless boost
-.trainer_flag_infinite_damage:equb 0 ; index 1 = infinite damage
-.trainer_flag_faster_crashes:equb 0 ; index 2 = faster crash recovery
-.trainer_flag_opponent_cant_win:equb 0 ; index 3 = opponents can never win
-.trainer_flag_q_to_win:equb 0 ; index 4 = press Q to win
-num_trainers=P%-trainer_flags
-
 .boot_data_end

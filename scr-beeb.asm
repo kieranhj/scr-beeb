@@ -1559,7 +1559,7 @@ ldx #LO(run_loader2):ldy #HI(run_loader2):jmp oscli
 .loader_mode2_crtc_regs
         EQUB 127                                ; R0  horizontal total
         EQUB 80                                 ; R1  horizontal displayed
-        EQUB 98                                 ; R2  horizontal position
+        EQUB 97                                 ; R2  horizontal position
         EQUB &28                                ; R3  sync width 40 = &28
         EQUB 38                                 ; R4  vertical total
         EQUB 0                                  ; R5  vertical total adjust
