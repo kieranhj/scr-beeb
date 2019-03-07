@@ -8774,7 +8774,7 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		sta ZP_4F		;FEDB 85 4F
 		lda L_A200,Y	;FEDD B9 00 A2
 		sta ZP_4E		;FEE0 85 4E
-		jmp L_FEF6		;FEE2 4C F6 FE
+		bra L_FEF6		;FEE2 4C F6 FE
 .L_FEE5	sta ZP_8A		;FEE5 85 8A
 		lda L_A24C,Y	;FEE7 B9 4C A2
 		sta ZP_50		;FEEA 85 50
@@ -8798,13 +8798,14 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 		bcc L_FF13		;FF0B 90 06
 		txa				;FF0D 8A
 		ldx ZP_4E		;FF0E A6 4E
-		jmp L_FF15		;FF10 4C 15 FF
+		bra L_FF15		;FF10 4C 15 FF
 .L_FF13	lda ZP_4E		;FF13 A5 4E
 .L_FF15	cmp #$C0		;FF15 C9 C0
 		bcc L_FF1B		;FF17 90 02
 		lda #$BF		;FF19 A9 BF
-.L_FF1B	clc				;FF1B 18
-		adc #$01		;FF1C 69 01
+.L_FF1B	;clc				;FF1B 18
+	;	adc #$01		;FF1C 69 01
+		inc a
 		cpx #$40		;FF1E E0 40
 		bcs L_FF24		;FF20 B0 02
 		ldx #$40		;FF22 A2 40
@@ -8833,8 +8834,9 @@ L_FBD5	= *-2			;! _SELF_MOD from set_linedraw_colour
 .L_FF4F	lda ZP_8A		;FF4F A5 8A
 		jmp L_F932_in_kernel		;FF51 4C 32 F9
 .L_FF54	eor #$FF		;FF54 49 FF
-		clc				;FF56 18
-		adc #$01		;FF57 69 01
+		;clc				;FF56 18
+		;adc #$01		;FF57 69 01
+		inc a
 		sta ZP_51		;FF59 85 51
 		cmp ZP_52		;FF5B C5 52
 		bcc L_FF64		;FF5D 90 05
