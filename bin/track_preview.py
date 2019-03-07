@@ -43,7 +43,8 @@ def main(options):
     # convert to Stunt Car Racer palette
     for y in range(len(image)):
         for x in range(len(image[0])):
-            if image[y][x]==4: image[y][x]=2
+            assert image[y][x] in [0,1,3,6] # ensure image is using the expected BBC palette...
+            if image[y][x]==6: image[y][x]=2
 
     # Copy the preview area, which is the middle 128x128.
     area=image[16:144]
