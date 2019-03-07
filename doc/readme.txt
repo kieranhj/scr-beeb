@@ -163,6 +163,8 @@ please report this on our GitHub page
 along with an emulator save state file
 if possible.
 
+https://github.com/kieranhj/scr-beeb
+
 
 RELEASE NOTES
 -------------
