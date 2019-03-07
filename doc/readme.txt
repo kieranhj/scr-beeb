@@ -40,7 +40,7 @@ sound and I/O routines were replaced
 or augmented with brand new code
 specifically for the BBC hardware.
 Finally, new artwork was drawn to
-accomodate palette limitations and
+accommodate palette limitations and
 music added to round off this brand
 new version of one our favourite games
 of all time.
@@ -56,7 +56,7 @@ CONTROLS
 - Quit race = Escape
 
 - Pause = P
-- Unpase = O
+- Unpause = O
 - Redefine keys = F1 (whilst paused)
 
 - Toggle menu music = M
@@ -144,7 +144,7 @@ available for use. If you have ROMs
 installed internally these may be
 occupying sideways RAM banks. You will
 need to remove them and check links
-LK18 and LK19 are set correcly as per
+LK18 and LK19 are set correctly as per
 the Master Reference manual.
 
 PAGE must be at &E00. Type "P.~PAGE"
@@ -168,5 +168,5 @@ https://github.com/kieranhj/scr-beeb
 
 RELEASE NOTES
 -------------
-8/3/2019 Version 1.0
+7/3/2019 Version 1.0
 Initial release!
