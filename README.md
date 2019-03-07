@@ -14,10 +14,10 @@ This port was inspired by the work of [Fandal](http://a8.fandal.cz/) who convert
 From the same starting point we have reverse engineered the functionality and data structures of the game so it could be rearranged into the BBC Master 128K memory map. Next all graphics, sound and I/O routines were replaced or augmented with brand new code specifically for the BBC hardware. Finally, new artwork was drawn to accomodate palette limitations and music added to round off this brand new version of one our favourite games of all time.
 
 <p float="left">
-<img src="https://github.com/kieranhj/pop-beeb/raw/master/doc/league.png" width="160" height="100" />
-<img src="https://github.com/kieranhj/pop-beeb/raw/master/doc/track-preview.png" width="160" height="100" />
-<img src="https://github.com/kieranhj/pop-beeb/raw/master/doc/drop-start.png" width="160" height="100" />
-<img src="https://github.com/kieranhj/pop-beeb/raw/master/doc/ramp.png" width="160" height="100" />
+<img src="https://github.com/kieranhj/scr-beeb/raw/master/doc/league.png" width="160" height="100" />
+<img src="https://github.com/kieranhj/scr-beeb/raw/master/doc/track-preview.png" width="160" height="100" />
+<img src="https://github.com/kieranhj/scr-beeb/raw/master/doc/drop-start.png" width="160" height="100" />
+<img src="https://github.com/kieranhj/scr-beeb/raw/master/doc/ramp.png" width="160" height="100" />
 
 ## **How to Play**
 
