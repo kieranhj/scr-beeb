@@ -1,0 +1,590 @@
+STUNT CAR RACER
+by Geoff Crammond
+
+BBC Master version
+Ported by Bitshifters
+
+DRIVING CONTROLS
+================
+
+Key controls
+------------
+
+Steering left ................ S
+Steering right ............... D
+Boost+accelerator forward .... RETURN
+Boost+Brake/Reverse .......... Space
+Brake/Reverse ................ *
+
+Redefining keys
+---------------
+
+The car control keys are redefined from
+the cockpit. First of all, PAUSE the
+game (see Item 4 of 'Further
+Controls'). Then press the f1 key. The
+"PAUSED" message on screen will be
+replaced by a "DEFINE KEYS" message.
+
+The computer then asks for the keys
+that you wish to use for the relevant
+controls. It then requests that you
+verify the keys that have been pressed.
+Enter the same keys again and the
+computer will then return to the main
+game. If the second entry does not
+match the first, the computer will ask
+for another set of keys to be pressed
+and verified. You mist then unpause the
+game to continue.
+
+In multi-player mode, each player can
+redefine the keys at any time during a
+race (preferably before the start). The
+settings are stored for each individual
+player and are automatically
+re-installed in subsequent races
+involving that player.
+
+Auto-alignment
+--------------
+
+When the car is on a straight section
+of track and there is no steering input
+from the keys, the car will steer
+itself in the direction of the track
+(unless, of course, it is airborne).
+
+Other controls
+--------------
+
+1. On the 'Name Selection' page, type
+in your name and press RETURN to
+continue.
+
+2. On the 'Menu' pages, press 1, 2, 3,
+etc. to move the highlight bar and
+select by pressing RETURN.
+
+3. Where appropriate, the RETURN key
+can be pressed to advance to the next
+screen.
+
+4. There is a PAUSE facility available
+whilst driving. Pause the game by
+pressing:
+
+Pause on ............... P
+Pause off .............. O
+
+5. You can retire from a race or
+practice using the ESCAPE key. Note
+that if you are racing, you will
+automatically lose the race and best
+lap time points.
+
+6. You can drop out of a season's
+racing by holding down the f1 key at
+the same time as clicking the fire
+button on the NEXT RACE fixture page.
+
+7. You can return to the game start by
+holding down the f1 key at the same
+time as pressing RETURN on REPLAY
+SEASON.
+
+Practice mode
+-------------
+
+A player can practice on any track by
+selecting 'Practice' on the main menu
+and choosing the division containing
+the desired track. The tracks are as
+follows:
+
+Division 1      The Drawbridge
+                The Ski Jump
+
+Division 2      The Rollercoaster
+                The High Jump
+
+Division 3      The Big Ramp
+                The Stepping Stones
+
+Division 4      The Hump Back
+                The Little Ramp
+
+If 'PRACTICE' mode is selected and the
+player is in the SUPER LEAGUE, then
+extra power and speed will be available
+to the player on each track.
+
+Each practice session lasts three laps.
+After three laps, your car will
+automatically be repaired and
+refuelled. However more practice
+sessions can follow if desired.
+
+Note that only damage incurred during
+the practice session is repaired.
+
+DASHBOARD
+=========
+
+Lap Indicator
+-------------
+
+The lap number that you are currently
+completing is shown at the bottom left
+of the screen with the prefix 'L', e.g.
+L2 means you are on your second lap.
+
+Boost
+-----
+
+This indicates how much boost you have
+left and is shown with the prefix 'B',
+e.g. B30 means you have 30 units of
+boost left.
+
+Separation
+----------
+
+At the bottom of the left hand side,
+there is the figure that gives the
+separation between you and your
+opponent in metres. If there is a '-'
+in front of the number, you are ahead
+of your opponent by however much the
+readout says. Conversely, if the figure
+is not prefixed, you are behind by x
+metres. The units indicated are metres
+and will always show the minimum
+separation.
+
+Lap Time/Stopwatch
+------------------
+
+The flag indicator on the left lights
+up when you are leading the race. The
+top right hand display shows current
+lap time. Under this is the best lap
+time (yours or your opponents). The
+stopwatch indicator to the left lights
+up if the best lap time is yours.
+
+Speedometer
+-----------
+
+The speedometer reads in 10s of mph. If
+your speed exceeds 250mph, the
+speedometer wraps round and starts from
+the left hand side again, whereupon
+your actual speed is 200mph [sic] + the
+indicated speed.
+
+OTHER FEATURES
+==============
+
+Damage
+------
+
+1. Chassis cracks
+
+A crack in the chassis travels from
+left to right along the top bar of the
+roll cage when the car is put under
+severe stress as in hard cornerings or
+hard landings. When the crack reaches
+the right hand side, the car is wrecked
+and is retired from the race. However,
+the cracks are repaired after each
+race. If your car is wrecked and does
+not finish the race then the points go
+to your opponent.
+
+2. Structural damage
+
+Severe impacts give rise to holes in
+the crossbar. These are permanent
+features and stay with you throughout
+the seasons. However, in Division 4,
+you always start the season with a
+completely undamaged car. The damage
+crack (point 1 above) makes faster
+progress when it encounters a hole.
+
+Crane
+-----
+
+At the start of the race, the crane
+picks you up from the side of the track
+and swings you out over the start line.
+The message 'DROP START' appears on
+screen and, after a random interval,
+the crane releases you onto the track.
+
+If your car falls off the track, a
+crane will pick you up and reposition
+it over the track at the nearest, most
+suitable point. The crane avoids bends
+or gaps.
+
+The message 'PRESS FIRE' will appear,
+and, by so doing, you will release
+yourself from the crane. However,
+remember to wait until you are over the
+track before pressing the fire button
+to release you otherwise you will fall
+off the side of the track again.
+
+RACING
+======
+
+SINGLE PLAYER LEAGUE
+====================
+
+Objective
+---------
+
+The aim of the game is to become top of
+the first division in the Stunt Car
+Racer league. There are four divisions,
+each containing three drivers and two
+trackers. For first rate drivers, there
+is also a Super League.
+
+Super League
+------------
+
+The Super League can only be accessed
+once you have become Division One
+Champion. You are then offered the
+chance to mix it with the ultimate
+drivers in another series of races,
+this time with much improved engine
+power and brakes. You will start off in
+Division Four of the Super League on
+the same tracks as the normal league,
+i.e. Hump Back and Little Ramp. The
+only difference being that both you and
+your opponents are capable of higher
+speeds and accelerations. The aim of
+Super League is to work your way
+through the four divisions to become
+Super League Champion.
+
+A Racing Season
+---------------
+
+A full racing season involves six
+races: all permutations with three
+drivers and two tracks. Two of the six
+races do not involve the player and so
+are conducted behind the scenes.
+Therefore, it is possible that the
+first race of the season is billed as
+'Race 3 of 6'.
+
+The driver at the top of the division
+table after six races is promoted into
+the next division.
+
+Practice Sessions
+-----------------
+
+Before entering a racing season, you
+can practice on the two tracks which
+feature in your present division.
+
+Points Awarded
+--------------
+
+Win              2 points
+Best lap time    1 point
+
+In the event of a draw at the end of a
+season, the driver with the greater
+number of points gained from wins will
+be promoted. If this number is the
+same, a random selection is made.
+
+If you retire from a race or are
+wrecked without finishing a race, then
+the best lap and race points go to your
+opponent. If both cars are wrecked then
+the car that was wrecked first is the
+loser.
+
+MULTI-PLAYER MODE
+=================
+
+Drivers Championship
+--------------------
+
+Up to eight players can take part in
+the Driver's championship. The
+Championship can consist of up to four
+racing seasons. Each season takes place
+on the two tracks of a league division
+where the players can gain bonus points
+being awarded to the players with the
+fastest lap time and race time (sum of
+all lap times during a race).
+
+Access to Tracks
+----------------
+
+Since there is no promotion in
+multi-player mode, access to tracks in
+divisions other than Division 4
+standard league must be obtained by
+loading single-player game positions
+that have previously been saved. The
+greater the number of divisions that
+you have access to, the greater the
+choice of tracks when you come to race.
+Ultimately, access to all four
+divisions allows all 8 tracks to be
+included in a 4 season championship.
+Super League divisions can also be
+included to get more power and speed.
+Whatever the track selection, it must
+be remembered that the other drivers
+will perform to the standard of the
+league and division.
+
+Save Game Position
+------------------
+
+If there isn't time to play 4 seasons
+then, before starting the next season,
+the game position, i.e. the player's
+names, points etc., can be saved and
+the championship continued at a later
+date. In order to save your game
+position, select the SAVE option and
+use a filename starting with the
+letters 'MP'. 'MP' distinguishes a
+multi-player game position from a
+single player game position which is
+used to gain race access to tracks.
+
+Restart Championship
+--------------------
+
+To restart the championship without
+having to re-enter the players' names,
+select the REPLAY option.
+
+To restart the whole game and return to
+the single-player/multi-player menu
+then hold down 'f1' [sic] whilst
+selecting the REPLAY option.
+
+Multi-Player Racing Season
+--------------------------
+
+A racing season consists of two rounds,
+one on each track of a league division.
+A round consist of all the players
+racing in turn against a computer
+driven pace car.
+
+For each race there are the usual
+points awarded: 2 points for a win, 1
+point for best lap time. At the end of
+the round, track bonus points are
+awarded to the player(s) with the best
+overall lap time (1 point) and best
+overall race time (2 points) provided,
+of course, that a lap time or race time
+were attained by completing at least
+one lap or completing a race. The
+computer pace car's times are ignored.
+
+When the second round is completed (on
+the other track), bonus points are
+added once again.
+
+Quit the Season
+---------------
+
+It is possible to skip the remaining
+races in the current round when the
+next race fixture page is on the
+screen. Hold down 'f1' [sic] whilst
+pressing RETURN/FIRE and it will take
+you through to the 'end of round' track
+bonus screen.
+
+An individual race can be skipped by
+getting into the race and pressing the
+'RETIRE' key.
+
+Hall of Fame
+------------
+
+The Hall of Fame contains the track
+records and the names of the people who
+set them. It can be viewed from the
+main menu by selecting "Hall of Fame".
+
+The track records are for fastest lap
+and fastest race time (sum of all lap
+times during race). They can be set
+during any race but not in practice
+mode. If a record is broken then the
+new record is announced on the
+scoreboard at the end of the race.
+
+The computer drivers do not contribute
+to these records.
+
+Save Hall of Fame
+-----------------
+
+The current Hall of Fame can be
+preserved by selecting the SAVE menu
+option and using a filename beginning
+with the letters 'HALL...'
+
+Load Hall of Fame
+-----------------
+
+Previously saved Hall of Fame files can
+be loaded by selecting the LOAD menu
+option and using the appropriate file
+name. It does not matter if some new
+records have already been created
+before loading the Hall of Fame as only
+records better than those times in the
+current Hall of Fame are accepted when
+loading.
+
+This means that several Hall of Fame
+files can be combined simply by loading
+them all in. Saving then preserves the
+optimum Hall of Fame.
+
+Load/Save/Replay
+----------------
+
+Selecting this option gives another
+menu with options LOAD, SAVE, and
+REPLAY.
+
+Load/Save
+---------
+
+Whether loading or saving, a filename
+has to be entered. Some special
+significance is attached to filenames
+that start with certain letters:
+
+(other) .. Single Player game position
+HALL ..... Hall of Fame
+MP ....... Multi-Player game position
+
+Any other filename is taken to be a
+single player game position. Suggested
+names might be DIV4, DIV3, DIV2, DIV1
+for the standard league and SDIV4,
+SDIV3, SDIV2, SDIV1 for the Super
+League. Pressing the 'ESCAPE' key while
+entering the filename will cause an
+exit back to the main menu. A message
+saying 'file name inappropriate' will
+appear if, for example, a file name
+starting with 'MP' is used when saving
+single players league positions.
+
+Replay
+------
+
+In the single player mode this can be
+used to replay the last season. This
+has the effect of restoring everything
+to how it was at the start of the last
+season. This saves having to reload a
+game position if the racing season ends
+with demotion for the player.
+
+Game Rest
+---------
+
+If f1 is held down while REPLAY is
+selected, then the game will totally
+reset and return to the single
+player/multi player menu.
+
+Racing Tips
+-----------
+
+You will need to find the best places
+for overtaking on each track and then
+use your boost to get in front as soon
+as possible. It is always more
+difficult to come from behind to win
+than it is to hold the lead from the
+start of the race. Remember, boost is
+limited, so do not waste it.
+
+When you exit from a bend, don't watch
+the side of the track but look for the
+road ahead and concentrate on bringing
+that into the centre of your view.
+
+Whilst it is generally important that
+you go as fast as possible round the
+tracks, there are places on certain
+tracks that you must travel at a fairly
+crucial speed, otherwise it could lead
+to disaster. The Stepping Stones is one
+such track. You must hit the actual
+stepping stones at a constant speed
+(found out through trial and error) and
+keep this speed constant over every
+stepping stone. Other tracks, such as
+the High Jump, require you to have a
+minimum velocity in order to clear the
+obstacles. On the High Jump, for
+instance, you must attain a certain
+speed in order to clear the jump - a
+fraction too slow and you past yourself
+and your car against the track
+supports.
+
+CREDITS
+=======
+
+PROGRAM CONCEPT, DESIGN AND PROGRAMMING
+
+Geoff Crammond
+
+WITH THE ASSISTANCE OF
+
+Norah Crammond
+
+ADDITIONAL GRAPHICS
+
+John Cummins
+
+QUALITY CONTROL
+
+Peter Moreland
+
+MANUAL DESIGN
+
+Julie Burness
+
+MANUAL DESIGN AND GRAPHICS
+
+Artistix UK
+
+MANUAL
+
+Tony Middlehurst
+Martin Moth
+Peter Jones
+Geoff Crammond

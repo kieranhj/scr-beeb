@@ -16,7 +16,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_kernel_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -30,19 +30,13 @@ ENDMACRO
 
 .beeb_dll_start
 
-.DLL_REG_A skip 1           \\ Move these to ZP when possible
-.DLL_REG_X skip 1
-IF _STORE_STATUS
-.DLL_REG_STATUS skip 1
-ENDIF
-
 .jump_to_kernel
 {
-    STA DLL_REG_A
+    sta reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA .reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -70,13 +64,13 @@ ENDIF
     STA kernel_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_kernel_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -91,11 +85,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+	sta reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA .reload_status+1
 ENDIF
 
     \\ Restore original bank
@@ -103,12 +97,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -121,8 +115,8 @@ ENDIF
 \\ Functions residing in Kernel module originally from Kernel RAM
 ; *****************************************************************************
 
-.kernel_L_E0F9_with_sysctl	DLL_CALL_KERNEL L_E0F9_with_sysctl, 0
-.kernel_L_E104 DLL_CALL_KERNEL L_E104, 1
+.kernel_silence_all_voices_with_sysctl	DLL_CALL_KERNEL silence_all_voices_with_sysctl, 0
+.kernel_L_E104_with_sid DLL_CALL_KERNEL L_E104_with_sid, 1
 .kernel_L_E195 DLL_CALL_KERNEL L_E195, 2
 .kernel_L_E1B1 DLL_CALL_KERNEL L_E1B1, 3
 .kernel_L_E4DA DLL_CALL_KERNEL L_E4DA, 4
@@ -138,7 +132,7 @@ ENDIF
 .kernel_set_road_data1 DLL_CALL_KERNEL set_road_data1, 14
 .kernel_L_EC11 DLL_CALL_KERNEL L_EC11, 15		; not required in DLL
 .kernel_get_entered_name DLL_CALL_KERNEL get_entered_name, 16
-.kernel_L_EDAB DLL_CALL_KERNEL L_EDAB, 17
+.kernel_get_entered_string DLL_CALL_KERNEL get_entered_string, 17
 .kernel_do_menu_screen DLL_CALL_KERNEL do_menu_screen, 18
 .kernel_do_main_menu_dwim DLL_CALL_KERNEL do_main_menu_dwim, 19
 .kernel_L_F021 DLL_CALL_KERNEL L_F021, 20		; not required in DLL
@@ -185,7 +179,7 @@ ENDIF
 .kernel_update_distance_to_ai_car_readout DLL_CALL_KERNEL update_distance_to_ai_car_readout, 56
 .kernel_draw_tachometer_in_game DLL_CALL_KERNEL draw_tachometer_in_game, 57
 .kernel_initialise_hud_sprites DLL_CALL_KERNEL initialise_hud_sprites, 58
-.kernel_set_up_text_sprite DLL_CALL_KERNEL set_up_text_sprite, 59
+; .kernel_set_up_text_sprite DLL_CALL_KERNEL set_up_text_sprite, 59
 
 ; *****************************************************************************
 \\ Functions in Kernel module moved from Hazel RAM
@@ -201,7 +195,7 @@ ENDIF
 .kernel_accurate_sin BRK      ; only called from Kernel?
 .kernel_square_ay_32bit BRK    ; only called from Cart?
 .kernel_shift_16bit DLL_CALL_KERNEL shift_16bit, 69
-.kernel_L_CF68 DLL_CALL_KERNEL L_CF68, 70
+.kernel_play_sound_effect DLL_CALL_KERNEL play_sound_effect, 70
 .kernel_L_CF73 BRK      ; only called from Cart?
 .kernel_L_CFB7 DLL_CALL_KERNEL L_CFB7, 72
 .kernel_to_next_road_section DLL_CALL_KERNEL to_next_road_section, 73
@@ -210,6 +204,8 @@ ENDIF
 
 .kernel_select_track DLL_CALL_KERNEL select_track, 76
 .kernel_print_division_table DLL_CALL_KERNEL print_division_table, 77
+.kernel_set_up_screen_for_frontend DLL_CALL_KERNEL set_up_screen_for_frontend, 78
+.kernel_L_3EB6_from_main_loop DLL_CALL_KERNEL L_3EB6_from_main_loop, 79
 
 ; *****************************************************************************
 \\ Function addresses
@@ -217,8 +213,8 @@ ENDIF
 
 .kernel_table_LO
 {
-	EQUB LO(L_E0F9_with_sysctl)
-	EQUB LO(L_E104)
+	EQUB LO(silence_all_voices_with_sysctl)
+	EQUB LO(L_E104_with_sid)
 	EQUB LO(L_E195)
 	EQUB LO(L_E1B1)
 	EQUB LO(L_E4DA)
@@ -234,7 +230,7 @@ ENDIF
 	EQUB LO(set_road_data1)
 	EQUB LO(L_EC11)
 	EQUB LO(get_entered_name)
-	EQUB LO(L_EDAB)
+	EQUB LO(get_entered_string)
 	EQUB LO(do_menu_screen)
 	EQUB LO(do_main_menu_dwim)
 	EQUB LO(L_F021)
@@ -277,7 +273,7 @@ ENDIF
 	EQUB LO(update_distance_to_ai_car_readout)
 	EQUB LO(draw_tachometer_in_game)
 	EQUB LO(initialise_hud_sprites)
-	EQUB LO(set_up_text_sprite)
+	EQUB 0 ; LO(set_up_text_sprite)
 
 	EQUB LO(mul_8_8_16bit)
 	EQUB 0	; poll_key_with_sysctl
@@ -289,7 +285,7 @@ ENDIF
 	EQUB 0	; only called from Cart?
 	EQUB 0  ; only called from Cart?
 	EQUB LO(shift_16bit)
-	EQUB LO(L_CF68)
+	EQUB LO(play_sound_effect)
 	EQUB 0  ; only called from Cart?
 	EQUB LO(L_CFB7)
 	EQUB LO(to_next_road_section)
@@ -298,12 +294,14 @@ ENDIF
 
 	EQUB LO(select_track)
 	EQUB LO(print_division_table)
+	EQUB LO(set_up_screen_for_frontend)
+	EQUB LO(L_3EB6_from_main_loop)
 }
 
 .kernel_table_HI
 {
-	EQUB HI(L_E0F9_with_sysctl)
-	EQUB HI(L_E104)
+	EQUB HI(silence_all_voices_with_sysctl)
+	EQUB HI(L_E104_with_sid)
 	EQUB HI(L_E195)
 	EQUB HI(L_E1B1)
 	EQUB HI(L_E4DA)
@@ -319,7 +317,7 @@ ENDIF
 	EQUB HI(set_road_data1)
 	EQUB HI(L_EC11)
 	EQUB HI(get_entered_name)
-	EQUB HI(L_EDAB)
+	EQUB HI(get_entered_string)
 	EQUB HI(do_menu_screen)
 	EQUB HI(do_main_menu_dwim)
 	EQUB HI(L_F021)
@@ -362,7 +360,7 @@ ENDIF
 	EQUB HI(update_distance_to_ai_car_readout)
 	EQUB HI(draw_tachometer_in_game)
 	EQUB HI(initialise_hud_sprites)
-	EQUB HI(set_up_text_sprite)
+	EQUB 0 ; HI(set_up_text_sprite)
 
 	EQUB HI(mul_8_8_16bit)
 	EQUB 0	; poll_key_with_sysctl
@@ -374,7 +372,7 @@ ENDIF
 	EQUB 0	; only called from Cart?
 	EQUB 0	; only called from Cart?
 	EQUB HI(shift_16bit)
-	EQUB HI(L_CF68)
+	EQUB HI(play_sound_effect)
 	EQUB 0  ; only called from Cart?
 	EQUB HI(L_CFB7)
 	EQUB HI(to_next_road_section)
@@ -383,6 +381,8 @@ ENDIF
 
 	EQUB HI(select_track)
 	EQUB HI(print_division_table)
+	EQUB HI(set_up_screen_for_frontend)
+	EQUB HI(L_3EB6_from_main_loop)
 }
 
 PRINT "KERNEL Jump Table Entries =", kernel_table_HI-kernel_table_LO, "(", P%-kernel_table_HI, ")"
@@ -403,7 +403,7 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve X
-	STX DLL_REG_X
+	STX jump_to_cart_reload_x+1
 
     \\ Load fn index
     LDX #id
@@ -416,11 +416,11 @@ ENDMACRO
 
 .jump_to_cart
 {
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Remember current bank
@@ -448,13 +448,13 @@ ENDIF
     STA cart_addr + 2
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before fn call
-    LDX DLL_REG_X
-    LDA DLL_REG_A
+.*jump_to_cart_reload_x:ldx #$ff
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -469,11 +469,11 @@ IF _STORE_STATUS
 ENDIF
 
     \\ Preserve A
-    STA DLL_REG_A
+    STA reload_a+1
 
 IF _STORE_STATUS
 	PLA
-	STA DLL_REG_STATUS
+	STA reload_status+1
 ENDIF
 
     \\ Restore original bank
@@ -481,12 +481,12 @@ ENDIF
     STA &F4:STA &FE30
 
 IF _STORE_STATUS
-	LDA DLL_REG_STATUS
+.reload_status:lda #$ff
 	PHA
 ENDIF
 
     \\ Restore A before return
-    LDA DLL_REG_A
+.reload_a:lda #$ff
 
 IF _STORE_STATUS
 	PLP
@@ -501,10 +501,10 @@ ENDIF
 
 .cart_write_char DLL_CALL_CART write_char, 0
 .cart_getch DLL_CALL_CART getch, 1
-.cart_sid_process DLL_CALL_CART sid_process, 2	; only called from Kernel
-.cart_sid_update DLL_CALL_CART sid_update, 3	; only called from Kernel
+.cart_sid_play_sound DLL_CALL_CART sid_play_sound, 2	; only called from Kernel
+.cart_sid_update_voice_2 BRK
 .cart_sysctl DLL_CALL_CART sysctl, 4
-.cart_print_3space DLL_CALL_CART print_3space, 5	; not required in DLL
+.cart_write_char_oswrch_replacement DLL_CALL_CART write_char_oswrch_replacement,5
 .cart_print_2space DLL_CALL_CART print_2space, 6
 .cart_print_space DLL_CALL_CART print_space, 7
 .cart_L_91B4 DLL_CALL_CART L_91B4, 8			; small fn - move to Core?
@@ -513,10 +513,10 @@ ENDIF
 .cart_convert_X_to_BCD DLL_CALL_CART convert_X_to_BCD, 11
 .cart_print_track_records DLL_CALL_CART print_track_records, 12
 .cart_copy_track_records_Q DLL_CALL_CART copy_track_records_Q, 13
-.cart_L_93A8 DLL_CALL_CART L_93A8, 14
-.cart_L_9448 DLL_CALL_CART L_9448, 15
-.cart_write_file_string DLL_CALL_CART write_file_string, 16
-.cart_L_95EA DLL_CALL_CART L_95EA, 17
+.cart_copy_hall_of_fameQ DLL_CALL_CART copy_hall_of_fameQ, 14
+.cart_verify_filename BRK	;DLL_CALL_CART verify_filename, 15
+.cart_write_file_string BRK	;DLL_CALL_CART write_file_string, 16
+.cart_L_95EA BRK	;DLL_CALL_CART L_95EA, 17
 .cart_maybe_define_keys DLL_CALL_CART maybe_define_keys, 18
 .cart_store_restore_control_keys DLL_CALL_CART store_restore_control_keys, 19
 .cart_print_lap_time_Q DLL_CALL_CART print_lap_time_Q, 20
@@ -531,7 +531,7 @@ ENDIF
 .cart_L_14D0_from_main_loop DLL_CALL_CART L_14D0_from_main_loop, 28
 .cart_L_1611 DLL_CALL_CART L_1611, 29
 .cart_save_rndQ_stateQ DLL_CALL_CART save_rndQ_stateQ, 30
-.cart_L_1637 DLL_CALL_CART L_1637, 31
+.cart_load_rndQ_stateQ DLL_CALL_CART load_rndQ_stateQ, 31
 .cart_draw_trackQ DLL_CALL_CART draw_trackQ, 32
 .cart_make_near_road_coords DLL_CALL_CART make_near_road_coords, 33
 .cart_L_1A3B DLL_CALL_CART L_1A3B, 34
@@ -544,7 +544,7 @@ ENDIF
 .cart_update_per_track_stuff DLL_CALL_CART update_per_track_stuff, 41
 .cart_L_1EE2_from_main_loop DLL_CALL_CART L_1EE2_from_main_loop, 42
 .cart_L_238E DLL_CALL_CART L_238E, 43
-.cart_L_25EA BRK
+.plot_menu_option_2 DLL_CALL_CART _plot_menu_option_2, 44
 .cart_pow36Q DLL_CALL_CART pow36Q, 45
 .cart_update_camera_roll_tables DLL_CALL_CART update_camera_roll_tables, 46
 .cart_L_2809 DLL_CALL_CART L_2809, 47
@@ -553,7 +553,7 @@ ENDIF
 
 .cart_L_2C64 DLL_CALL_CART L_2C64, 50
 .cart_L_2C6F_from_main_loop DLL_CALL_CART L_2C6F_from_main_loop, 51
-.cart_draw_track_preview_border DLL_CALL_CART draw_track_preview_border, 52
+.plot_menu_option_3 DLL_CALL_CART _plot_menu_option_3, 52
 .cart_draw_track_preview_track_name DLL_CALL_CART draw_track_preview_track_name, 53
 .cart_do_initial_screen DLL_CALL_CART do_initial_screen, 54
 .cart_do_end_of_race_screen DLL_CALL_CART do_end_of_race_screen, 55	; not required in DLL
@@ -562,17 +562,22 @@ ENDIF
 .cart_print_driver_v_driver DLL_CALL_CART print_driver_v_driver, 58
 .cart_do_driver_league_changes DLL_CALL_CART do_driver_league_changes, 59
 .cart_menu_colour_map_stuff DLL_CALL_CART menu_colour_map_stuff, 60
-.cart_L_39D1 DLL_CALL_CART L_39D1, 61
-.cart_L_39F1 DLL_CALL_CART L_39F1, 62
+.cart_get_menu_screen_ptr DLL_CALL_CART get_menu_screen_ptr, 61
+.cart_prep_menu_graphics DLL_CALL_CART prep_menu_graphics, 62
 .cart_set_up_colour_map_for_track_preview DLL_CALL_CART set_up_colour_map_for_track_preview, 63
 
-.cart_start_of_frame DLL_CALL_CART start_of_frame, 64
+.start_of_frame_track_preview DLL_CALL_CART _start_of_frame_track_preview, 64
 .cart_print_single_digit DLL_CALL_CART print_single_digit, 65
 .cart_print_msg_1 DLL_CALL_CART print_msg_1, 66
 .cart_print_msg_4 DLL_CALL_CART print_msg_4, 67
 .cart_set_text_cursor DLL_CALL_CART set_text_cursor, 68
 .cart_print_number_unpadded DLL_CALL_CART print_number_unpadded, 69
 .cart_print_track_title DLL_CALL_CART print_track_title, 70
+.set_write_char_half_row_flag DLL_CALL_CART _set_write_char_half_row_flag, 71
+.plot_menu_option DLL_CALL_CART _plot_menu_option, 72
+.clear_write_char_half_row_flag DLL_CALL_CART _clear_write_char_half_row_flag, 73
+.set_write_char_colour_mask DLL_CALL_CART _set_write_char_colour_mask, 74
+.unpack_hall_of_fame DLL_CALL_CART _unpack_hall_of_fame, 75
 
 ; *****************************************************************************
 \\ Function addresses
@@ -582,10 +587,10 @@ ENDIF
 {
 	EQUB LO(write_char)
 	EQUB LO(getch)
-	EQUB LO(sid_process)
-	EQUB LO(sid_update)
+	EQUB LO(sid_play_sound)
+	EQUB 0;LO(sid_update_voice_2)
 	EQUB LO(sysctl)
-	EQUB LO(print_3space)
+	EQUB LO(write_char_oswrch_replacement)
 	EQUB LO(print_2space)
 	EQUB LO(print_space)
 	EQUB LO(L_91B4)
@@ -594,10 +599,10 @@ ENDIF
 	EQUB LO(convert_X_to_BCD)
 	EQUB LO(print_track_records)
 	EQUB LO(copy_track_records_Q)
-	EQUB LO(L_93A8)
-	EQUB LO(L_9448)
-	EQUB LO(write_file_string)
-	EQUB LO(L_95EA)
+	EQUB LO(copy_hall_of_fameQ)
+	EQUB 0;LO(verify_filename)
+	EQUB 0;LO(write_file_string)
+	EQUB 0;LO(L_95EA)
 	EQUB LO(maybe_define_keys)
 	EQUB LO(store_restore_control_keys)
 	EQUB LO(print_lap_time_Q)
@@ -612,7 +617,7 @@ ENDIF
 	EQUB LO(L_14D0_from_main_loop)
 	EQUB LO(L_1611)
 	EQUB LO(save_rndQ_stateQ)
-	EQUB LO(L_1637)
+	EQUB LO(load_rndQ_stateQ)
 	EQUB LO(draw_trackQ)
 	EQUB LO(make_near_road_coords)
 	EQUB LO(L_1A3B)
@@ -625,7 +630,7 @@ ENDIF
 	EQUB LO(update_per_track_stuff)
 	EQUB LO(L_1EE2_from_main_loop)
 	EQUB LO(L_238E)
-	EQUB 0
+	EQUB LO(_plot_menu_option_2)
 	EQUB LO(pow36Q)
 	EQUB LO(update_camera_roll_tables)
 	EQUB LO(L_2809)
@@ -634,7 +639,7 @@ ENDIF
 
 	EQUB LO(L_2C64)
 	EQUB LO(L_2C6F_from_main_loop)
-	EQUB LO(draw_track_preview_border)
+	EQUB LO(_plot_menu_option_3)
 	EQUB LO(draw_track_preview_track_name)
 	EQUB LO(do_initial_screen)
 	EQUB LO(do_end_of_race_screen)
@@ -643,27 +648,32 @@ ENDIF
 	EQUB LO(print_driver_v_driver)
 	EQUB LO(do_driver_league_changes)
 	EQUB LO(menu_colour_map_stuff)
-	EQUB LO(L_39D1)
-	EQUB LO(L_39F1)
+	EQUB LO(get_menu_screen_ptr)
+	EQUB LO(prep_menu_graphics)
 	EQUB LO(set_up_colour_map_for_track_preview)
 
-	EQUB LO(start_of_frame)
+	EQUB LO(_start_of_frame_track_preview)
 	EQUB LO(print_single_digit)
 	EQUB LO(print_msg_1)
 	EQUB LO(print_msg_4)
 	EQUB LO(set_text_cursor)
 	EQUB LO(print_number_unpadded)
 	EQUB LO(print_track_title)
+	EQUB LO(_set_write_char_half_row_flag)
+	EQUB LO(_plot_menu_option)
+	EQUB LO(_clear_write_char_half_row_flag)
+	EQUB LO(_set_write_char_colour_mask)
+	EQUB LO(_unpack_hall_of_fame)
 }
 
 .cart_table_HI
 {
 	EQUB HI(write_char)
 	EQUB HI(getch)
-	EQUB HI(sid_process)
-	EQUB HI(sid_update)
+	EQUB HI(sid_play_sound)
+	EQUB 0;HI(sid_update_voice_2)
 	EQUB HI(sysctl)
-	EQUB HI(print_3space)
+	EQUB HI(write_char_oswrch_replacement)
 	EQUB HI(print_2space)
 	EQUB HI(print_space)
 	EQUB HI(L_91B4)
@@ -672,10 +682,10 @@ ENDIF
 	EQUB HI(convert_X_to_BCD)
 	EQUB HI(print_track_records)
 	EQUB HI(copy_track_records_Q)
-	EQUB HI(L_93A8)
-	EQUB HI(L_9448)
-	EQUB HI(write_file_string)
-	EQUB HI(L_95EA)
+	EQUB HI(copy_hall_of_fameQ)
+	EQUB 0;HI(verify_filename)
+	EQUB 0;HI(write_file_string)
+	EQUB 0;HI(L_95EA)
 	EQUB HI(maybe_define_keys)
 	EQUB HI(store_restore_control_keys)
 	EQUB HI(print_lap_time_Q)
@@ -690,7 +700,7 @@ ENDIF
 	EQUB HI(L_14D0_from_main_loop)
 	EQUB HI(L_1611)
 	EQUB HI(save_rndQ_stateQ)
-	EQUB HI(L_1637)
+	EQUB HI(load_rndQ_stateQ)
 	EQUB HI(draw_trackQ)
 	EQUB HI(make_near_road_coords)
 	EQUB HI(L_1A3B)
@@ -703,7 +713,7 @@ ENDIF
 	EQUB HI(update_per_track_stuff)
 	EQUB HI(L_1EE2_from_main_loop)
 	EQUB HI(L_238E)
-	EQUB 0
+	EQUB HI(_plot_menu_option_2)
 	EQUB HI(pow36Q)
 	EQUB HI(update_camera_roll_tables)
 	EQUB HI(L_2809)
@@ -712,7 +722,7 @@ ENDIF
 
 	EQUB HI(L_2C64)
 	EQUB HI(L_2C6F_from_main_loop)
-	EQUB HI(draw_track_preview_border)
+	EQUB HI(_plot_menu_option_3)
 	EQUB HI(draw_track_preview_track_name)
 	EQUB HI(do_initial_screen)
 	EQUB HI(do_end_of_race_screen)
@@ -721,19 +731,251 @@ ENDIF
 	EQUB HI(print_driver_v_driver)
 	EQUB HI(do_driver_league_changes)
 	EQUB HI(menu_colour_map_stuff)
-	EQUB HI(L_39D1)
-	EQUB HI(L_39F1)
+	EQUB HI(get_menu_screen_ptr)
+	EQUB HI(prep_menu_graphics)
 	EQUB HI(set_up_colour_map_for_track_preview)
 
-	EQUB HI(start_of_frame)
+	EQUB HI(_start_of_frame_track_preview)
 	EQUB HI(print_single_digit)
 	EQUB HI(print_msg_1)
 	EQUB HI(print_msg_4)
 	EQUB HI(set_text_cursor)
 	EQUB HI(print_number_unpadded)
 	EQUB HI(print_track_title)
+	EQUB HI(_set_write_char_half_row_flag)
+	EQUB HI(_plot_menu_option)
+	EQUB HI(_clear_write_char_half_row_flag)
+	EQUB HI(_set_write_char_colour_mask)
+	EQUB HI(_unpack_hall_of_fame)
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
+
+; *****************************************************************************
+; Same again but for functions in Graphics module
+; *****************************************************************************
+
+MACRO DLL_CALL_GRAPHICS fn, id
+IF BEEB_GRAPHICS_SLOT = 0
+{
+	JMP fn
+}
+ELSE
+{
+IF _STORE_STATUS
+	PHP
+ENDIF
+
+    \\ Preserve X
+	STX jump_to_graphics_reload_x+1
+
+    \\ Load fn index
+    LDX #id
+
+    \\ Call jump fn
+    JMP jump_to_graphics
+}
+ENDIF
+ENDMACRO
+
+.jump_to_graphics
+{
+    STA reload_a+1
+
+IF _STORE_STATUS
+	PLA
+	STA reload_status+1
+ENDIF
+
+    \\ Remember current bank
+    LDA &F4: PHA
+
+    \\ Set new bank
+    LDA #BEEB_GRAPHICS_SLOT
+    STA &F4: STA &FE30
+
+    LDA graphics_table_LO, X
+    STA graphics_addr + 1
+
+    LDA graphics_table_HI, X
+
+IF _DEBUG
+    BMI fn_ok1   ; can only jump into upper half of RAM!
+    BRK         ; X=fn index that isn't implemented
+    .fn_ok1
+	CMP #&C0
+	BCC fn_ok2
+	BRK
+	.fn_ok2
+ENDIF
+
+    STA graphics_addr + 2
+
+IF _STORE_STATUS
+.reload_status:lda #$ff
+	PHA
+ENDIF
+
+    \\ Restore A before fn call
+.*jump_to_graphics_reload_x:ldx #$ff
+.reload_a:lda #$ff
+
+IF _STORE_STATUS
+	PLP
+ENDIF
+}
+\\ Call function
+.graphics_addr
+    JSR &FFFF
+{
+IF _STORE_STATUS
+	PHP
+ENDIF
+
+    \\ Preserve A
+	STA reload_a+1
+
+IF _STORE_STATUS
+	PLA
+	STA reload_status+1
+ENDIF
+
+
+    \\ Restore original bank
+    PLA
+    STA &F4:STA &FE30
+
+IF _STORE_STATUS
+.reload_status:lda #$ff
+	PHA
+ENDIF
+
+    \\ Restore A before return
+.reload_a:lda #$ff
+
+IF _STORE_STATUS
+	PLP
+ENDIF
+
+    RTS
+}
+
+; *****************************************************************************
+\\ Functions in Graphics module called from outside of Graphics RAM
+; *****************************************************************************
+
+.graphics_draw_flames DLL_CALL_GRAPHICS _graphics_draw_flames, 0
+.graphics_erase_flames DLL_CALL_GRAPHICS _graphics_erase_flames, 1
+.graphics_draw_in_game_text_sprites DLL_CALL_GRAPHICS _graphics_draw_in_game_text_sprites, 2
+.graphics_draw_left_wheel DLL_CALL_GRAPHICS _graphics_draw_left_wheel, 3
+.graphics_draw_right_wheel DLL_CALL_GRAPHICS _graphics_draw_right_wheel, 4
+.dash_reset DLL_CALL_GRAPHICS _dash_reset, 5
+.dash_update_lap DLL_CALL_GRAPHICS _dash_update_lap, 6
+.dash_update_boost DLL_CALL_GRAPHICS _dash_update_boost, 7
+.dash_update_distance_to_ai_car DLL_CALL_GRAPHICS _dash_update_distance_to_ai_car, 8
+.dash_update_current_lap_time DLL_CALL_GRAPHICS _dash_update_current_lap_time, 9
+.dash_update_best_lap_time DLL_CALL_GRAPHICS _dash_update_best_lap_time, 10
+.dash_update_flag_icon DLL_CALL_GRAPHICS _dash_update_flag_icon, 11
+.dash_update_stopwatch_icon DLL_CALL_GRAPHICS _dash_update_stopwatch_icon, 12
+.preview_draw_screen DLL_CALL_GRAPHICS _preview_draw_screen, 13
+.preview_unpack_background DLL_CALL_GRAPHICS _preview_unpack_background, 14
+.preview_add_background DLL_CALL_GRAPHICS _preview_add_background, 15
+.graphics_draw_debug_framerate DLL_CALL_GRAPHICS _graphics_draw_debug_framerate, 16
+.graphics_unpack_menu_screen DLL_CALL_GRAPHICS _graphics_unpack_menu_screen, 17
+.set_up_text_sprite DLL_CALL_GRAPHICS _set_up_text_sprite, 18
+.graphics_pause_save_screen DLL_CALL_GRAPHICS graphics_pause_save_screen,19
+.graphics_pause_show_text_sprite DLL_CALL_GRAPHICS graphics_pause_show_text_sprite,20
+
+; Note that this routine has 2 names. I don't think the distinction is
+; relevant for the BBC.
+.disable_screen_and_change_border_colour
+.disable_screen DLL_CALL_GRAPHICS _disable_screen,21
+
+
+; Note that this routine has 2 names. I don't think the distinction is
+; relevant for the BBC.
+.enable_screen_and_set_irq50
+.ensure_screen_enabled DLL_CALL_GRAPHICS _ensure_screen_enabled,22
+
+.beeb_set_mode_1 DLL_CALL_GRAPHICS _beeb_set_mode_1,23
+.graphics_show_credits_screen DLL_CALL_GRAPHICS _graphics_show_credits_screen,24
+.graphics_show_keys_screen DLL_CALL_GRAPHICS _graphics_show_keys_screen,25
+
+; Sound is not graphics, but there's no DLL table for the music bank,
+; so...
+.graphics_update_sound_volume DLL_CALL_GRAPHICS _graphics_update_sound_volume,26
+.graphics_sound_volume_keys DLL_CALL_GRAPHICS _graphics_sound_volume_keys,27
+
+; *****************************************************************************
+\\ Function addresses
+; *****************************************************************************
+
+.graphics_table_LO
+{
+	EQUB LO(_graphics_draw_flames)				 ; 0
+	EQUB LO(_graphics_erase_flames)				 ; 1
+	EQUB LO(_graphics_draw_in_game_text_sprites) ; 2
+	EQUB LO(_graphics_draw_left_wheel)			 ; 3
+	EQUB LO(_graphics_draw_right_wheel)			 ; 4
+	EQUB LO(_dash_reset)						 ; 5
+	EQUB LO(_dash_update_lap)					 ; 6
+	EQUB LO(_dash_update_boost)					 ; 7
+	EQUB LO(_dash_update_distance_to_ai_car)	 ; 8
+	EQUB LO(_dash_update_current_lap_time)		 ; 9
+	EQUB LO(_dash_update_best_lap_time)			 ; 10
+	EQUB LO(_dash_update_flag_icon)				 ; 11
+	EQUB LO(_dash_update_stopwatch_icon)		 ; 12
+	EQUB LO(_preview_draw_screen)				 ; 13
+	EQUB LO(_preview_unpack_background)			 ; 14
+	EQUB LO(_preview_add_background)			 ; 15
+	EQUB LO(_graphics_draw_debug_framerate)		 ; 16
+	EQUB LO(_graphics_unpack_menu_screen)		 ; 17
+	EQUB LO(_set_up_text_sprite)				 ; 18
+	EQUB LO(_graphics_pause_save_screen)		 ; 19
+	EQUB LO(_graphics_pause_show_text_sprite)	 ; 20
+	EQUB LO(_disable_screen)					 ; 21
+	EQUB LO(_ensure_screen_enabled)				 ; 22
+	EQUB LO(_beeb_set_mode_1)					 ; 23
+	EQUB LO(_graphics_show_credits_screen)		 ; 24
+	EQUB LO(_graphics_show_keys_screen)			 ; 25
+	EQUB LO(_graphics_update_sound_volume)		 ; 26
+	EQUB LO(_graphics_sound_volume_keys)		 ; 27
+}
+
+.graphics_table_HI
+{
+	EQUB HI(_graphics_draw_flames)				 ; 0
+	EQUB HI(_graphics_erase_flames)				 ; 1
+	EQUB HI(_graphics_draw_in_game_text_sprites) ; 2
+	EQUB HI(_graphics_draw_left_wheel)			 ; 3
+	EQUB HI(_graphics_draw_right_wheel)			 ; 4
+	EQUB HI(_dash_reset)						 ; 5
+	EQUB HI(_dash_update_lap)					 ; 6
+	EQUB HI(_dash_update_boost)					 ; 7
+	EQUB HI(_dash_update_distance_to_ai_car)	 ; 8
+	EQUB HI(_dash_update_current_lap_time)		 ; 9
+	EQUB HI(_dash_update_best_lap_time)			 ; 10
+	EQUB HI(_dash_update_flag_icon)				 ; 11
+	EQUB HI(_dash_update_stopwatch_icon)		 ; 12
+	EQUB HI(_preview_draw_screen)				 ; 13
+	EQUB HI(_preview_unpack_background)			 ; 14
+	EQUB HI(_preview_add_background)			 ; 15
+	EQUB HI(_graphics_draw_debug_framerate)		 ; 16
+	EQUB HI(_graphics_unpack_menu_screen)		 ; 17
+	EQUB HI(_set_up_text_sprite)				 ; 18
+	EQUB HI(_graphics_pause_save_screen)		 ; 19
+	EQUB HI(_graphics_pause_show_text_sprite)	 ; 20
+	EQUB HI(_disable_screen)					 ; 21
+	EQUB HI(_ensure_screen_enabled)				 ; 22
+	EQUB HI(_beeb_set_mode_1)					 ; 23
+	EQUB HI(_graphics_show_credits_screen)		 ; 24
+	EQUB HI(_graphics_show_keys_screen)			 ; 25
+	EQUB HI(_graphics_update_sound_volume)		 ; 26
+	EQUB HI(_graphics_sound_volume_keys)		 ; 27
+}
+
+PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"
+
+
 
 .beeb_dll_end

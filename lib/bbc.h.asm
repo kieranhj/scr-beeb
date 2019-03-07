@@ -12,11 +12,14 @@ osasci = &FFE3
 oswrch = &FFEE
 osword = &FFF1
 osbyte = &FFF4
+oscli = &FFF7
+osnewl = &FFE7
 
 BRKV=&202
 IRQ1V = &204
 IRQ2V = &206
-EVENTV = &0220
+EVENTV = &220
+WRCHV = $20E
 
 \\ Internal Key Number not INKEY!
 ; see http://beebwiki.mdfs.net/Keyboard
@@ -75,6 +78,27 @@ IKN_t = 35
 IKN_minus = 23
 IKN_hat = 24
 IKN_f1 = 113
+
+IKN_keypad_4 = $7A
+IKN_keypad_5 = $7B
+IKN_keypad_2 = $7C
+IKN_keypad_0 = $6A
+IKN_keypad_1 = $6B
+IKN_keypad_3 = $6C
+IKN_keypad_hash = $5A
+IKN_keypad_star = $5B
+IKN_keypad_comma = $5C
+IKN_keypad_slash = $4A
+IKN_keypad_del = $4B
+IKN_keypad_stop = $4C
+IKN_keypad_plus = $3A
+IKN_keypad_minus = $3B
+IKN_keypad_return = $3C
+IKN_keypad_8 = $2A
+IKN_keypad_9 = $2B
+IKN_keypad_6 = $1A
+IKN_keypad_7 = $1B
+
 
 \\ Opcodes
 SEI_OP = $78
@@ -189,6 +213,12 @@ SHEILA_System_VIA_Data_Dir   = $FE43
 SHEILA_System_VIA_Interrupt_Flag   = $FE4D
 SHEILA_System_VIA_Interrupt_Enable   = $FE4E
 SHEILA_System_VIA_Register_A_NH   = $FE4F
+
+ULA_MODE_1 = &D8
+ULA_MODE_2 = &F4
+ULA_MODE_4 = &88
+ULA_MODE_5 = &C4
+ULA_MODE_7 = &4B
 
 \\ Macro to reset any mapped characters
 \\ since BeebASM doesn't have any feature for this

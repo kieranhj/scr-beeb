@@ -2,8 +2,24 @@
 \\ Data moved from Cart RAM to Core
 ; *****************************************************************************
 
+_JUST_ONE_TRACK_FOR_SAVING_RAM = FALSE
+
+; The original cheats modified the code, but no reason to have to do
+; that here...
+;
+; Bit 7 of each byte is set if the cheat is active - these flags are
+; tested with BIT.
+.trainer_flags:
+.trainer_flag_endless_boost:equb 0 ; index 0 = endless boost
+.trainer_flag_infinite_damage:equb 0 ; index 1 = infinite damage
+.trainer_flag_faster_crashes:equb 0 ; index 2 = faster crash recovery
+.trainer_flag_opponent_cant_win:equb 0 ; index 3 = opponents can never win
+.trainer_flag_q_to_win:equb 0 ; index 4 = press Q to win
+num_trainers=P%-trainer_flags
+
 .core_data_start
 
+\\ Save game
 PAGE_ALIGN
 .L_8000	skip $C0
 L_801B	= L_8000 + $1B
@@ -19,50 +35,132 @@ L_807E	= L_8000 + $7E
 L_807F	= L_8000 + $7F
 L_8080	= L_8000 + $80
 L_80A0	= L_8000 + $A0
+L_80C0	= L_8000 + $C0
 
 \\ FONT START at $80C0
-.font_data equb $00,$00,$00,$00,$00,$00,$00,$00
+.font_data
+	equb $00,$00,$00,$00,$00,$00,$00,$00 ; 32 ' '
+.L_80C8
 
-.L_80C8	equb $95,$95,$95,$95,$AA,$EA,$EA,$EA,$15,$15,$15,$15,$15,$6A,$6A,$6A
-		equb $75,$C3,$00,$00,$00,$00,$80,$80,$40,$40,$C0,$00,$00,$80,$80,$80
-		equb $55,$55,$55,$55,$55,$AA,$AA,$AA,$55,$55,$55,$55,$55,$AA,$AA,$AA
-		equb $BD,$FF,$C3,$C0,$C3,$F3,$BF,$BF,$00,$00,$C0,$C0,$C0,$C0,$40,$40
-		equb $FF,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$FF
-		equb $08,$08,$08,$7F,$08,$08,$08,$00,$01,$01,$01,$01,$01,$01,$01,$FF
-		equb $00,$00,$00,$7F,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10,$00
-		equb $00,$02,$04,$08,$10,$20,$40,$00,$00,$3C,$42,$42,$42,$42,$3C,$00
-		equb $00,$10,$30,$10,$10,$10,$38,$00,$00,$3C,$42,$0C,$30,$40,$7E,$00
-		equb $00,$7E,$04,$0C,$02,$42,$3C,$00,$00,$04,$0C,$14,$24,$7E,$04,$00
-		equb $00,$7E,$40,$7C,$02,$02,$7C,$00,$00,$3C,$40,$7C,$42,$42,$3C,$00
-		equb $00,$7E,$04,$08,$10,$20,$20,$00,$00,$3C,$42,$3C,$42,$42,$3C,$00
-		equb $00,$3C,$42,$3C,$04,$08,$10,$00,$00,$00,$10,$00,$00,$10,$00,$00
-		equb $00,$00,$10,$00,$00,$10,$20,$00,$18,$18,$18,$18,$18,$00,$18,$00
-		equb $00,$00,$7E,$00,$7E,$00,$00,$00,$30,$18,$0C,$06,$0C,$18,$30,$00
-		equb $00,$38,$44,$04,$08,$10,$00,$10,$3C,$66,$6E,$6A,$6E,$60,$3C,$00
-		equb $00,$3C,$42,$42,$7E,$42,$42,$00,$00,$78,$44,$7C,$42,$42,$7C,$00
-		equb $00,$3C,$42,$40,$40,$42,$3C,$00,$00,$7C,$42,$42,$42,$42,$7C,$00
-		equb $00,$7E,$40,$78,$40,$40,$7E,$00,$00,$7E,$40,$78,$40,$40,$40,$00
-		equb $00,$3C,$42,$40,$4E,$42,$3E,$00,$00,$42,$42,$7E,$42,$42,$42,$00
-		equb $00,$38,$10,$10,$10,$10,$38,$00,$00,$04,$04,$04,$04,$44,$38,$00
-		equb $00,$44,$48,$70,$48,$44,$42,$00,$00,$20,$20,$20,$20,$20,$3E,$00
-		equb $00,$42,$66,$5A,$42,$42,$42,$00,$00,$42,$62,$52,$4A,$46,$42,$00
-		equb $00,$3C,$42,$42,$42,$42,$3C,$00,$00,$7C,$42,$7C,$40,$40,$40,$00
-		equb $00,$3C,$42,$42,$42,$42,$3C,$06,$00,$7C,$42,$7C,$48,$44,$42,$00
-		equb $00,$3E,$40,$3C,$02,$02,$7C,$00,$00,$7C,$10,$10,$10,$10,$10,$00
-		equb $00,$42,$42,$42,$42,$42,$3E,$00,$00,$42,$42,$42,$42,$24,$18,$00
-		equb $00,$42,$42,$42,$5A,$66,$42,$00,$00,$42,$24,$18,$18,$24,$42,$00
-		equb $00,$44,$44,$28,$10,$10,$10,$00,$00,$7E,$04,$08,$10,$20,$7E,$00
+	equb $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff ; 33 '!' - backspace char
+	equb $15,$15,$15,$15,$15,$6A,$6A,$6A ; 34 '"' +$08
+	
+; Hole.
 
-; Lap time fractions of second?
+	equb %01001111 ; %01110101 ; $75 35 '#'
+	equb %10011001 ; %11000011 ; $c3
+	equb %00000000 ; %00000000 ; $00
+	equb %00000000 ; %00000000 ; $00
+	equb %00000000 ; %00000000 ; $00
+	equb %00000000 ; %00000000 ; $00
+	equb %10000000 ; %10000000 ; $80
+	equb %00001000 ; %10000000 ; $80
+
+	equb %00001000 ; %01000000 ; $40 36 '$'
+	equb %00001000 ; %01000000 ; $40
+	equb %10001000 ; %11000000 ; $c0
+	equb %00000000 ; %00000000 ; $00
+	equb %00000000 ; %00000000 ; $00
+	equb %10000000 ; %10000000 ; $80
+	equb %00001000 ; %10000000 ; $80
+	equb %00001000 ; %10000000 ; $80
+
+; Original pattern? (no longer used)
+; 
+; ?? - $55 = 1/1/1/1, $aa=2/2/2/2
+	equb $55,$55,$55,$55,$55,$AA,$AA,$AA ; 37 '%' +$20
+	equb $55,$55,$55,$55,$55,$AA,$AA,$AA ; 38 '&' +$28
+
+; Hole with highlight (displayed briefly).
+    equb %01101111 ; %10111101 ; $bd 39 '\''
+	equb %11111111 ; %11111111 ; $ff
+	equb %10011001 ; %11000011 ; $c3
+	equb %10001000 ; %11000000 ; $c0
+	equb %10011001 ; %11000011 ; $c3
+	equb %11011101 ; %11110011 ; $f3
+	equb %01111111 ; %10111111 ; $bf
+	equb %01111111 ; %10111111 ; $bf
+
+	equb %00000000 ; %00000000 ; $00 40 '('
+	equb %00000000 ; %00000000 ; $00
+	equb %10001000 ; %11000000 ; $c0
+	equb %10001000 ; %11000000 ; $c0
+	equb %10001000 ; %11000000 ; $c0
+	equb %10001000 ; %11000000 ; $c0
+	equb %10001000 ; %01000000 ; $40
+	equb %00001000 ; %01000000 ; $40
+	
+	equb $FF,$80,$80,$80,$80,$80,$80,$80 ; 41 ')'
+	equb $80,$80,$80,$80,$80,$80,$80,$FF ; 42
+	equb $08,$08,$08,$7F,$08,$08,$08,$00 ; 43
+	equb $01,$01,$01,$01,$01,$01,$01,$FF ; 44
+	equb $00,$00,$00,$7F,$00,$00,$00,$00 ; 45
+	equb $00,$00,$00,$00,$00,$00,$10,$00 ; 46
+	equb $00,$02,$04,$08,$10,$20,$40,$00 ; 47
+	equb $00,$3C,$42,$42,$42,$42,$3C,$00 ; 48
+	equb $00,$10,$30,$10,$10,$10,$38,$00 ; 49
+	equb $00,$3C,$42,$0C,$30,$40,$7E,$00 ; 50
+	equb $00,$7E,$04,$0C,$02,$42,$3C,$00 ; 51
+	equb $00,$04,$0C,$14,$24,$7E,$04,$00 ; 52
+	equb $00,$7E,$40,$7C,$02,$02,$7C,$00 ; 53
+	equb $00,$3C,$40,$7C,$42,$42,$3C,$00 ; 54
+	equb $00,$7E,$04,$08,$10,$20,$20,$00 ; 55
+	equb $00,$3C,$42,$3C,$42,$42,$3C,$00 ; 56
+	equb $00,$3C,$42,$3C,$04,$08,$10,$00 ; 57
+	equb $00,$00,$10,$00,$00,$10,$00,$00 ; 58
+	equb $00,$00,$10,$00,$00,$10,$20,$00 ; 59
+	equb $18,$18,$18,$18,$18,$00,$18,$00 ; 60
+	equb $00,$00,$7E,$00,$7E,$00,$00,$00 ; 61
+	equb $30,$18,$0C,$06,$0C,$18,$30,$00 ; 62
+	equb $00,$38,$44,$04,$08,$10,$00,$10 ; 63
+	equb $3C,$66,$6E,$6A,$6E,$60,$3C,$00 ; 64
+	equb $00,$3C,$42,$42,$7E,$42,$42,$00 ; 65
+	equb $00,$78,$44,$7C,$42,$42,$7C,$00 ; 66
+	equb $00,$3C,$42,$40,$40,$42,$3C,$00 ; 67
+	equb $00,$7C,$42,$42,$42,$42,$7C,$00 ; 68
+	equb $00,$7E,$40,$78,$40,$40,$7E,$00 ; 69
+	equb $00,$7E,$40,$78,$40,$40,$40,$00 ; 70
+	equb $00,$3C,$42,$40,$4E,$42,$3E,$00 ; 71
+	equb $00,$42,$42,$7E,$42,$42,$42,$00 ; 72
+	equb $00,$38,$10,$10,$10,$10,$38,$00 ; 73
+	equb $00,$04,$04,$04,$04,$44,$38,$00 ; 74
+	equb $00,$44,$48,$70,$48,$44,$42,$00 ; 75
+	equb $00,$20,$20,$20,$20,$20,$3E,$00 ; 76
+	equb $00,$42,$66,$5A,$42,$42,$42,$00 ; 77
+	equb $00,$42,$62,$52,$4A,$46,$42,$00 ; 78
+	equb $00,$3C,$42,$42,$42,$42,$3C,$00 ; 79
+	equb $00,$7C,$42,$7C,$40,$40,$40,$00 ; 80
+	equb $00,$3C,$42,$42,$42,$42,$3C,$06 ; 81
+	equb $00,$7C,$42,$7C,$48,$44,$42,$00 ; 82
+	equb $00,$3E,$40,$3C,$02,$02,$7C,$00 ; 83
+	equb $00,$7C,$10,$10,$10,$10,$10,$00 ; 84
+	equb $00,$42,$42,$42,$42,$42,$3E,$00 ; 85
+	equb $00,$42,$42,$42,$42,$24,$18,$00 ; 86
+	equb $00,$42,$42,$42,$5A,$66,$42,$00 ; 87
+	equb $00,$42,$24,$18,$18,$24,$42,$00 ; 88
+	equb $00,$44,$44,$28,$10,$10,$10,$00 ; 89
+	equb $00,$7E,$04,$08,$10,$20,$7E,$00 ; 90 'Z'
+
+; Lap type indexes:
+;
+; +0 = player current lap
+; +1 = opponent current lap??
+; +2 = best lap
+;
+; These appear to be arrays, so there are probably more...
+
+; Lap time fractions of second
 .L_8298	equb $01,$00,$00,$00,$00,$00,$00,$FF,$80,$00,$00,$00,$00,$00
 
 .L_82A6	equb $00
 .L_82A7	equb $FF,$00,$00,$00,$FF,$00,$00,$00,$01
 
-; Lap time fractions of second?
+; Lap time seconds
 .L_82B0	equb $00,$00,$00,$FF,$00,$00,$00,$80,$01,$00,$00,$00,$00,$00
 
 .L_82BE	equb $00
+
+; 
 
 .L_82BF	equb $01,$00,$00,$00,$FF,$00,$00,$00,$FF,$00,$00,$3C,$02,$3E,$42,$3E
 		equb $00,$00,$40,$7C,$42,$42,$42,$7C,$00,$00,$00,$3E,$40,$40,$40,$3E
@@ -79,7 +177,7 @@ L_80A0	= L_8000 + $A0
 		equb $00,$00,$00,$42,$24,$18,$24,$42,$00,$00,$00,$42,$42,$42,$3E,$02
 		equb $3C,$00,$00,$7E,$04,$18,$20,$7E,$00
 
-; Lap time fractions of second?
+; Lap time minutes
 .L_8398	equb $00,$00,$00,$FF,$00,$00,$00,$81,$81,$81,$81,$81,$81,$81
 
 .L_83A6	equb $81
@@ -88,11 +186,188 @@ L_80A0	= L_8000 + $A0
 ; Fandal says "table of car damage for multiplayer (12 byte)"
 .L_83B0	equb $FF,$00,$00,$00,$00,$00,$00,$FF,$30,$18,$0C,$06,$0C,$18,$30,$00
 
-\\
-.file_strings_offset	equb $05,$0D,$43,$14,$2A,$43,$43,$43,$71,$8F,$94
+\\comments are index/offset
+.file_strings_offset
+equb file_strings_loaded-file_strings ; $00 / $05
+equb file_strings_saved-file_strings ; $01 / $0d
+equb file_strings_problem_encountered-file_strings ; $02 / $43
+equb file_strings_incorrect_data_found-file_strings ; $03 / $14
+equb file_strings_file_name_already_exists-file_strings ; $04 / $2a
+equb file_strings_problem_encountered-file_strings ; $05 / $43
+equb file_strings_problem_encountered-file_strings ; $06 / $43
+equb file_strings_problem_encountered-file_strings ; $07 / $43
+equb file_strings_insert_game_position_save-file_strings ; $08 / $71
+equb file_strings_tape-file_strings ; $09 / $8f
+equb file_strings_disc-file_strings ; $0a / $94
 
 \\
 .L_A1F2	equb $E8,$46,$4B,$53,$52,$46,$55,$48,$42,$45,$52,$44
+
+.L_E8E1	equb $09,$06,$03,$00
+
+.L_EE35	equb $00
+
+; KEY DEFINITIONS
+
+.control_keys
+; equals, space, s, d, return
+; equb $2E,$27,$29,$12,$08
+equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
+
+.menu_keys
+equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
+
+.L_F810	equb $11
+
+.L_2099	equb $78
+.L_209A	equb $6E
+.L_209B	equb $05
+
+;.L_083A	equb $00,$00,$00,$00,$00,$00 ; unused?
+.L_0840	equb $01				; save device - 0=tape, 1=disk
+
+.L_1327	equb $00
+.L_1328	equb $02
+
+; $80=main game,$00=exiting,$40=track preview,$41=frontend
+.game_control_state	equb $00
+
+
+; *****************************************************************************
+\\ Data moved from Kernel RAM to Core
+; *****************************************************************************
+
+; FRONTEND STRINGS
+
+.frontend_strings_2
+.frontend_strings_2_select
+		equb $1F,$11,$0B,"SELECT",$FF
+.frontend_strings_2_practise
+		equb "Practise ",$FF
+.frontend_strings_2_start_the_racing_season
+		equb "Start the Racing Season",$FF
+.frontend_strings_2_load_save_replay
+		equb "Load / Save",$FF
+.frontend_strings_2_load
+		equb "Load",$FF
+.frontend_strings_2_save
+		equb "Save",$FF
+.frontend_strings_2_replay
+		equb "Restart Season",$FF
+.frontend_strings_2_cancel
+		equb "Cancel",$FF
+.frontend_strings_2_load_from_tape
+		equb "Load Hall of Fame",$FF
+.frontend_strings_2_load_from_disc
+		equb "Load Game",$FF
+.frontend_strings_2_save_to_tape
+		equb "Save Hall of Fame",$FF
+.frontend_strings_2_save_to_disc
+		equb "Save Game",$FF
+.frontend_strings_2_filename
+		equb $1F,$05,$13,"   Filename?  >",$FF
+.frontend_strings_2_to_the_super_league
+		equb "to the SUPER LEAGUE",$FF
+.frontend_strings_2_super_division
+		equb $1F,$0C
+.L_E0BD	equb $09,"SUPER DIVISION "
+		equb $FF
+.frontend_strings_2_excellent_driving_well_done
+		equb "EXCELLENT DRIVING - WELL DONE",$FF
+.frontend_strings_2_hall_of_fame
+		equb "Hall of Fame",$FF
+.frontend_strings_2_catalog
+		equb "*CAT",$FF
+if P%-frontend_strings_2>255:error "frontend_strings_2 too big":endif
+
+.frontend_strings_3
+.frontend_strings_3_select
+		equb $1F,$11,$0B,"SELECT",$FF
+.frontend_strings_3_single_player_league
+		equb "Single Player League",$FF
+.frontend_strings_3_multiplayer
+		equb "Multiplayer",$FF
+.frontend_strings_3_enter_another_driver
+		equb "Enter another driver",$FF
+.frontend_strings_3_continue
+		equb "Continue",$FF
+.frontend_strings_3_tracks_in_division
+		equb "Tracks in DIVISION ",$FF
+		equb $00,$00,$00
+		equb $00,$00,$00
+.frontend_strings_3_space_s_dot
+		equb " S.",$FF
+		equb "        "
+.frontend_strings_3_s
+		equb "s",$FF
+.frontend_strings_3_driver_best_lap_race_time
+		equb $1F,$06
+.L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
+.frontend_strings_3_track_the
+		equb "Track:  The ",$FF
+.frontend_strings_3_drivers_championship
+		equb $1F,$0A,$09
+		equb "DRIVERS CHAMPIONSHIP",$FF
+.frontend_strings_3_track_record
+		equb $1F,$0E,$14,"Track record",$FF
+		equb $00
+.frontend_strings_3_driver_2
+		equb "------------",$FF
+.frontend_strings_3_driver_1
+		equb "------------",$FF
+.frontend_strings_3_new_track_record
+		equb $1F,$0C,$0F
+		equb "New track record",$FF
+.frontend_strings_3_credits
+        equb "Credits",$FF
+if P%-frontend_strings_3>255:error "frontend_strings_3 too big":endif
+
+\\ WARNING: Don't change any of these strings below without updating the
+\\ index used to print them for the corresponding print_msg_4 calls !!!
+
+.frontend_strings_4
+		equb $1F,$0F
+.L_3409	equb $09,"DIVISION ",$FF
+		equb $1F,$0F
+.L_3416	equb $0D,"RACE  ",$FF
+		equb $1F,$06,$0B,"Track:  ",$FF
+		equb "The ",$FF
+		equb " V ",$FF
+		equb $1F,$03,$18
+		equb "steer to rotate view or fire to continue",$FF
+		equb $1F
+.L_3460	equb $0F,$15,"The ",$FF
+		equb $1F,$11,$12,"RESULT",$FF
+		equb "Race Winner: ",$FF
+		equb "Fastest Lap: ",$FF
+		equb $1F,$0E,$0B
+		equb "RESULTS TABLE"
+		equb $1F,$06,$0E
+		equb "DRIVER     RACED WIN LAP  PTS",$FF
+		equb "Promotion for  ",$FF
+		equb "Relegation for ",$FF
+		equb " CHANGES",$FF
+		equb $1F,$12,$0E,"NAME?",$FF
+		equb " 2pts",$FF," 1pt",$FF," of ",$FF
+if P%-frontend_strings_4>255:error "frontend_strings_4 too big":endif
+
+.beeb_mode5_crtc_regs
+{
+	EQUB 63				; R0  horizontal total
+	EQUB 40					; R1  horizontal displayed
+	EQUB 49					; R2  horizontal position
+	EQUB &24				; R3  sync width 40 = &28
+	EQUB 38					; R4  vertical total
+	EQUB 0					; R5  vertical total adjust
+	EQUB 25					; R6  vertical displayed
+	EQUB 35					; R7  vertical position; 35=top of screen
+	EQUB &0					; R8  interlace; &30 = HIDE SCREEN
+	EQUB 7					; R9  scanlines per row
+	EQUB 32					; R10 cursor start
+	EQUB 8					; R11 cursor end
+	EQUB HI(screen1_address/8)	; R12 screen start address, high
+	EQUB LO(screen1_address/8)	; R13 screen start address, low
+}
 
 PAGE_ALIGN
 .L_AD00	equb $FF,$8F,$FF,$EF,$FF
@@ -153,6 +428,7 @@ PAGE_ALIGN
 		LDA (ZP_19),Y
 }
 
+; buffer for save game name, I think? - see, e.g., sysctl_47
 L_AEC1 = L_AEC0 + 1
 
 ;opponent.attributes
@@ -188,13 +464,42 @@ L_AEC1 = L_AEC0 + 1
 		equb "HIGH JUMP       "
 		equb "ROLLER COASTER  "
 
-\\ This data is unknown so far! - used by sid_process
-.L_AF80
-		equb $01,$41,$05,$00,$50,$98,$04,$80,$01,$81,$0F,$E0
-.L_AF8C	equb $64,$08,$1E,$80,$01,$81,$0F,$E0,$14,$08,$1E,$80,$01,$81,$00,$F0
-		equb $03,$08,$03,$80,$01,$41,$02,$00,$64,$98,$01,$80,$02,$00,$00,$FF
-		equb $50,$07,$FF,$80,$00,$00,$00,$CF,$50,$07,$FF,$80,$FF,$20,$E0,$FF
-		equb $4C,$D8,$AE,$20
+;L_AF80
+.sid_sound_data
+	\\ Byte 0 = voice# for this data
+	\\ Byte 1 = SID voice control register 
+	\\ Byte 2 = Attack/Decay Register
+	\\ Byte 3 = Sustain/Release Control Register
+	\\ Byte 4 = Frequency Control (high byte)
+	\\ Byte 5 = Pulse Waveform Width (high nybble)
+	\\ Byte 6 = voice flags
+
+		equb $01,$41,$05,$00,$50,$98,$04,$80		; sfx #0 - confirm keys
+		; voice 2, pulse wave, decay 5/attack 0, sustain 0/release 0, freq $5000 = 1248Hz, pulse width $0400 = 25% wave
+		; SN76489 reg = 100
+ 
+		equb $01,$81,$0F,$E0
+.sid_sfx1_freq_high	\\ Used in crash effect
+		equb $64,$08,$1E,$80						; sfx #1 - smash & edge grind
+		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $6400, pulse width $0800
+
+		equb $01,$81,$0F,$E0,$14,$08,$1E,$80		; sfx #2 - collide with opponent
+		; voice 2, random wave, decay 15/attack 0, sustain 14/release 0, freq $1400 = 312Hz, pulse width $0800
+		; SN76489 reg = 400 ($190)
+
+		equb $01,$81,$00,$F0,$30,$08,$03,$80		; sfx #3 - suspension bounce
+		; voice 2, random wave, decay 0/attack 0, sustain 15/release 0, freq $0300 = 47Hz, pulse width $0800
+		; SN76489 reg = 2660 (beyond max $3FF of course)
+		; changed to freq $3000 for BEEB!
+
+		equb $01,$41,$02,$00,$64,$98,$01,$80		; sfx #4 - damage creak
+		; voice 2, pulse wave, decay 2/attack 0, sustain 0/release 0, freq $6400 = 1560Hz, pulse width $0800 = 50% (square wave)
+		; SN76489 reg = 80 ($50)
+
+		equb $02,$00,$00,$FF,$50,$07,$FF,$80		; configure engine tone voice 3
+		equb $00,$00,$00,$CF,$50,$07,$FF,$80		; configure engine tone voice 1
+		equb $FF,$20,$E0,$FF,$4C,$D8,$AE,$20		; not valid sound data
+
 .L_AFC0	equb $16,$14,$02
 .L_AFC3	equb $18,$0F,$04
 .L_AFC6	equb $17,$15,$03
@@ -205,38 +510,6 @@ L_AEC1 = L_AEC0 + 1
 .L_AFD4	equb $12,$11,$1B,$20,$B2,$BD,$20,$56,$AE,$20,$F0,$92,$E9,$E5,$FA,$F3
 		equb $F8,$E3,$ED,$E2,$FE,$8A,$ED,$EF,$E5,$EC,$EC,$8A,$E9,$F8,$EB,$E7
 		equb $E7,$E5,$E4,$EE,$8A,$9B,$93,$92,$92,$56,$AE,$20
-
-.L_B000	equb $00
-.L_B001	equb $0B,$16,$22,$2D,$38,$44,$4F,$5B,$66,$72,$7E,$8A,$95,$A1,$AD,$B9
-		equb $C5,$D2,$DE,$EA,$F7,$03,$10,$1C,$29,$36,$42,$4F,$5C,$69,$76,$83
-		equb $91,$9E,$AB,$B9,$C6,$D4,$E2,$EF,$FD,$0B,$19,$27,$35,$43,$52,$60
-		equb $6E,$7D,$8B,$9A,$A9,$B8,$C7,$D6,$E5,$F4,$03,$12,$22,$31,$41,$50
-		equb $60,$70,$80,$90,$A0,$B0,$C0,$D1,$E1,$F1,$02,$13,$24,$34,$45,$56
-		equb $68,$79,$8A,$9C,$AD,$BF,$D0,$E2,$F4,$06,$18,$2B,$3D,$4F,$62,$74
-		equb $87,$9A,$AD,$C0,$D3,$E6,$F9,$0D,$20,$34,$48,$5C,$70,$84,$98,$AC
-		equb $C0,$D5,$EA,$FE,$13,$28,$3D,$52,$68,$7D,$93,$A8,$BE,$D4,$EA
-
-\* Used to convert a sin value from (0*256 - 1*256) into a cosine value.
-\*
-\* There are 128 values in this table representing sin values increasing in
-\* increments of 1/128.
-\*
-\* Each value is calculated by getting the inverse sin of the sin value, to
-\* give the actual angle, then taking the cosine of this angle.  The result
-\* is then multiplied by 256.
-\*
-\* First 8 values should ideally be 256.
-
-;L_B080
-.cosine_conversion_table
-		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
-		equb $FE,$FE,$FD,$FD,$FD,$FD,$FC,$FC,$FB,$FB,$FB,$FA,$FA,$F9,$F9,$F8
-		equb $F8,$F7,$F7,$F6,$F6,$F5,$F4,$F4,$F3,$F3,$F2,$F1,$F0,$F0,$EF,$EE
-		equb $ED,$EC,$EC,$EB,$EA,$E9,$E8,$E7,$E6,$E5,$E4,$E3,$E2,$E1,$E0,$DF
-		equb $DE,$DD,$DB,$DA,$D9,$D8,$D6,$D5,$D4,$D2,$D1,$CF,$CE,$CC,$CB,$C9
-		equb $C8,$C6,$C5,$C3,$C1,$BF,$BE,$BC,$BA,$B8,$B6,$B4,$B2,$B0,$AE,$AC
-		equb $A9,$A7,$A5,$A2,$A0,$9D,$9B,$98,$95,$92,$8F,$8C,$89,$86,$83,$7F
-		equb $7C,$78,$74,$70,$6C,$68,$63,$5E,$59,$53,$4D,$47,$3F,$37,$2D,$20
 
 \* These first 16 words are used to give offsets to the data definitions of
 \* the different road pieces.  They are stored in low byte, high byte order
@@ -472,7 +745,7 @@ L_AEC1 = L_AEC0 + 1
 .L_B702	equb $00,$41,$03,$44,$06,$47,$09,$4A
 		equb $0C
 .L_B70B	equb $70,$50,$30,$10,$00,$10,$30,$50,$70
-.L_B714 equb $AA,$00,$00,$00,$00,$00
+.L_B714 equb $AA,$00,$00,$00,$00,$00 ; Amiga = $aa,$80...
 		equb $00,$80,$2A
 .L_B71D	equb $59,$49,$39,$A9,$63,$63,$63,$63,$47
 .L_B726 equb $00,$00,$00,$10
@@ -565,8 +838,8 @@ L_AEC1 = L_AEC0 + 1
 .L_B97E	equb $74,$34,$73,$33,$72,$32,$71,$31,$E0,$80
 .L_B988	equb $23,$62
 		equb $22,$61,$21,$70,$40,$20,$00
-.L_B991	equb $42,$42,$52,$72,$13,$43,$F3,$00,$00
-.L_B99A equb $00,$00,$00,$00,$85,$05,$05,$05,$05
+.L_B991	equb $42,$42,$52,$72,$13,$43,$F3,$00,$00 ; Amiga = ...$f3,$80,$00
+.L_B99A equb $00,$00,$00,$00,$85,$05,$05,$05,$05 ; Amiga = $00,$00,$00,$80...
 .L_B9A3 equb $0C,$59,$47,$55,$04,$52,$41
 		equb $50,$00
 .L_B9AC	equb $00,$10,$30,$50,$E0,$50,$30,$10,$00
@@ -584,7 +857,7 @@ L_AEC1 = L_AEC0 + 1
 		equb $30,$60,$21
 .L_BA0D	equb $13,$00,$10,$A0,$0E,$40,$0B,$E0,$09,$80,$07,$20,$04
 		equb $C0,$02,$60,$00,$00
-.L_BA1F	equb $00,$E8,$18,$47,$76,$26,$55,$05,$3
+.L_BA1F	equb $00,$E8,$18,$47,$76,$26,$55,$05,$34
 .L_BA28 equb $00,$00
 		equb $00,$10,$30,$60,$21,$71,$42
 .L_BA31	equb $00,$21,$42,$63,$05,$26,$47,$68,$0A
@@ -594,6 +867,16 @@ L_AEC1 = L_AEC0 + 1
 .L_BA4E	equb $00,$40,$01,$41,$02,$42,$03,$43,$94,$F4
 .L_BA58 equb $00,$40
 		equb $01,$41,$02,$42,$03,$43,$F3,$94
+
+IF _JUST_ONE_TRACK_FOR_SAVING_RAM
+.stepping_stones_data
+.hump_back_data
+.big_ramp_data
+.ski_jump_data
+.draw_bridge_data
+.high_jump_data
+.roller_coaster_data
+ENDIF
 
 .little_ramp_data		; L_BA62
 		equb $2C		; number.of.road.sections
@@ -610,6 +893,7 @@ L_AEC1 = L_AEC0 + 1
 		equb $FE,$00,$17,$EF,$1B,$1A,$8D,$DF,$06,$05,$22,$2F,$02,$02,$21,$46
 		equb $03,$58,$01,$22
 
+IF _JUST_ONE_TRACK_FOR_SAVING_RAM = FALSE
 .stepping_stones_data
 		equb $38,$2A,$2A,$0E,$00,$0F,$A0,$CF,$00,$9F,$3B,$3C
 		equb $3C,$25,$13,$48,$49,$00,$32,$80,$2F,$04,$64,$86,$1F,$65,$66,$57
@@ -700,6 +984,7 @@ L_AEC1 = L_AEC0 + 1
 		equb $04,$60,$F9,$2B,$3F,$00,$00,$00,$4C,$FD,$46,$FE,$16,$17,$17,$EF
 		equb $1B,$1A,$8D,$DF,$03,$03,$50,$59,$07,$00,$06,$2A,$07,$29,$0E,$36
 		equb $1A,$54,$1B,$4A,$4D,$52,$4C,$5A
+ENDIF
 
 ; data after this point exists in Amiga source...
 		equb $00,$00,$00,$00,$00,$00,$00,$00
@@ -739,122 +1024,36 @@ L_AEC1 = L_AEC0 + 1
 		equb $01
 		equb $00
 
-; *****************************************************************************
-\\ Data moved from Kernel RAM to Core
-; *****************************************************************************
+.L_B000	equb $00
+.L_B001	equb $0B,$16,$22,$2D,$38,$44,$4F,$5B,$66,$72,$7E,$8A,$95,$A1,$AD,$B9
+		equb $C5,$D2,$DE,$EA,$F7,$03,$10,$1C,$29,$36,$42,$4F,$5C,$69,$76,$83
+		equb $91,$9E,$AB,$B9,$C6,$D4,$E2,$EF,$FD,$0B,$19,$27,$35,$43,$52,$60
+		equb $6E,$7D,$8B,$9A,$A9,$B8,$C7,$D6,$E5,$F4,$03,$12,$22,$31,$41,$50
+		equb $60,$70,$80,$90,$A0,$B0,$C0,$D1,$E1,$F1,$02,$13,$24,$34,$45,$56
+		equb $68,$79,$8A,$9C,$AD,$BF,$D0,$E2,$F4,$06,$18,$2B,$3D,$4F,$62,$74
+		equb $87,$9A,$AD,$C0,$D3,$E6,$F9,$0D,$20,$34,$48,$5C,$70,$84,$98,$AC
+		equb $C0,$D5,$EA,$FE,$13,$28,$3D,$52,$68,$7D,$93,$A8,$BE,$D4,$EA
 
-; FRONTEND STRINGS
+\* Used to convert a sin value from (0*256 - 1*256) into a cosine value.
+\*
+\* There are 128 values in this table representing sin values increasing in
+\* increments of 1/128.
+\*
+\* Each value is calculated by getting the inverse sin of the sin value, to
+\* give the actual angle, then taking the cosine of this angle.  The result
+\* is then multiplied by 256.
+\*
+\* First 8 values should ideally be 256.
 
-.frontend_strings_2
-		equb $1F,$11,$0B,"SELECT",$FF
-		equb "Practise ",$FF
-		equb "Start the Racing Season",$FF
-		equb "Load/Save/Replay       ",$FF
-		equb "Load",$FF
-		equb "Save",$FF
-		equb "Replay",$FF
-		equb "Cancel",$FF
-		equb "LOAD from Tape",$FF
-		equb "LOAD from Disc",$FF
-		equb "SAVE to Tape",$FF
-		equb "SAVE to Disc",$FF
-		equb $1F,$05,$13,"   Filename?  >",$FF
-		equb "to the SUPER LEAGUE",$FF
-		equb $1F,$0C
-.L_E0BD	equb $09,"SUPER DIVISION "
-		equb $FF
-		equb "EXCELLENT DRIVING - WELL DONE",$FF
-		equb "Hall of Fame",$FF
-
-.frontend_strings_3
-		equb $1F,$11,$0B,"SELECT",$FF
-		equb "Single Player League",$FF
-		equb "Multiplayer",$FF
-		equb "Enter another driver",$FF
-		equb "Continue",$FF
-		equb "Tracks in DIVISION ",$FF
-		equb $00,$00,$00
-		equb $00,$00,$00," S.",$FF
-		equb "        s",$FF
-		equb $1F,$06
-.L_321D	equb $0E,"DRIVER      BEST-LAP RACE-TIME",$FF
-		equb "Track:  The ",$FF
-		equb $1F,$0A,$09
-		equb "DRIVERS CHAMPIONSHIP",$FF
-		equb $1F,$0E,$14,"Track record",$FF
-		equb $00
-.L_3273	equb "------------",$FF
-.L_3280	equb "------------",$FF
-		equb $1F,$0C,$0F
-		equb "New track record",$FF
-
-.frontend_strings_4
-		equb $1F,$0F
-.L_3409	equb $09,"DIVISION ",$FF
-		equb $1F,$0F
-.L_3416	equb $0D,"RACE  ",$FF
-		equb $1F,$06,$0B,"Track:  ",$FF
-		equb "The ",$FF
-		equb " V ",$FF
-		equb $1F,$03,$18
-		equb "steer to rotate view or fire to continue",$FF
-		equb $1F
-.L_3460	equb $0F,$15,"The ",$FF
-		equb $1F,$11,$12,"RESULT",$FF
-		equb "Race Winner: ",$FF
-		equb "Fastest Lap: ",$FF
-		equb $1F,$0E,$0B
-		equb "RESULTS TABLE"
-		equb $1F,$06,$0E
-		equb "DRIVER     RACED WIN LAP  PTS",$FF
-		equb "Promotion for  ",$FF
-		equb "Relegation for ",$FF
-		equb " CHANGES",$FF
-		equb $1F,$12,$0E,"NAME?",$FF
-		equb " 2pts",$FF," 1pt",$FF," of ",$FF
-
-.file_strings
-		equb " NOT",$FF
-		equb " loaded",$FF
-		equb " saved",$FF
-		equb "Incorrect data found ",$FF
-		equb "File name already exists",$FF
-		equb "Problem encountered",$FF
-		equb "File name is not suitable",$FF
-		equb $1F,$05,$13,"Insert game position save ",$FF
-		equb "tape",$FF
-		equb "disc",$FF
-		equb $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F,$FF
-
-.L_9674	equb "DIRECTORY:"
-
-.L_E8E1	equb $09,$06,$03,$00
-
-.L_EE35	equb $00
-
-; KEY DEFINITIONS
-
-.control_keys
-; equals, space, s, d, return
-; equb $2E,$27,$29,$12,$08
-equb KEY_DEF_BRAKE, KEY_DEF_BACK, KEY_DEF_LEFT, KEY_DEF_RIGHT, KEY_DEF_FIRE
-
-.menu_keys
-equb KEY_MENU_OPTION_1,KEY_MENU_OPTION_2,KEY_MENU_OPTION_3,KEY_MENU_OPTION_4
-
-.L_F810	equb $11
-
-.L_2099	equb $78
-.L_209A	equb $6E
-.L_209B	equb $05
-
-;.L_083A	equb $00,$00,$00,$00,$00,$00 ; unused?
-.L_0840	equb $01
-
-.L_1327	equb $00
-.L_1328	equb $02
-
-; $80=main game,$00=exiting,$40=track preview,$41=frontend
-.irq_mode	equb $00
+;L_B080
+.cosine_conversion_table
+		equb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FE,$FE
+		equb $FE,$FE,$FD,$FD,$FD,$FD,$FC,$FC,$FB,$FB,$FB,$FA,$FA,$F9,$F9,$F8
+		equb $F8,$F7,$F7,$F6,$F6,$F5,$F4,$F4,$F3,$F3,$F2,$F1,$F0,$F0,$EF,$EE
+		equb $ED,$EC,$EC,$EB,$EA,$E9,$E8,$E7,$E6,$E5,$E4,$E3,$E2,$E1,$E0,$DF
+		equb $DE,$DD,$DB,$DA,$D9,$D8,$D6,$D5,$D4,$D2,$D1,$CF,$CE,$CC,$CB,$C9
+		equb $C8,$C6,$C5,$C3,$C1,$BF,$BE,$BC,$BA,$B8,$B6,$B4,$B2,$B0,$AE,$AC
+		equb $A9,$A7,$A5,$A2,$A0,$9D,$9B,$98,$95,$92,$8F,$8C,$89,$86,$83,$7F
+		equb $7C,$78,$74,$70,$6C,$68,$63,$5E,$59,$53,$4D,$47,$3F,$37,$2D,$20
 
 .core_data_end

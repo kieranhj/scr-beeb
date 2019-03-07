@@ -18,7 +18,7 @@
 ; ...
 ; $3F00 = System code? (page flip, VIC control, misc)
 ; *****************************************************************************
-
+CPU 1
 .core_start
 
 .L_2458				; SELF-MOD CODE from update_track_preview
@@ -430,16 +430,21 @@ L_262B	= *-1			;! _SELF_MOD by update_track_preview
 
 .L_3046_from_main_loop
 {
-		ldx #$0B		;3046 A2 0B
-.L_3048	lda L_C6C0,X	;3048 BD C0 C6
-		sta L_DAB6,X	;304B 9D B6 DA		; COLOR RAM
-		dex				;304E CA
-		bpl L_3048		;304F 10 F7
+; 		ldx #$0B		;3046 A2 0B
+; .L_3048
+; 		lda L_C6C0,X	;3048 BD C0 C6
+; 		sta L_DAB6,X	;304B 9D B6 DA		; COLOR RAM
+; 		dex				;304E CA
+; 		bpl L_3048		;304F 10 F7
+		
+		ldx #$ff
 		rts				;3051 60
 }
 
 .L_31A0	equb $00
-.L_31A1	equb $00
+
+; L_31A1 = 0 = single player/1 = multiplayer? - actually #players-1
+.number_players	equb $00
 .L_31A2	equb $00
 .L_31A3	equb $06
 .L_31A4	equb $0B
@@ -473,26 +478,6 @@ IF _NOT_BEEB
 }
 ENDIF
 
-.reset_border_colour
-{
-		jsr vic_reset_border_colour		;3500 20 BE 3F	; does VIC stuff
-		rts				;3503 60
-}
-
-.set_up_screen_for_frontend
-{
-		lda #$00		;3504 A9 00
-		jsr vic_set_border_colour		;3506 20 BB 3F
-		jsr cart_draw_menu_header		;3509 20 49 1C
-		lda #$01		;350C A9 01		; 'MODE 1'
-		jsr cart_sysctl		;350E 20 25 87
-		lda #$41		;3511 A9 41
-		sta irq_mode		;3513 8D F8 3D
-		jsr cart_L_39F1		;3516 20 F1 39
-		jsr set_up_screen_for_menu		;3519 20 1F 35
-		jmp ensure_screen_enabled		;351C 4C 9E 3F
-}
-
 .set_up_screen_for_menu
 {
 		lda L_C718		;351F AD 18 C7
@@ -504,19 +489,23 @@ ENDIF
 		jsr get_colour_map_ptr		;352F 20 FA 38
 		ldx #$12		;3532 A2 12
 		lda #$01		;3534 A9 01
-		jsr fill_colourmap_solid		;3536 20 16 39
+
+\\ BEEB DON'T NEED COLOUR MAP
+\\		jsr fill_colourmap_solid		;3536 20 16 39
 		ldx #$04		;3539 A2 04
 		ldy #$09		;353B A0 09
 		jsr get_colour_map_ptr		;353D 20 FA 38
 		ldx #$0A		;3540 A2 0A
 		lda #$02		;3542 A9 02
-		jsr fill_colourmap_solid		;3544 20 16 39
+
+\\ BEEB DON'T NEED COLOUR MAP
+\\		jsr fill_colourmap_solid		;3544 20 16 39
 		lda L_31A0		;3547 AD A0 31
 		beq L_354D		;354A F0 01
 		rts				;354C 60
 }
 
-.L_354D	lda L_31A1		;354D AD A1 31
+.L_354D	lda number_players		;354D AD A1 31
 		bne L_3575		;3550 D0 23
 		ldy #$09		;3552 A0 09
 \\
@@ -525,7 +514,7 @@ ENDIF
 		lda L_C71A		;3554 AD 1A C7
 		beq L_3564		;3557 F0 0B
 		sty L_E0BD		;3559 8C BD E0
-		ldx #$BB		;355C A2 BB		; "SUPER DIVISION "
+		ldx #frontend_strings_2_super_division-frontend_strings_2		;355C A2 BB		; "SUPER DIVISION "
 		jsr cart_print_msg_2		;355E 20 CB A1
 		jmp L_356C		;3561 4C 6C 35
 .L_3564	sty L_3409		;3564 8C 09 34
@@ -537,7 +526,7 @@ ENDIF
 		jmp cart_print_single_digit		;3572 4C 8A 10
 }
 \\
-.L_3575	ldx #$A0		;3575 A2 A0		; "DRIVERS CHAMPIONSHIP"
+.L_3575	ldx #frontend_strings_3_drivers_championship-frontend_strings_3	;3575 A2 A0 ; "DRIVERS CHAMPIONSHIP"
 		jmp cart_print_msg_3		;3577 4C DC A1
 .L_357A	lda #$80		;357A A9 80
 		bne L_3580		;357C D0 02
@@ -550,7 +539,7 @@ ENDIF
 		asl A			;3589 0A
 		sta ZP_14		;358A 85 14
 		lda L_C77F		;358C AD 7F C7
-		ldx L_31A1		;358F AE A1 31
+		ldx number_players		;358F AE A1 31
 		beq L_3599		;3592 F0 05
 		lda L_31A2		;3594 AD A2 31
 		eor #$01		;3597 49 01
@@ -577,7 +566,7 @@ ENDIF
 		ldx #$F4		;35C6 A2 F4		; " of "
 		jsr cart_print_msg_4		;35C8 20 27 30
 		lda L_31A3		;35CB AD A3 31
-		ldx L_31A1		;35CE AE A1 31
+		ldx number_players		;35CE AE A1 31
 		beq L_35D4		;35D1 F0 01
 		asl A			;35D3 0A
 .L_35D4	jsr cart_print_number_unpadded		;35D4 20 41 33
@@ -593,14 +582,14 @@ ENDIF
 		jsr cart_print_driver_v_driver		;35EE 20 38 37
 		ldx #$60		;35F1 A2 60		; "RESULT"
 		jsr cart_print_msg_4		;35F3 20 27 30
-		jsr L_3858		;35F6 20 58 38
+		jsr plot_menu_option_2		;35F6 20 58 38
 		ldx #$6A		;35F9 A2 6A		; "Race Winner: "
 		jsr cart_print_msg_4		;35FB 20 27 30
 		ldx L_C76F		;35FE AE 6F C7
 		jsr print_driver_name		;3601 20 8B 38
 		ldx #$E9		;3604 A2 E9		; " 2pts"
 		jsr cart_print_msg_4		;3606 20 27 30
-		jsr L_3858		;3609 20 58 38
+		jsr plot_menu_option_2		;3609 20 58 38
 		ldx #$78		;360C A2 78		; "Fastest Lap: "
 		jsr cart_print_msg_4		;360E 20 27 30
 		ldx L_C770		;3611 AE 70 C7
@@ -608,13 +597,8 @@ ENDIF
 		ldx #$EF		;3617 A2 EF		; " 1pt"
 		jsr cart_print_msg_4		;3619 20 27 30
 .L_361C	jsr debounce_fire_and_wait_for_fire		;361C 20 96 36
-\\
-.store_X_in_L_85D0_with_sysctl
-{
-		ldx #$00		;361F A2 00
-		lda #$20		;3621 A9 20
-		jmp cart_sysctl		;3623 4C 25 87
-}
+\\ Oops! On C64 this drops through to this function which has been moved on BEEB
+		JMP clear_write_char_half_row_flag
 
 .debounce_fire_and_wait_for_fire
 {
@@ -630,49 +614,13 @@ ENDIF
 }
 
 .track_order				equb $00,$02,$01,$03,$06,$07,$04,$05
-.track_background_colours	equb $08,$05,$0C,$05,$05,$08,$0C,$08
 
-.L_3834	equb $06,$04,$00
-.L_3837	equb $0D,$10,$13,$16,$10,$13,$10,$0F,$14,$17,$0A,$0E,$12,$16
-.L_3845	equb $0E,$0B,$11
-
-.L_3848	ldx #$04		;3848 A2 04
+.colour_menu_option
+		ldx #$04		;3848 A2 04
 		jsr get_colour_map_ptr		;384A 20 FA 38
 		ldx #$0E		;384D A2 0E
 		lda #$01		;384F A9 01
 		jmp fill_colourmap_solid		;3851 4C 16 39
-
-.L_3854	lda #$03		;3854 A9 03
-		bne highlight_current_menu_item		;3856 D0 02
-
-.L_3858	lda #$02		;3858 A9 02
-
-.highlight_current_menu_item
-{
-		sta ZP_73		;385A 85 73
-		ldx ZP_19		;385C A6 19
-		ldy L_3837,X	;385E BC 37 38
-		sty ZP_74		;3861 84 74
-		sty ZP_7A		;3863 84 7A
-		jsr L_3A42		;3865 20 42 3A
-.L_3868	ldy ZP_74		;3868 A4 74
-		jsr L_3848		;386A 20 48 38
-		inc ZP_74		;386D E6 74
-		dec ZP_73		;386F C6 73
-		bne L_3868		;3871 D0 F5
-		bit L_C356		;3873 2C 56 C3
-		bmi L_387B		;3876 30 03
-		jsr L_3A42		;3878 20 42 3A
-}
-\\ Fall through
-.L_387B	ldx #$05		;387B A2 05
-		ldy ZP_7A		;387D A4 7A
-		jsr cart_set_text_cursor		;387F 20 6B 10
-		inc ZP_19		;3882 E6 19
-\\ Fall through
-.L_3884	ldx #$80		;3884 A2 80
-		lda #$20		;3886 A9 20
-		jmp cart_sysctl		;3888 4C 25 87
 
 .print_driver_name
 {
@@ -706,108 +654,284 @@ ENDIF
 		rts				;38B3 60
 }
 
-.L_38B4	equb $FE,$FD,$FB,$F7,$EF,$DF,$BF,$7F
-.L_38BC	equb $01,$02,$04,$08,$10,$20,$40,$80
+; .L_38B4	equb $FE,$FD,$FB,$F7,$EF,$DF,$BF,$7F
+; .L_38BC	equb $01,$02,$04,$08,$10,$20,$40,$80
 
+; Initialise offscreen colour map pointer for reading or writing. X =
+; X coordinate, Y = Y coordinate. On exit, access value with (ZP_1E),y
+; addressing mode.
 .get_colour_map_ptr
 {
+IF 0
 		stx ZP_C6		;38FA 86 C6
 		tya				;38FC 98
+		
 		sta ZP_1E		;38FD 85 1E
+
+; Y*2
+
 		asl A			;38FF 0A
+
+; Y*4
+
 		asl A			;3900 0A
+
+; Y*4+Y = Y*5
+
 		clc				;3901 18
 		adc ZP_1E		;3902 65 1E
+
+; Y*10
+
 		asl A			;3904 0A
+
+; Y*20 (LSB)
+
 		asl A			;3905 0A
 		sta ZP_1E		;3906 85 1E
+
+; Y*20 (MSB)
+
 		lda #$00		;3908 A9 00
 		rol A			;390A 2A
+
+; Y*40 (LSB)
+
 		asl ZP_1E		;390B 06 1E
+
+; Y*40 (MSB)
+
 		rol A			;390D 2A
+
+; Colour map buffer is $7c00...$7fe8.
+
 		clc				;390E 18
 		adc #$7C		;390F 69 7C
 		sta ZP_1F		;3911 85 1F
+
+; X coordinate.
+
 		ldy ZP_C6		;3913 A4 C6
 		rts				;3915 60
+ELSE
+	STZ ZP_1F
+
+	; X*16
+	TXA
+	ASL A
+	ROL A
+	ROL A:ROL ZP_1F
+	ROL A:ROL ZP_1F
+	STA ZP_1E
+
+	; Lookup Y row from table
+	CLC
+	LDA ZP_1E
+	ADC mode1_screen_LO, Y
+	STA ZP_1E
+	LDA ZP_1F
+	ADC mode1_screen_HI, Y
+	STA ZP_1F
+
+	LDY ZP_1E
+	STZ ZP_1E
+	RTS
+ENDIF
 }
 
+; A=how many table entries to consume
+; X=index into table menu_colourmap_table
+; first value=#chars to fill, second value=colour value
 .fill_colourmap_solid
 {
 		sta ZP_15		;3916 85 15
-.L_3918	lda L_3944,X	;3918 BD 44 39
+.L_3918
+		STZ ZP_C6
+
+		lda menu_colourmap_table,X	;3918 BD 44 39
+
+		; BEEB *16 for MODE 1 bytes per char
+		ASL A:ROL ZP_C6
+		ASL A:ROL ZP_C6
+		ASL A:ROL ZP_C6
+		ASL A:ROL ZP_C6
+
 		sta ZP_14		;391B 85 14
 		inx				;391D E8
-		lda L_3944,X	;391E BD 44 39
+		lda menu_colourmap_table,X	;391E BD 44 39
 		inx				;3921 E8
-.L_3922	sta (ZP_1E),Y	;3922 91 1E
+		ldx ZP_C6
+.L_3922
+		sta (ZP_1E),Y	;3922 91 1E
+		dec ZP_14
+		beq done
 		iny				;3924 C8
-		bne L_3929		;3925 D0 02
+		bne L_3922		;3925 D0 02
 		inc ZP_1F		;3927 E6 1F
-.L_3929	dec ZP_14		;3929 C6 14
-		bne L_3922		;392B D0 F5
+		bra L_3922
+.done
+		iny
+		bne d2
+		inc ZP_1F
+.d2
+		; BEEB HI byte of count after *16
+		DEX
+		BPL L_3922
+
 		dec ZP_15		;392D C6 15
 		bne L_3918		;392F D0 E7
 		rts				;3931 60
 }
 
 ; Used by colourmap functions above
-.L_3944	equb $F0,$1E,$02,$1E,$20,$79,$06,$98,$1C,$18,$0E,$28,$0E,$28,$1C
-.L_3953	equb $0F,$1C,$08,$14,$78,$14,$28,$0C,$78,$36,$06,$0B,$07,$45,$06,$0B
-		equb $16,$5F,$06,$28,$63,$28,$06,$02,$0D,$01,$06,$0B,$0A,$07,$0F,$01
-		equb $06,$0B,$0A,$07,$0F,$50,$06
+.menu_colourmap_table
+		equb $F0,$5A	; $00 - unused?
+		equb $02,$5A	; $02 - unused?
+		equb $20,$5A	; $04 - unused?
+		equb $06,$5A	; $06 - unused?
+		equb $1C,$5A	; $08 - menu_colour_map_stuff - NO LONGER USED
+		equb $0E,$5A	; $0A - set_up_screen_for_menu - NO LONGER USED
+		equb $0E,$5A	; $0C - unused?
+		equb $1C		; $0E - highlighted option
+.menu_option_colour
+		equb BEEB_PIXELS_COLOUR1
+		equb $1C,$5A	; $10 - menu_colour_map_stuff - NO LONGER USED, print_results_table, do_end_of_race_screen - NO LONGER USED
+		equb $14,$5A	; $12 - set_up_screen_for_menu - NO LONGER USED
+		equb $14,BEEB_PIXELS_COLOUR2	; $14 - print_track_records
+		equb $0C,$5A	; $16 - unused?
+		equb $36,BEEB_PIXELS_COLOUR2	; $18 - do_hall_of_fame_screen
+		equb $0B,BEEB_PIXELS_COLOUR2	; $1A - ""
+		equb $45,BEEB_PIXELS_COLOUR2	; $1C - ""
+		equb $0B,BEEB_PIXELS_COLOUR2	; $1E - ""
+		equb $5F,BEEB_PIXELS_COLOUR2	; $20 - ""
+		equb $28,BEEB_PIXELS_COLOUR2	; $22 - ""
+		equb $28,BEEB_PIXELS_COLOUR1	; $24 - do_hall_of_fame_screen
+		equb $02,BEEB_PIXELS_COLOUR1	; $26 - ""
+		equb $01,BEEB_PIXELS_COLOUR1	; $28 - ""
+		equb $0B,BEEB_PIXELS_COLOUR1	; $2A - ""
+		equb $07,BEEB_PIXELS_COLOUR1	; $2C - ""
+		equb $01,BEEB_PIXELS_COLOUR1	; $2E - ""
+		equb $0B,BEEB_PIXELS_COLOUR1	; $30 - ""
+		equb $07,BEEB_PIXELS_COLOUR1	; $32 - ""
+		equb $50,BEEB_PIXELS_COLOUR2	; $34 - do_hall_of_fame_screen
+
+IF 0	\\ used by fill_colourmap_varying - now removed
 .L_397A	equb $04,$AE,$AE,$90,$89,$08,$90,$89,$89,$90,$89,$90,$89,$89,$04,$A5
 		equb $A5,$90,$89		
+ENDIF
 
-.L_3A3C
-		sta ZP_14		;3A3C 85 14
-		lda #$AA		;3A3E A9 AA
-		bne L_3A53		;3A40 D0 11
+; A=width in chars
+;.plot_menu_line_colour_2
+;		sta ZP_14		;3A3C 85 14
+;		lda #BEEB_PIXELS_COLOUR2;3A3E A9 AA
+;		bne plot_menu_line		;3A40 D0 11
 \\
-.L_3A42	lda ZP_74		;3A42 A5 74
+; Y=47 + A*8
+.plot_menu_item_line
+		lda ZP_74		;3A42 A5 74
 		asl A			;3A44 0A
 		asl A			;3A45 0A
 		asl A			;3A46 0A
 		clc				;3A47 18
 		adc #$2F		;3A48 69 2F
 		tay				;3A4A A8
-\\
-.L_3A4B	ldx #$40		;3A4B A2 40
-		lda #$1C		;3A4D A9 1C
-\\
-.L_3A4F	sta ZP_14		;3A4F 85 14
-		lda #$FF		;3A51 A9 FF
-.L_3A53	sta ZP_16		;3A53 85 16
-.L_3A55	jsr cart_L_39D1		;3A55 20 D1 39
-		lda ZP_16		;3A58 A5 16
-		sta (ZP_1E),Y	;3A5A 91 1E
-		txa				;3A5C 8A
-		clc				;3A5D 18
-		adc #$04		;3A5E 69 04
-		tax				;3A60 AA
-		dec ZP_14		;3A61 C6 14
-		bne L_3A55		;3A63 D0 F0
-		rts				;3A65 60
 
-.L_3A66
+; A=$1C (28 chars = 224 pixels)
+.plot_menu_width_line
+		ldx #$40		;3A4B A2 40
+		lda #$1C		;3A4D A9 1C
+
+; A=width in chars
+.plot_menu_line_colour_3
+		sta ZP_14		;3A4F 85 14
+		lda #BEEB_PIXELS_COLOUR3		;3A51 A9 FF
+
+; A=screen byte; X,Y=pixel coords
+.plot_menu_line
 {
-		sta ZP_14		;3A66 85 14
-.L_3A68	jsr cart_L_39D1		;3A68 20 D1 39
-		lda (ZP_1E),Y	;3A6B B1 1E
-		ora ZP_15		;3A6D 05 15
-		sta (ZP_1E),Y	;3A6F 91 1E
-		dey				;3A71 88
-		dec ZP_14		;3A72 C6 14
-		bne L_3A68		;3A74 D0 F2
-		rts				;3A76 60
+		sta ZP_16		;3A53 85 16
+
+\\ Rewritten horizontal line draw routine for MODE 1
+
+		jsr get_mode1_menu_screen_ptr
+		ldy #8
+		clc
+		ldx ZP_14		;3A61 C6 14
+.loop
+		lda ZP_16		;3A58 A5 16
+
+		sta (ZP_1E)	;3A5A 91 1E
+		sta (ZP_1E),Y	;3A5A 91 1E
+		lda ZP_1E
+		adc #16
+		sta ZP_1E
+		bcc skip
+		inc ZP_1F
+		clc
+.skip
+		dex
+		bne loop		;3A63 D0 F0
+		rts				;3A65 60
 }
+
+.get_mode1_menu_screen_ptr
+{
+	stz ZP_1F
+
+	; (X-$30) * 4 for char address
+
+	txa
+	sec
+	sbc #$30
+	.ok
+	asl A
+	rol ZP_1F
+	asl A
+	rol ZP_1F
+	sta ZP_1E
+
+	; (y-$30)/8 row address
+
+	tya
+	sec
+	sbc #$30
+	lsr A:lsr A: lsr A
+	tax
+	clc
+	lda mode1_screen_LO, X
+	adc ZP_1E
+	sta ZP_1E
+	lda mode1_screen_HI, X
+	adc ZP_1F
+	sta ZP_1F
+
+	; y=y % 8
+
+	tya
+	and #7
+	clc
+	adc ZP_1E
+	sta ZP_1E
+	
+	rts
+}
+
+.mode1_screen_LO
+FOR y,0,24,1
+EQUB LO(screen1_address + y*$280)
+NEXT
+
+.mode1_screen_HI
+FOR y,0,24,1
+EQUB HI(screen1_address + y*$280)
+NEXT
 
 ; *****************************************************************************
 ; GAME START
 ; *****************************************************************************
 
 .game_start				; aka L_3B22
-{
+\\{
 		ldx #$FF		;3B22 A2 FF
 		txs				;3B24 9A
 		jsr disable_ints_and_page_in_RAM		;3B25 20 F1 33
@@ -820,20 +944,23 @@ ENDIF
 
 		jsr page_in_IO_and_enable_ints		;3B33 20 FC 33
 		jsr kernel_L_E85B		;3B36 20 5B E8
-		jsr set_up_screen_for_frontend		;3B39 20 04 35
+		jsr kernel_set_up_screen_for_frontend		;3B39 20 04 35
 		jsr cart_do_initial_screen		;3B3C 20 52 30
 		jsr kernel_print_division_table		;3B3F 20 AD 36
 		jsr cart_save_rndQ_stateQ		;3B42 20 2C 16
 
 .L_3B45	lsr L_C304		;3B45 4E 04 C3
 		jsr kernel_do_main_menu_dwim		;3B48 20 3A EF
+
+	.game_start_return_here_after_brk
+
 		lda L_C76C		;3B4B AD 6C C7
 		bmi L_3B69		;3B4E 30 19	     ; taken if	racing
 
 		jsr do_track_preview		;3B50 20 36 3C
-		jsr reset_border_colour		;3B53 20 00 35
+		jsr disable_screen			;3B53 20 00 35
 		jsr game_main_loop		;3B56 20 99 3C
-		jsr set_up_screen_for_frontend		;3B59 20 04 35
+		jsr kernel_set_up_screen_for_frontend		;3B59 20 04 35
 		jmp L_3B45		;3B5C 4C 45 3B
 
 .L_3B5F	lda #$C0		;3B5F A9 C0
@@ -882,7 +1009,7 @@ ENDIF
 		jsr poll_key_with_sysctl		;3BBA 20 C9 C7
 		beq L_3B5F		;3BBD F0 A0
 		jsr do_track_preview		;3BBF 20 36 3C
-		jsr reset_border_colour		;3BC2 20 00 35
+		jsr disable_screen			;3BC2 20 00 35
 		lda #$80		;3BC5 A9 80
 		jsr cart_store_restore_control_keys		;3BC7 20 46 98
 		jsr game_main_loop		;3BCA 20 99 3C
@@ -891,7 +1018,7 @@ ENDIF
 		lda #$00		;3BD2 A9 00
 		jsr cart_copy_track_records_Q		;3BD4 20 19 93
 		jsr kernel_L_E87F		;3BD7 20 7F E8
-		jsr set_up_screen_for_frontend		;3BDA 20 04 35
+		jsr kernel_set_up_screen_for_frontend		;3BDA 20 04 35
 		lda L_C305		;3BDD AD 05 C3
 		beq L_3BEA		;3BE0 F0 08
 		jsr L_357E		;3BE2 20 7E 35
@@ -900,7 +1027,7 @@ ENDIF
 
 .L_3BEA	jsr L_357A		;3BEA 20 7A 35
 		jsr cart_L_3626_from_game_start		;3BED 20 26 36
-		lda L_31A1		;3BF0 AD A1 31
+		lda number_players		;3BF0 AD A1 31
 		beq L_3BF8		;3BF3 F0 03
 		jsr cart_L_91C3		;3BF5 20 C3 91
 
@@ -913,7 +1040,7 @@ ENDIF
 
 .L_3C09	lda #$00		;3C09 A9 00
 		sta L_C77F		;3C0B 8D 7F C7
-		lda L_31A1		;3C0E AD A1 31
+		lda number_players		;3C0E AD A1 31
 		bne L_3C1F		;3C11 D0 0C
 		jsr cart_do_driver_league_changes		;3C13 20 54 37
 		jsr kernel_print_division_table		;3C16 20 AD 36
@@ -931,19 +1058,24 @@ ENDIF
 		cmp #$07		;3C30 C9 07
 		bcs L_3C19		;3C32 B0 E5
 		bcc L_3C1C		;3C34 90 E6
-}
+\\}
 
 .do_track_preview			; could be moved to Cart
 {
 		lda #$0B		;3C36 A9 0B
-		jsr vic_set_border_colour		;3C38 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3C38 20 BB 3F
+
+		lda #$03:jsr cart_sysctl ; 'mode 3'
+		
 		jsr initialise_game_vars		;3C3B 20 F9 3D
 		lda #$40		;3C3E A9 40
-		sta irq_mode		;3C40 8D F8 3D
+		sta game_control_state		;3C40 8D F8 3D
+
+		JSR beeb_music_stop
 
 		ldx #$7C		;3C43 A2 7C
 .L_3C45	lda #$08		;3C45 A9 08
-		sta L_0201,X	;3C47 9D 01 02
+		sta L_0200+1,X	;3C47 9D 01 02
 		txa				;3C4A 8A
 		sec				;3C4B 38
 		sbc #$04		;3C4C E9 04
@@ -952,22 +1084,27 @@ ENDIF
 
 		jsr update_colour_map_with_sysctl		;3C51 20 30 2C
 		ldx L_C76B		;3C54 AE 6B C7
-		lda #$03		;3C57 A9 03			; 'MODE 3'
-		jsr cart_sysctl		;3C59 20 25 87
+		; lda #$03		;3C57 A9 03			; 'MODE 3'
+		; jsr cart_sysctl		;3C59 20 25 87
 		jsr cart_set_up_colour_map_for_track_preview		;3C5C 20 77 3A
-		jsr cart_draw_track_preview_border		;3C5F 20 03 2F
+		; jsr cart_draw_track_preview_border		;3C5F 20 03 2F
 		jsr cart_draw_track_preview_track_name		;3C62 20 CE 2F
 		jsr L_3EA8		;3C65 20 A8 3E
 		ldx current_track		;3C68 AE 7D C7
 		jsr kernel_set_road_data1		;3C6B 20 34 EA
 		jsr cart_update_per_track_stuff		;3C6E 20 18 1D
+		jsr preview_unpack_background
 		jsr kernel_update_track_preview		;3C71 20 86 F3
 
-.L_3C74	ldx #$27		;3C74 A2 27
-		lda #$3B		;3C76 A9 3B
-.L_3C78	sta L_7FC0,X	;3C78 9D C0 7F
-		dex				;3C7B CA
-		bpl L_3C78		;3C7C 10 FA
+.L_3C74
+
+; What is this bit of code for?!
+
+; 		ldx #$27		;3C74 A2 27
+; 		lda #$3B		;3C76 A9 3B
+; .L_3C78	sta L_7FC0,X	;3C78 9D C0 7F
+; 		dex				;3C7B CA
+; 		bpl L_3C78		;3C7C 10 FA
 		
 		ldx #$2C		;3C7E A2 2C	; "steer to rotate view or fire to continue"
 		jsr cart_print_msg_4		;3C80 20 27 30
@@ -977,9 +1114,9 @@ ENDIF
 		jmp L_3C74		;3C8B 4C 74 3C
 
 .L_3C8E	lda #$00		;3C8E A9 00
-		jsr vic_set_border_colour		;3C90 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3C90 20 BB 3F
 		lda #$00		;3C93 A9 00
-		sta irq_mode		;3C95 8D F8 3D
+		sta game_control_state		;3C95 8D F8 3D
 		rts				;3C98 60
 }
 
@@ -990,15 +1127,15 @@ ENDIF
 .game_main_loop			; aka L_3C99
 {
 		ldx #$80		;3C99 A2 80
-		lda #$34		;3C9B A9 34		; 'copy stuff'
-		jsr cart_sysctl		;3C9D 20 25 87
+		; lda #$34		;3C9B A9 34		; 'copy stuff'
+		; jsr cart_sysctl		;3C9D 20 25 87
 		jsr initialise_game_vars		;3CA0 20 F9 3D
 		ldx #$80		;3CA3 A2 80
 		lda #$10		;3CA5 A9 10		; 
 		jsr cart_sysctl		;3CA7 20 25 87
 		lda #$02		;3CAA A9 02		; 'MODE 2'
 		jsr cart_sysctl		;3CAC 20 25 87
-		jsr L_3EB6_from_main_loop		;3CAF 20 B6 3E
+		jsr kernel_L_3EB6_from_main_loop		;3CAF 20 B6 3E
 		ldx players_start_section		;3CB2 AE 65 C7
 		stx L_C375		;3CB5 8E 75 C3
 		lda #$04		;3CB8 A9 04
@@ -1010,33 +1147,38 @@ ENDIF
 .setup_car
 		jsr kernel_setup_car_on_trackQ		;3CC6 20 88 F4
 		jsr cart_L_2C64		;3CC9 20 64 2C
-		bit irq_mode		;3CCC 2C F8 3D
+		bit game_control_state		;3CCC 2C F8 3D
 		bmi L_3CDD		;3CCF 30 0C
 		jsr cart_reset_sprites		;3CD1 20 84 14
 		jsr cart_draw_trackQ		;3CD4 20 7A 16
-		jsr toggle_display_pageQ		;3CD7 20 42 3F
+		jsr flip_display_page		;3CD7 20 42 3F
 		jsr kernel_game_update		;3CDA 20 41 08
 
 .L_3CDD	jsr cart_draw_trackQ		;3CDD 20 7A 16
 		jsr kernel_draw_tachometer_in_game		;3CE0 20 06 12
 		jsr cart_draw_crane_with_sysctl		;3CE3 20 1E 1C
 		jsr cart_L_14D0_from_main_loop		;3CE6 20 D0 14	; update scratches and scrapes?
-		jsr toggle_display_pageQ		;3CE9 20 42 3F
+		jsr flip_display_page		;3CE9 20 42 3F
 		jsr kernel_game_update		;3CEC 20 41 08
+
+	\\ BEEB - stop the engine note being updated until it has been initialised
+
+		LDA #1:STA irq_audio_pause
+
 		lda #$80		;3CEF A9 80
 		sta L_C307		;3CF1 8D 07 C3
-		sta irq_mode		;3CF4 8D F8 3D
+		sta game_control_state		;3CF4 8D F8 3D
 		ldy #$03		;3CF7 A0 03
 		jsr delay_approx_Y_25ths_sec		;3CF9 20 EB 3F
 		jsr ensure_screen_enabled		;3CFC 20 9E 3F
-		jsr L_3F27_with_SID		;3CFF 20 27 3F
+		jsr sid_init_engine_note		;3CFF 20 27 3F
 		jsr L_3046_from_main_loop		;3D02 20 46 30
 
-.L_3D05
+.inner_loop
 		dec L_C30C		;3D05 CE 0C C3
 		jsr cart_L_1C64_with_keys		;3D08 20 64 1C
 		jsr kernel_game_update		;3D0B 20 41 08
-		jsr kernel_L_E104		;3D0E 20 04 E1
+		jsr kernel_L_E104_with_sid		;3D0E 20 04 E1
 		jsr cart_draw_trackQ		;3D11 20 7A 16
 		jsr cart_L_2C6F_from_main_loop		;3D14 20 6F 2C
 		jsr cart_L_14D0_from_main_loop		;3D17 20 D0 14
@@ -1046,8 +1188,22 @@ ENDIF
 		jsr L_10D9		;3D23 20 D9 10
 		jsr kernel_L_0F2A		;3D26 20 2A 0F
 		jsr kernel_update_distance_to_ai_car_readout		;3D29 20 64 11
-		jsr toggle_display_pageQ		;3D2C 20 42 3F
-		jsr update_pause_status		;3D2F 20 E0 3E
+
+; Handle pause mode/race over.
+;
+; These two states don't do a page flip, so the in-game text is drawn
+; to the front buffer, on top of whatever's there. So when entering
+; either of these two states, don't draw any in-game text.
+
+  		ldx #KEY_DEF_PAUSE
+		jsr poll_key_with_sysctl
+		bne not_pause
+
+		jsr flip_display_page
+		jsr pause_loop
+		jmp flipped_display_page
+
+.not_pause
 		lda L_C351		;3D32 AD 51 C3
 		and L_C306		;3D35 2D 06 C3
 		bpl L_3D69		;3D38 10 2F
@@ -1060,12 +1216,19 @@ ENDIF
 
 .L_3D46	lda L_C364		;3D46 AD 64 C3
 		bne L_3D50		;3D49 D0 05
+		
 		ldy #$0B		;3D4B A0 0B
 		jsr kernel_L_114D_with_color_ram		;3D4D 20 4D 11
 
-.L_3D50	ldy #$3C		;3D50 A0 3C
+; race over
+
+.L_3D50
+		jsr flip_display_page
+		jsr graphics_pause_save_screen
+		
+		ldy #$3C		;3D50 A0 3C PRESS FIRE
 		lda #$04		;3D52 A9 04
-		jsr kernel_set_up_text_sprite		;3D54 20 A9 12
+		jsr graphics_pause_show_text_sprite
 		lda #$FF		;3D57 A9 FF
 		sta ZP_11		;3D59 85 11
 		lda #$F8		;3D5B A9 F8
@@ -1075,7 +1238,15 @@ ENDIF
 		jsr debounce_fire_and_wait_for_fire		;3D63 20 96 36
 		jmp L_3DAB		;3D66 4C AB 3D
 
-.L_3D69	lda ZP_2F		;3D69 A5 2F
+.L_3D69
+		jsr graphics_draw_in_game_text_sprites
+IF _DEBUG
+		jsr graphics_draw_debug_framerate
+ENDIF
+		jsr flip_display_page
+		
+.flipped_display_page
+        lda ZP_2F		;3D69 A5 2F
 		bne L_3D95		;3D6B D0 28
 		ldy ZP_6B		;3D6D A4 6B
 		bpl L_3D95		;3D6F 10 24
@@ -1094,7 +1265,7 @@ ENDIF
 		inc L_C368		;3D85 EE 68 C3
 		lda ZP_6C		;3D88 A5 6C			; End of game Timer
 		bne L_3D95		;3D8A D0 09
-		jsr kernel_L_E0F9_with_sysctl		;3D8C 20 F9 E0
+		jsr kernel_silence_all_voices_with_sysctl		;3D8C 20 F9 E0
 		ldx L_C309		;3D8F AE 09 C3
 		jmp setup_car		;3D92 4C C6 3C
 
@@ -1107,21 +1278,21 @@ ENDIF
 .L_3DA1	ldx #KEY_DEF_QUIT		;3DA1 A2 2F
 		jsr poll_key_with_sysctl		;3DA3 20 C9 C7
 		beq L_3DAB		;3DA6 F0 03
-.L_3DA8	jmp L_3D05		;3DA8 4C 05 3D
+.L_3DA8	jmp inner_loop		;3DA8 4C 05 3D
 
 .L_3DAB	lda L_C364		;3DAB AD 64 C3
 		bne L_3DB5		;3DAE D0 05
 		lda #$C0		;3DB0 A9 C0
 		sta L_C362		;3DB2 8D 62 C3
 .L_3DB5	lda #$00		;3DB5 A9 00
-		jsr vic_set_border_colour		;3DB7 20 BB 3F
+		jsr disable_screen_and_change_border_colour ;3DB7 20 BB 3F
 		lda #$00		;3DBA A9 00
-		sta irq_mode		;3DBC 8D F8 3D
+		sta game_control_state		;3DBC 8D F8 3D
 		sta VIC_SPENA		;3DBF 8D 15 D0
-		jsr kernel_L_E0F9_with_sysctl		;3DC2 20 F9 E0
+		jsr kernel_silence_all_voices_with_sysctl		;3DC2 20 F9 E0
 		bit L_C76C		;3DC5 2C 6C C7
 		bpl L_3DE7		;3DC8 10 1D
-		lda L_31A1		;3DCA AD A1 31
+		lda number_players		;3DCA AD A1 31
 		beq L_3DED		;3DCD F0 1E
 		ldx L_31A4		;3DCF AE A4 31
 		lda L_C719		;3DD2 AD 19 C7
@@ -1138,8 +1309,8 @@ ENDIF
 		sta L_C719		;3DEA 8D 19 C7
 .L_3DED	jsr cart_save_rndQ_stateQ		;3DED 20 2C 16
 		ldx #$00		;3DF0 A2 00
-		lda #$34		;3DF2 A9 34
-		jsr cart_sysctl		;3DF4 20 25 87
+		; lda #$34		;3DF2 A9 34
+		; jsr cart_sysctl		;3DF4 20 25 87
 		rts				;3DF7 60
 }
 
@@ -1182,7 +1353,7 @@ ENDIF
 .L_3E2D	lda #$07		;3E2D A9 07
 		sta L_0200,X	;3E2F 9D 00 02
 		lda #$17		;3E32 A9 17
-		sta L_0201,X	;3E34 9D 01 02
+		sta L_0200+1,X	;3E34 9D 01 02
 		txa				;3E37 8A
 		sec				;3E38 38
 		sbc #$04		;3E39 E9 04
@@ -1196,6 +1367,8 @@ ENDIF
 		sta L_2806		;3E4A 8D 06 28
 		lda #$00		;3E4D A9 00
 		sta VIC_SPENA		;3E4F 8D 15 D0
+
+	\\ Silence all channels, turn off all filters
 		sta SID_SIGVOL		;3E52 8D 18 D4
 		ldx #$02		;3E55 A2 02
 .L_3E57	lda #$09		;3E57 A9 09
@@ -1212,11 +1385,11 @@ ENDIF
 		sta ZP_33		;3E6E 85 33
 		lda #$78		;3E70 A9 78
 		sta ZP_3C		;3E72 85 3C
-		jsr kernel_L_E0F9_with_sysctl		;3E74 20 F9 E0
+		jsr kernel_silence_all_voices_with_sysctl		;3E74 20 F9 E0
 		lda #$04		;3E77 A9 04
 		sta L_C354		;3E79 8D 54 C3
 		ldy #$09		;3E7C A0 09
-		jsr cart_L_1637		;3E7E 20 37 16
+		jsr cart_load_rndQ_stateQ		;3E7E 20 37 16
 		lda #$3B		;3E81 A9 3B
 		sta ZP_03		;3E83 85 03
 		jsr kernel_initialise_hud_sprites		;3E85 20 9A 12
@@ -1232,6 +1405,10 @@ ENDIF
 		sta boost_reserve		;3E9F 8D 6A C7
 		lda L_C719		;3EA2 AD 19 C7
 		sta L_C37E		;3EA5 8D 7E C3
+
+		; reset boost flame flags
+		lda #$49:jsr cart_sysctl
+
 }
 \\
 .L_3EA8
@@ -1245,40 +1422,30 @@ ENDIF
 		rts				;3EB5 60
 }
 
-; only called from game_main_loop
-.L_3EB6_from_main_loop		; can be moved to Cart
-{
-		ldx #$80		;3EB6 A2 80
-.L_3EB8	ldy #$00		;3EB8 A0 00
-		txa				;3EBA 8A
-		and #$07		;3EBB 29 07
-		cmp #$07		;3EBD C9 07
-		bne L_3EC3		;3EBF D0 02
-		ldy #$80		;3EC1 A0 80
-.L_3EC3	tya				;3EC3 98
-		sta L_C440,X	;3EC4 9D 40 C4
-		dex				;3EC7 CA
-		bpl L_3EB8		;3EC8 10 EE
-		lda #$C0		;3ECA A9 C0
-		sta L_C43F		;3ECC 8D 3F C4
-		ldx L_31A1		;3ECF AE A1 31
-		beq L_3EDD		;3ED2 F0 09
-		ldx L_31A4		;3ED4 AE A4 31
-		lda L_83B0,X	;3ED7 BD B0 83
-		sta L_C719		;3EDA 8D 19 C7
-.L_3EDD	jmp kernel_L_F6A6		;3EDD 4C A6 F6
-}
+; .update_pause_status		; can be moved to Kernel
+; {
 
-.update_pause_status		; can be moved to Kernel
-{
-		lda L_C306		;3EE0 AD 06 C3
-		bpl L_3EEC		;3EE3 10 07
-		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
-		jsr poll_key_with_sysctl		;3EE7 20 C9 C7
-		beq L_3EED		;3EEA F0 01
-.L_3EEC	rts				;3EEC 60
+; (Only enter pause mode when displaying one of the buffers? Not sure
+; what the problem with that might have been, but the BBC version can
+; handle it, so there's no corresponding check any more.)
 
-.L_3EED	jsr kernel_L_E0F9_with_sysctl		;3EED 20 F9 E0
+; 		; lda L_C306		;3EE0 AD 06 C3
+; 		; bpl L_3EEC		;3EE3 10 07
+		
+; 		ldx #KEY_DEF_PAUSE		;3EE5 A2 0D
+; 		jsr poll_key_with_sysctl		;3EE7 20 C9 C7
+; 		beq pause_loop ;3EEA F0 01
+; .L_3EEC	rts				;3EEC 60
+
+.pause_loop
+{
+		jsr kernel_silence_all_voices_with_sysctl		;3EED 20 F9 E0
+
+	\\ BEEB - don't update the audio in IRQ when paused
+
+		LDA #1:STA irq_audio_pause
+
+		jsr graphics_pause_save_screen
 		lda #$00		;3EF0 A9 00
 		sta ZP_10		;3EF2 85 10
 		sta ZP_11		;3EF4 85 11
@@ -1288,9 +1455,9 @@ ENDIF
 		pha				;3EFD 48
 		lda L_1328		;3EFE AD 28 13
 		pha				;3F01 48
-		ldy #$4C		;3F02 A0 4C
+		ldy #$4C		;3F02 A0 4C PAUSED
 		lda #$02		;3F04 A9 02
-		jsr kernel_set_up_text_sprite		;3F06 20 A9 12
+		jsr graphics_pause_show_text_sprite
 .L_3F09	jsr cart_maybe_define_keys		;3F09 20 AF 97
 		ldx #KEY_DEF_CONTINUE		;3F0C A2 34
 		jsr poll_key_with_sysctl		;3F0E 20 C9 C7
@@ -1300,30 +1467,80 @@ ENDIF
 		tax				;3F17 AA
 		pla				;3F18 68
 		sta L_1327		;3F19 8D 27 13
-		tay				;3F1C A8
+		tay				;3F1C A8 <<reinstate last text sprite>>
 		pla				;3F1D 68
 		sta L_C355		;3F1E 8D 55 C3
-		bpl L_3F27_with_SID		;3F21 10 04
+		bpl sid_init_engine_note		;3F21 10 04
 		txa				;3F23 8A
-		jsr kernel_set_up_text_sprite		;3F24 20 A9 12
+		jsr graphics_pause_show_text_sprite
 }
 \\
-.L_3F27_with_SID
+.sid_init_engine_note
 {
 		lda #$06		;3F27 A9 06
-		jsr kernel_L_CF68		;3F29 20 68 CF
+		jsr kernel_play_sound_effect		;3F29 20 68 CF
 		lda #$05		;3F2C A9 05
-		jsr kernel_L_CF68		;3F2E 20 68 CF
-		jsr kernel_L_E104		;3F31 20 04 E1
+		jsr kernel_play_sound_effect		;3F2E 20 68 CF
+		jsr kernel_L_E104_with_sid		;3F31 20 04 E1
+
+	\\ Voice 1 Control Register
+	; Bit 0:  Gate Bit:  1=Start attack/decay/sustain, 0=Start release
+	; Bit 6:  Select pulse waveform
+
 		lda #$41		;3F34 A9 41
 		sta SID_VCREG1		;3F36 8D 04 D4	; SID
 		sta SID_VCREG3		;3F39 8D 12 D4
+
+	\\ Volume and Filter Select Register
+	; Bits 0-3:  Select output volume (0-15)
+	; Bit 4:  Select low-pass filter, 1=low-pass on
+	; Bit 5:  Select band-pass filter, 1=band-pass on
+	; Bit 6:  Select high-pass filter, 1=high-pass on
+	; Bit 7:  Disconnect output of voice 4, 1=voice 3 off
+
+	\\ Volume = 5, all filters on, disconnect voice 3?
+
 		lda #$F5		;3F3C A9 F5
 		sta SID_SIGVOL		;3F3E 8D 18 D4
+
+	\\ BEEB audio init for engine note
+
+	\\ Silence noise channel
+
+		LDA #$ff
+		JSR sn_write
+
+	\\ Silence tone 1
+
+		LDA #$df
+		JSR sn_write
+
+	\\ Set noise channel to tone 1 freq
+
+        LDA #%11100011   ; noise control freq 1
+        JSR sn_write
+
+	\\ Set tone 1 to lowest freq
+
+		LDA #$CF
+		JSR sn_write
+
+		LDA #$3F
+		JSR sn_write
+
+	\\ Set noise channel to max vol
+
+        LDA #%11110000  ; noise volume max
+        JSR sn_write
+
+	\\ BEEB - allow the engine note to be updated in IRQ
+
+		LDA #0:STA irq_audio_pause
+
 		rts				;3F41 60
 }
 
-.toggle_display_pageQ
+.flip_display_page
 {
 		sei				;3F42 78
 		lda L_C306		;3F43 AD 06 C3
@@ -1357,57 +1574,67 @@ ENDIF
 		rts				;3F6A 60
 }
 
-.ensure_screen_enabled		RTS
-IF _NOT_BEEB
-{
-		lda VIC_SCROLY		;3F9E AD 11 D0
-		and #$10		;3FA1 29 10			; 1=enable screen
-		bne L_3FB4		;3FA3 D0 0F
-}
-ENDIF
-\\
-.enable_screen_and_set_irq50
-IF _NOT_BEEB
-		lda VIC_SCROLY		;3FA5 AD 11 D0
-		ora #$10		;3FA8 09 10			; 1=enable screen
-		and #$7F		;3FAA 29 7F			; 0=raster compare HI
-		sta VIC_SCROLY		;3FAC 8D 11 D0
-		lda #$32		;3FAF A9 32
-		sta VIC_RASTER		;3FB1 8D 12 D0
-.L_3FB4	lda #C64_VIC_IRQ_RASTERCMP		;3FB4 A9 01
-		sta VIC_IRQMASK		;3FB6 8D 1A D0
-ENDIF
-		rts				;3FB9 60
+; .ensure_screen_enabled		RTS
+; IF _NOT_BEEB
+; {
+; 		lda VIC_SCROLY		;3F9E AD 11 D0
+; 		and #$10		;3FA1 29 10			; 1=enable screen
+; 		bne L_3FB4		;3FA3 D0 0F
+; }
+; ENDIF
+; \\
+; .enable_screen_and_set_irq50
+; IF _NOT_BEEB
+; 		lda VIC_SCROLY		;3FA5 AD 11 D0
+; 		ora #$10		;3FA8 09 10			; 1=enable screen
+; 		and #$7F		;3FAA 29 7F			; 0=raster compare HI
+; 		sta VIC_SCROLY		;3FAC 8D 11 D0
+; 		lda #$32		;3FAF A9 32
+; 		sta VIC_RASTER		;3FB1 8D 12 D0
+; .L_3FB4	lda #C64_VIC_IRQ_RASTERCMP		;3FB4 A9 01
+; 		sta VIC_IRQMASK		;3FB6 8D 1A D0
+; ENDIF
+; 		rts				;3FB9 60
 		
-.vic_border_colour	equb $00
+; .vic_border_colour	equb $00
 
-.vic_set_border_colour
-{
-		sta vic_border_colour		;3FBB 8D BA 3F
-}
-\\
-.vic_reset_border_colour
-{
-		nop				;3FBE EA
-		ldy #$05		;3FBF A0 05
-		sty ZP_14		;3FC1 84 14
-.L_3FC3	lda VIC_RASTER		;3FC3 AD 12 D0
-		cmp #$0A		;3FC6 C9 0A
-		bcs L_3FCF		;3FC8 B0 05
-		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
-		bpl L_3FD6		;3FCD 10 07
-.L_3FCF	dec ZP_14		;3FCF C6 14
-		bne L_3FC3		;3FD1 D0 F0
-		dey				;3FD3 88
-		bne L_3FC3		;3FD4 D0 ED
-.L_3FD6	lda vic_border_colour		;3FD6 AD BA 3F
-		sta VIC_EXTCOL		;3FD9 8D 20 D0
-		lda VIC_SCROLY		;3FDC AD 11 D0
-		and #$EF		;3FDF 29 EF				; 0=blank screen
-		sta VIC_SCROLY		;3FE1 8D 11 D0
-		ldy #$01		;3FE4 A0 01
-		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
-}
+; .disable_screen_and_change_border_colour
+; {
+; 		sta vic_border_colour		;3FBB 8D BA 3F
+; }
+; \\
+; .disable_screen
+; {
+; ; Not 100% sure about this initial bit - I think it waits until the
+; ; scanout is outside the visible area?
+; 		nop				;3FBE EA
+; 		ldy #$05		;3FBF A0 05
+; 		sty ZP_14		;3FC1 84 14
+; .L_3FC3 lda VIC_RASTER		;3FC3 AD 12 D0
+; 		cmp #$0A		;3FC6 C9 0A
+; 		bcs L_3FCF		;3FC8 B0 05
+; 		lda VIC_SCROLY		;3FCA AD 11 D0		; VIC raster compare HI
+; 		bpl L_3FD6		;3FCD 10 07
+; .L_3FCF dec ZP_14		;3FCF C6 14
+; 		bne L_3FC3		;3FD1 D0 F0
+; 		dey				;3FD3 88
+; 		bne L_3FC3		;3FD4 D0 ED
+; .L_3FD6
+; ; Set border colour.
+; 		lda vic_border_colour		;3FD6 AD BA 3F
+; 		sta VIC_EXTCOL		;3FD9 8D 20 D0
+
+; ; Disable display.
+
+; 		lda VIC_SCROLY		;3FDC AD 11 D0
+; 		and #$EF		;3FDF 29 EF				; 0=blank screen
+; 		sta VIC_SCROLY		;3FE1 8D 11 D0
+
+; ; Wait a bit.
+
+; 		ldy #$01		;3FE4 A0 01
+; 		jmp delay_approx_Y_25ths_sec		;3FE6 4C EB 3F
+; }
 
 .delay_approx_4_5ths_sec
 		ldy #$14		;3FE9 A0 14
@@ -1426,7 +1653,7 @@ ENDIF
 }
 
 \\ Moved from Cart RAM
-
+IF 0
 .nmi_handler		; C64 only
 {
 		pha				;9A32 48
@@ -1434,6 +1661,7 @@ ENDIF
 		pla				;9A36 68
 		rti				;9A37 40
 }
+ENDIF
 
 \\ Moved from Hazel RAM
 
@@ -1454,5 +1682,70 @@ ENDIF
 		rts				;C7D6 60
 }
 \\ NB. can't be put in DLL as sets flag on exit
+
+.sid_voice_flags	equb $00,$00,$00,$00
+.sid_voice_freq_control	equb $00,$00,$00,$00
+.sid_voice_release_time	equb $00,$00,$00,$00
+.sid_voice_release_timer	equb $00,$00,$00,$00
+.sid_voice_control	equb $00,$00,$00,$00
+.sid_vcreg_offset	equb $00,$07,$0E	; VCREG1, VCREG2, VCREG3
+
+.sid_update_voice_2			; only called from Kernel?
+{
+		ldx #$01		;86EF A2 01
+		lda sid_voice_flags,X	;86F1 BD C8 86
+		beq L_870C		;86F4 F0 16
+		bmi sid_return		;86F6 30 2C
+
+		dec sid_voice_flags,X	;86F8 DE C8 86
+		bne sid_return		;86FB D0 27
+
+		ldy sid_vcreg_offset,X	;86FD BC DC 86
+		lda sid_voice_control,X	;8700 BD D8 86
+		sta SID_VCREG1,Y	;8703 99 04 D4	; SID
+
+		lda sid_voice_release_time,X	;8706 BD D0 86
+		sta sid_voice_release_timer,X	;8709 9D D4 86
+
+.L_870C	lda sid_voice_release_timer,X	;870C BD D4 86
+		beq sid_return		;870F F0 13
+		dec sid_voice_release_timer,X	;8711 DE D4 86
+		bne sid_return		;8714 D0 0E
+}
+\\
+.sid_silence_voice		; in Cart - only called from sysctl
+{
+		ldy sid_vcreg_offset,X	;8716 BC DC 86
+		lda #$00		;8719 A9 00
+		sta sid_voice_flags,X	;871B 9D C8 86
+		sta SID_SUREL1,Y	;871E 99 06 D4	; SID
+		sta SID_VCREG1,Y	;8721 99 04 D4	; SID
+
+	; silence Beeb voice
+
+		TXA:PHA:TAY
+
+		CPY #$01
+		BNE not_sfx
+
+		LDA noise_sfx_override_engine
+		BEQ not_sfx
+
+		LDA #0
+		STA noise_sfx_override_engine
+
+        LDA #%11100011   ; noise control freq 1
+        JSR sn_write
+
+		.not_sfx
+		LDA psg_silence_voice, Y
+		JSR sn_write
+
+		PLA:TAX
+}
+\\
+.sid_return	rts				;8724 60
+
+.psg_silence_voice EQUB $ff, $bf, $df
 
 .core_end

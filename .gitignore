@@ -1,3 +1,7 @@
+/build/
+/sources/tmp/
+*.pyc
+
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
@@ -26,3 +30,4 @@ $RECYCLE.BIN/
 # =========================
 compile.txt
 log.txt
+graphics/scr-beeb-temp.png
