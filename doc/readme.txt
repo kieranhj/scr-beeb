@@ -154,7 +154,9 @@ may have a ROM installed that is
 claiming precious RAM!  Try unplugging
 any non-essential ROMS with *UNPLUG.
 
-This game has been tested on real
+This game is compatible with DFS only!
+- other filing systems are not
+supported. It been tested on real
 floppy disc hardware, Retroclinic
 DataCentre and MAMMFS for MMC devices.
 
@@ -170,3 +172,6 @@ RELEASE NOTES
 -------------
 7/3/2019 Version 1.0
 Initial release!
+
+DATE Version N
+Minor documentation updates.

@@ -16,6 +16,28 @@ Boost+accelerator forward .... RETURN
 Boost+Brake/Reverse .......... Space
 Brake/Reverse ................ *
 
+The key controls are set up to avoid
+the need to press more than two keys at
+any one time.
+
+With the 'Boost and Accelerator' key
+depressed, your car will be
+accelerating with boost. Once the key
+is released, the car will continue to
+accelerate, but without the boost.
+Therefore, the key does not need to be
+held down continuously unless boost is
+required.
+
+Forward acceleration is turned off by
+pressing either of the two
+brake/reverse keys. The car will then
+freewheel until another key is pressed.
+
+Two brake/reverse keys provide two
+braking/reversing rates, i.e., with and
+without boost.
+
 Redefining keys
 ---------------
 
@@ -38,8 +60,8 @@ for another set of keys to be pressed
 and verified. You mist then unpause the
 game to continue.
 
-In multi-player mode, each player can
 redefine the keys at any time during a
+In multi-player mode, each player can
 race (preferably before the start). The
 settings are stored for each individual
 player and are automatically
