@@ -131,21 +131,45 @@ clean:
 
 .PHONY:b2_test
 b2_test:
-	-$(MAKE) _b2_test
+	-$(MAKE) _b2_adfs_test
 
-.PHONY:_b2_test
-_b2_test:
+##########################################################################
+##########################################################################
+
+.PHONY:_b2_dfs_test
+_b2_dfs_test:
 	curl -G 'http://localhost:48075/reset/b2' --data-urlencode "config=Master 128 (MOS 3.20)"
 	curl -H 'Content-Type:application/binary' --upload-file 'scr-beeb.ssd' 'http://localhost:48075/run/b2?name=scr-beeb.ssd'
 
 ##########################################################################
 ##########################################################################
 
+.PHONY:_b2_adfs_test
+_b2_adfs_test: build/scr-beeb.adl
+	curl -G 'http://localhost:48075/reset/b2' --data-urlencode "config=Master 128 (MOS 3.20)"
+	curl -H 'Content-Type:application/binary' --upload-file 'build/scr-beeb.adl' 'http://localhost:48075/run/b2?name=scr-beeb.adl'
+
+
+##########################################################################
+##########################################################################
+
 .PHONY:tom_beeblink
 tom_beeblink: DEST=~/beeb/beeb-files/stuff
-tom_beeblink:
+tom_beeblink: build/scr-beeb.adl
 	cp ./scr-beeb.ssd $(DEST)/ssds/0/s.scr-beeb
 	touch $(DEST)/ssds/0/s.scr-beeb.inf
 
 	rm -Rf $(DEST)/scr-beeb/0
 	ssd_extract --not-emacs -o $(DEST)/scr-beeb/0/ -0 ./scr-beeb.ssd
+
+	touch $(DEST)/ssds/0/l.scr-beeb.inf
+	cp build/scr-beeb.adl $(DEST)/ssds/0/l.scr-beeb
+
+##########################################################################
+##########################################################################
+
+build/scr-beeb.adl: scr-beeb.ssd
+	rm -Rf build/files/
+	mkdir -p build/files/
+	ssd_extract --not-emacs -o build/files/ -0 ./scr-beeb.ssd
+	adf_create --dir=build/files/ --type=L -o build/scr-beeb.adl build/files/*
