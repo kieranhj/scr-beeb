@@ -2111,4 +2111,100 @@ rts
 .sound_volume:equb DEFAULT_SOUND_VOLUME
 .sound_volume_debounce:equb 0
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; _hazel_mos and _hazel_scr return A=0 if old setting was MOS or
+; A=other if old setting was SCR.
+
+._hazel_mos
+{
+lda hazel_use:bpl ok
+stz hazel_use					; now MOS
+jsr hazel_copy
+lda #$80						; was SCR
+.ok
+rts
+}
+
+._hazel_scr
+{
+lda hazel_use:bmi ok
+lda #$80:sta hazel_use			; now SCR
+jsr hazel_copy
+lda #0							; was MOS
+.ok
+rts
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+.hazel_copy
+{
+pha:phx:phy
+
+lda $f4:ora #$80:sta $f4
+if P%<$9000:ERROR "HAZEL copy routine mustn't overlap ANDY":ENDIF
+sta $fe30 ; page ANDY in
+
+; Stunt Car Racer isn't supposed to use $c000...$c2ff, but since
+; there's room, it can't hurt.
+ldx #$c0:ldy #$80:jsr hazel_swap
+ldx #$c1:ldy #$81:jsr hazel_swap
+ldx #$c2:ldy #$82:jsr hazel_swap
+ldx #$c3:ldy #$83:jsr hazel_swap
+ldx #$c4:ldy #$84:jsr hazel_swap
+ldx #$c5:ldy #$85:jsr hazel_swap
+ldx #$c6:ldy #$86:jsr hazel_swap
+ldx #$c7:ldy #$87:jsr hazel_swap
+ldx #$c8:ldy #$88:jsr hazel_swap
+
+; $c900 onwards seems to be ADFS random access file buffers - no point
+; saving them.
+
+; My test for this stuff was filling HAZEL with junk, then
+; initializing ADFS and seeing what changed. $DAxx wasn't apparently
+; modified, but presumably it's part of ADFS workspace
+
+ldx #$d9:ldy #$89:jsr hazel_swap
+ldx #$da:ldy #$8a:jsr hazel_swap
+ldx #$db:ldy #$8b:jsr hazel_swap
+
+; Much of $a0...$cf is allocated to the filing system, so copy that
+; too...
+
+ldx #$a0
+.zp_loop
+ldy 0,x:lda $8c00,x:sta 0,x:tya:sta $8c00,x
+inx:cpx #$d0:bne zp_loop
+
+; 8d00, 8e00, 8f00 free.
+
+lda $f4:and #$7f:sta $f4:sta $fe30 ; page ANDY out
+.done
+ply:plx:pla
+rts
+
+.hazel_swap
+stx rdhazel+2:stx wrhazel+2
+sty rdandy+2:sty wrandy+2
+ldx #0
+.hazel_swap_loop
+.rdhazel:ldy $ff00,x
+.rdandy:lda $ff00,x
+.wrhazel:sta $ff00,x
+tya:.wrandy:sta $ff00,x
+inx
+bne hazel_swap_loop
+rts
+}
+
+; Start out with a call to hazel_scr, stowing the MOS data in ANDY and
+; copying junk into HAZEL - but that's fine, 
+.hazel_use:equb $00
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 .beeb_graphics_end

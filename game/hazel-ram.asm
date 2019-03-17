@@ -177,6 +177,34 @@ if (P% and 255)<>0:error "oops":endif
 .L_C540	skip &40
 .L_C580	skip &40
 .L_C5C0	skip &40
+
+if (P% and 255)<>0:error "oops":endif
+if P%<$c900:error "oops":endif
+; This is scratch space for save game
+;
+; Strictly speaking, it should be part of the BSS, at the end. But
+; putting it here (somewhere between $c900...$d900) puts it outside
+; ADFS workspace, so it won't get trampled on when ADFS workspace is
+; restored.
+.L_4000 skip $C
+.L_400C skip 1
+.L_400D skip 1
+.L_400E skip $12
+.L_4020 skip 5
+.L_4025 skip $7B
+.L_40A0 skip $3C
+.L_40DC skip 4
+.L_40E0 skip $20
+
+.L_4100 skip $C
+.L_410C skip 1
+.L_410D skip 1
+.L_410E skip $12
+.L_4120 skip $E0
+
+.L_4300	skip $100
+if P%>$d900:error "oops":endif
+
 if (P% and 255)<>0:error "oops":endif
 .L_C600	skip &40
 .L_C640	skip &40
@@ -609,26 +637,6 @@ PAGE_ALIGN
 .L_DF0C	skip 1	; = $DF0C + BEEB_HAZEL_OFFSET
 .L_DF0D	skip 1	; = $DF0D + BEEB_HAZEL_OFFSET
 .L_DF0E	skip $F2	; = $DF0E + BEEB_HAZEL_OFFSET
-
-; This is scratch space for save game
-
-.L_4000 skip $C
-.L_400C skip 1
-.L_400D skip 1
-.L_400E skip $12
-.L_4020 skip 5
-.L_4025 skip $7B
-.L_40A0 skip $3C
-.L_40DC skip 4
-.L_40E0 skip $20
-
-.L_4100 skip $C
-.L_410C skip 1
-.L_410D skip 1
-.L_410E skip $12
-.L_4120 skip $E0
-
-.L_4300	skip $100
 
 .hazel_end
 

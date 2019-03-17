@@ -578,6 +578,7 @@ ENDIF
 .clear_write_char_half_row_flag DLL_CALL_CART _clear_write_char_half_row_flag, 73
 .set_write_char_colour_mask DLL_CALL_CART _set_write_char_colour_mask, 74
 .unpack_hall_of_fame DLL_CALL_CART _unpack_hall_of_fame, 75
+.write_char_oswrch_flush DLL_CALL_CART _write_char_oswrch_flush,76
 
 ; *****************************************************************************
 \\ Function addresses
@@ -663,7 +664,8 @@ ENDIF
 	EQUB LO(_plot_menu_option)
 	EQUB LO(_clear_write_char_half_row_flag)
 	EQUB LO(_set_write_char_colour_mask)
-	EQUB LO(_unpack_hall_of_fame)
+	EQUB LO(_unpack_hall_of_fame) ; 75
+	EQUB LO(_write_char_oswrch_flush) ; 76
 }
 
 .cart_table_HI
@@ -746,7 +748,8 @@ ENDIF
 	EQUB HI(_plot_menu_option)
 	EQUB HI(_clear_write_char_half_row_flag)
 	EQUB HI(_set_write_char_colour_mask)
-	EQUB HI(_unpack_hall_of_fame)
+	EQUB HI(_unpack_hall_of_fame) ; 75
+	EQUB HI(_write_char_oswrch_flush) ; 76
 }
 
 PRINT "CART Jump Table Entries =", cart_table_HI-cart_table_LO, "(", P%-cart_table_HI, ")"
@@ -906,6 +909,9 @@ ENDIF
 .graphics_update_sound_volume DLL_CALL_GRAPHICS _graphics_update_sound_volume,26
 .graphics_sound_volume_keys DLL_CALL_GRAPHICS _graphics_sound_volume_keys,27
 
+.hazel_mos DLL_CALL_GRAPHICS _hazel_mos,28
+.hazel_scr DLL_CALL_GRAPHICS _hazel_scr,29
+
 ; *****************************************************************************
 \\ Function addresses
 ; *****************************************************************************
@@ -940,6 +946,8 @@ ENDIF
 	EQUB LO(_graphics_show_keys_screen)			 ; 25
 	EQUB LO(_graphics_update_sound_volume)		 ; 26
 	EQUB LO(_graphics_sound_volume_keys)		 ; 27
+	EQUB LO(_hazel_mos)							 ; 28
+	EQUB LO(_hazel_scr)							 ; 29
 }
 
 .graphics_table_HI
@@ -972,6 +980,8 @@ ENDIF
 	EQUB HI(_graphics_show_keys_screen)			 ; 25
 	EQUB HI(_graphics_update_sound_volume)		 ; 26
 	EQUB HI(_graphics_sound_volume_keys)		 ; 27
+	EQUB HI(_hazel_mos)							 ; 28
+	EQUB HI(_hazel_scr)							 ; 29
 }
 
 PRINT "GRAPHICS Jump Table Entries =", graphics_table_HI-graphics_table_LO, "(", P%-graphics_table_HI, ")"

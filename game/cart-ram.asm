@@ -307,22 +307,54 @@ rts
 
 write_char_leftmost_column=4
 
-; Just as write_char, but with a bodge when past column 40. This is
-; for making *CAT output look OK when the filing system doesn't print
-; any newlines... it is as exactly as clever (or not) as necessary for
-; that, and definitely no more.
+write_char_buf_size=255
+.write_char_buf:skip write_char_buf_size
+.write_char_buf_pos:equb 0
+
+; There's enough overhead to hazel_scr/hazel_mos that it's definitely
+; worth buffering the output. This does mean this isn't quite a
+; drop-in replacement for OSWRCH, though, as the caller must be sure
+; to call write_char_oswrch_flush afterwards.
+;
+; Since this is only used by the *CAT option, it's not a big problem.
 .write_char_oswrch_replacement
 {
-pha
-lda write_char_x_pos
-cmp #write_char_leftmost_column+40
-bcc fall_through
-sbc #40
-sta write_char_x_pos
-inc write_char_y_pos
+phy:phx:pha
+lda write_char_buf_pos:cmp #write_char_buf_size:bne can_write
+jsr write_char_oswrch_flush
+.can_write
+pla:ldx write_char_buf_pos:sta write_char_buf,x
+inc write_char_buf_pos
+plx:ply
+rts
+}
+
+._write_char_oswrch_flush
+{
+lda write_char_buf_pos:beq flushed
+
+jsr hazel_scr:pha
+
+ldx #0
+.loop
+; Move to next line when going past column 40. This is for making *CAT
+; output look OK when the filing system doesn't print any newlines...
+; it is as exactly as clever (or not) as necessary for that, and
+; definitely no more.
+lda write_char_x_pos:cmp #write_char_leftmost_column+40:bcc fall_through
+sbc #40:sta write_char_x_pos:inc write_char_y_pos
 .fall_through
-pla
-; fall through to write_char_ascii
+lda write_char_buf,x:jsr write_char_ascii
+inx:cpx write_char_buf_pos:bne loop
+
+stz write_char_buf_pos
+
+pla:bne hazel_ok:jsr hazel_mos:.hazel_ok
+
+.flushed
+rts
+
+.index:equb 0
 }
 
 ; As write_char, but with a more ASCII-y character set. This is mainly

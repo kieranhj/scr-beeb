@@ -2057,9 +2057,12 @@ ENDIF
 
 	; issue *CAT
 
+	  	jsr hazel_mos
 		LDX #LO(oscli_cat)
 		LDY #HI(oscli_cat)
 		JSR oscli
+		jsr hazel_scr
+		jsr write_char_oswrch_flush
 
 	; wait for key press
 
@@ -2111,9 +2114,7 @@ equb $08						; disk device
     LDX #LO(savegame_params)
     LDY #HI(savegame_params)
     LDA #0
-    JSR osfile
-
-	RTS
+	JMP kernel_call_osfile
 }
 
 .KERNEL_LOAD
@@ -2124,8 +2125,14 @@ equb $08						; disk device
 	LDX #LO(savegame_params)
 	LDY #HI(savegame_params)
 	LDA #&FF
-    JSR osfile
+}
 
+.kernel_call_osfile
+{
+	pha:jsr hazel_mos:pla
+	jsr osfile
+	; might be a BRK here...
+	pha:jsr hazel_scr:pla
 	RTS
 }
 

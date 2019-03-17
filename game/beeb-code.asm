@@ -629,6 +629,8 @@ endif
 ldx #$ff:txs
 ; switch to KERNEL bank
 lda #BEEB_KERNEL_SLOT:sta $f4:sta $fe30
+; restore SCR HAZEL
+jsr hazel_scr
 ; flag file error
 lda #$80:sta file_error_flag
 ; push main loop return address onto stack

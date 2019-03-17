@@ -906,6 +906,11 @@ GUARD &6000
 
 	\\ Clear Hazel RAM for BSS
 
+    ; this will copy the MOS data into ANDY, and fill HAZEL with
+    ; whatever junk was in ANDY before. But that's fine - it's all
+    ; about to get zapped.
+	jsr hazel_scr
+
 	{
 		ldx #0
 		lda #0
