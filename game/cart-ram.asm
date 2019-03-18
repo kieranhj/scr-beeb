@@ -306,6 +306,7 @@ rts
 
 
 write_char_leftmost_column=4
+write_char_num_rows=25
 
 write_char_buf_size=255
 .write_char_buf:skip write_char_buf_size
@@ -341,9 +342,15 @@ ldx #0
 ; output look OK when the filing system doesn't print any newlines...
 ; it is as exactly as clever (or not) as necessary for that, and
 ; definitely no more.
-lda write_char_x_pos:cmp #write_char_leftmost_column+40:bcc fall_through
+lda write_char_x_pos:cmp #write_char_leftmost_column+40:bcc x_ok
 sbc #40:sta write_char_x_pos:inc write_char_y_pos
-.fall_through
+.x_ok
+
+.scroll_loop
+lda write_char_y_pos:cmp #write_char_num_rows:bcc y_ok
+jsr scroll:dec write_char_y_pos:bra scroll_loop
+
+.y_ok
 lda write_char_buf,x:jsr write_char_ascii
 inx:cpx write_char_buf_pos:bne loop
 
@@ -355,6 +362,35 @@ pla:bne hazel_ok:jsr hazel_mos:.hazel_ok
 rts
 
 .index:equb 0
+
+.scroll
+{
+phx
+lda #$80:sta rd+1:lda #$42:sta rd+2
+lda #$00:sta wr+1:lda #$40:sta wr+2
+ldx #$3c
+ldy #0
+.scroll_loop
+.rd:lda $ffff,y
+.wr:sta $ffff,y
+iny:bne scroll_loop
+inc wr+2
+inc rd+2
+dex
+bne scroll_loop
+ldx #127
+dest=$4000+(write_char_num_rows-1)*640
+.clear_loop
+stz dest+$000,x
+stz dest+$080,x
+stz dest+$100,x
+stz dest+$180,x
+stz dest+$200,x
+dex
+bpl clear_loop
+plx
+rts
+}
 }
 
 ; As write_char, but with a more ASCII-y character set. This is mainly

@@ -2055,6 +2055,12 @@ ENDIF
 		LDX #4:LDY #2
 		JSR cart_set_text_cursor
 
+    ; turn off half row flag
+
+	  	lda #$20				; manipulate half row flag
+		ldx #0					; half row mode off
+		jsr cart_sysctl
+
 	; issue *CAT
 
 	  	jsr hazel_mos
