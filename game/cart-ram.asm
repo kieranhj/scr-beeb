@@ -494,15 +494,40 @@ rts
 		cmp #33+(ascii_glyphs_1_end-ascii_glyphs_1_begin) div 8
 		bcc ascii_glyph_1
 
+		cmp #91
+		bcc stunt_car_racer_glyph
+
+		cmp #91+(ascii_glyphs_2_end-ascii_glyphs_2_begin) div 8
+		bcc ascii_glyph_2
+
+		cmp #123
+		bcc stunt_car_racer_glyph
+
+		cmp #123+(ascii_glyphs_3_end-ascii_glyphs_3_begin) div 8
+		bcc ascii_glyph_3
+		
 		;  more ranges here??
 		
 		jmp stunt_car_racer_glyph
 
+.ascii_glyph_3
+		sec
+		sbc #123
+		asl a:asl a:asl a:adc #LO(ascii_glyphs_3_begin):sta ZP_F0
+		lda #0:adc #HI(ascii_glyphs_3_begin):sta ZP_F1
+		jmp got_glyph_address
+
+.ascii_glyph_2
+		sec
+		sbc #91
+		asl a:asl a:asl a:adc #LO(ascii_glyphs_2_begin):sta ZP_F0
+		lda #0:adc #HI(ascii_glyphs_2_begin):sta ZP_F1
+		jmp got_glyph_address
+
 .ascii_glyph_1
 		sec
 		sbc #33
-		asl a:asl a:asl a
-		adc #LO(ascii_glyphs_1_begin):sta ZP_F0
+		asl a:asl a:asl a:adc #LO(ascii_glyphs_1_begin):sta ZP_F0
 		lda #0:adc #HI(ascii_glyphs_1_begin):sta ZP_F1
 		jmp got_glyph_address
 
@@ -8181,8 +8206,130 @@ PAGE_ALIGN
         EQUB    %00010000
 .ascii_glyphs_1_end
 
+.ascii_glyphs_2_begin
+
+; $5B - Character: '['          CHR$(91)
+
+        EQUB    %00000000
+        EQUB    %00001110
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001110
+        EQUB    %00000000
+
+; $5C - Character: '\'          CHR$(92)
+
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %01000000
+        EQUB    %00100000
+        EQUB    %00010000
+        EQUB    %00001000
+        EQUB    %00000100
+        EQUB    %00000000
+
+; $5D - Character: ']'          CHR$(93)
+
+        EQUB    %00000000
+        EQUB    %01110000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %01110000
+        EQUB    %00000000
+
+; $5E - Character: '^'          CHR$(94)
+
+        EQUB    %00000000
+        EQUB    %00010000
+        EQUB    %00101000
+        EQUB    %01000100
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+
+; $5F - Character: '_'          CHR$(95)
+
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %11111111
+
+; $60 - Character: 'ukp'        CHR$(96)
+
+        EQUB    %00000000
+        EQUB    %00011100
+        EQUB    %00100010
+        EQUB    %01111000
+        EQUB    %00100000
+        EQUB    %00100000
+        EQUB    %01111110
+        EQUB    %00000000
+		
+.ascii_glyphs_2_end
+
+.ascii_glyphs_3_begin
+
+; $7B - Character: '{'          CHR$(123)
+
+        EQUB    %00000000
+        EQUB    %00001110
+        EQUB    %00001000
+        EQUB    %00110000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001110
+        EQUB    %00000000
+
+; $7C - Character: '|'          CHR$(124)
+
+        EQUB    %00000000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00001000
+        EQUB    %00000000
+
+; $7D - Character: '}'          CHR$(125)
+
+        EQUB    %00000000
+        EQUB    %01110000
+        EQUB    %00010000
+        EQUB    %00001100
+        EQUB    %00010000
+        EQUB    %00010000
+        EQUB    %01110000
+        EQUB    %00000000
+
+; $7E - Character: '~'          CHR$(126)
+
+        EQUB    %00000000
+        EQUB    %00010100
+        EQUB    %00101000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+        EQUB    %00000000
+
+.ascii_glyphs_3_end
+
 if (ascii_glyphs_1_end-ascii_glyphs_1_begin) MOD 8<>0:error "oops":endif
 if (ascii_glyphs_1_end-ascii_glyphs_1_begin)>256:error "oops":endif
+if (ascii_glyphs_2_end-ascii_glyphs_2_begin) MOD 8<>0:error "oops":endif
+if (ascii_glyphs_2_end-ascii_glyphs_2_begin)>256:error "oops":endif
+if (ascii_glyphs_3_end-ascii_glyphs_3_begin) MOD 8<>0:error "oops":endif
+if (ascii_glyphs_3_end-ascii_glyphs_3_begin)>256:error "oops":endif
 
 ; *****************************************************************************
 ; *****************************************************************************
