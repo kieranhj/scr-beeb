@@ -2154,6 +2154,9 @@ rts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+fs_zp_min=$a0
+fs_zp_count=$30
+
 .hazel_copy
 {
 pha:phx:phy
@@ -2178,22 +2181,34 @@ ldx #$c8:ldy #$88:jsr hazel_swap
 ; saving them.
 
 ; My test for this stuff was filling HAZEL with junk, then
-; initializing ADFS and seeing what changed. $DAxx wasn't apparently
-; modified, but presumably it's part of ADFS workspace
+; initializing ADFS and seeing what changed.
+;
+; $DAxx wasn't apparently modified, but since it's between $D9xx and
+; $DBxx, presumably it's part of ADFS workspace too...
+;
+; $DCxx appears to be the buffer for storing the command line for
+; OSCLI.
+;
+; Stunt Car Racer doesn't use $DD00 onwards.
 
 ldx #$d9:ldy #$89:jsr hazel_swap
 ldx #$da:ldy #$8a:jsr hazel_swap
 ldx #$db:ldy #$8b:jsr hazel_swap
+ldx #$dc:ldy #$8c:jsr hazel_swap
+
+; 8d, 8e, 8f free.
 
 ; Much of $a0...$cf is allocated to the filing system, so copy that
 ; too...
 
-ldx #$a0
+ldx #0
 .zp_loop
-ldy 0,x:lda $8c00,x:sta 0,x:tya:sta $8c00,x
-inx:cpx #$d0:bne zp_loop
+ldy fs_zp_min,x
+lda fs_zp_buffer,x
+sta fs_zp_min,x
+tya:sta fs_zp_buffer,x
 
-; 8d00, 8e00, 8f00 free.
+inx:cpx #fs_zp_count:bne zp_loop
 
 lda $f4:and #$7f:sta $f4:sta $fe30 ; page ANDY out
 .done
@@ -2213,6 +2228,8 @@ inx
 bne hazel_swap_loop
 rts
 }
+
+.fs_zp_buffer:skip fs_zp_count
 
 ; Start out with a call to hazel_scr, stowing the MOS data in ANDY and
 ; copying junk into HAZEL - but that's fine, 
