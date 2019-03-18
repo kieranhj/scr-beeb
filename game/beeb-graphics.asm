@@ -1881,6 +1881,7 @@ lda #8:sta $fe00:lda #%11110011:sta $fe01
 lda $fe34:ora #%00000100:sta $fe34 ; page in shadow RAM
 ldx #lo(keys_screen_pu):ldy #hi(keys_screen_pu)
 jsr PUCRUNCH_UNPACK
+if _DEBUG:jsr show_version:ENDIF
 lda $fe34:and #%11111011:sta $fe34 ; page in main RAM
 ; stash screen RAM
 {
@@ -1941,24 +1942,37 @@ bne unstashloop
 }
 rts
 
+.show_version
+{
+dest=$7c24
+lda #140:sta dest+0				; double height off
+lda #BUILD_VERSION_MAJOR:sta dest+1
+lda #'.':sta dest+2
+lda #BUILD_VERSION_MINOR:sta dest+3
+if _DEBUG:lda #'d':ELSE:lda #'r':ENDIF:sta dest+4
+rts
+}
+
 ; Keys screen loop.
 
 .keys_screen
 {
 lda #19:jsr osbyte
-lda &FE34:ora #1:sta &FE34 ; display shadow RAM
+lda #5:tsb $fe34				; display + page in shadow RAM
 
-.keys_loop
+.*keys_screen_loop
 jsr mode7_getch
 
 cmp #13:beq keys_done
 and #$df
 beq keys_done
 cmp #'C':beq trainer_screen
-bra keys_loop
+cmp #'V':bne not_v:jsr show_version:.not_v
+bra keys_screen_loop
 }
 .keys_done
 .trainer_done
+lda #4:trb $fe34				; page in main RAM
 rts
 
 ; Trainer screen loop.
@@ -1966,7 +1980,7 @@ rts
 .trainer_screen
 {
 lda #19:jsr osbyte
-lda &FE34:and #&FE:sta &FE34 ; display main RAM
+lda #5:trb $fe34				; display + page in main RAM
 
 .trainer_screen_loop
 
