@@ -162,6 +162,35 @@ tom_beeblink: build/scr-beeb.adl
 	rm -Rf $(DEST)/scr-beeb/0
 	ssd_extract --not-emacs -o $(DEST)/scr-beeb/0/ -0 ./scr-beeb.ssd
 
+# Add files with new ASCII chars in their names.
+	touch $(DEST)/scr-beeb/0/ugh1
+	echo '$$.{|}~ ffffffff ffffffff' > $(DEST)/scr-beeb/0/ugh1.inf
+
+	touch $(DEST)/scr-beeb/0/ugh2
+	echo '$$.[\\]^_` ffffffff ffffffff' > $(DEST)/scr-beeb/0/ugh2.inf
+
+# Add more files to induce scrolling.
+	@touch $(DEST)/scr-beeb/0/_.00 && touch $(DEST)/scr-beeb/0/_.00.inf
+	@touch $(DEST)/scr-beeb/0/_.01 && touch $(DEST)/scr-beeb/0/_.01.inf
+	@touch $(DEST)/scr-beeb/0/_.02 && touch $(DEST)/scr-beeb/0/_.02.inf
+	@touch $(DEST)/scr-beeb/0/_.03 && touch $(DEST)/scr-beeb/0/_.03.inf
+	@touch $(DEST)/scr-beeb/0/_.04 && touch $(DEST)/scr-beeb/0/_.04.inf
+	@touch $(DEST)/scr-beeb/0/_.05 && touch $(DEST)/scr-beeb/0/_.05.inf
+	@touch $(DEST)/scr-beeb/0/_.06 && touch $(DEST)/scr-beeb/0/_.06.inf
+	@touch $(DEST)/scr-beeb/0/_.07 && touch $(DEST)/scr-beeb/0/_.07.inf
+	@touch $(DEST)/scr-beeb/0/_.08 && touch $(DEST)/scr-beeb/0/_.08.inf
+	@touch $(DEST)/scr-beeb/0/_.09 && touch $(DEST)/scr-beeb/0/_.09.inf
+	@touch $(DEST)/scr-beeb/0/_.10 && touch $(DEST)/scr-beeb/0/_.10.inf
+	@touch $(DEST)/scr-beeb/0/_.11 && touch $(DEST)/scr-beeb/0/_.11.inf
+	@touch $(DEST)/scr-beeb/0/_.12 && touch $(DEST)/scr-beeb/0/_.12.inf
+	@touch $(DEST)/scr-beeb/0/_.13 && touch $(DEST)/scr-beeb/0/_.13.inf
+	@touch $(DEST)/scr-beeb/0/_.14 && touch $(DEST)/scr-beeb/0/_.14.inf
+	@touch $(DEST)/scr-beeb/0/_.15 && touch $(DEST)/scr-beeb/0/_.15.inf
+	@touch $(DEST)/scr-beeb/0/_.16 && touch $(DEST)/scr-beeb/0/_.16.inf
+	@touch $(DEST)/scr-beeb/0/_.17 && touch $(DEST)/scr-beeb/0/_.17.inf
+	@touch $(DEST)/scr-beeb/0/_.18 && touch $(DEST)/scr-beeb/0/_.18.inf
+	@touch $(DEST)/scr-beeb/0/_.19 && touch $(DEST)/scr-beeb/0/_.19.inf
+
 	touch $(DEST)/ssds/0/l.scr-beeb.inf
 	cp build/scr-beeb.adl $(DEST)/ssds/0/l.scr-beeb
 
