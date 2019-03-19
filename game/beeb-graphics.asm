@@ -1949,7 +1949,7 @@ lda #140:sta dest+0				; double height off
 lda #BUILD_VERSION_MAJOR:sta dest+1
 lda #'.':sta dest+2
 lda #BUILD_VERSION_MINOR:sta dest+3
-if _DEBUG:lda #'d':ELSE:lda #'r':ENDIF:sta dest+4
+lda #BUILD_VERSION_SUFFIX:sta dest+4
 rts
 }
 

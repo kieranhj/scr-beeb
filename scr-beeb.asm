@@ -51,12 +51,18 @@ MAX_LOADABLE_ROM_SIZE = $8000 - disksys_loadto_addr
 
 _TODO = FALSE
 _NOT_BEEB = FALSE
-_DEBUG = TRUE
+_DEBUG = FALSE
 
 ; Both are one digit. We're unlikely to run out. Even having
 ; major/minor is probably overkill.
 BUILD_VERSION_MAJOR = '1'
 BUILD_VERSION_MINOR = '1'
+
+If _DEBUG
+BUILD_VERSION_SUFFIX = 'd'
+ELSE
+BUILD_VERSION_SUFFIX = 'r'
+ENDIF
 
 DEFAULT_TRACK_DRAW_DISTANCE = $02		; $06 for longer draw
 

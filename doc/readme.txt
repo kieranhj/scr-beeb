@@ -172,7 +172,8 @@ RELEASE NOTES
 Initial release!
 
 DATE Version 1.1
-- Minor documentation updates.
-- Fix ADFS incompatibility.
+- Minor documentation updates
+- Fix ADFS incompatibility
 - Version indicator (press V on
   initial instructions screen)
+- Improve *CAT output
