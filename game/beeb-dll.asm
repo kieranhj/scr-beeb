@@ -152,9 +152,25 @@ ENDIF
 .kernel_L_F6A6 DLL_CALL_KERNEL L_F6A6, 34
 .kernel_check_game_keys DLL_CALL_KERNEL check_game_keys, 35
 .kernel_L_F811 DLL_CALL_KERNEL L_F811, 36		; not required in DLL
-.kernel_set_linedraw_colour DLL_CALL_KERNEL set_linedraw_colour, 37
+.kernel_set_linedraw_colour
+;	DLL_CALL_KERNEL set_linedraw_colour, 37
+	;; only called from cart RAM
+	;; A does not need preserving
+	SWR_SELECT_SLOT BEEB_KERNEL_SLOT
+	jsr set_linedraw_colour
+	SWR_SELECT_SLOT BEEB_CART_SLOT
+	rts
+
 .kernel_set_linedraw_op DLL_CALL_KERNEL set_linedraw_op, 38
-.kernel_L_FE91_with_draw_line DLL_CALL_KERNEL L_FE91_with_draw_line, 39
+.kernel_L_FE91_with_draw_line
+;	DLL_CALL_KERNEL L_FE91_with_draw_line, 39
+	;; only called from cart RAM
+	;; A does not need preserving
+	SWR_SELECT_SLOT BEEB_KERNEL_SLOT
+	jsr L_FE91_with_draw_line
+	SWR_SELECT_SLOT BEEB_CART_SLOT
+	rts
+
 .kernel_draw_line DLL_CALL_KERNEL draw_line, 40
 .kernel_L_FF6A DLL_CALL_KERNEL L_FF6A, 41
 .kernel_L_FF84 DLL_CALL_KERNEL L_FF84, 42		; not required in DLL
@@ -190,7 +206,11 @@ ENDIF
 .kernel_L_C81E DLL_CALL_KERNEL L_C81E, 62
 .kernel_mul_8_16_16bit DLL_CALL_KERNEL mul_8_16_16bit, 63
 .kernel_mul_8_16_16bit_2 DLL_CALL_KERNEL mul_8_16_16bit_2, 64
-.kernel_negate_if_N_set DLL_CALL_KERNEL negate_if_N_set, 65
+.kernel_negate_if_N_set
+{	BPL no
+	DLL_CALL_KERNEL negate_if_N_set, 65
+	.no rts
+}
 .kernel_negate_16bit DLL_CALL_KERNEL negate_16bit, 66		; not required in DLL
 .kernel_accurate_sin BRK      ; only called from Kernel?
 .kernel_square_ay_32bit BRK    ; only called from Cart?
