@@ -11,6 +11,34 @@ EXO_AND_ARGS=$(EXO) level -c -M256
 ##########################################################################
 ##########################################################################
 
+ifeq ($(OS),Windows_NT)
+RM_RF:=cmd /c rd /s /q
+MKDIR_P:=cmd /c mkdir
+else
+RM_RF:=rm -Rf
+MKDIR_P:=mkdir -p
+endif
+
+##########################################################################
+##########################################################################
+
+# Files that ought to go on the disk in a particular order. Any others
+# will be added afterwards, in no particular order.
+FILES_ORDER:=\
+	!BOOT\
+	Title\
+	Loader2\
+	Cart\
+	Kernel\
+	Beebgfx\
+	Beebmus\
+	Core\
+	Hazel\
+	Data
+
+##########################################################################
+##########################################################################
+
 .PHONY:build
 build:\
 	./build/scr-beeb-title-screen.exo\
@@ -34,6 +62,22 @@ build:\
 	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'safe to load to' | grep -Evi '^-+'
 
 	$(PYTHON) bin/crc32.py scr-beeb.ssd
+
+	$(MAKE) disc_images
+
+##########################################################################
+##########################################################################
+
+.PHONY:disc_images
+disc_images:
+	$(RM_RF) "build/files/"
+	$(MKDIR_P) "build/files/"
+	$(PYTHON) bin/scr_ssd_extract.py -o build/files/ -0 ./scr-beeb.ssd
+	$(PYTHON) bin/scr_ssd_create.py --dir=build/files/ -o build/scr-beeb.ssd $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
+	$(PYTHON) bin/scr_adf_create.py --dir=build/files/ --type=L -o build/scr-beeb.adl $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
+
+##########################################################################
+##########################################################################
 
 .PHONY:clean
 clean:
@@ -145,7 +189,7 @@ _b2_dfs_test:
 ##########################################################################
 
 .PHONY:_b2_adfs_test
-_b2_adfs_test: build/scr-beeb.adl
+_b2_adfs_test:
 	curl -G 'http://localhost:48075/reset/b2' --data-urlencode "config=Master 128 (MOS 3.20)"
 	curl -H 'Content-Type:application/binary' --upload-file 'build/scr-beeb.adl' 'http://localhost:48075/run/b2?name=scr-beeb.adl'
 
@@ -155,8 +199,8 @@ _b2_adfs_test: build/scr-beeb.adl
 
 .PHONY:tom_beeblink
 tom_beeblink: DEST=~/beeb/beeb-files/stuff
-tom_beeblink: build/scr-beeb.adl
-	cp ./scr-beeb.ssd $(DEST)/ssds/0/s.scr-beeb
+tom_beeblink:
+	cp ./build/scr-beeb.ssd $(DEST)/ssds/0/s.scr-beeb
 	touch $(DEST)/ssds/0/s.scr-beeb.inf
 
 	rm -Rf $(DEST)/scr-beeb/0
@@ -193,27 +237,3 @@ tom_beeblink: build/scr-beeb.adl
 
 	touch $(DEST)/ssds/0/l.scr-beeb.inf
 	cp build/scr-beeb.adl $(DEST)/ssds/0/l.scr-beeb
-
-##########################################################################
-##########################################################################
-
-# Files that ought to go on the disk in a particular order. Any others
-# will be added afterwards, in no particular order.
-FILES_ORDER:=\
-	!BOOT\
-	Title\
-	Loader2\
-	Cart\
-	Kernel\
-	Beebgfx\
-	Beebmus\
-	Core\
-	Hazel\
-	Data
-
-build/scr-beeb.adl: scr-beeb.ssd
-	rm -Rf build/files/
-	mkdir -p build/files/
-	ssd_extract --not-emacs -o build/files/ -0 ./scr-beeb.ssd
-	ssd_create --dir=build/files/ -o build/scr-beeb.ssd $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
-	adf_create --dir=build/files/ --type=L -o build/scr-beeb.adl $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
