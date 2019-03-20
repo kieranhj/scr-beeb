@@ -197,8 +197,23 @@ tom_beeblink: build/scr-beeb.adl
 ##########################################################################
 ##########################################################################
 
+# Files that ought to go on the disk in a particular order. Any others
+# will be added afterwards, in no particular order.
+FILES_ORDER:=\
+	!BOOT\
+	Title\
+	Loader2\
+	Cart\
+	Kernel\
+	Beebgfx\
+	Beebmus\
+	Core\
+	Hazel\
+	Data
+
 build/scr-beeb.adl: scr-beeb.ssd
 	rm -Rf build/files/
 	mkdir -p build/files/
 	ssd_extract --not-emacs -o build/files/ -0 ./scr-beeb.ssd
-	adf_create --dir=build/files/ --type=L -o build/scr-beeb.adl build/files/*
+	ssd_create --dir=build/files/ -o build/scr-beeb.ssd $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
+	adf_create --dir=build/files/ --type=L -o build/scr-beeb.adl $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
