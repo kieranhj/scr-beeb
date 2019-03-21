@@ -1,9 +1,11 @@
 ifeq ($(OS),Windows_NT)
+CP:=copy
 RM_RF:=-cmd /c rd /s /q
 MKDIR_P:=-cmd /c mkdir
 BEEBASM?=beebasm
 EXO?=bin\exomizer.exe
 else
+CP:=cp
 RM_RF:=rm -Rf
 MKDIR_P:=mkdir -p
 BEEBASM?=beebasm
@@ -21,13 +23,14 @@ EXO_AND_ARGS=$(EXO) level -c -M256
 ##########################################################################
 ##########################################################################
 
-
-##########################################################################
-##########################################################################
-
-# Files that ought to go on the disk in a particular order. Any others
-# will be added afterwards, in no particular order.
-FILES_ORDER:=\
+# Files required for the game, in the order in which they're loaded.
+# This is the list of files that will be copied by the installer, and
+# the order in which they'll go on the final disk image.
+#
+# The SSD that BeebAsm produces can include other files, and they'll
+# be included, but the installer will ignore them and be in no
+# specific order.
+REQUIRED_FILES:=\
 	!BOOT\
 	Title\
 	Loader2\
@@ -75,18 +78,41 @@ endif
 
 .PHONY:disc_images
 disc_images:
+# generate full text of installer
+	$(CP) "data/install.txt" "build/"
+	$(PYTHON) bin/add_installer_data.py $(REQUIRED_FILES) >> "build/install.txt"
+
+# get BeebAsm to tokenize the installer
+
+	beebasm -i data\install.asm -do build\install.ssd
+
+# extract the installer
+
+	$(RM_RF) "build/install_files/"
+	$(MKDIR_P) "build/install_files/"
+	$(PYTHON) bin/scr_ssd_extract.py -o build/install_files/ -0 ./build/install.ssd
+
+# extract BeebAsm output.
+
 	$(RM_RF) "build/files/"
 	$(MKDIR_P) "build/files/"
 	$(PYTHON) bin/scr_ssd_extract.py -o build/files/ -0 ./scr-beeb.ssd
-	$(PYTHON) bin/scr_ssd_create.py --dir=build/files/ -o build/scr-beeb.ssd $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
-	$(PYTHON) bin/scr_adf_create.py --dir=build/files/ --type=L -o build/scr-beeb.adl $(addprefix build/files/$$.,$(FILES_ORDER)) build/files/*
+
+# include installer on DFS copy.
+
+	$(PYTHON) bin/scr_ssd_create.py --dir=build/files/ -o build/scr-beeb.ssd $(addprefix build/files/$$.,$(REQUIRED_FILES)) build/files/* build/install_files/$$.INSTALL
+
+# don't include installer on ADFS - it assumes DFS, and there's no
+# point to it anyway, as you can just use *COPY.
+
+	$(PYTHON) bin/scr_adf_create.py --dir=build/files/ --type=L -o build/scr-beeb.adl $(addprefix build/files/$$.,$(REQUIRED_FILES)) build/files/*
 
 ##########################################################################
 ##########################################################################
 
 .PHONY:clean
 clean:
-	rm -Rf ./build
+	$(RM_RF) "build"
 
 ##########################################################################
 ##########################################################################

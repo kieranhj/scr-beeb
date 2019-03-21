@@ -134,6 +134,32 @@ https://github.com/simondotm/vgm-packer
 https://bitbucket.org/magli143/exomizer
 
 
+HARD DISK INSTALLATION
+----------------------
+Create a directory on your hard drive
+to store Stunt Car Racer, and switch to
+that directory. For example:
+
+ *CDIR $.GAMES.STUNTCAR
+ *DIR $.GAMES.STUNTCAR
+
+To install from the DFS image, run the
+installer as follows (replacing 0 with
+the appropriate drive, if required),
+then follow the prompts:
+
+ CHAIN "-DISC-:0.$.INSTALL"
+
+Or to install from the ADFS image,
+simply use *COPY. For example, with the
+disk in drive 4:
+
+ *COPY :4.* @
+
+Either process wil copy the files into
+the current ADFS directory.
+
+
 TECHNICAL SUPPORT
 -----------------
 This game requires a standard issue

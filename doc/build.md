@@ -35,9 +35,6 @@ the path. If not, supply `EXOMIZER=<<path to exomizer>>` and/or
 	
 # output files (all platforms)
 
-The BeebAsm output is `scr-beeb.ssd` in the root of the working copy.
-
-You can also find `build/scr-beeb.adl` (ADFS) and `build/scr-beeb.ssd`
-(DFS) - these have their files arranged to minimize seeks during
-loading.
+The output is `build/scr-beeb.adl` (ADFS) and `build/scr-beeb.ssd`
+(DFS).
 
