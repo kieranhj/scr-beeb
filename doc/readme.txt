@@ -157,7 +157,8 @@ disk in drive 4:
  *COPY :4.* @
 
 Either process wil copy the files into
-the current ADFS directory.
+the current ADFS directory. To run the
+games, *RUN !BOOT.
 
 
 TECHNICAL SUPPORT
