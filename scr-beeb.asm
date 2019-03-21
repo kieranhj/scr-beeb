@@ -1636,5 +1636,5 @@ PUTFILE "data/SUPER4.bin", "SUPER4", &0
 PUTFILE "data/MPSAVE.bin", "MPSAVE", &0
 ENDIF
 
-PUTFILE "doc/readme.txt", "Readme", &0
-PUTFILE "doc/guide.txt", "Guide", &0
+PUTTEXT "doc/readme.txt", "Readme", &0
+PUTTEXT "doc/guide.txt", "Guide", &0

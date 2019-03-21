@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import os,os.path,sys,collections,argparse,glob
+import os,os.path,sys,collections,argparse,glob,numbers
 
 # see http://mdfs.net/Docs/Comp/Disk/Format/ADFS
 
@@ -279,7 +279,7 @@ class ADFSImageBuilder:
     def image(self): return self._image
 
     def _set_le(self,arr,idx,nbytes,value):
-        assert isinstance(value,int)
+        assert isinstance(value,numbers.Number),value
         for i in range(nbytes):
             arr[idx+i]=value&0xff
             value>>=8

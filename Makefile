@@ -1,6 +1,16 @@
-PYTHON?=python
+ifeq ($(OS),Windows_NT)
+RM_RF:=-cmd /c rd /s /q
+MKDIR_P:=-cmd /c mkdir
+BEEBASM?=beebasm
+EXO?=bin\exomizer.exe
+else
+RM_RF:=rm -Rf
+MKDIR_P:=mkdir -p
 BEEBASM?=beebasm
 EXO?=exomizer
+endif
+
+PYTHON?=python
 
 ##########################################################################
 ##########################################################################
@@ -11,13 +21,6 @@ EXO_AND_ARGS=$(EXO) level -c -M256
 ##########################################################################
 ##########################################################################
 
-ifeq ($(OS),Windows_NT)
-RM_RF:=cmd /c rd /s /q
-MKDIR_P:=cmd /c mkdir
-else
-RM_RF:=rm -Rf
-MKDIR_P:=mkdir -p
-endif
 
 ##########################################################################
 ##########################################################################
@@ -51,7 +54,7 @@ build:\
 	./build/scr-beeb-hof.exo\
 	./build/track-preview.asm
 
-	mkdir -p ./build
+	$(MKDIR_P) "./build"
 	$(PYTHON) bin/flames.py > build/flames-tables.asm
 	$(PYTHON) bin/wheels.py > build/wheels-tables.asm
 	$(PYTHON) bin/hud_font.py > build/hud-font-tables.asm
@@ -59,7 +62,9 @@ build:\
 	$(PYTHON) bin/horizon_table.py
 	$(BEEBASM) -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -opt 2 -v > compile.txt
 
+ifneq ($(OS),Windows_NT)
 	cat compile.txt | grep -Evi '^\.' | grep -Evi '^    ' | grep -vi 'macro' | grep -vi 'saving file' | grep -vi 'safe to load to' | grep -Evi '^-+'
+endif
 
 	$(PYTHON) bin/crc32.py scr-beeb.ssd
 
@@ -90,7 +95,7 @@ clean:
 	./graphics/TitleScreen_BBC.png\
 	$(PNG2BBC_DEPS)
 
-	mkdir -p ./build
+	$(MKDIR_P) "./build"
 	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-title-screen.dat --160 ./graphics/TitleScreen_BBC.png 2
 	$(EXO_AND_ARGS) build/scr-beeb-title-screen.dat@0x3000 -o build/scr-beeb-title-screen.exo
 
@@ -101,7 +106,7 @@ clean:
 	./graphics/scr-beeb-menu.png\
 	$(PNG2BBC_DEPS)
 
-	mkdir -p ./build
+	$(MKDIR_P) "./build"
 	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-menu.dat --palette 0143 ./graphics/scr-beeb-menu.png 1
 	$(EXO_AND_ARGS) build/scr-beeb-menu.dat@0x4000 -o build/scr-beeb-menu.exo
 
@@ -111,7 +116,7 @@ clean:
 ./build/scr-beeb-credits.exo:\
 	./graphics/scr-beeb-credits.png
 
-	mkdir -p ./build
+	$(MKDIR_P) "./build"
 	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-credits.dat --160 ./graphics/scr-beeb-credits.png 2
 	$(EXO_AND_ARGS) build/scr-beeb-credits.dat@0x3000 -o build/scr-beeb-credits.exo
 
@@ -122,7 +127,7 @@ clean:
 	./graphics/scr-beeb-hud.png\
 	$(PNG2BBC_DEPS)
 
-	mkdir -p ./build
+	$(MKDIR_P) "./build"
 	$(PYTHON) bin/png2bbc.py --quiet -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
 
 ##########################################################################

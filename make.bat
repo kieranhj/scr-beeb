@@ -48,3 +48,4 @@ bin\exomizer.exe level -c -M256 build/scr-beeb-hof.dat@0x4000 -o build/scr-beeb-
 
 ..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -opt 2 -v > compile.txt
 %PYTHON% bin\crc32.py scr-beeb.ssd
+bin\snmake "PYTHON=%PYTHON%" disc_images

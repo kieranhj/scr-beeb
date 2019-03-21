@@ -10,9 +10,7 @@ Steps:
 
 1. Set the `PYTHON` environment variable to point to your `python.exe`
 
-2. Run `make.bat`
-
-The output is `scr-beeb.ssd` in the root of the working copy.
+2. Run `bin\snmake`
 
 # OS X/Linux
 
@@ -27,8 +25,6 @@ Steps:
 
 1. `make`
 
-The output is `scr-beeb.ssd` in the root of the working copy.
-
 ## tools not on `PATH`? ##
 
 The Makefile assumes you have appropriate `beebasm` and `exomizer` on
@@ -36,3 +32,12 @@ the path. If not, supply `EXOMIZER=<<path to exomizer>>` and/or
 `BEEBASM=<<path to beebasm>>` on the make command line. For example:
 
     make BEEBASM=~/beebasm/beebasm EXOMIZER=~/exomizer-3.0.2/src/exomizer
+	
+# output files (all platforms)
+
+The BeebAsm output is `scr-beeb.ssd` in the root of the working copy.
+
+You can also find `build/scr-beeb.adl` (ADFS) and `build/scr-beeb.ssd`
+(DFS) - these have their files arranged to minimize seeks during
+loading.
+
