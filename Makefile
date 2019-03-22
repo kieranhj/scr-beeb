@@ -235,7 +235,7 @@ tom_beeblink:
 	touch $(DEST)/ssds/0/s.scr-beeb.inf
 
 	rm -Rf $(DEST)/scr-beeb/0
-	ssd_extract --not-emacs -o $(DEST)/scr-beeb/0/ -0 ./scr-beeb.ssd
+	ssd_extract --not-emacs -o $(DEST)/scr-beeb/0/ -0 build/scr-beeb.ssd
 
 # Add files with new ASCII chars in their names.
 	touch $(DEST)/scr-beeb/0/ugh1
