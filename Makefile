@@ -84,7 +84,7 @@ disc_images:
 
 # get BeebAsm to tokenize the installer
 
-	beebasm -i data\install.asm -do build\install.ssd
+	beebasm -i data/install.asm -do build/install.ssd
 
 # extract the installer
 
