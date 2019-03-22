@@ -638,10 +638,12 @@ LDA #HI(game_start_return_here_after_brk-1):PHA
 LDA #LO(game_start_return_here_after_brk-1):PHA
 ; copy error string
 ldx #0
+ldy #1
 .loop
-LDA $102,X
+lda ($fd),y
 STA file_error_string,X
 BEQ done
+iny
 INX
 CPX #40
 BCC loop
