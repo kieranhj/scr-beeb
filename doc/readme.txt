@@ -134,8 +134,8 @@ https://github.com/simondotm/vgm-packer
 https://bitbucket.org/magli143/exomizer
 
 
-HARD DISK INSTALLATION
-----------------------
+ADFS HARD DISK INSTALLATION
+---------------------------
 Create a directory on your hard drive
 to store Stunt Car Racer, and switch to
 that directory. For example:
@@ -198,9 +198,10 @@ RELEASE NOTES
 7/3/2019 Version 1.0
 Initial release!
 
-DATE Version 1.1
+22/3/2019 Version 1.1
 - Minor documentation updates
+- Minor bug fixes & performance
+  improvements
 - Fix ADFS incompatibility
 - Version indicator (press V on
   initial instructions screen)
-- Improve *CAT output
