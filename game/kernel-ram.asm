@@ -2127,6 +2127,7 @@ equb $08						; disk device
 {
 	STX osfile_params_load_addr
 	STY osfile_params_load_addr+1
+	stz osfile_params_exec_addr	; use parameter block load address
 
 	LDX #LO(savegame_params)
 	LDY #HI(savegame_params)
@@ -2148,6 +2149,7 @@ EQUW L_AEC1
 .osfile_params_load_addr
 EQUD $FFFF
 ; file exec address
+.osfile_params_exec_addr
 EQUD 0
 ; start address or length
 .osfile_params_save_addr
