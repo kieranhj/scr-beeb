@@ -2,7 +2,7 @@ ifeq ($(OS),Windows_NT)
 CP:=copy
 RM_RF:=-cmd /c rd /s /q
 MKDIR_P:=-cmd /c mkdir
-BEEBASM?=beebasm
+BEEBASM?=bin\beebasm.exe
 EXO?=bin\exomizer.exe
 else
 CP:=cp
@@ -84,7 +84,7 @@ disc_images:
 
 # get BeebAsm to tokenize the installer
 
-	beebasm -i data/install.asm -do build/install.ssd
+	$(BEEBASM) -i data/install.asm -do build/install.ssd
 
 # extract the installer
 
