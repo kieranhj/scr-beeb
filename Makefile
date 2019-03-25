@@ -1,11 +1,9 @@
 ifeq ($(OS),Windows_NT)
-CP:=copy
 RM_RF:=-cmd /c rd /s /q
 MKDIR_P:=-cmd /c mkdir
 BEEBASM?=bin\beebasm.exe
 EXO?=bin\exomizer.exe
 else
-CP:=cp
 RM_RF:=rm -Rf
 MKDIR_P:=mkdir -p
 BEEBASM?=beebasm
@@ -79,8 +77,7 @@ endif
 .PHONY:disc_images
 disc_images:
 # generate full text of installer
-	$(CP) "data/install.txt" "build/"
-	$(PYTHON) bin/add_installer_data.py $(REQUIRED_FILES) >> "build/install.txt"
+	$(PYTHON) bin/add_installer_data.py $(REQUIRED_FILES) > "build/install.txt"
 
 # get BeebAsm to tokenize the installer
 
