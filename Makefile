@@ -210,16 +210,16 @@ b2_test:
 
 .PHONY:_b2_dfs_test
 _b2_dfs_test:
-	curl -G 'http://localhost:48075/reset/b2' --data-urlencode "config=Master 128 (MOS 3.20)"
-	curl -H 'Content-Type:application/binary' --upload-file 'scr-beeb.ssd' 'http://localhost:48075/run/b2?name=scr-beeb.ssd'
+	curl -G "http://localhost:48075/reset/b2" --data-urlencode "config=Master 128 (MOS 3.20)"
+	curl -H "Content-Type:application/binary" --upload-file "scr-beeb.ssd" "http://localhost:48075/run/b2?name=scr-beeb.ssd"
 
 ##########################################################################
 ##########################################################################
 
 .PHONY:_b2_adfs_test
 _b2_adfs_test:
-	curl -G 'http://localhost:48075/reset/b2' --data-urlencode "config=Master 128 (MOS 3.20)"
-	curl -H 'Content-Type:application/binary' --upload-file 'build/scr-beeb.adl' 'http://localhost:48075/run/b2?name=scr-beeb.adl'
+	curl -G "http://localhost:48075/reset/b2" --data-urlencode "config=Master 128 (MOS 3.20)"
+	curl -H "Content-Type:application/binary" --upload-file "build/scr-beeb.adl" "http://localhost:48075/run/b2?name=scr-beeb.adl"
 
 
 ##########################################################################
