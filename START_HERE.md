@@ -23,8 +23,8 @@ Seddon). Released game (v1.1, 2019-03).
   2026-11-22. `bin\beebasm.exe` no longer runs (missing DLL), so the Makefile's Windows `BEEBASM` default is
   now `..\..\third-party\beebasm\beebasm.exe` (beebasm 1.11). The rebuilt `build\scr-beeb.ssd` is
   byte-identical to the released v1.1 disc (`bitshifters.github.io\content\bs-scr-beeb.ssd`).
-- `make` also rewrites the tracked top-level `scr-beeb.ssd` (an intermediate committed back on 2019-03-07,
-  older than the source), so it shows as modified afterwards; `git restore scr-beeb.ssd` if you don't want it.
+- `make` also writes the tracked top-level `scr-beeb.ssd` (beebasm's intermediate disc). It was stale (2019-03-07) and was
+  recommitted from the current source on 2026-11-22, so a clean build leaves it unchanged.
   The `rd`/`mkdir` steps in `disc_images` print errors on Windows (forward slashes); they are ignored and harmless.
 - `make.bat` (older batch build) now defaults `PYTHON=py -3` and uses `..\..\third-party\beebasm\beebasm.exe`.
 - Makefile targets also include `disc_images`, `clean`, and b2 HTTP test targets (curl to localhost:48075,
