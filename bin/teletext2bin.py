@@ -5,13 +5,13 @@
 import sys
 
 if len(sys.argv) != 3:
-    print "teletext2bin.py <infile> <outfile>"
+    print("teletext2bin.py <infile> <outfile>")
     exit()
 
 infile = sys.argv[1]
 outfile = sys.argv[2]
 
-print "converting " + infile + " to " + outfile
+print("converting " + infile + " to " + outfile)
 
 fh = open(infile, 'rb')
 
@@ -23,10 +23,10 @@ for byte in ba:
         bo.append(byte)
 
 
-print "length " + str(len(bo)) + " bytes"
+print("length " + str(len(bo)) + " bytes")
 
 fh = open(outfile, 'wb')
 fh.write(bo)
 fh.close()
 
-print "Done."
+print("Done.")

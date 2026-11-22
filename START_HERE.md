@@ -19,15 +19,16 @@ Seddon). Released game (v1.1, 2019-03).
 - `doc/`, `reference/`; `Makefile` (Tom's GNU make build), `make.bat` (the older batch build); `scr-beeb.ssd` tracked
 
 ## Build and run
-- `make`: **blocked**. The Makefile is the right build (Windows-aware: `bin\beebasm.exe`,
-  `bin\exomizer.exe`) but its Python tools are **Python 2** (`print '...'`, e.g. bin/track_preview.py);
-  this machine has only Python 3. It fails at `python bin/track_preview.py`.
-- `make.bat` is also Python 2 (defaults `PYTHON=C:\Home\Python27\python.exe`) and calls
-  `..\beebasm\beebasm.exe`, a sibling folder that no longer exists (beebasm is now D:\beeb\third-party\beebasm,
-  or D:\beeb\Bin\beebasm.exe).
-- To revive: port bin/*.py to Python 3 (mostly print statements), or install Python 2.7 and run
-  `make PYTHON=<python2>`. Makefile targets also include `disc_images`, `clean`, and b2 HTTP
-  test targets (curl to localhost:48075, needs b2 running).
+- `make`: works. The Makefile is the right build; its Python tools in `bin/` were ported to Python 3 on
+  2026-11-22. `bin\beebasm.exe` no longer runs (missing DLL), so the Makefile's Windows `BEEBASM` default is
+  now `..\..\third-party\beebasm\beebasm.exe` (beebasm 1.11). The rebuilt `build\scr-beeb.ssd` is
+  byte-identical to the released v1.1 disc (`bitshifters.github.io\content\bs-scr-beeb.ssd`).
+- `make` also rewrites the tracked top-level `scr-beeb.ssd` (an intermediate committed back on 2019-03-07,
+  older than the source), so it shows as modified afterwards; `git restore scr-beeb.ssd` if you don't want it.
+  The `rd`/`mkdir` steps in `disc_images` print errors on Windows (forward slashes); they are ignored and harmless.
+- `make.bat` (older batch build) now defaults `PYTHON=py -3` and uses `..\..\third-party\beebasm\beebasm.exe`.
+- Makefile targets also include `disc_images`, `clean`, and b2 HTTP test targets (curl to localhost:48075,
+  needs b2 running). `sources/*.py` (disassembly tools) were not ported.
 - Run `scr-beeb.ssd` on a Master 128; keys in README.md.
 
 ## Local changes

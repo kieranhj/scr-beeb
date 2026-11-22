@@ -26,18 +26,18 @@ def v(str):
 ##########################################################################
 
 def get_data(xs):
-    data=""
+    data=bytearray()
     for x in xs:
-        if type(x) is int or type(x) is long:
+        if type(x) is int:
             assert x>=0 and x<=255
-            data+=chr(x)
+            data.append(x)
         elif type(x) is str:
             assert len(x)==1
-            data+=x
+            data.append(ord(x))
         else:
             assert False,(x,type(x))
 
-    return data
+    return bytes(data)
 
 ##########################################################################
 ##########################################################################
@@ -100,7 +100,7 @@ def main(options):
         if options.dir is not None:
             opt4_name=os.path.join(options.dir,'.opt4')
             if os.path.isfile(opt4_name):
-                with open(opt4_name,'rb') as f: opt4=int(f.read()[0])&3
+                with open(opt4_name,'rb') as f: opt4=int(f.read()[:1])&3
     else:
         if options.opt4<0 or options.opt4>3:
             fatal("bad *OPT4 value: %s"%options.opt4)
@@ -141,20 +141,20 @@ def main(options):
             file.bbc_name=new_bbc_name
         
         if len(file.bbc_name)<3:
-            print>>sys.stderr,'NOTE: Ignoring %s: BBC name too short: %s'%(fname,file.bbc_name)
+            print('NOTE: Ignoring %s: BBC name too short: %s'%(fname,file.bbc_name), file=sys.stderr)
             continue
         
         if file.bbc_name[1]!='.':
-            print>>sys.stderr,'NOTE: Ignoring %s: BBC name not a DFS-style name: %s'%(fname,file.bbc_name)
+            print('NOTE: Ignoring %s: BBC name not a DFS-style name: %s'%(fname,file.bbc_name), file=sys.stderr)
             continue
         
         if len(file.bbc_name)>9:
-            print>>sys.stderr,'NOTE: Ignoring %s: BBC name too long: %s'%(fname,file.bbc_name)
+            print('NOTE: Ignoring %s: BBC name too long: %s'%(fname,file.bbc_name), file=sys.stderr)
             continue
         
         if len(options.build)>0:
             if file.bbc_name.lower()=='$.!boot':
-                print>>sys.stderr,'NOTE: Ignoring specified $.!BOOT file due to --build'
+                print('NOTE: Ignoring specified $.!BOOT file due to --build', file=sys.stderr)
                 continue
 
         file.bbc_name=file.bbc_name[0]+file.bbc_name[2:] # remove '.'
@@ -184,8 +184,8 @@ def main(options):
         file.exec_=0xffffffff
         file.locked=False
 
-        file.data=''
-        for line in options.build: file.data+=line+'\r'
+        file.data=b''
+        for line in options.build: file.data+=(line+'\r').encode('latin-1')
 
         files.append(file)
 
@@ -259,7 +259,7 @@ def main(options):
 
     v("%d sectors on disc\n"%len(sectors))
 
-    image="".join([get_data(x) for x in sectors])
+    image=b"".join([get_data(x) for x in sectors])
 
     v("%d bytes in disc image\n"%len(image))
 
@@ -267,10 +267,10 @@ def main(options):
         with open(options.output_fname,"wb") as f: f.write(image)
         
     if len(renamed)!=len(renames):
-        print>>sys.stderr,'WARNING: Some renames were redundant:'
-        for key,val in renames.iteritems():
+        print('WARNING: Some renames were redundant:', file=sys.stderr)
+        for key,val in renames.items():
             if key not in renamed:
-                print>>sys.stderr,'    %s -> %s'%(key,val)
+                print('    %s -> %s'%(key,val), file=sys.stderr)
 
 ##########################################################################
 ##########################################################################

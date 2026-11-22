@@ -5,7 +5,7 @@ import os,sys,bbc,argparse
 ##########################################################################
 
 def load_file(path):
-    with open(path,'rb') as f: return [ord(x) for x in f.read()]
+    with open(path,'rb') as f: return list(bytearray(f.read()))
 
 ##########################################################################
 ##########################################################################
@@ -38,11 +38,11 @@ def create_engine_redraw_tables(hud,
 
     for i in range(len(values)): values[i]&=~masks[i]
 
-    print '.engine_%s_masks'%side
-    print equb(masks)
+    print('.engine_%s_masks'%side)
+    print(equb(masks))
 
-    print '.engine_%s_values'%side
-    print equb(values)
+    print('.engine_%s_values'%side)
+    print(equb(values))
 
 ##########################################################################
 ##########################################################################
@@ -63,13 +63,13 @@ def create_wheel_side_tables(side,images):
 
         for i in range(len(masks)): values[i]&=~masks[i]
 
-        print '.wheel_%s_%d_data'%(side,frame)
-        print '; masks'
-        print equb(masks)
-        print 'IF P%%<>wheel_%s_%d_data+wheel_data_size:ERROR "oops":ENDIF'%(side,frame)
-        print '; values'
-        print equb(values)
-        print 'IF P%%<>wheel_%s_%d_data+wheel_data_size*2:ERROR "oops":ENDIF'%(side,frame)
+        print('.wheel_%s_%d_data'%(side,frame))
+        print('; masks')
+        print(equb(masks))
+        print('IF P%%<>wheel_%s_%d_data+wheel_data_size:ERROR "oops":ENDIF'%(side,frame))
+        print('; values')
+        print(equb(values))
+        print('IF P%%<>wheel_%s_%d_data+wheel_data_size*2:ERROR "oops":ENDIF'%(side,frame))
 
 def create_wheel_tables():
     # Load wheel sprites.
@@ -111,10 +111,10 @@ def create_wheel_tables():
     wheel_end_sprite_y=19*8+50  # in VIC sprite coordinates
     hud_bottom_sprite_y=20*8+50  # in VIC sprite coordinates
 
-    print 'wheel_data_size=%d'%(len(images[0])*3)
-    print 'wheel_min_sprite_y=%d'%wheel_min_sprite_y
-    print 'wheel_end_sprite_y=%d'%wheel_end_sprite_y
-    print 'hud_bottom_sprite_y=%d'%hud_bottom_sprite_y
+    print('wheel_data_size=%d'%(len(images[0])*3))
+    print('wheel_min_sprite_y=%d'%wheel_min_sprite_y)
+    print('wheel_end_sprite_y=%d'%wheel_end_sprite_y)
+    print('hud_bottom_sprite_y=%d'%hud_bottom_sprite_y)
 
     create_wheel_side_tables('left',images[0:3])
     create_wheel_side_tables('right',images[3:6])
@@ -134,11 +134,11 @@ def create_wheel_tables():
         else:
             addrs.append(0x4020+get_offset(0,screen_y))
 
-    print '.wheel_row_ptrs_LO'
-    print equb([addr&0xff for addr in addrs])
+    print('.wheel_row_ptrs_LO')
+    print(equb([addr&0xff for addr in addrs]))
 
-    print '.wheel_row_ptrs_HI'
-    print equb([addr>>8 for addr in addrs])
+    print('.wheel_row_ptrs_HI')
+    print(equb([addr>>8 for addr in addrs]))
         
 ##########################################################################
 ##########################################################################
@@ -156,10 +156,10 @@ def main(options):
     create_wheel_tables()
 
     left_addr=19*320+6+32
-    print 'hud_left_corner_byte=$%02x'%(hud[left_addr]&~hud_mask[left_addr])
+    print('hud_left_corner_byte=$%02x'%(hud[left_addr]&~hud_mask[left_addr]))
 
     right_addr=left_addr+248
-    print 'hud_right_corner_byte=$%02x'%(hud[right_addr]&~hud_mask[right_addr])
+    print('hud_right_corner_byte=$%02x'%(hud[right_addr]&~hud_mask[right_addr]))
 
 
 

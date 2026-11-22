@@ -197,7 +197,7 @@ def isarray(x):
 
 
 def tostring(row):
-    return row.tostring()
+    return row.tobytes()
 
 
 def interleave_planes(ipixels, apixels, ipsize, apsize):
@@ -1331,7 +1331,7 @@ class _readable:
     def read(self, n):
         r = self.buf[self.offset: self.offset + n]
         if isarray(r):
-            r = r.tostring()
+            r = r.tobytes()
         self.offset += n
         return r
 

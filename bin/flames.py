@@ -5,7 +5,7 @@ import png,argparse,sys,math,bbc,collections,os
 ##########################################################################
 
 def load_file(path):
-    with open(path,'rb') as f: return [ord(x) for x in f.read()]
+    with open(path,'rb') as f: return list(bytearray(f.read()))
 
 ##########################################################################
 ##########################################################################
@@ -137,14 +137,14 @@ def main(options):
             assert writes_by_addr[write.addr][frame] is None
             writes_by_addr[write.addr][frame]=write
 
-    print>>sys.stderr,len(masks_by_addr)
+    print(len(masks_by_addr), file=sys.stderr)
 
     msbs={}
     for addr in masks_by_addr.keys(): msbs[addr>>8]=msbs.get(addr>>8,0)+1
-    print>>sys.stderr,msbs
+    print(msbs, file=sys.stderr)
 
     masked_addrs=set()
-    for addr,mask in masks_by_addr.iteritems():
+    for addr,mask in masks_by_addr.items():
         if mask!=0: masked_addrs.add(addr)
 
     unmasked_addrs=[x for x in masks_by_addr.keys() if x not in masked_addrs]
@@ -152,50 +152,50 @@ def main(options):
     unmasked_addrs=sorted(list(unmasked_addrs))
     masked_addrs=sorted(list(masked_addrs))
 
-    print>>sys.stderr,'%d %d'%(len(masked_addrs),len(unmasked_addrs))
+    print('%d %d'%(len(masked_addrs),len(unmasked_addrs)), file=sys.stderr)
 
-    print 'flames_initial_masked_write_addr=$%04x'%(0x4000+masked_addrs[0])
-    print 'flames_initial_unmasked_write_addr=$%04x'%(0x4000+unmasked_addrs[0])
+    print('flames_initial_masked_write_addr=$%04x'%(0x4000+masked_addrs[0]))
+    print('flames_initial_unmasked_write_addr=$%04x'%(0x4000+unmasked_addrs[0]))
 
-    print 'flames_unmasked_writes_size=%d'%len(unmasked_addrs)
-    print 'flames_masked_writes_size=%d'%len(masked_addrs)
+    print('flames_unmasked_writes_size=%d'%len(unmasked_addrs))
+    print('flames_masked_writes_size=%d'%len(masked_addrs))
 
     for frame in range(3):
-        print '.flames_unmasked_values_%d'%frame
+        print('.flames_unmasked_values_%d'%frame)
 
         for addr in unmasked_addrs:
             write=writes_by_addr[addr][frame]
             if write is None:
-                print '    equb $%02x ; +$%04x (from HUD)'%(hud[addr],addr)
+                print('    equb $%02x ; +$%04x (from HUD)'%(hud[addr],addr))
             else:
                 assert write.mask==0
-                print '    equb $%02x ; +$%04x'%(write.value,addr)
+                print('    equb $%02x ; +$%04x'%(write.value,addr))
 
-        print '.flames_masked_masks_%d'%frame
+        print('.flames_masked_masks_%d'%frame)
 
         for addr in masked_addrs:
             write=writes_by_addr[addr][frame]
             if write is None: mask=255
             else: mask=write.mask
-            print '    equb $%02x ; +$%04x'%(mask,addr)
+            print('    equb $%02x ; +$%04x'%(mask,addr))
 
-        print '.flames_masked_values_%d'%frame
+        print('.flames_masked_values_%d'%frame)
 
         for addr in masked_addrs:
             write=writes_by_addr[addr][frame]
             if write is None: value=0
             else: value=write.value
-            print '    equb $%02x ; +$%04x'%(value,addr)
+            print('    equb $%02x ; +$%04x'%(value,addr))
             
-    print '.flames_unmasked_deltas'
+    print('.flames_unmasked_deltas')
     for i in range(1,len(unmasked_addrs)):
-        print '    equb $%02x'%(unmasked_addrs[i]-unmasked_addrs[i-1])
-    print '    equb 0'
+        print('    equb $%02x'%(unmasked_addrs[i]-unmasked_addrs[i-1]))
+    print('    equb 0')
 
-    print '.flames_masked_deltas'
+    print('.flames_masked_deltas')
     for i in range(1,len(masked_addrs)):
-        print '    equb $%02x'%(masked_addrs[i]-masked_addrs[i-1])
-    print '    equb 0'
+        print('    equb $%02x'%(masked_addrs[i]-masked_addrs[i-1]))
+    print('    equb 0')
 
     erase_addrs=sorted(masked_addrs+unmasked_addrs)
     for i in range(len(erase_addrs)):
@@ -203,17 +203,17 @@ def main(options):
             del erase_addrs[0:i]
             break
 
-    print 'flames_erase_writes_size=%d'%len(erase_addrs)
-    print 'flames_initial_erase_addr=$%04x'%(0x4000+erase_addrs[0])
+    print('flames_erase_writes_size=%d'%len(erase_addrs))
+    print('flames_initial_erase_addr=$%04x'%(0x4000+erase_addrs[0]))
 
-    print '.flames_erase_values'
+    print('.flames_erase_values')
     for addr in erase_addrs:
-        print '    equb $%02x ; +$%04x'%(hud[addr],addr)
+        print('    equb $%02x ; +$%04x'%(hud[addr],addr))
 
-    print '.flames_erase_deltas'
+    print('.flames_erase_deltas')
     for i in range(1,len(erase_addrs)):
-        print '    equb $%02x'%(erase_addrs[i]-erase_addrs[i-1])
-    print '    equb 0'
+        print('    equb $%02x'%(erase_addrs[i]-erase_addrs[i-1]))
+    print('    equb 0')
     
 
 ##########################################################################

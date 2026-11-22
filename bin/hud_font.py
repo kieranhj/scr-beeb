@@ -115,24 +115,24 @@ def main():
             ___,]
            ]
 
-    print '.hud_font'
+    print('.hud_font')
     for i in range(len(chars)):
         values=[]
-        print 'hud_font_char_%s=P%%-hud_font'%char_names[i]
+        print('hud_font_char_%s=P%%-hud_font'%char_names[i])
         for row in range(5,-1,-1):
             assert len(chars[i])==6
             assert chars[i][row]>=0 and chars[i][row]<=7
             values.append(chars[i][row])
             
-        print 'equb %s'%(','.join(['%%%s'%(binstr(x)[-3:]) for x in values]),)
+        print('equb %s'%(','.join(['%%%s'%(binstr(x)[-3:]) for x in values]),))
 
     def table(suffix,masks):
-        print '.hud_font_%s'%suffix
+        print('.hud_font_%s'%suffix)
         values=[]
         for i in range(8):
             pixels=[0 if (i&masks[j])!=0 else 3 for j in range(4)]
             values.append(bbc.pack_2bpp(pixels))
-        print 'equb %s'%(','.join(['$%02x'%x for x in values]))
+        print('equb %s'%(','.join(['$%02x'%x for x in values])))
 
     table('shift0',[4,2,1,0])
 
@@ -144,6 +144,6 @@ def main():
     table('shift3_a',[0,0,0,4])
     table('shift3_b',[2,1,0,0])
 
-    print 'hud_font_stride=%d'%(len(chars),)
+    print('hud_font_stride=%d'%(len(chars),))
     
 if __name__=='__main__': main()

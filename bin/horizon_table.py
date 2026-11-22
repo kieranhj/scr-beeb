@@ -23,7 +23,7 @@ def main():
         ys+=chr(y)
 
     # easier to test on BBC...
-    with open('./build/default_horizon_table.bin','wb') as f: f.write(ys)
+    with open('./build/default_horizon_table.bin','wb') as f: f.write(ys.encode('latin-1'))
 
 ##########################################################################
 ##########################################################################

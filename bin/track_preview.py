@@ -21,15 +21,15 @@ def pack(image,x,y,w,h):
             for scanline in range(0,8):
                 data.append(bbc.pack_2bpp(image[y+dy+scanline][x+dx:x+dx+4]))
 
-    return ''.join([chr(x) for x in data])
+    return bytes(bytearray(data))
 
 def pucrunch(path,options):
     cmd='"%s" -5 -d -c0 -l0x1000 "%s" "%s.pu"'%(options.pucrunch,
                                                 path,
                                                 path)
-    print>>sys.stderr,'%s'%cmd
+    print('%s'%cmd, file=sys.stderr)
     if os.system(cmd)!=0:
-        print>>sys.stderr,'FAILED: %s'%cmd
+        print('FAILED: %s'%cmd, file=sys.stderr)
         sys.exit(1)
         
 def main(options):
@@ -84,7 +84,7 @@ def main(options):
     with open(path,'wb') as f:
         f.write(pack(image,0,0,len(image[0]),len(image)))
 
-    print 'track_preview_bg_height=%d'%bg_height
+    print('track_preview_bg_height=%d'%bg_height)
 
     # Merge track preview background and HUD, so there's just one block to
     # unpack, that can overwrite the HUD.
@@ -93,7 +93,7 @@ def main(options):
     # decompress, compared to 352 bytes, plus a little loop, and a
     # table, to carefully unpack each row of the background into the
     # right place without touching anything.)
-    bg2=''
+    bg2=b''
     for row in range((bg_height+7)//8):
         i=0x280+row*320
         bg2+=hud[i:i+32]

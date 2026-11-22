@@ -57,7 +57,7 @@ class Disc:
         self.num_sides=num_sides
         self.num_tracks=num_tracks
         self.num_sectors=num_sectors
-        self.data=[ord(x) for x in data]
+        self.data=list(bytearray(data))
 
     def read(self,
              side,
@@ -162,10 +162,10 @@ def main(options):
         else: pc_folder=os.path.join(dest_dir,"%d"%drive)
 
         if title!='':
-            with mkdir_and_open(os.path.join(pc_folder,'.title'),'wt') as f: print>>f,title
+            with mkdir_and_open(os.path.join(pc_folder,'.title'),'wt') as f: print(title, file=f)
 
         if option!=0:
-            with mkdir_and_open(os.path.join(pc_folder,'.opt4'),'wt') as f: print>>f,option
+            with mkdir_and_open(os.path.join(pc_folder,'.opt4'),'wt') as f: print(option, file=f)
 
         for file_idx in range(num_files):
             offset=8+file_idx*8
@@ -198,10 +198,10 @@ def main(options):
             # Grab contents of this file
             contents=[]
             for i in range(length):
-                byte_sector=start+i/256
+                byte_sector=start+i//256
                 byte_offset=i%256
                 
-                contents.append(image.read(side,byte_sector/10,byte_sector%10,byte_offset))
+                contents.append(image.read(side,byte_sector//10,byte_sector%10,byte_offset))
 
             # Does it look like it could be a BASIC program?
             basic=False
@@ -238,7 +238,7 @@ def main(options):
                                                          load,
                                                          exec_,
                                                          length,
-                                                         start/10,
+                                                         start//10,
                                                          start%10,
                                                          " (BASIC)" if basic else ""))
 
@@ -249,13 +249,13 @@ def main(options):
             pc_path=os.path.join(pc_folder,pc_name)
             
             with mkdir_and_open(pc_path+'.inf','wt') as f:
-                print>>f,'%s.%s %08x %08x %s'%(dir,
+                print('%s.%s %08x %08x %s'%(dir,
                                                name,
                                                load,
                                                exec_,
-                                               locked_str)
+                                               locked_str), file=f)
                 
-            with mkdir_and_open(pc_path,"wb") as f: f.write(contents_str)
+            with mkdir_and_open(pc_path,"wb") as f: f.write(contents_str.encode("latin-1"))
 
             # Write PC copy.
             if basic:
@@ -276,7 +276,7 @@ def main(options):
                             for i in range(len(wrapped)):
                                 if i==0: prefix=num_text
                                 else: prefix=" "*len(num_text)
-                                print>>f,"%s%s"%(prefix,wrapped[i])
+                                print("%s%s"%(prefix,wrapped[i]), file=f)
 
 ##########################################################################
 ##########################################################################

@@ -143,15 +143,15 @@ def get_file_address(addr_str):
 
 def create_beeb_file(fname,inf_data):
     if len(inf_data[0])<3:
-        print>>sys.stderr,'NOTE: Ignoring %s: BBC name too short: %s'%(fname,inf_data[0])
+        print('NOTE: Ignoring %s: BBC name too short: %s'%(fname,inf_data[0]), file=sys.stderr)
         return None
         
     if inf_data[0][1]!='.':
-        print>>sys.stderr,'NOTE: Ignoring %s: BBC name not a DFS-style name: %s'%(fname,inf_data[0])
+        print('NOTE: Ignoring %s: BBC name not a DFS-style name: %s'%(fname,inf_data[0]), file=sys.stderr)
         return None
         
     if len(inf_data[0])>12:
-        print>>sys.stderr,'NOTE: Ignoring %s: BBC name too long: %s'%(fname,inf_data[0])
+        print('NOTE: Ignoring %s: BBC name too long: %s'%(fname,inf_data[0]), file=sys.stderr)
         return None
 
     locked=False
@@ -337,7 +337,7 @@ class ADFSImageBuilder:
         
         file_sector_idx=len(self._sectors)
         
-        data=[ord(x) for x in f.data]
+        data=list(bytearray(f.data))
         while len(data)%256!=0: data.append(0)
         for i in range(0,len(data),256): self._add_sector(data[i:i+256])
         
@@ -377,8 +377,7 @@ class ADFSImageBuilder:
 
             # presumably sequence number can be left at zero?
 
-        entries.sort(lambda a,b:cmp(a.item.name.upper(),
-                                    b.item.name.upper()))
+        entries.sort(key=lambda a:a.item.name.upper())
 
         # fill out catalogue as flat array of 5 sectors of data.
         data=[
@@ -424,7 +423,7 @@ g_adfs_formats={
 def get_formats_text():
     formats=[]
 
-    for k,v in g_adfs_formats.iteritems():
+    for k,v in g_adfs_formats.items():
         formats.append('%s (%dx%dx%d)'%(k,
                                         v.num_sides,
                                         v.num_tracks,
@@ -460,7 +459,7 @@ def main(options):
             opt4_path=os.path.join(options.dir,'.opt4')
             if os.path.isfile(opt4_path):
                 with open(opt4_path,'rb') as f:
-                    options.opt4=int(f.read()[0])&3
+                    options.opt4=int(f.read()[:1])&3
         if options.opt4 is None: options.opt4=0
     else:
         if options.opt4<0 or options.opt4>3:
@@ -469,7 +468,7 @@ def main(options):
                 
     # Disk identifier.
     if options.disk_id is None:
-        options.disk_id=ord(os.urandom(1))|ord(os.urandom(1))<<8
+        options.disk_id=os.urandom(1)[0]|os.urandom(1)[0]<<8
     else:
         if options.disk_id<0 or options.disk_id>65536:
             fatal('invalid disk identifier: 0x%04x'%(options.disk_id))
@@ -507,7 +506,7 @@ def main(options):
                                               format.num_sectors)+
                                         track*format.num_sectors+
                                         sector]
-        data=''.join([chr(x) for x in data])
+        data=bytes(bytearray(data))
         with open(options.output_path,'wb') as f: f.write(data)
 
 ##########################################################################

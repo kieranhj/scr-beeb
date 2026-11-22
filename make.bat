@@ -1,5 +1,5 @@
 @echo off
-if "%PYTHON%"=="" set PYTHON=C:\Home\Python27\python.exe
+if "%PYTHON%"=="" set PYTHON=py -3
 
 %PYTHON% bin/png2bbc.py --quiet -o build/scr-beeb-hud.dat -m build/scr-beeb-hud-mask.dat --160 --palette 0143 --transparent-output 3 --transparent-rgb 255 0 255 ./graphics/scr-beeb-hud.png 5
 
@@ -46,6 +46,6 @@ bin\exomizer.exe level -c -M256 build/scr-beeb-hof.dat@0x4000 -o build/scr-beeb-
     echo No crunch.
 )
 
-..\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -opt 2 -v > compile.txt
+..\..\third-party\beebasm\beebasm.exe -i scr-beeb.asm -do scr-beeb.ssd -title "Stunt Car" -opt 2 -v > compile.txt
 %PYTHON% bin\crc32.py scr-beeb.ssd
 bin\snmake "PYTHON=%PYTHON%" disc_images

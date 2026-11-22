@@ -132,7 +132,7 @@ transparent.
             row=[]
             for x in range(0,len(pixels[y]),2):
                 if pixels[y][x+0]!=pixels[y][x+1]:
-                    print>>sys.stderr,'pixel at (%d,%d) is different from pixel at (%d,%d)'%(x+0,y,x+1,y)
+                    print('pixel at (%d,%d) is different from pixel at (%d,%d)'%(x+0,y,x+1,y), file=sys.stderr)
                     good=False
 
                 row.append(pixels[y][x+0])
@@ -160,7 +160,7 @@ transparent.
                     if p[i]!=0 and p[i]!=255:
                         p=find_closest_rgb(p)
                         if print_warnings:
-                            print>>sys.stderr,'Non-BBC Micro colour %s at (%d,%d) - using %s'%(pixels[y][x],x,y,p)
+                            print('Non-BBC Micro colour %s at (%d,%d) - using %s'%(pixels[y][x],x,y,p), file=sys.stderr)
                         break
 
                 pidx=rgbs.index((p[0],p[1],p[2]))
