@@ -1,8 +1,8 @@
 ifeq ($(OS),Windows_NT)
 RM_RF:=-cmd /c rd /s /q
 MKDIR_P:=-cmd /c mkdir
-# bin\beebasm.exe no longer runs (missing DLL); use beebasm 1.11 from D:\beeb\third-party.
-BEEBASM?=..\..\third-party\beebasm\beebasm.exe
+# bin\beebasm.exe no longer runs (missing DLL); use beebasm 1.11 from D:\tools\beeb\Bin.
+BEEBASM?=..\..\Bin\beebasm.exe
 EXO?=bin\exomizer.exe
 else
 RM_RF:=rm -Rf
